@@ -1,15 +1,8 @@
 Django==1.4.3
-Pygments==1.5
-South==0.7.6
-argparse==1.2.1
 cx-Oracle==5.1.2
 django-braces==0.2.2
 django-crispy-forms==1.2.3
 django-debug-toolbar==0.9.4
-django-filter==0.5.4
-django-floppyforms==1.0
-django-oraclepool2==0.9.2
 gunicorn==0.16.1
-pudb==2012.3
 urwid==1.1.1
 wsgiref==0.1.2
