@@ -1,0 +1,12 @@
+
+
+Run the gunicorn server with :
+
+python manage.py run_gunicorn -w 10 -p gunicorn.pid -D -b 127.0.0.1:8001
+
+This application requires the following environment variables to be set:
+
+DJANGO_DB_HOST
+DJANGO_DB_PORT
+DJANGO_DB_PASSWORD
+
