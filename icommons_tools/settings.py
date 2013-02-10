@@ -1,4 +1,5 @@
 # Django settings for icommons_tools project.
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -14,11 +15,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'ISITEDEV',
         'USER': 'coursemanager',
-        'PASSWORD': 'changeme',
-        'HOST': '',
-        'PORT': '',
-        #'HOST': 'icd3.isites.harvard.edu',
-        #'PORT': '8103',
+        'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
+        'HOST': os.environ['DJANGO_DB_HOST'],
+        'PORT': os.environ['DJANGO_DB_PORT'],
         'OPTIONS': {
             'threaded': True,
         },
