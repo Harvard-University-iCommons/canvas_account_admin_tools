@@ -1,0 +1,19 @@
+{% extends "term_tool/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Term Detail{% endblock %}
+{% block pagetitle %}Term Detail{% endblock %}
+
+
+{% block content %}
+{% if term %}
+
+<h2>{{term.display_name}}</h2>
+
+<a href="{% url tt:termedit pk=term.term_id %}">Edit</a>
+
+{% endif %}
+{% endblock %}
+

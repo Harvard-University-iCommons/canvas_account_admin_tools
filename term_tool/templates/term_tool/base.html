@@ -1,0 +1,93 @@
+{% load crispy_forms_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{% block title %}page title{% endblock %}</title>
+
+	<link href="{% get_static_prefix %}bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
+  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
+  <link href="{% get_static_prefix %}Font-Awesome/css/font-awesome.css" rel="stylesheet" media="screen">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{% get_static_prefix %}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+
+</head>
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">Term Tool</a>
+          
+<ul class="nav pull-right">
+{% if user.username %}
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+      <i class="icon-user"></i> {{ user.email }}
+      <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a href="{% url tt:logout %}"><i class="icon-signout"></i> sign out</a></li>
+    </ul>
+  </li>
+{% endif %}
+</ul>
+
+
+
+        </div>
+      </div>
+    </div>	
+
+  <div class="container">
+    {% block breadcrumb %}{% endblock %}
+
+  </div>
+
+	<div class="container">
+		{% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          {% if message.tags == 'success' %}
+            <i class="icon-ok icon-large"></i>
+          {% endif %}
+          {{ message }}
+        </div>
+      {% endfor %}
+
+		{% endif %}
+
+		<div class="well">
+			<h1>{% block pagetitle %}{% endblock %}</h1>
+			{% block content %}{% endblock %}
+		</div>
+
+	</div>
+
+
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<script src="{% get_static_prefix %}bootstrap/js/bootstrap.min.js"></script>
+	<script src="{% get_static_prefix %}bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+
+	<script>
+    	$('.dateinput').datepicker( {format:'yyyy-mm-dd', autoclose:true} )
+	</script>
+
+</body>
+</html>
+
+<!-- page header -->
+

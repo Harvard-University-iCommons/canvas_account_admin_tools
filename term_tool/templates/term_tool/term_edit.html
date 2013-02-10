@@ -1,0 +1,33 @@
+{% extends "term_tool/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Edit Term {{ term.term_id }}{% endblock %}
+{% block pagetitle %}Edit Term {{ term.term_id }}{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url tt:schoollist %}">Schools</a> <span class="divider">/</span></li>
+    <li><a href="{% url tt:termlist school_id=object.school_id%}">{{ object.school_id|upper }} Terms</a> <span class="divider">/</span></li>
+    <li class="active"><a href="#">Edit Term {{ term.term_id }}</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+
+<h2>{{ term.school_id|upper }} / {{ term.academic_year }} / {{ term.term_code.term_code }} ({{ term.term_code }})</h2>
+
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <input type="submit" class="btn btn-primary"/>
+    <a href="{% url tt:termlist school_id=object.school_id %}" class="btn btn-link">cancel</a>
+</form>
+<p>
+    * required
+</p>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "term_tool/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}{{ school.school_id|upper }} Terms{% endblock %}
+{% block pagetitle %}{{ school.school_id|upper }} Terms{% endblock %}
+
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url tt:schoollist %}">Schools</a> <span class="divider">/</span></li>
+    <li class="active"><a href="#">{{ school.school_id|upper }} Terms</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+{% if term_list %}
+
+<a href="{% url tt:termcreate school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Display Name</th>
+            <th>Academic Year</th>
+            <th>Start Date</th>
+            <th>End Date</th> 
+            <th>Xreg Start Date</th>
+            <th>Xreg End Date</th> 
+        </tr>
+    </thead>
+    <tbody>
+    {% for term in term_list %}
+        {% if term.start_date == None or term.end_date == None or term.xreg_start_date == None or term.xreg_end_date == None %}
+            <tr class="error">
+        {% else %}
+            <tr>
+        {% endif %}
+            <td>
+                <a href="{% url tt:termedit pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
+            </td>
+            <td>
+                {{ term.academic_year }}
+            </td>
+            <td>
+                {{ term.start_date }}
+            </td>
+            <td>
+                {{ term.end_date }}
+            </td>
+            <td>
+                {{ term.xreg_start_date }}
+            </td>
+            <td>
+                {{ term.xreg_end_date }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+
+
+{% endif %}
+
+<div class="pagination pagination-centered">
+    <ul>
+        {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="icon-chevron-left"></i> </a></li>
+        {% else %}
+        <li class="disabled"><a href="#"> <i class="icon-chevron-left"></i> </a></li>
+        {% endif %}
+
+        {% for page_num in paginator.page_range %}
+        <li {% if page_num == page_obj.number%} class="disabled" {% endif %}>
+            <a href="?page={{ page_num }}">{{ page_num }}</a>
+        </li>
+
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}"> <i class="icon-chevron-right"></i> </a></li>
+        {% else %}
+            <li class="disabled"><a href="#"> <i class="icon-chevron-right"></i> </a></li>
+        {% endif %}
+
+    </ul>
+
+</div>
+
+{% endblock %}
