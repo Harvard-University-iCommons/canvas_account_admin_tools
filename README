@@ -9,4 +9,6 @@ This application requires the following environment variables to be set:
 DJANGO_DB_HOST
 DJANGO_DB_PORT
 DJANGO_DB_PASSWORD
+DJANGO_DB_SID
+DJANGO_DB_USER
 
