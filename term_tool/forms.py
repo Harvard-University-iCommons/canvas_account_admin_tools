@@ -1,6 +1,6 @@
 from django import forms
 #import floppyforms as forms
-from icommons_common_data.models import Term,TermCode,School
+from icommons_common.models import Term,TermCode,School
 
 
 class EditTermForm(forms.ModelForm):

@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from icommons_common_data.models import *
+from icommons_common.models import *
 from term_tool.forms import EditTermForm, CreateTermForm
 
 ### Mixins:
