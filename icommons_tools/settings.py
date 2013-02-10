@@ -13,8 +13,8 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'ISITEDEV',
-        'USER': 'coursemanager',
+        'NAME': os.environ['DJANGO_DB_SID'],
+        'USER': os.environ['DJANGO_DB_USER'],
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
         'HOST': os.environ['DJANGO_DB_HOST'],
         'PORT': os.environ['DJANGO_DB_PORT'],
