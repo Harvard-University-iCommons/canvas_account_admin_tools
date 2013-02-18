@@ -1,8 +1,31 @@
 # Django settings for icommons_tools project.
 import os
 
+from os.path import abspath, basename, dirname, join, normpath
+from sys import path
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+### Path stuff as recommended by Two Scoops / with local mods
+
+# Absolute filesystem path to the Django project config directory:
+# (this is the directory where this file resides)
+DJANGO_PROJECT_CONFIG = dirname(abspath(__file__))
+
+# Absolute filesystem path to the top-level project folder:
+# (this is one directory up from the project config directory)
+SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
+
+# Site name:
+SITE_NAME = basename(SITE_ROOT)
+
+# Add our project to our pythonpath, this way we don't need to type our project
+# name in our dotted import paths:
+path.append(SITE_ROOT)
+
+### End path stuff
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -61,6 +84,15 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = ''
+#STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+def get_static_root():
+    try:
+        return os.environ['STATIC_ROOT']
+    except KeyError:
+        error_msg = "STATIC_ROOT env var not specified."
+
+#STATIC_ROOT = get_static_root()
+
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -71,7 +103,10 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    normpath(join(SITE_ROOT, 'static')),
 )
+
+
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -92,11 +127,13 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -126,6 +163,7 @@ INSTALLED_APPS = (
     'term_tool',
     'gunicorn',
     'crispy_forms',
+    'debug_toolbar',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -156,3 +194,7 @@ LOGGING = {
         },
     }
 }
+
+# For Django Debug Toolbar:
+INTERNAL_IPS = ('127.0.0.1','10.0.2.2',)
+
