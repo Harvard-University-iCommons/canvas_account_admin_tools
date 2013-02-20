@@ -1,4 +1,4 @@
-Django==1.4.3
+Django==1.4.4
 cx-Oracle==5.1.2
 django-braces==0.2.2
 django-crispy-forms==1.2.3
