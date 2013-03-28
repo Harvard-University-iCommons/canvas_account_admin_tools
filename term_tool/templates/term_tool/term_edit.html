@@ -8,8 +8,8 @@
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
-    <li><a href="{% url tt:schoollist %}">Schools</a> <span class="divider">/</span></li>
-    <li><a href="{% url tt:termlist school_id=object.school_id%}">{{ object.school_id|upper }} Terms</a> <span class="divider">/</span></li>
+    <li><a href="{% url "tt:schoollist" %}">Schools</a> <span class="divider">/</span></li>
+    <li><a href="{% url "tt:termlist" school_id=object.school_id%}">{{ object.school_id|upper }} Terms</a> <span class="divider">/</span></li>
     <li class="active"><a href="#">Edit Term {{ term.term_id }}</a></li>
 </ul>
 {% endblock %}
@@ -25,7 +25,7 @@
     {{ form|crispy }}
 
     <input type="submit" class="btn btn-primary"/>
-    <a href="{% url tt:termlist school_id=object.school_id %}" class="btn btn-link">cancel</a>
+    <a href="{% url "tt:termlist" school_id=object.school_id %}" class="btn btn-link">cancel</a>
 </form>
 <p>
     * required

@@ -12,7 +12,7 @@
 
 <h2>{{term.display_name}}</h2>
 
-<a href="{% url tt:termedit pk=term.term_id %}">Edit</a>
+<a href="{% url "tt:termedit" pk=term.term_id %}">Edit</a>
 
 {% endif %}
 {% endblock %}

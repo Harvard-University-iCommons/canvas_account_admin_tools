@@ -9,7 +9,7 @@
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
-    <li><a href="{% url tt:schoollist %}">Schools</a> <span class="divider">/</span></li>
+    <li><a href="{% url "tt:schoollist" %}">Schools</a> <span class="divider">/</span></li>
     <li class="active"><a href="#">{{ school.school_id|upper }} Terms</a></li>
 </ul>
 {% endblock %}
@@ -18,7 +18,7 @@
 {% block content %}
 {% if term_list %}
 
-<a href="{% url tt:termcreate school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
+<a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -38,7 +38,7 @@
             <tr>
         {% endif %}
             <td>
-                <a href="{% url tt:termedit pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
+                <a href="{% url "tt:termedit" pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
             </td>
             <td>
                 {{ term.academic_year }}

@@ -17,7 +17,7 @@
 {% if school_list %}
 <table class="table">
 	{% for school in school_list %}
-		<tr><td>{{ school.school_id|upper }}</td><td><a href="{% url tt:termlist school_id=school.school_id %}"> {{ school.title_short }}</a></td></tr>
+		<tr><td>{{ school.school_id|upper }}</td><td><a href="{% url "tt:termlist" school_id=school.school_id %}"> {{ school.title_short }}</a></td></tr>
 	{% endfor %}
 </table>
 

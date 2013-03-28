@@ -9,7 +9,7 @@ Your username and password didn't match. Please try again.
 </div>
 {% endif %}
 
-<form class="form-signin" method="post" action="{% url tt:login %}">
+<form class="form-signin" method="post" action="{% url "tt:login" %}">
 {% csrf_token %}
 <h2 class="form-signin-heading">Please sign in</h2>
 
