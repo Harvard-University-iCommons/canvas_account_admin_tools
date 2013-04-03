@@ -12,11 +12,5 @@ urlpatterns = patterns('',
 
     url(r'^term/new/(?P<school_id>\w+)$', TermCreateView.as_view(), name='termcreate'),
 
-    url(r'^logout$', 'term_tool.views.logout_view', name='logout'),
-
-    url(r'^login$', 'django.contrib.auth.views.login', {'template_name': 'term_tool/login.html'}, name='login'),
-
-    url(r'^logged_out$', 'term_tool.views.logged_out_view', name='logged_out'),
-
 )
 
