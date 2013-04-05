@@ -20,7 +20,7 @@
 <h2>{{ term.school_id|upper }} / {{ term.academic_year }} / {{ term.term_code.term_code }} ({{ term.term_code }})</h2>
 
 
-<form action="" method="POST">
+<form action="" method="POST" class="form-horizontal">
     {% csrf_token %}
     {{ form|crispy }}
 

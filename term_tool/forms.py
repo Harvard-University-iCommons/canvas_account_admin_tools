@@ -9,16 +9,22 @@ class EditTermForm(forms.ModelForm):
     class Meta:
         model = Term
 
+    calendar_year = forms.IntegerField(help_text='The calendar year must match the year in the start date.')
+
     # make the school, term_code and academic_year fields hidden; they should not be changed once the term is created
     school = forms.ModelChoiceField(queryset=School.objects.all(), widget=forms.widgets.HiddenInput())
     term_code = forms.ModelChoiceField(queryset=TermCode.objects.all(), widget=forms.widgets.HiddenInput())
     academic_year = forms.IntegerField(widget=forms.widgets.HiddenInput())
+    source = forms.CharField(widget=forms.widgets.HiddenInput())
+    hucc_academic_year = forms.CharField(widget=forms.widgets.HiddenInput())
 
     # make some additional fields required; they're not strictly required in the database, but we want them to be required here
     start_date = forms.DateField(required=True)
-    end_date = forms.DateField(required=True)
-    xreg_start_date = forms.DateField(required=True)
-    xreg_end_date = forms.DateField(required=True)
+    end_date = forms.DateField(required=True, help_text='The last day of the semester, including exam period(?)')
+    xreg_start_date = forms.DateField(required=True, label='Cross-reg start date')
+    xreg_end_date = forms.DateField(required=True, label='Cross-reg end date')
+
+
 
     """
     override the clean method so that we can perform custom validation; this is done at the form level because some validation 
