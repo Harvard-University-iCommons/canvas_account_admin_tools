@@ -6,9 +6,20 @@ python manage.py run_gunicorn -w 10 -p gunicorn.pid -D -b 127.0.0.1:8001
 
 This application requires the following environment variables to be set:
 
-DJANGO_DB_HOST
-DJANGO_DB_PORT
 DJANGO_DB_PASSWORD
-DJANGO_DB_SID
 DJANGO_DB_USER
+
+When running the application, you'll also need to point to the correct settings. 
+
+E.g. for local development, you could do:
+
+python manage.py --settings=icommons_tools.settings.local runserver 10.0.2.15:3000
+
+or in production, use --settings=icommons_tools.settings.production instead
+
+Another option is to set the DJANGO_SETTINGS_MODULE environment variable to the correct class.
+
+export DJANGO_SETTINGS_MODULE=icommons_tools.settings.qa
+
+
 
