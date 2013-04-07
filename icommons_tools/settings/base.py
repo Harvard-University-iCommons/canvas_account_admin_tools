@@ -10,8 +10,9 @@ TEMPLATE_DEBUG = DEBUG
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
-# (this is the directory where this file resides)
-DJANGO_PROJECT_CONFIG = dirname(abspath(__file__))
+# (this is the parent of the directory where this file resides, 
+# since this file is now inside a 'settings' pacakge directory)
+DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
 
 # Absolute filesystem path to the top-level project folder:
 # (this is one directory up from the project config directory)
@@ -73,7 +74,7 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT is defined in individual environment settings
-#STATIC_ROOT = ''
+# STATIC_ROOT = ''
 #STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 def get_static_root():
     try:
@@ -117,7 +118,6 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -157,9 +157,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-# INSTALLED_APPS defined in individual environment settings files
 
-"""
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -174,9 +172,7 @@ INSTALLED_APPS = (
     'term_tool',
     'gunicorn',
     'crispy_forms',
-    'debug_toolbar',
 )
-"""
 
 
 # A sample logging configuration. The only tangible logging

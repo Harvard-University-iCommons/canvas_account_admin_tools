@@ -24,23 +24,6 @@ DATABASES = {
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
-# no debug toolbar in prod
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    'term_tool',
-    'gunicorn',
-    'crispy_forms',
-)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

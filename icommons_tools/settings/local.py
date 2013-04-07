@@ -20,22 +20,8 @@ DATABASES = {
 
 STATIC_ROOT = ''
 
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    'term_tool',
-    'gunicorn',
-    'crispy_forms',
-    'debug_toolbar',
-)
+INSTALLED_APPS += ('debug_toolbar',)
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:
 INTERNAL_IPS = ('127.0.0.1','10.0.2.2',)
