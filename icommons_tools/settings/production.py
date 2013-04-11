@@ -5,8 +5,9 @@ from .base import *
 
 DEBUG = False
 
-# "production" is using the dev database for now...
+ALLOWED_HOSTS = ['localdev-2.icommons.harvard.edu']
 
+# "production" is using the dev database for now...
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
