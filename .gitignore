@@ -1,1 +1,4 @@
 sqlnet.log
+*.log
+*.pid
+http_static/*
