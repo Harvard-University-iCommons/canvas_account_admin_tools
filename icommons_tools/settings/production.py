@@ -77,4 +77,4 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'

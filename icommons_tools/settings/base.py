@@ -4,8 +4,6 @@ import os
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ### Path stuff as recommended by Two Scoops / with local mods
 
