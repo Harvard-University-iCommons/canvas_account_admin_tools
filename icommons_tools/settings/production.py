@@ -5,6 +5,7 @@ from .base import *
 
 DEBUG = False
 
+# to prevent host header poisoning 
 ALLOWED_HOSTS = ['localdev-2.icommons.harvard.edu']
 
 # "production" is using the dev database for now...
@@ -45,7 +46,7 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'console': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         }
