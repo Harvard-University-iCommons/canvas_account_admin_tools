@@ -10,7 +10,7 @@
   <link href="{% get_static_prefix %}Font-Awesome/css/font-awesome.css" rel="stylesheet" media="screen">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="{% get_static_prefix %}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-
+  <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -86,6 +86,7 @@
     	$('.dateinput').datepicker( {format:'yyyy-mm-dd', autoclose:true} )
 	</script>
 
+  {% block pagescripts %}{% endblock %}
 </body>
 </html>
 
