@@ -58,11 +58,16 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
-        'term_tool.views': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'term_tool': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,
@@ -75,3 +80,6 @@ LOGGING = {
 
     }
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+
