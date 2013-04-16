@@ -71,11 +71,9 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     action = 'updated'
     model = Term
     context_object_name = 'term'
-    #login_url = reverse_lazy('tt:login')
         
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
-        logger.debug("get_success_url called")
         return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
 
 class TermCreateView(TermActionMixin, generic.edit.CreateView):
@@ -83,7 +81,6 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
     template_name = 'term_tool/term_create.html'
     action = 'created'
     model = Term
-    #login_url = reverse_lazy('tt:login')
     
     # override the get_initial method so that we can set the school based on the school_id that appears in the URL
     def get_initial(self):

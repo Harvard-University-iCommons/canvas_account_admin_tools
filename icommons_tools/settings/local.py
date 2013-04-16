@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+CRISPY_FAIL_SILENTLY = not DEBUG
 
 
 DATABASES = {
@@ -82,4 +83,3 @@ LOGGING = {
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-
