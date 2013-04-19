@@ -17,16 +17,21 @@
 
 {% block content %}
 
+{% crispy form %}
 
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ form|crispy }}
-
-    <input type="submit" class="btn btn-primary"/>
-    <a href="{% url "tt:termlist" school_id=school.school_id %}" class="btn btn-link">cancel</a>
-</form>
 <p>
     * required
 </p>
 
+{% endblock %}
+
+{% block pagescripts %}
+<script>
+    $(document).ready(function(){
+        if ( $('#id_school').val() != 'colgsas' ) {
+            $('#div_id_shopping_active').hide();
+            $('#div_id_shopping_end_date').hide();
+        }
+    });
+</script>
 {% endblock %}

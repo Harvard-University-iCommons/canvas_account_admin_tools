@@ -4,6 +4,7 @@
 
 
 {% block title %}Edit Term {{ term.term_id }}{% endblock %}
+
 {% block pagetitle %}Edit Term {{ term.term_id }}{% endblock %}
 
 {% block breadcrumb %}
@@ -14,16 +15,11 @@
 </ul>
 {% endblock %}
 
-
 {% block content %}
 
 <h3>{{ term.school_id|upper }} / Academic year {{ term.academic_year }} / Term code {{ term.term_code.term_code }} ({{ term.term_code }})</h3>
 
 {% crispy form %}
-
-{% comment %}
-{{ form }}
-{% endcomment %}
 
 <p>
     * required
