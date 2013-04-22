@@ -8,4 +8,5 @@ urwid==1.1.1
 wsgiref==0.1.2
 git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#egg=django-icommons-common
 python-memcached==1.48
+python-gnupg==0.3.3
 
