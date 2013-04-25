@@ -1,25 +1,39 @@
+iCommons Tools Django Project
+-----------------------------
+
+This project will contain various Django-based tools.  Currently it contains just the term_tool, which 
+provides a web iterface for people in the Registrars' offices to use in order to create/update their 
+term data. 
 
 
-Run the gunicorn server with :
+Environment
+-----------
 
-python manage.py run_gunicorn -w 10 -p gunicorn.pid -D -b 127.0.0.1:8001
+This project has separate requirements files for each environment.  Install the correct dependencies for
+your environment as follows:
 
-This application requires the following environment variables to be set:
+	pip install -r requirements/[local|test|qa|production].txt
 
-DJANGO_DB_PASSWORD
-DJANGO_DB_USER
+The application also has separate settings files for each environment.  Specify the correct settings file by
+setting the environment variable below.  Also set environment variables for the database username and password:
 
-When running the application, you'll also need to point to the correct settings. 
+	export DJANGO_SETTINGS_MODULE=icommons_tools.settings.[local|test|qa|production]
+	export DJANGO_DB_USER=<username>
+	export DJANGO_DB_PASSWORD=<password>
 
-E.g. for local development, you could do:
 
-python manage.py --settings=icommons_tools.settings.local runserver 10.0.2.15:3000
+Running the application
+-----------------------
 
-or in production, use --settings=icommons_tools.settings.production instead
+In the local dev environment, use the built-in runserver command:
 
-Another option is to set the DJANGO_SETTINGS_MODULE environment variable to the correct class.
+	python manage.py runserver 10.0.2.15:3000
+	
+In the test, qa and production environments, run the application under gunicorn:
 
-export DJANGO_SETTINGS_MODULE=icommons_tools.settings.qa
+	python manage.py run_gunicorn -w 10 -p gunicorn.pid -D -b 127.0.0.1:8001
+
+
 
 
 
