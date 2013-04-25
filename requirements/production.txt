@@ -1,0 +1,7 @@
+# production environment requirements
+
+-r base.txt   #includes the base.txt requirements needed in all environments
+ 
+# below are requirements specific to the production environment
+
+gunicorn==0.16.1

@@ -1,0 +1,10 @@
+Django==1.5
+cx-Oracle==5.1.2
+django-braces==0.2.2
+django-crispy-forms==1.2.3
+urwid==1.1.1
+wsgiref==0.1.2
+git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#egg=django-icommons-common
+python-memcached==1.48
+python-gnupg==0.3.3
+

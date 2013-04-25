@@ -1,0 +1,8 @@
+# local environment requirements
+
+-r base.txt   #includes the base.txt requirements needed in all environments
+ 
+# below are requirements specific to the local environment
+
+django-debug-toolbar==0.9.4
+pudb==2013.1
