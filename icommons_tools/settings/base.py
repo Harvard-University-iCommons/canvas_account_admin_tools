@@ -122,6 +122,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'icommons_common.auth.middleware.PINAuthMiddleware',
+    'icommons_common.auth.middleware.GroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     
     # Uncomment the next line for simple clickjacking protection:

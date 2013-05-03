@@ -14,6 +14,10 @@ from django.utils.http import urlquote
 from icommons_common.models import *
 from term_tool.forms import EditTermForm, CreateTermForm
 
+from django.conf import settings
+from pprint import pprint
+from sets import Set
+
 import logging
 
 
@@ -43,6 +47,7 @@ class SchoolListView(generic.ListView):
     template_name = 'term_tool/school_list.html'
     context_object_name = 'school_list'
 
+
 class TermListView(generic.ListView):
     """
     This view provides a list of all of the terms for a particular school.
@@ -63,6 +68,17 @@ class TermListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(TermListView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
+        allowedgroups_dict = getattr(settings, "ALLOWED_GROUPS", None)
+        usergroups_set = self.request.session['USER_GROUPS']
+        allowed_group_ids_set = Set(allowedgroups_dict.keys())
+        userauthgroupids_set = allowed_group_ids_set & usergroups_set
+        authgroups_set = Set([])
+        for group_id in userauthgroupids_set:
+            authgroups_set.add(allowedgroups_dict[group_id])
+        
+        #print authgroups_set
+        context['AUTH_GROUPS'] = authgroups_set
+        
         return context
     
 class TermEditView(TermActionMixin, generic.edit.UpdateView):

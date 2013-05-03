@@ -83,3 +83,13 @@ LOGGING = {
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+
+
+ALLOWED_GROUPS = {
+    
+    'IcGroup:15281': 'HSPH', 
+    'IcGroup:2235': 'FAS', 
+    'IcGroup:6769': 'DIV'
+}
+
+

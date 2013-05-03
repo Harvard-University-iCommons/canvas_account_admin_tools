@@ -18,7 +18,13 @@
 {% block content %}
 {% if term_list %}
 
-<a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
+{% for value in AUTH_GROUPS %}
+    {% if value == school.school_id|upper %}
+        <a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
+    {% endif %}
+{% endfor %}
+
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -37,9 +43,20 @@
         {% else %}
             <tr>
         {% endif %}
-            <td>
-                <a href="{% url "tt:termedit" pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
-            </td>
+
+        {% for value in AUTH_GROUPS %}
+
+            {% if value == school.school_id|upper %}
+                    <td>
+                        <a href="{% url "tt:termedit" pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
+                    </td>
+            {% else %}
+                    <td>
+                        {{ term.display_name|default:term.term_id }}
+                    </td>    
+            {% endif %}
+        {% endfor %}
+        
             <td>
                 {{ term.academic_year }}
             </td>
