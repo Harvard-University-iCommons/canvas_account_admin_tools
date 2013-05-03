@@ -19,8 +19,9 @@
 {% if term_list %}
 
 {% for value in AUTH_GROUPS %}
-    {% if value == school.school_id|upper %}
-        <a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success"><i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
+    {% if value == school.school_id %}
+        <a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success">
+            <i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
     {% endif %}
 {% endfor %}
 
@@ -46,7 +47,7 @@
 
         {% for value in AUTH_GROUPS %}
 
-            {% if value == school.school_id|upper %}
+            {% if value == school.school_id %}
                     <td>
                         <a href="{% url "tt:termedit" pk=term.term_id %}">{{ term.display_name|default:term.term_id }}</a>
                     </td>

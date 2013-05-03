@@ -68,15 +68,33 @@ class TermListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(TermListView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
+
+        '''
+        get the allowed groups dict from the settings object
+        '''
         allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
+        '''
+        get the usergroups_set from the session
+        '''
         usergroups_set = self.request.session['USER_GROUPS']
+
+        '''
+        create a new set of just the keys from the allowed groups (key are group_id's)
+        '''
         allowed_group_ids_set = Set(allowedgroups_dict.keys())
+        '''
+        Get the intersection of the allowed groups and the users groups
+        '''
         userauthgroupids_set = allowed_group_ids_set & usergroups_set
+        '''
+        use the group id values from the intersection set userauthgroupids_set and build a new set
+        of the names of the schools that the user has the authority to edit and create the AUTH_GROUPS var
+        in the context. This will be available in the template now.
+        '''
         authgroups_set = Set([])
         for group_id in userauthgroupids_set:
             authgroups_set.add(allowedgroups_dict[group_id])
         
-        #print authgroups_set
         context['AUTH_GROUPS'] = authgroups_set
         
         return context
