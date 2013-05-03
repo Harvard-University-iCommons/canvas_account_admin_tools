@@ -1,6 +1,7 @@
 # local environment requirements
 
--r base.txt   #includes the base.txt requirements needed in all environments
+#includes the base.txt requirements needed in all environments
+-r base.txt 
  
 # below are requirements specific to the local environment
 
