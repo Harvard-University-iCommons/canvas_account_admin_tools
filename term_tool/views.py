@@ -68,7 +68,7 @@ class TermListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(TermListView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
-        allowedgroups_dict = getattr(settings, "ALLOWED_GROUPS", None)
+        allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
         usergroups_set = self.request.session['USER_GROUPS']
         allowed_group_ids_set = Set(allowedgroups_dict.keys())
         userauthgroupids_set = allowed_group_ids_set & usergroups_set
