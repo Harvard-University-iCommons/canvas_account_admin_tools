@@ -21,7 +21,11 @@ DATABASES = {
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
-INSTALLED_APPS += ('debug_toolbar',)
+INSTALLED_APPS += (
+    'debug_toolbar',
+    'gunicorn'
+)
+
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:

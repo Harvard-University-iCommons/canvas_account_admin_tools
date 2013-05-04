@@ -26,6 +26,8 @@ DATABASES = {
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
+INSTALLED_APPS += ('gunicorn',)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
