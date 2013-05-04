@@ -9,7 +9,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isiteqa',
-        'USER': os.environ['DJANGO_DB_USER'],
+        'USER': 'coursemanager',
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8003',
