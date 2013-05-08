@@ -27,6 +27,10 @@ class EditTermForm(forms.ModelForm):
     # make the calendar_year hidden - it should not be directly editable (is determined based on start_date)
     calendar_year = forms.IntegerField(required=False, widget=forms.widgets.HiddenInput())
 
+    # hide user_id and modified_on fields, they should not be directlty editable
+    user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
+    modified_on = forms.DateField(required=False, widget=forms.widgets.HiddenInput())
+
     # make some additional fields required; they're not strictly required in the database, but we want them to be required here
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
@@ -75,6 +79,8 @@ class EditTermForm(forms.ModelForm):
                 'exam_start_date',
                 'exam_end_date',
             ),
+            Field('user_id'),
+            Field('modified_on'),
             FormActions(
                 Submit('save','Save changes'),
             ),
@@ -107,6 +113,12 @@ class EditTermForm(forms.ModelForm):
         exam_start_date = cleaned_data.get('exam_start_date')
         exam_end_date = cleaned_data.get('exam_end_date')
         source = cleaned_data.get('source')
+        user_id = cleaned_data.get('user_id')
+        modified_on = cleaned_data.get('modified_on')
+
+        logger.debug(">>>>>> IN CLEAN DATA")
+        logger.debug(user_id)
+        logger.debug(modified_on)
 
         # default the display_name if it's not set
         if display_name == None or display_name == '':
@@ -236,6 +248,7 @@ class EditTermForm(forms.ModelForm):
             del cleaned_data['calendar_year']
         """
         logger.debug("clean complete")
+        logger.debug(cleaned_data)
         #from pudb import set_trace; set_trace()
 
         return cleaned_data

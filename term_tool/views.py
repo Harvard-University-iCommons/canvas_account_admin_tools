@@ -18,6 +18,9 @@ from django.conf import settings
 from pprint import pprint
 from sets import Set
 
+import datetime
+import time
+
 import logging
 
 
@@ -67,7 +70,8 @@ class TermListView(generic.ListView):
     # override the get_context_data method in order to add the 'school' object to the template context
     def get_context_data(self, **kwargs):
         context = super(TermListView, self).get_context_data(**kwargs)
-        context['school'] = School.objects.get(pk=self.kwargs['school_id'])
+        school = School.objects.get(pk=self.kwargs['school_id'])
+        context['school'] = school
 
         '''
         get the allowed groups dict from the settings object
@@ -81,22 +85,22 @@ class TermListView(generic.ListView):
         '''
         create a new set of just the keys from the allowed groups (key are group_id's)
         '''
-        allowed_group_ids_set = Set(allowedgroups_dict.keys())
+        allowedgroups_set = Set(allowedgroups_dict.keys())
         '''
         Get the intersection of the allowed groups and the users groups
         '''
-        userauthgroupids_set = allowed_group_ids_set & usergroups_set
+        userauthgroups_set = allowedgroups_set & usergroups_set
         '''
         use the group id values from the intersection set userauthgroupids_set and build a new set
-        of the names of the schools that the user has the authority to edit and create the AUTH_GROUPS var
+        of the names of the schools that the user has the authority to edit and create the AUTHORIZEDTOEDIT var
         in the context. This will be available in the template now.
         '''
-        authgroups_set = Set([])
-        for group_id in userauthgroupids_set:
-            authgroups_set.add(allowedgroups_dict[group_id])
-        
-        context['AUTH_GROUPS'] = authgroups_set
-        
+        #authgroups_set = Set([])
+        for group_id in userauthgroups_set:
+            #authgroups_set.add(allowedgroups_dict[group_id])
+            if allowedgroups_dict[group_id] == school.school_id :
+                context['AUTHORIZEDTOEDIT'] = True
+
         return context
     
 class TermEditView(TermActionMixin, generic.edit.UpdateView):
@@ -105,6 +109,17 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     action = 'updated'
     model = Term
     context_object_name = 'term'
+
+    def get_context_data(self, **kwargs):
+        context = super(TermEditView, self).get_context_data(**kwargs)
+        context['USERID'] = self.request.user
+        #logger.debug(self.request)
+        now = datetime.datetime.now()
+        today = now.strftime('%d-%b-%y')
+        context['MODIFIED_ON'] = today
+
+        #print '>>>>>>>> USER = %s' % self.request.user
+        return context
         
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):

@@ -17,7 +17,10 @@
 
 {% block content %}
 
-<h3>{{ term.school_id|upper }} / Academic year {{ term.academic_year }} / Term code {{ term.term_code.term_code }} ({{ term.term_code }})</h3>
+<h3>{{ term.school_id|upper }} / Academic year {{ term.academic_year }} / Term code {{ term.term_code.term_code }} ({{ term.term_code }})
+</h3>
+
+{{ERIC}}
 
 {% crispy form %}
 
@@ -33,6 +36,8 @@
         if ( $('#id_school').val() != 'colgsas' ) {
             $('#div_id_shopping_active').hide();
             $('#div_id_shopping_end_date').hide();
+            $('#id_user_id').val('{{USERID}}');
+            $('#id_modified_on').val('{{MODIFIED_ON}}');
         }
     });
 </script>
