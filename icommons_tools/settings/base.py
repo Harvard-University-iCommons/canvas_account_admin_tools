@@ -73,16 +73,6 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT is defined in individual environment settings
-# STATIC_ROOT = ''
-#STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
-def get_static_root():
-    try:
-        return os.environ['STATIC_ROOT']
-    except KeyError:
-        error_msg = "STATIC_ROOT env var not specified."
-
-#STATIC_ROOT = get_static_root()
-
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -170,7 +160,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'term_tool',
-    'gunicorn',
+    #'gunicorn',
     'crispy_forms',
 )
 
