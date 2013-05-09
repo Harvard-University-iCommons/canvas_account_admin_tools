@@ -36,6 +36,9 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
         'simple': {
             'format': '%(levelname)s %(module)s %(message)s'
         }
@@ -50,6 +53,12 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },    
+        # Log to a text file that can be rotated by logrotate
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.environ['TERM_TOOL_LOG'],
+            'formatter' : 'verbose'
         },
         'console': {
             'level': 'DEBUG',
@@ -59,22 +68,22 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console'],
+            'handlers': ['console','logfile'],
             'level': 'ERROR',
             'propagate': True,
         },
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console','logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'term_tool': {
-            'handlers': ['console'],
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console'],
+            'handlers': ['console','logfile'],
             'level': 'DEBUG',
             'propagate': True,
         }

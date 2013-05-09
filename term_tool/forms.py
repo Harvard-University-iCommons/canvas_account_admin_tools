@@ -29,7 +29,7 @@ class EditTermForm(forms.ModelForm):
 
     # hide user_id and modified_on fields, they should not be directlty editable
     user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
-    modified_on = forms.DateField(required=False, widget=forms.widgets.HiddenInput())
+    #modified_on = forms.DateField(required=False, widget=forms.widgets.HiddenInput())
 
     # make some additional fields required; they're not strictly required in the database, but we want them to be required here
     start_date = forms.DateField(required=True)
@@ -80,7 +80,7 @@ class EditTermForm(forms.ModelForm):
                 'exam_end_date',
             ),
             Field('user_id'),
-            Field('modified_on'),
+            #Field('modified_on'),
             FormActions(
                 Submit('save','Save changes'),
             ),
@@ -95,7 +95,7 @@ class EditTermForm(forms.ModelForm):
     def clean(self):
 
         cleaned_data = super(EditTermForm, self).clean()
-        logger.debug("clean starting")
+        logger.info("clean starting")
         school = cleaned_data.get('school')
         term_code = cleaned_data.get('term_code')
         academic_year = cleaned_data.get('academic_year')
@@ -113,12 +113,12 @@ class EditTermForm(forms.ModelForm):
         exam_start_date = cleaned_data.get('exam_start_date')
         exam_end_date = cleaned_data.get('exam_end_date')
         source = cleaned_data.get('source')
-        user_id = cleaned_data.get('user_id')
-        modified_on = cleaned_data.get('modified_on')
 
-        logger.debug(">>>>>> IN CLEAN DATA")
-        logger.debug(user_id)
-        logger.debug(modified_on)
+        #user_id = self.request.user
+        #mod_date = datetime.date.today
+
+        #cleaned_data['user_id'] = user_id
+        #cleaned_data['modified_date'] = mod_date
 
         # default the display_name if it's not set
         if display_name == None or display_name == '':
@@ -137,6 +137,9 @@ class EditTermForm(forms.ModelForm):
             self._errors['end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
         
+        if (xreg_start_date == None or xreg_start_date == '') or (xreg_end_date == None or xreg_end_date == ''):
+            raise forms.ValidationError("The cross-reg date fields cannot be empty.")
+
         # make sure that the xreg start date is before the xreg end date
         if xreg_start_date and xreg_end_date and xreg_start_date > xreg_end_date:
             self._errors['xreg_start_date'] = self.error_class(['']) 
@@ -247,8 +250,8 @@ class EditTermForm(forms.ModelForm):
             self._errors['calendar_year'] = self.error_class([msg]) 
             del cleaned_data['calendar_year']
         """
-        logger.debug("clean complete")
-        logger.debug(cleaned_data)
+        logger.info("clean complete")
+        logger.info(cleaned_data)
         #from pudb import set_trace; set_trace()
 
         return cleaned_data
@@ -261,6 +264,8 @@ class CreateTermForm(EditTermForm):
 
     term_code = forms.ModelChoiceField(required=True, queryset=TermCode.objects.all())
     academic_year = forms.IntegerField(required=True)
+
+    user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(CreateTermForm, self).__init__(*args, **kwargs)
@@ -294,6 +299,7 @@ class CreateTermForm(EditTermForm):
                 'exam_start_date',
                 'exam_end_date',
             ),
+            Field('user_id'),
             FormActions(
                 Submit('save','Save changes'),
             ),

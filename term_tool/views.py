@@ -15,11 +15,7 @@ from icommons_common.models import *
 from term_tool.forms import EditTermForm, CreateTermForm
 
 from django.conf import settings
-from pprint import pprint
 from sets import Set
-
-import datetime
-import time
 
 import logging
 
@@ -113,16 +109,13 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     def get_context_data(self, **kwargs):
         context = super(TermEditView, self).get_context_data(**kwargs)
         context['USERID'] = self.request.user
-        #logger.debug(self.request)
-        now = datetime.datetime.now()
-        today = now.strftime('%d-%b-%y')
-        context['MODIFIED_ON'] = today
-
-        #print '>>>>>>>> USER = %s' % self.request.user
+        logger.info('User %s opened TermEditView' % self.request.user)
         return context
         
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
+        logger.info('User %s edited TermEditView' % self.request.user)
+        logger.info(self)
         return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
 
 class TermCreateView(TermActionMixin, generic.edit.CreateView):
@@ -142,10 +135,13 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
     def get_context_data(self, **kwargs):
         context = super(TermCreateView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
+        context['USERID'] = self.request.user
+        logger.info('User %s opened TermCreateView' % self.request.user)
         return context
     
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
+        logger.info('User %s created new term' % self.request.user)
         return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
             
         
