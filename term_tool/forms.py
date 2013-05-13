@@ -4,6 +4,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button, HTML
 from crispy_forms.bootstrap import FormActions
 
+from Crypto.Cipher import AES
+import base64
+import os
 from icommons_common.models import Term,TermCode,School
 
 import logging
@@ -15,7 +18,7 @@ class EditTermForm(forms.ModelForm):
     # this is a model form that's mostly automatically generated; here we specify that it should be based on the Term model:
     class Meta:
         model = Term
-
+        exclude = ("user_id")
     # make the school, term_code and academic_year fields hidden; they should not be changed once the term is created
     school = forms.ModelChoiceField(queryset=School.objects.all(), widget=forms.widgets.HiddenInput())
     term_code = forms.ModelChoiceField(queryset=TermCode.objects.all(), widget=forms.widgets.HiddenInput())
@@ -28,6 +31,7 @@ class EditTermForm(forms.ModelForm):
     calendar_year = forms.IntegerField(required=False, widget=forms.widgets.HiddenInput())
 
     # hide user_id and modified_on fields, they should not be directlty editable
+     
     user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
     #modified_on = forms.DateField(required=False, widget=forms.widgets.HiddenInput())
 
@@ -114,8 +118,19 @@ class EditTermForm(forms.ModelForm):
         exam_end_date = cleaned_data.get('exam_end_date')
         source = cleaned_data.get('source')
 
+        '''
+        decrypt user_id to insert into database
+        '''
+        key = os.environ['CIPHER_KEY']
+        encryption_obj = AES.new(key)
+        encoded = cleaned_data.get('user_id')
+        unencoded = base64.b64decode(encoded)
+        user_id = encryption_obj.decrypt(unencoded)
+        cleaned_data['user_id'] = user_id
+
         #user_id = self.request.user
         #mod_date = datetime.date.today
+
 
         #cleaned_data['user_id'] = user_id
         #cleaned_data['modified_date'] = mod_date
@@ -265,7 +280,7 @@ class CreateTermForm(EditTermForm):
     term_code = forms.ModelChoiceField(required=True, queryset=TermCode.objects.all())
     academic_year = forms.IntegerField(required=True)
 
-    user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
+    #user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(CreateTermForm, self).__init__(*args, **kwargs)
@@ -299,7 +314,6 @@ class CreateTermForm(EditTermForm):
                 'exam_start_date',
                 'exam_end_date',
             ),
-            Field('user_id'),
             FormActions(
                 Submit('save','Save changes'),
             ),
@@ -380,3 +394,4 @@ class xCreateTermForm(forms.ModelForm):
 
 
         return cleaned_data
+
