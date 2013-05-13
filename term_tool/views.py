@@ -19,6 +19,8 @@ from sets import Set
 
 import logging
 
+from util import util
+
 
 logger = logging.getLogger(__name__)
 
@@ -106,16 +108,25 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     model = Term
     context_object_name = 'term'
 
+
     def get_context_data(self, **kwargs):
         context = super(TermEditView, self).get_context_data(**kwargs)
-        context['USERID'] = self.request.user
+
+        '''
+        encrypt user_id to placein hidden field on form
+        '''
+        user_id = self.request.user.username
+        encrypted_user = util.encrypt_string(user_id)
+        context['USERID'] = encrypted_user
+        
         logger.info('User %s opened TermEditView' % self.request.user)
         return context
         
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
+        logger.debug(self)
         logger.info('User %s edited TermEditView' % self.request.user)
-        logger.info(self)
+        #logger.info(self)
         return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
 
 class TermCreateView(TermActionMixin, generic.edit.CreateView):
@@ -135,7 +146,10 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
     def get_context_data(self, **kwargs):
         context = super(TermCreateView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
-        context['USERID'] = self.request.user
+        #context['USERID'] = self.request.user
+        user_id = self.request.user.username
+        encrypted_user = util.encrypt_string(user_id)
+        context['USERID'] = encrypted_user
         logger.info('User %s opened TermCreateView' % self.request.user)
         return context
     
