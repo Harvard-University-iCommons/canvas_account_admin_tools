@@ -146,7 +146,10 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
     def get_context_data(self, **kwargs):
         context = super(TermCreateView, self).get_context_data(**kwargs)
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
-        context['USERID'] = self.request.user
+        #context['USERID'] = self.request.user
+        user_id = self.request.user.username
+        encrypted_user = util.encrypt_string(user_id)
+        context['USERID'] = encrypted_user
         logger.info('User %s opened TermCreateView' % self.request.user)
         return context
     
