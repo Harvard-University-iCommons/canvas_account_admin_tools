@@ -17,10 +17,9 @@ from term_tool.forms import EditTermForm, CreateTermForm
 from django.conf import settings
 from sets import Set
 
-from Crypto.Cipher import AES
-import base64
-import os
 import logging
+
+from util import util
 
 
 logger = logging.getLogger(__name__)
@@ -109,11 +108,6 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     model = Term
     context_object_name = 'term'
 
-    def unlazy_object(self,lazy_object):
-        if lazy_object._wrapped is None:
-            lazy_object._setup()
-        return lazy_object._wrapped
-
 
     def get_context_data(self, **kwargs):
         context = super(TermEditView, self).get_context_data(**kwargs)
@@ -121,18 +115,9 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
         '''
         encrypt user_id to placein hidden field on form
         '''
-        key = os.environ['CIPHER_KEY']
-        encryption_obj = AES.new(key)
         user_id = self.request.user.username
-        
-        mismatch = len(user_id) % 16
-        if mismatch != 0:
-          padding = (16 - mismatch) * ' '
-          user_id += padding
-
-        ciph = encryption_obj.encrypt(user_id)
-        encoded = base64.b64encode(ciph)
-        context['USERID'] = encoded
+        encrypted_user = util.encrypt_string(user_id)
+        context['USERID'] = encrypted_user
         
         logger.info('User %s opened TermEditView' % self.request.user)
         return context

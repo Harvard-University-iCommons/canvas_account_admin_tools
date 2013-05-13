@@ -4,10 +4,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button, HTML
 from crispy_forms.bootstrap import FormActions
 
-from Crypto.Cipher import AES
-import base64
-import os
 from icommons_common.models import Term,TermCode,School
+
+from util import util
 
 import logging
 
@@ -121,19 +120,8 @@ class EditTermForm(forms.ModelForm):
         '''
         decrypt user_id to insert into database
         '''
-        key = os.environ['CIPHER_KEY']
-        encryption_obj = AES.new(key)
         encoded = cleaned_data.get('user_id')
-        unencoded = base64.b64decode(encoded)
-        user_id = encryption_obj.decrypt(unencoded)
-        cleaned_data['user_id'] = user_id
-
-        #user_id = self.request.user
-        #mod_date = datetime.date.today
-
-
-        #cleaned_data['user_id'] = user_id
-        #cleaned_data['modified_date'] = mod_date
+        cleaned_data['user_id'] = util.decrypt_string(encoded)
 
         # default the display_name if it's not set
         if display_name == None or display_name == '':
