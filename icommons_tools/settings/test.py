@@ -79,3 +79,13 @@ LOGGING = {
 
     }
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'django-cache.kc9kh3.0001.use1.cache.amazonaws.com:11211',
+    }
+}
+
+
+
