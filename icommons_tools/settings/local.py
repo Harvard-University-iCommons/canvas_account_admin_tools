@@ -26,7 +26,7 @@ INSTALLED_APPS += ('debug_toolbar',)
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:
-INTERNAL_IPS = ('127.0.0.1','10.0.2.2',)
+INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
@@ -58,7 +58,7 @@ LOGGING = {
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.environ['TERM_TOOL_LOG'],
-            'formatter' : 'verbose'
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'DEBUG',
@@ -68,12 +68,12 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console','logfile'],
+            'handlers': ['console', 'logfile'],
             'level': 'ERROR',
             'propagate': True,
         },
         'django': {
-            'handlers': ['console','logfile'],
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -83,7 +83,7 @@ LOGGING = {
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console','logfile'],
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         }
@@ -99,9 +99,8 @@ These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
 ALLOWED_GROUPS = {
-    
-    'IcGroup:15281': 'hsph', 
-    'IcGroup:2235': 'fas', 
+    'IcGroup:15281': 'hsph',
+    'IcGroup:2235': 'fas',
     'IcGroup:6769': 'hds'
 }
 

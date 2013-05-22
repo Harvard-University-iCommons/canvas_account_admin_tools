@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 ### Mixins:
 
+
 class TermActionMixin(object):
     def form_valid(self, form):
         logger.debug("form_valid called")
@@ -60,11 +61,11 @@ class TermListView(generic.ListView):
     context_object_name = 'term_list'
     paginate_by = 12
     #login_url = reverse_lazy('tt:login')
-    
+
     # override the get_queryset method to limit the results to a particular school
     def get_queryset(self):
-        return Term.objects.filter(school_id=self.kwargs['school_id']).order_by('-academic_year','term_code')
-    
+        return Term.objects.filter(school_id=self.kwargs['school_id']).order_by('-academic_year', 'term_code')
+
     # override the get_context_data method in order to add the 'school' object to the template context
     def get_context_data(self, **kwargs):
         context = super(TermListView, self).get_context_data(**kwargs)
@@ -96,18 +97,18 @@ class TermListView(generic.ListView):
         #authgroups_set = Set([])
         for group_id in userauthgroups_set:
             #authgroups_set.add(allowedgroups_dict[group_id])
-            if allowedgroups_dict[group_id] == school.school_id :
+            if allowedgroups_dict[group_id] == school.school_id:
                 context['AUTHORIZEDTOEDIT'] = True
 
         return context
-    
+
+
 class TermEditView(TermActionMixin, generic.edit.UpdateView):
     form_class = EditTermForm
     template_name = 'term_tool/term_edit.html'
     action = 'updated'
     model = Term
     context_object_name = 'term'
-
 
     def get_context_data(self, **kwargs):
         context = super(TermEditView, self).get_context_data(**kwargs)
@@ -118,30 +119,31 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
         user_id = self.request.user.username
         encrypted_user = util.encrypt_string(user_id)
         context['USERID'] = encrypted_user
-        
+
         logger.info('User %s opened TermEditView' % self.request.user)
         return context
-        
+
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
         logger.debug(self)
         logger.info('User %s edited TermEditView' % self.request.user)
         #logger.info(self)
-        return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
+        return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
+
 
 class TermCreateView(TermActionMixin, generic.edit.CreateView):
     form_class = CreateTermForm
     template_name = 'term_tool/term_create.html'
     action = 'created'
     model = Term
-    
+
     # override the get_initial method so that we can set the school based on the school_id that appears in the URL
     def get_initial(self):
         initial = super(TermCreateView, self).get_initial()
         #from pudb import set_trace; set_trace()
         initial['school'] = self.kwargs['school_id']
         return initial
-    
+
     # override the get_context_data method in order to add the 'school' object to the template context
     def get_context_data(self, **kwargs):
         context = super(TermCreateView, self).get_context_data(**kwargs)
@@ -152,10 +154,10 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
         context['USERID'] = encrypted_user
         logger.info('User %s opened TermCreateView' % self.request.user)
         return context
-    
+
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
         logger.info('User %s created new term' % self.request.user)
-        return reverse('tt:termlist', kwargs={'school_id':self.object.school_id})
+        return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
             
         
