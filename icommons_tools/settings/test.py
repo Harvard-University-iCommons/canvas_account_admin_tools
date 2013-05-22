@@ -89,6 +89,7 @@ CACHES = {
 }
 '''
 
+
 '''
 The dictionary below contains group id's and school names. 
 These are the groups that are allowed to edit term informtion.
@@ -100,4 +101,5 @@ ALLOWED_GROUPS = {
     'IcGroup:2235': 'fas', 
     'IcGroup:6769': 'hds'
 }
+
 
