@@ -68,3 +68,16 @@ LOGGING = {
 
     }
 }
+
+'''
+The dictionary below contains group id's and school names. 
+These are the groups that are allowed to edit term informtion.
+The school must be the same as the school_id in the school model.
+'''
+ALLOWED_GROUPS = {
+    
+    'IcGroup:15281': 'hsph', 
+    'IcGroup:2235': 'fas', 
+    'IcGroup:6769': 'hds'
+}
+
