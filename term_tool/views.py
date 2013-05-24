@@ -48,6 +48,7 @@ class SchoolListView(generic.ListView):
     model = School
     template_name = 'term_tool/school_list.html'
     context_object_name = 'school_list'
+    queryset = School.objects.filter(active=1)
 
 
 class TermListView(generic.ListView):
