@@ -2,14 +2,11 @@ from .base import *
 
 DEBUG = False
 
-
-
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isiteqa',
-        'USER': 'coursemanager',
+        'USER': 'termtool',
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8003',
@@ -18,7 +15,6 @@ DATABASES = {
         },
     }
 }
-
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
