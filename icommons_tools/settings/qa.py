@@ -70,10 +70,19 @@ The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
+ADMIN_GROUP = ''
 ALLOWED_GROUPS = {
-    
-    'IcGroup:15281': 'hsph', 
-    'IcGroup:2235': 'fas', 
-    'IcGroup:6769': 'hds'
+    'IcGroup:25096': 'gse',
+    'IcGroup:25095': 'colgsas',
+    'IcGroup:25097': 'hls',
+    'IcGroup:25098': 'hsph',
+    'IcGroup:25099': 'hds',
+    'IcGroup:25100': 'gsd',
+    'IcGroup:25101': 'ext',
+    'IcGroup:25102': 'hks',
+    'IcGroup:25103': 'hms',
+    'IcGroup:25104': 'hsdm',
+    'IcGroup:25105': 'hbsmba',
+    'IcGroup:25106': 'hbsdoc',
 }
 
