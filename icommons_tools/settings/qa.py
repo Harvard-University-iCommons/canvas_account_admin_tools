@@ -2,6 +2,8 @@ from .base import *
 
 DEBUG = False
 
+ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
