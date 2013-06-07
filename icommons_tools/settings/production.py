@@ -6,7 +6,7 @@ from .base import *
 DEBUG = False
 
 # to prevent host header poisoning 
-ALLOWED_HOSTS = ['localdev-2.icommons.harvard.edu']
+ALLOWED_HOSTS = ['*.harvard.edu']
 
 # "production" is using the dev database for now...
 DATABASES = {
