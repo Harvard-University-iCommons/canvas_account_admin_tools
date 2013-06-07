@@ -6,7 +6,7 @@ from .base import *
 DEBUG = False
 
 # to prevent host header poisoning 
-ALLOWED_HOSTS = ['*.harvard.edu']
+ALLOWED_HOSTS = ['*']
 
 # "production" is using the dev database for now...
 DATABASES = {
@@ -74,14 +74,16 @@ LOGGING = {
 }
 
 
+'''
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }
+'''
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 '''
 The dictionary below contains group id's and school names. 
