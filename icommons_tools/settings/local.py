@@ -19,7 +19,7 @@ APP_CONFIG = {
     'DJANGO_DB_USER':'coursemanager',
     'ICOMMONSAPIHOST':'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER':'2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS':'z1KuYq7K2XFxtM4Fu91J',
+    'ICOMMONSAPIPASS':os.environ['ICOMMONSAPIPASS'],
     'TERM_TOOL_LOG':'/home/vagrant/workspace/icommons_tools/term_tool.log'
 }
 
