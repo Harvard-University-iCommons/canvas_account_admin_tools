@@ -14,17 +14,18 @@ Configure application settings
 Also Required but not set here:
 DJANGO_DB_PASSWORD - must be defined in the environment
 CIPHER_KEY - must be defined in the environment
+ICOMMONSAPIPASS - must be defined in the environment
 
 '''
 APP_CONFIG = {
-    'DJANGO_DB_HOST':'icd3.isites.harvard.edu',
-    'DJANGO_DB_PORT':'8103',
-    'DJANGO_DB_SID':'isitedev',
-    'DJANGO_DB_USER':'termtool',
-    'ICOMMONSAPIHOST':'https://isites.harvard.edu/services/',
-    'ICOMMONSAPIUSER':'2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS':os.environ['ICOMMONSAPIPASS'],
-    'TERM_TOOL_LOG':'/logs/termtool/term_tool_audit.log'
+    'DJANGO_DB_HOST': 'icd3.isites.harvard.edu',
+    'DJANGO_DB_PORT': '8103',
+    'DJANGO_DB_SID': 'isitedev',
+    'DJANGO_DB_USER': 'termtool',
+    'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONSAPIUSER': '2CF64ADC-4907-11E1-B318-E3828F1150F0',
+    'ICOMMONSAPIPASS': os.environ['ICOMMONSAPIPASS'],
+    'TERM_TOOL_LOG': '/logs/termtool/term_tool_audit.log'
 }
 
 DATABASES = {

@@ -10,6 +10,7 @@ Configure application settings
 Also Required but not set here:
 DJANGO_DB_PASSWORD - must be defined in the environment
 CIPHER_KEY - must be defined in the environment
+ICOMMONSAPIPASS - must be defined in the environment
 
 '''
 APP_CONFIG = {
@@ -19,7 +20,7 @@ APP_CONFIG = {
     'DJANGO_DB_USER':'coursemanager',
     'ICOMMONSAPIHOST':'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER':'2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS':os.environ['ICOMMONSAPIPASS'],
+    'ICOMMONSAPIPASS': os.environ['ICOMMONSAPIPASS'],
     'TERM_TOOL_LOG':'/home/vagrant/workspace/icommons_tools/term_tool.log'
 }
 
