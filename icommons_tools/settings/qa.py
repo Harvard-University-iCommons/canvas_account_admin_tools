@@ -86,5 +86,6 @@ ALLOWED_GROUPS = {
     'IcGroup:25104': 'hsdm',
     'IcGroup:25105': 'hbsmba',
     'IcGroup:25106': 'hbsdoc',
+    'IcGroup:25178': 'sum',
 }
 
