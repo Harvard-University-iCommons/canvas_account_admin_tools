@@ -8,15 +8,33 @@ DEBUG = False
 # to prevent host header poisoning 
 ALLOWED_HOSTS = ['*']
 
-# "production" is using the dev database for now...
+'''
+Configure application settings
+
+Also Required but not set here:
+DJANGO_DB_PASSWORD - must be defined in the environment
+CIPHER_KEY - must be defined in the environment
+
+'''
+APP_CONFIG = {
+    'DJANGO_DB_HOST':'icd3.isites.harvard.edu',
+    'DJANGO_DB_PORT':'8103',
+    'DJANGO_DB_SID':'isitedev',
+    'DJANGO_DB_USER':'coursemanager',
+    'ICOMMONSAPIHOST':'https://isites.harvard.edu/services/',
+    'ICOMMONSAPIUSER':'2CF64ADC-4907-11E1-B318-E3828F1150F0',
+    'ICOMMONSAPIPASS':'z1KuYq7K2XFxtM4Fu91J',
+    'TERM_TOOL_LOG':'/logs/termtool/term_tool_audit.log'
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
-        'USER': 'coursemanager',
+        'NAME': APP_CONFIG['DJANGO_DB_SID'],
+        'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'HOST': APP_CONFIG['DJANGO_DB_HOST'],
+        'PORT': APP_CONFIG['DJANGO_DB_PORT'],
         'OPTIONS': {
             'threaded': True,
         },
@@ -46,6 +64,11 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'ERROR',
@@ -90,19 +113,22 @@ The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
+
+ADMIN_GROUP = 'IcGroup:25292'
+
 ALLOWED_GROUPS = {
-    'IcGroup:25096': 'gse',
-    'IcGroup:25095': 'colgsas',
-    'IcGroup:25097': 'hls',
-    'IcGroup:25098': 'hsph',
-    'IcGroup:25099': 'hds',
-    'IcGroup:25100': 'gsd',
-    'IcGroup:25101': 'ext',
-    'IcGroup:25102': 'hks',
-    'IcGroup:25103': 'hms',
-    'IcGroup:25104': 'hsdm',
-    'IcGroup:25105': 'hbsmba',
-    'IcGroup:25106': 'hbsdoc',
-    'IcGroup:25178': 'sum',
+    'IcGroup:25096':'gse', 
+    'IcGroup:25095':'fas', 
+    'IcGroup:25097':'hls', 
+    'IcGroup:25098':'hsph', 
+    'IcGroup:25099':'hds', 
+    'IcGroup:25100':'gsd', 
+    'IcGroup:25101':'dce', 
+    'IcGroup:25102':'hks', 
+    'IcGroup:25103':'hms', 
+    'IcGroup:25104':'hsdm', 
+    'IcGroup:25105':'hbsmba', 
+    'IcGroup:25106':'hbsdoc', 
+    'IcGroup:25178':'sum' 
 }
 

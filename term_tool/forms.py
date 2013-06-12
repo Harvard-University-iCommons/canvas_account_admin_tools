@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, time, date
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button, HTML
@@ -23,7 +23,6 @@ class EditTermForm(forms.ModelForm):
     term_code = forms.ModelChoiceField(queryset=TermCode.objects.all(), widget=forms.widgets.HiddenInput())
     academic_year = forms.IntegerField(widget=forms.widgets.HiddenInput())
     source = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
-
     hucc_academic_year = forms.IntegerField(required=False, widget=forms.widgets.HiddenInput())
 
     # make the calendar_year hidden - it should not be directly editable (is determined based on start_date)
@@ -39,16 +38,18 @@ class EditTermForm(forms.ModelForm):
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
     xreg_start_date = forms.DateField(required=True, label='Cross-reg start date')
     xreg_end_date = forms.DateField(required=True, label='Cross-reg end date')
-
     active = forms.BooleanField(required=False,label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
-
     include_in_catalog = forms.BooleanField(required=False,label='Include this term in the production Course Catalog')
     include_in_preview = forms.BooleanField(required=False,label='Include this term in the preview Course Catalog')
-
     enrollment_end_date = forms.DateField(required=False,help_text='The last day students can enroll in courses in this term')
+    drop_date = forms.DateField(required=False, help_text='Last day students can drop the course')
     withdrawal_date = forms.DateField(required=False,help_text='The last day students can withdraw from courses in this term')
     shopping_end_date = forms.DateField(required=False)
+    exam_start_date = forms.DateField(required=False)
+    exam_end_date = forms.DateField(required=False)
+    catalog_note = forms.CharField(required=False, widget=forms.Textarea, label='notes')
+
     
     def __init__(self, *args, **kwargs):
         super(EditTermForm, self).__init__(*args, **kwargs)
@@ -83,9 +84,10 @@ class EditTermForm(forms.ModelForm):
                 'exam_end_date',
             ),
             Field('user_id'),
-            #Field('modified_on'),
+            Field('catalog_note'),
             FormActions(
                 Submit('save','Save changes'),
+                Button('cancel', 'Cancel')
             ),
         )
 
@@ -253,8 +255,30 @@ class EditTermForm(forms.ModelForm):
             self._errors['calendar_year'] = self.error_class([msg]) 
             del cleaned_data['calendar_year']
         """
+        t = time(23,59,59)
+        #logger.info(type(end_date).__name__)
+        #cleaned_data['end_date'] = datetime.combine(end_date, t)
+        #logger.info(cleaned_data['end_date'])
+        if end_date:
+            cleaned_data['end_date'] = datetime.combine(end_date, t)
+        if xreg_end_date:
+            cleaned_data['xreg_end_date'] = datetime.combine(xreg_end_date, t)
+        if shopping_end_date:
+            cleaned_data['shopping_end_date'] = datetime.combine(shopping_end_date, t)
+        if enrollment_end_date:
+            cleaned_data['enrollment_end_date'] = datetime.combine(enrollment_end_date, t)
+        if drop_date:
+            cleaned_data['drop_date'] = datetime.combine(drop_date, t)
+        if withdrawal_date:
+            cleaned_data['withdrawal_date'] = datetime.combine(withdrawal_date, t)
+        if exam_end_date:
+            cleaned_data['exam_end_date'] = datetime.combine(exam_end_date, t)
+
         logger.info("clean complete")
-        logger.info(cleaned_data)
+
+
+
+        #logger.info(cleaned_data)
         #from pudb import set_trace; set_trace()
 
         return cleaned_data

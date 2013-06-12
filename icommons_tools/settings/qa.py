@@ -4,14 +4,33 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
 
+'''
+Configure application settings
+
+Also Required but not set here:
+DJANGO_DB_PASSWORD - must be defined in the environment
+CIPHER_KEY - must be defined in the environment
+
+'''
+APP_CONFIG = {
+    'DJANGO_DB_HOST':'icd3.isites.harvard.edu',
+    'DJANGO_DB_PORT':'8103',
+    'DJANGO_DB_SID':'isitedev',
+    'DJANGO_DB_USER':'coursemanager',
+    'ICOMMONSAPIHOST':'https://isites.harvard.edu/services/',
+    'ICOMMONSAPIUSER':'2CF64ADC-4907-11E1-B318-E3828F1150F0',
+    'ICOMMONSAPIPASS':'z1KuYq7K2XFxtM4Fu91J',
+    'TERM_TOOL_LOG':'term_tool.log'
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isiteqa',
-        'USER': 'termtool',
+        'NAME': APP_CONFIG['DJANGO_DB_SID'],
+        'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8003',
+        'HOST': APP_CONFIG['DJANGO_DB_HOST'],
+        'PORT': APP_CONFIG['DJANGO_DB_PORT'],
         'OPTIONS': {
             'threaded': True,
         },
@@ -40,6 +59,12 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        # Log to a text file that can be rotated by logrotate
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'DEBUG',
@@ -72,7 +97,8 @@ The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
-ADMIN_GROUP = ''
+ADMIN_GROUP = 'IcGroup:18611'
+
 ALLOWED_GROUPS = {
     'IcGroup:25096': 'gse',
     'IcGroup:25095': 'colgsas',
