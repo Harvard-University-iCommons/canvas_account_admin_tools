@@ -167,4 +167,4 @@ INSTALLED_APPS = (
 # session cookie lasts for 7 hours (in seconds)
 SESSION_COOKIE_AGE = 60*60*7
 
-
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
