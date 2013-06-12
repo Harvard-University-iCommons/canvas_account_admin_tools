@@ -117,7 +117,6 @@ The school must be the same as the school_id in the school model.
 ADMIN_GROUP = 'IcGroup:25292'
 
 ALLOWED_GROUPS = {
-    
     'IcGroup:25096':'gse', 
     'IcGroup:25095':'fas', 
     'IcGroup:25097':'hls', 
