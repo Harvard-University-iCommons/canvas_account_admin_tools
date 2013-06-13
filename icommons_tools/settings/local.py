@@ -9,9 +9,9 @@ Configure application settings
 
 Also Required but not set here:
 DJANGO_DB_PASSWORD - must be defined in the environment
+DJANGO_SECRET_KEY - must be defined in the environment
 CIPHER_KEY - must be defined in the environment
 ICOMMONSAPIPASS - must be defined in the environment
-DJANGO_SECRET_KEY - must be defined in the environment
 
 '''
 APP_CONFIG = {
