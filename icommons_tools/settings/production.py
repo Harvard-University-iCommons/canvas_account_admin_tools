@@ -9,6 +9,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 '''
+
 Configure application settings
 
 Also Required but not set here:
