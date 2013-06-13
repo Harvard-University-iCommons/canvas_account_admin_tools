@@ -24,7 +24,7 @@ APP_CONFIG = {
     'DJANGO_DB_USER': 'termtool',
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER': '2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS': os.environ['ICOMMONSAPIPASS'],
+    'ICOMMONSAPIPASS': get_env_variable('ICOMMONSAPIPASS'),
     'TERM_TOOL_LOG': '/logs/termtool/term_tool_audit.log'
 }
 
@@ -33,7 +33,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': APP_CONFIG['DJANGO_DB_SID'],
         'USER': APP_CONFIG['DJANGO_DB_USER'],
-        'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
+        'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
         'HOST': APP_CONFIG['DJANGO_DB_HOST'],
         'PORT': APP_CONFIG['DJANGO_DB_PORT'],
         'OPTIONS': {
@@ -121,18 +121,18 @@ The school must be the same as the school_id in the school model.
 ADMIN_GROUP = 'IcGroup:25292'
 
 ALLOWED_GROUPS = {
-    'IcGroup:25096':'gse', 
-    'IcGroup:25095':'fas', 
-    'IcGroup:25097':'hls', 
-    'IcGroup:25098':'hsph', 
-    'IcGroup:25099':'hds', 
-    'IcGroup:25100':'gsd', 
-    'IcGroup:25101':'dce', 
-    'IcGroup:25102':'hks', 
-    'IcGroup:25103':'hms', 
-    'IcGroup:25104':'hsdm', 
-    'IcGroup:25105':'hbsmba', 
-    'IcGroup:25106':'hbsdoc', 
-    'IcGroup:25178':'sum' 
+    'IcGroup:25096': 'gse',
+    'IcGroup:25095': 'fas',
+    'IcGroup:25097': 'hls',
+    'IcGroup:25098': 'hsph',
+    'IcGroup:25099': 'hds',
+    'IcGroup:25100': 'gsd',
+    'IcGroup:25101': 'dce',
+    'IcGroup:25102': 'hks',
+    'IcGroup:25103': 'hms',
+    'IcGroup:25104': 'hsdm',
+    'IcGroup:25105': 'hbsmba',
+    'IcGroup:25106': 'hbsdoc',
+    'IcGroup:25178': 'sum'
 }
 

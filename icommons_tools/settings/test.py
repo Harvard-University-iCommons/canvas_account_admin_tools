@@ -2,16 +2,36 @@ from .base import *
 
 DEBUG = True
 
+ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
 
+'''
+Configure application settings
+
+Also Required but not set here:
+DJANGO_DB_PASSWORD - must be defined in the environment
+CIPHER_KEY - must be defined in the environment
+ICOMMONSAPIPASS - must be defined in the environment
+
+'''
+APP_CONFIG = {
+    'DJANGO_DB_HOST': 'icd3.isites.harvard.edu',
+    'DJANGO_DB_PORT': '8003',
+    'DJANGO_DB_SID': 'isiteqa',
+    'DJANGO_DB_USER': 'termtool',
+    'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONSAPIUSER': '2CF64ADC-4907-11E1-B318-E3828F1150F0',
+    'ICOMMONSAPIPASS': get_env_variable('ICOMMONSAPIPASS'),
+    'TERM_TOOL_LOG': 'term_tool.log'
+}
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
-        'USER': 'coursemanager',
-        'PASSWORD': os.environ['DJANGO_DB_PASSWORD'],
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'NAME': APP_CONFIG['DJANGO_DB_SID'],
+        'USER': APP_CONFIG['DJANGO_DB_USER'],
+        'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
+        'HOST': APP_CONFIG['DJANGO_DB_HOST'],
+        'PORT': APP_CONFIG['DJANGO_DB_PORT'],
         'OPTIONS': {
             'threaded': True,
         },
@@ -92,11 +112,20 @@ The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
-ALLOWED_GROUPS = {
-    
-    'IcGroup:15281': 'hsph', 
-    'IcGroup:2235': 'fas', 
-    'IcGroup:6769': 'hds'
+ALLOWED_GROUPS = {   
+    'IcGroup:25096': 'gse',
+    'IcGroup:25095': 'fas',
+    'IcGroup:25097': 'hls',
+    'IcGroup:25098': 'hsph',
+    'IcGroup:25099': 'hds',
+    'IcGroup:25100': 'gsd',
+    'IcGroup:25101': 'dce',
+    'IcGroup:25102': 'hks',
+    'IcGroup:25103': 'hms',
+    'IcGroup:25104': 'hsdm',
+    'IcGroup:25105': 'hbsmba',
+    'IcGroup:25106': 'hbsdoc',
+    'IcGroup:25178': 'sum'
 }
 
 
