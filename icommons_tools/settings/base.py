@@ -110,7 +110,7 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 #SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = get_env_variable['DJANGO_SECRET_KEY']
+SECRET_KEY = get_env_variable('DJANGO_SECRET_KEY')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
