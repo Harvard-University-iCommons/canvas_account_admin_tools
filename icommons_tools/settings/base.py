@@ -4,6 +4,18 @@ import os
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
+# Normally you should not import ANYTHING from Django directly
+# into your settings, but ImproperlyConfigured is an exception.
+from django.core.exceptions import ImproperlyConfigured
+
+def get_env_variable(var_name):
+    """ Get the environment variable or return exception """
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
+
 
 ### Path stuff as recommended by Two Scoops / with local mods
 
@@ -28,7 +40,8 @@ path.append(SITE_ROOT)
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ('Colin','colin_murtaugh@harvard.edu'),
+    ('Colin', 'colin_murtaugh@harvard.edu'),
+    ('Eric', 'eric_parker@harvard.edu'),
 )
 
 MANAGERS = ADMINS
@@ -87,23 +100,23 @@ STATICFILES_DIRS = (
 )
 
 
-
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
+#SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
+SECRET_KEY = get_env_variable['DJANGO_SECRET_KEY']
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -114,7 +127,7 @@ MIDDLEWARE_CLASSES = (
     'icommons_common.auth.middleware.PINAuthMiddleware',
     'icommons_common.auth.middleware.GroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    
+
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
