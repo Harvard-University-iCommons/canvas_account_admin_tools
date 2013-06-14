@@ -4,7 +4,7 @@ django-braces==0.2.2
 django-crispy-forms==1.2.3
 urwid==1.1.1
 wsgiref==0.1.2
-git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git@release-0.1#egg=django-icommons-common
+git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#egg=django-icommons-common
 python-memcached==1.48
 python-gnupg==0.3.3
 pycrypto==2.6
