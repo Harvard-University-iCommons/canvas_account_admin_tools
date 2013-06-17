@@ -326,6 +326,8 @@ class CreateTermForm(EditTermForm):
                 'exam_start_date',
                 'exam_end_date',
             ),
+            Field('user_id'),
+            Field('catalog_note'),
             FormActions(
                 Submit('save','Save changes'),
             ),
@@ -335,17 +337,12 @@ class CreateTermForm(EditTermForm):
 
         cleaned_data = super(CreateTermForm, self).clean()
 
-        # make sure that there isn't already a term with this school/ac year/term code combination
-        
-
-        # make sure that there isn't already a term with this school/cal year/term code combination
-
-
         return cleaned_data        
-        school = cleaned_data.get('school')
-        term_code = cleaned_data.get('term_code')
-        academic_year = cleaned_data.get('academic_year')
-        calendar_year = cleaned_data.get('calendar_year')    
+
+        #school = cleaned_data.get('school')
+        #term_code = cleaned_data.get('term_code')
+        #academic_year = cleaned_data.get('academic_year')
+        #calendar_year = cleaned_data.get('calendar_year')    
 
 
 class xCreateTermForm(forms.ModelForm):

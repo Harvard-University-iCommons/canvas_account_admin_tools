@@ -1,13 +1,14 @@
 from Crypto.Cipher import AES
+from django.conf import settings
 import base64
 import os
 
 class util():
+
     @staticmethod
     def encrypt_string(str):
 
-        key = os.environ['CIPHER_KEY']
-        encryption_obj = AES.new(key)
+        encryption_obj = AES.new(settings.SECRET_KEY)
         
         mismatch = len(str) % 16
         if mismatch != 0:
@@ -20,8 +21,8 @@ class util():
 
     @staticmethod
     def decrypt_string(str):
-        key = os.environ['CIPHER_KEY']
-        encryption_obj = AES.new(key)
+        
+        encryption_obj = AES.new(settings.SECRET_KEY)
         
         decoded = base64.b64decode(str)
         decrypted = encryption_obj.decrypt(decoded)
