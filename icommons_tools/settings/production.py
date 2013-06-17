@@ -21,7 +21,7 @@ ICOMMONSAPIPASS - must be defined in the environment
 
 '''
 APP_CONFIG = {
-    'DJANGO_DB_HOST': 'dbnode33.isites.harvard.edu',
+    'DJANGO_DB_HOST': 'dbnode3.isites.harvard.edu',
     'DJANGO_DB_PORT': '8003',
     'DJANGO_DB_SID': 'isitedgd',
     'DJANGO_DB_USER': 'termtool',
