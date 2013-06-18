@@ -36,8 +36,10 @@ class EditTermForm(forms.ModelForm):
     # make some additional fields required; they're not strictly required in the database, but we want them to be required here
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
-    xreg_start_date = forms.DateField(required=True, label='Cross-reg start date')
-    xreg_end_date = forms.DateField(required=True, label='Cross-reg end date')
+    
+    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date')
+    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date')
+    
     active = forms.BooleanField(required=False,label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
     include_in_catalog = forms.BooleanField(required=False,label='Include this term in the production Course Catalog')
@@ -100,8 +102,9 @@ class EditTermForm(forms.ModelForm):
     def clean(self):
 
         cleaned_data = super(EditTermForm, self).clean()
-        logger.info("clean starting")
+        
         school = cleaned_data.get('school')
+        logger.info("clean starting for %s" % school)
         term_code = cleaned_data.get('term_code')
         academic_year = cleaned_data.get('academic_year')
         calendar_year = cleaned_data.get('calendar_year')
@@ -148,15 +151,28 @@ class EditTermForm(forms.ModelForm):
             self._errors['end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
         
-        if (xreg_start_date == None or xreg_start_date == '') or (xreg_end_date == None or xreg_end_date == ''):
-            raise forms.ValidationError("The cross-reg date fields cannot be empty.")
+        if not school.school_id == 'sum' and not school.school_id == 'ext':    
+            if (xreg_start_date == None or xreg_start_date == '') or (xreg_end_date == None or xreg_end_date == ''):
+                raise forms.ValidationError("The cross-reg date fields cannot be empty.")
+
+            '''
+            There was a request to remove the validation check below. This check validated
+            that the start and end dates for cross reg were between the start and end dates of the term.
+            If this is reinstated it needs to be indented to fall in line with the if block above.
+            Alternativly you could add a check for xreg_end_date in the if block below and indent out. 
+            '''
+            # make sure that the xreg end date is between the term start and end
+            #if xreg_end_date > end_date or xreg_end_date < start_date:
+            #    logger.warn("xreg_end_date outside of term start/end")
+            #    self._errors['xreg_start_date'] = self.error_class(['']) 
+            #    raise forms.ValidationError("The cross-reg end date must be between the term start and end dates.")
+
 
         # make sure that the xreg start date is before the xreg end date
         if xreg_start_date and xreg_end_date and xreg_start_date > xreg_end_date:
             self._errors['xreg_start_date'] = self.error_class(['']) 
             self._errors['xreg_end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The cross-reg start date must be before the cross-reg end date.")
-
         
         # make sure that the interval between the xreg_start date and xreg_end date is less than one year
         if xreg_start_date and xreg_end_date and (xreg_end_date.toordinal() - xreg_start_date.toordinal()) > 365:
@@ -164,7 +180,7 @@ class EditTermForm(forms.ModelForm):
             self._errors['xreg_start_date'] = self.error_class(['']) 
             self._errors['xreg_end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The cross-registration start date and end date cannot be more than one year apart.")
-        
+
         # default the hucc_academic_year if it's not set (this field may go away someday)
         if hucc_academic_year == None or hucc_academic_year == '':
             logger.warn('setting the hucc_academic_year to %s' % academic_year)
@@ -175,11 +191,6 @@ class EditTermForm(forms.ModelForm):
             logger.warn('setting the source')
             cleaned_data['source'] = 'termtool'
 
-        # make sure that the xreg end date is between the term start and end
-        if xreg_end_date > end_date or xreg_end_date < start_date:
-            logger.warn("xreg_end_date outside of term start/end")
-            self._errors['xreg_start_date'] = self.error_class(['']) 
-            raise forms.ValidationError("The cross-reg end date must be between the term start and end dates.")
 
         # get the start date day-of-year
         start_day_of_year = start_date.timetuple()[7]

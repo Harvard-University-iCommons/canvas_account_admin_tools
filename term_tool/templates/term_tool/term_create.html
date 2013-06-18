@@ -33,6 +33,16 @@
             $('#div_id_shopping_end_date').hide();
             $('#id_user_id').val('{{USERID}}');
         }
+        
+        if ( $('#id_school').val() != 'ext' && $('#id_school').val() != 'sum') {
+            var xreg_start = $('#div_id_xreg_start_date label').html().trim();
+            var xreg_end = $('#div_id_xreg_end_date label').html().trim();
+            xreg_start += '*';
+            xreg_end += '*';
+            $('#div_id_xreg_start_date label').html(xreg_start);
+            $('#div_id_xreg_end_date label').html(xreg_end);
+        }
+
     });
 </script>
 {% endblock %}
