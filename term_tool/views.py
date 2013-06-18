@@ -127,7 +127,7 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
         logger.debug(self)
-        logger.info('User %s edited TermEditView' % self.request.user)
+        logger.info('User %s edited term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
         #logger.info(self)
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
@@ -158,7 +158,7 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
 
     # override the get_success_url so that we can dynamically determine the URL to which the user should be redirected
     def get_success_url(self):
-        logger.info('User %s created new term' % self.request.user)
+        logger.info('User %s created new term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
             
         

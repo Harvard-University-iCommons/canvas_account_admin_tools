@@ -39,12 +39,21 @@
     </thead>
     <tbody>
     {% for term in term_list %}
-        {% if term.start_date == None or term.end_date == None or term.xreg_start_date == None or term.xreg_end_date == None %}
-            <tr class="error">
-        {% else %}
-            <tr>
-        {% endif %}
 
+        {% if school.school_id == 'sum' or school.school_id == 'ext' %}
+            {% if term.start_date == None or term.end_date == None %}
+                <tr class="error">
+            {% else %}
+                <tr>
+            {% endif %}
+
+        {% else %}
+            {% if term.start_date == None or term.end_date == None or term.xreg_start_date == None or term.xreg_end_date == None %}
+                <tr class="error">
+            {% else %}
+                <tr>
+            {% endif %}
+        {% endif %}
 
         {% if AUTHORIZEDTOEDIT %}
                 <td>
@@ -62,20 +71,32 @@
             </td>
             <td>
                 {% if term.start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.start_date }}
+                {{ term.start_date|date }}
             </td>
             <td>
                 {% if term.end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.end_date }}
+                {{ term.end_date|date }}
             </td>
-            <td>
-                {% if term.xreg_start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.xreg_start_date }}
-            </td>
-            <td>
-                {% if term.xreg_end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.xreg_end_date }}
-            </td>
+
+            {% if school.school_id == 'sum' or school.school_id == 'ext' %}
+                <td>
+                    {{ term.xreg_start_date|date }}
+                </td>
+                <td>
+                    {{ term.xreg_end_date|date }}
+                </td>
+            {% else %}
+                <td>
+                    {% if term.xreg_start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                    {{ term.xreg_start_date|date }}
+                </td>
+                <td>
+                    {% if term.xreg_end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                    {{ term.xreg_end_date|date }}
+                </td>
+            {% endif %}
+
+
         </tr>
     {% endfor %}
     </tbody>

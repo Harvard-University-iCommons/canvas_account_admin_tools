@@ -93,15 +93,15 @@ LOGGING = {
             'propagate': True,
         },
         'term_tool': {
-            'handlers': ['console'],
-            'level': 'ERROR',
+            'handlers': ['logfile'],
+            'level': 'INFO',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console'],
-            'level': 'ERROR',
+            'handlers': ['logfile'],
+            'level': 'INFO',
             'propagate': True,
-        }
+        },
 
     }
 }
@@ -133,7 +133,7 @@ ALLOWED_GROUPS = {
     'IcGroup:25098': 'hsph',
     'IcGroup:25099': 'hds',
     'IcGroup:25100': 'gsd',
-    'IcGroup:25101': 'dce',
+    'IcGroup:25101': 'ext',
     'IcGroup:25102': 'hks',
     'IcGroup:25103': 'hms',
     'IcGroup:25104': 'hsdm',
