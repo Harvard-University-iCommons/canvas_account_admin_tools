@@ -125,6 +125,12 @@ class EditTermForm(forms.ModelForm):
         encoded = cleaned_data.get('user_id')
         cleaned_data['user_id'] = util.decrypt_string(encoded)
 
+        '''
+        Check if the term has already been created. If it has, raise a validation error.
+        '''
+        if not self.is_valid():
+            raise forms.ValidationError("The Term already exists.")
+
         # default the display_name if it's not set
         if display_name == None or display_name == '':
             cleaned_data['display_name'] = '{0} {1}'.format(term_code.term_name, academic_year)
