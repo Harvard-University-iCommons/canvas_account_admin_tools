@@ -152,8 +152,13 @@ class EditTermForm(forms.ModelForm):
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
         
         if not school.school_id == 'sum' and not school.school_id == 'ext':    
-            if (xreg_start_date == None or xreg_start_date == '') or (xreg_end_date == None or xreg_end_date == ''):
-                raise forms.ValidationError("The cross-reg date fields cannot be empty.")
+            if (xreg_start_date == None or xreg_start_date == ''): 
+                self._errors['xreg_start_date'] = self.error_class(['']) 
+                raise forms.ValidationError("The cross-reg start date field cannot be empty.")
+
+            if (xreg_end_date == None or xreg_end_date == ''):
+                self._errors['xreg_end_date'] = self.error_class(['']) 
+                raise forms.ValidationError("The cross-reg end date field cannot be empty.")
 
             '''
             There was a request to remove the validation check below. This check validated
