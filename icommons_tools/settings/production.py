@@ -128,7 +128,7 @@ ADMIN_GROUP = 'IcGroup:25292'
 
 ALLOWED_GROUPS = {
     'IcGroup:25096': 'gse',
-    'IcGroup:25095': 'fas',
+    'IcGroup:25095': 'colgsas',
     'IcGroup:25097': 'hls',
     'IcGroup:25098': 'hsph',
     'IcGroup:25099': 'hds',
