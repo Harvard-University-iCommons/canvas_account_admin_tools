@@ -87,13 +87,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'term_tool.views': {
-            'handlers': ['console'],
+        'term_tool': {
+            'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console'],
+            'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True,
         }

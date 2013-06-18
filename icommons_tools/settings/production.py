@@ -93,15 +93,15 @@ LOGGING = {
             'propagate': True,
         },
         'term_tool': {
-            'handlers': ['console'],
-            'level': 'ERROR',
+            'handlers': ['logfile'],
+            'level': 'INFO',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console'],
-            'level': 'ERROR',
+            'handlers': ['logfile'],
+            'level': 'INFO',
             'propagate': True,
-        }
+        },
 
     }
 }
