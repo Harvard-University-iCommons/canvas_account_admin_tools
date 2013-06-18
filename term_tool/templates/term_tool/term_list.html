@@ -62,19 +62,19 @@
             </td>
             <td>
                 {% if term.start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.start_date }}
+                {{ term.start_date|date }}
             </td>
             <td>
                 {% if term.end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.end_date }}
+                {{ term.end_date|date }}
             </td>
             <td>
                 {% if term.xreg_start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.xreg_start_date }}
+                {{ term.xreg_start_date|date }}
             </td>
             <td>
                 {% if term.xreg_end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
-                {{ term.xreg_end_date }}
+                {{ term.xreg_end_date|date }}
             </td>
         </tr>
     {% endfor %}
