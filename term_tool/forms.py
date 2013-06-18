@@ -200,7 +200,7 @@ class EditTermForm(forms.ModelForm):
 
         # else if the term start date is between the first of the year and Aug 15 start date year must equal AY+1
         elif start_day_of_year < aug15_day_of_year and start_date.year != int(academic_year)+1:
-            self._errors['start_date'] = self.error_class(["The start date must be in %s." % int(academic_year)+1]) 
+            self._errors['start_date'] = self.error_class(["The start date must be in %s." % str(int(academic_year)+1)])
             raise forms.ValidationError("The academic year of this term is %s. For terms that take place during the Winter, Spring or Summer, the start date must be in %s." % (academic_year, int(academic_year)+1))
         
         # for all end dates, make sure the time portion is 11:59:59 PM
