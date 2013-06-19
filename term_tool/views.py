@@ -15,7 +15,6 @@ from icommons_common.models import *
 from term_tool.forms import EditTermForm, CreateTermForm
 
 from django.conf import settings
-from sets import Set
 
 import logging
 
@@ -74,32 +73,49 @@ class TermListView(generic.ListView):
         context['school'] = school
 
         '''
-        get the allowed groups dict from the settings object
+        get the admin group from the settings object
         '''
-        allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
+        admingroup_str = getattr(settings, 'ADMIN_GROUP', None)
+        admingroup_set = set([admingroup_str])
+
         '''
         get the usergroups_set from the session
         '''
-        usergroups_set = self.request.session['USER_GROUPS']
+        usergroups_set = set(self.request.session['USER_GROUPS'])
+        user_admin_set = admingroup_set & usergroups_set
+        
+        '''
+        if a user is in the admin group, they can edit all terms for all schools.
+        if not, they must be in the admin group for the specific school.
+        '''
+        if not user_admin_set:
+            logger.debug('here now 1')
+            '''
+            get the allowed groups dict from the settings object
+            '''
+            allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
 
-        '''
-        create a new set of just the keys from the allowed groups (key are group_id's)
-        '''
-        allowedgroups_set = Set(allowedgroups_dict.keys())
-        '''
-        Get the intersection of the allowed groups and the users groups
-        '''
-        userauthgroups_set = allowedgroups_set & usergroups_set
-        '''
-        use the group id values from the intersection set userauthgroupids_set and build a new set
-        of the names of the schools that the user has the authority to edit and create the AUTHORIZEDTOEDIT var
-        in the context. This will be available in the template now.
-        '''
-        #authgroups_set = Set([])
-        for group_id in userauthgroups_set:
-            #authgroups_set.add(allowedgroups_dict[group_id])
-            if allowedgroups_dict[group_id] == school.school_id:
-                context['AUTHORIZEDTOEDIT'] = True
+            '''
+            create a new set of just the keys from the allowed groups (key are group_id's)
+            '''
+            allowedgroups_set = set(allowedgroups_dict.keys())
+
+            '''
+            Get the intersection of the allowed groups and the users groups
+            '''
+            userauthgroups_set = allowedgroups_set & usergroups_set
+            '''
+            use the group id values from the intersection set userauthgroupids_set and build a new set
+            of the names of the schools that the user has the authority to edit and create the AUTHORIZEDTOEDIT var
+            in the context. This will be available in the template now.
+            '''
+            #authgroups_set = Set([])
+            for group_id in userauthgroups_set:
+                #authgroups_set.add(allowedgroups_dict[group_id])
+                if allowedgroups_dict[group_id] == school.school_id:
+                    context['AUTHORIZEDTOEDIT'] = True
+        else:
+            context['AUTHORIZEDTOEDIT'] = True
 
         return context
 
