@@ -6,3 +6,6 @@
 # below are requirements specific to the qa environment
 
 gunicorn==0.16.1
+
+newrelic>=1.12.0.56
+
