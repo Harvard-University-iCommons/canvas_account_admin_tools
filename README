@@ -37,3 +37,9 @@ In the test, qa and production environments, run the application under gunicorn:
 
 
 
+Running with Newrelic 
+---------------------
+
+Newrelic application monitoring and profiling can be used by running the gunicorn server like:
+
+NEW_RELIC_CONFIG_FILE=newrelic-qa.ini newrelic-admin run-program python manage.py run_gunicorn -c gunicorn_qa.py
