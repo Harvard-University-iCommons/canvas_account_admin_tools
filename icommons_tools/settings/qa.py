@@ -97,6 +97,16 @@ LOGGING = {
     }
 }
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'django-cache.kc9kh3.0001.use1.cache.amazonaws.com:11211',
+    }
+}
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+
 '''
 The dictionary below contains group id's and school names. 
 These are the groups that are allowed to edit term informtion.
