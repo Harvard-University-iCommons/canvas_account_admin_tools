@@ -39,6 +39,11 @@ DATABASES = {
     }
 }
 
+# need to override the NLS_DATE_FORMAT that is set by oraclepool
+EXTRAS = {
+    'session': "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", 
+}
+
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += ('gunicorn',)
