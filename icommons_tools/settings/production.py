@@ -122,6 +122,7 @@ CACHES = {
 '''
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
+SESSION_COOKIE_SECURE = True
 
 '''
 The dictionary below contains group id's and school names. 
