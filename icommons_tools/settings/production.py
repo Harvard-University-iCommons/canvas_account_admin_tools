@@ -4,7 +4,7 @@ from sys import path
 from .base import *
 
 # debug must be false for production
-DEBUG = True
+DEBUG = False
 
 # to prevent host header poisoning 
 ALLOWED_HOSTS = ['*']
@@ -33,7 +33,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
+        'ENGINE': 'oraclepool',
         'NAME': APP_CONFIG['DJANGO_DB_SID'],
         'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
@@ -45,6 +45,11 @@ DATABASES = {
     }
 }
 
+# need to override the NLS_DATE_FORMAT that is set by oraclepool
+DATABASE_EXTRAS = {
+    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
+    'threaded': True
+}
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
@@ -88,18 +93,18 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins','console'],
+            'handlers': ['mail_admins', 'console'],
             'level': 'ERROR',
             'propagate': True,
         },
         'term_tool': {
             'handlers': ['logfile'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'icommons_common': {
             'handlers': ['logfile'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
 
