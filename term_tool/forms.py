@@ -127,12 +127,6 @@ class EditTermForm(forms.ModelForm):
         encoded = cleaned_data.get('user_id')
         cleaned_data['user_id'] = util.decrypt_string(encoded)
 
-        '''
-        Check if the term has already been created. If it has, raise a validation error.
-        '''
-        if not self.is_valid():
-            raise forms.ValidationError("The Term already exists.")
-
         # default the display_name if it's not set
         if display_name is None or display_name == '':
             cleaned_data['display_name'] = '{0} {1}'.format(term_code.term_name, academic_year)
@@ -231,7 +225,7 @@ class EditTermForm(forms.ModelForm):
         # not sure if we should do this here or somewhere else...
 
         # make sure that the calendar_year matches the start_date       
-        if start_date and cleaned_data['calendar_year'] != start_date.year:
+        if start_date and calendar_year != start_date.year:
             logger.warn('setting the calendar year to %s' % start_date.year)
             cleaned_data['calendar_year'] = start_date.year
 
@@ -352,17 +346,22 @@ class CreateTermForm(EditTermForm):
             ),
         )
 
+    """
     def clean(self):
 
         cleaned_data = super(CreateTermForm, self).clean()
 
-        return cleaned_data       
+        school = cleaned_data.get('school')
+        term_code = cleaned_data.get('term_code')
+        academic_year = cleaned_data.get('academic_year')
+        #calendar_year = cleaned_data.get('calendar_year')
 
-        #school = cleaned_data.get('school')
-        #term_code = cleaned_data.get('term_code')
-        #academic_year = cleaned_data.get('academic_year')
-        #calendar_year = cleaned_data.get('calendar_year')    
+        # check to see if this term already exists.
+        if Term.objects.filter(school_id=school.school_id, term_code=term_code.term_code, academic_year=academic_year):
+            raise forms.ValidationError("A term record already exists for this school/year/term_code")
 
+        return cleaned_data
+    """
 
 class xCreateTermForm(forms.ModelForm):
 
