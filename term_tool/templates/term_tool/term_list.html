@@ -40,7 +40,7 @@
     <tbody>
     {% for term in term_list %}
 
-        {% if school.school_id == 'sum' or school.school_id == 'ext' %}
+        {% if school.school_id == 'sum' or school.school_id == 'ext' or term.xreg_available == 0 %}
             {% if term.start_date == None or term.end_date == None %}
                 <tr class="error">
             {% else %}
@@ -78,7 +78,7 @@
                 {{ term.end_date|date }}
             </td>
 
-            {% if school.school_id == 'sum' or school.school_id == 'ext' %}
+            {% if school.school_id == 'sum' or school.school_id == 'ext' or term.xreg_available == 0 %}
                 <td>
                     {{ term.xreg_start_date|date }}
                 </td>

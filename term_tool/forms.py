@@ -38,8 +38,9 @@ class EditTermForm(forms.ModelForm):
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
 
-    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date')
-    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date')
+    xreg_available = forms.BooleanField(required=False, label='Cross-registration is available for this term. Uncheck this box if <b>none</b> of the courses in this term are available for cross-registration')
+    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date', help_text='Cross-registration starts at the beginning of the day specified.')
+    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date', help_text='Cross-registration ends at the end of the day specified.')
 
     active = forms.BooleanField(required=False, label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
@@ -73,6 +74,7 @@ class EditTermForm(forms.ModelForm):
             Field('shopping_active'),
             Fieldset(
                 'Cross-registration and Catalog',
+                'xreg_available',
                 'xreg_start_date', 'xreg_end_date',
                 'include_in_catalog', 'include_in_preview',
             ),
@@ -109,6 +111,7 @@ class EditTermForm(forms.ModelForm):
         calendar_year = cleaned_data.get('calendar_year')
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
+        xreg_available = cleaned_data.get('xreg_available')
         xreg_start_date = cleaned_data.get('xreg_start_date')
         xreg_end_date = cleaned_data.get('xreg_end_date')
         display_name = cleaned_data.get('display_name')
@@ -143,14 +146,16 @@ class EditTermForm(forms.ModelForm):
             self._errors['end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
 
-        if not school.school_id == 'sum' and not school.school_id == 'ext':    
-            if (xreg_start_date is None or xreg_start_date == ''): 
-                self._errors['xreg_start_date'] = self.error_class(['']) 
-                raise forms.ValidationError("The cross-reg start date field cannot be empty.")
+        if not school.school_id == 'sum' and not school.school_id == 'ext':   
+            if xreg_available is True:
+                if (xreg_start_date is None or xreg_start_date == ''): 
+                    self._errors['xreg_start_date'] = self.error_class(['']) 
+                    raise forms.ValidationError("The cross-reg start date field cannot be empty.")
 
-            if (xreg_end_date is None or xreg_end_date == ''):
-                self._errors['xreg_end_date'] = self.error_class(['']) 
-                raise forms.ValidationError("The cross-reg end date field cannot be empty.")
+                if (xreg_end_date is None or xreg_end_date == ''):
+                    self._errors['xreg_end_date'] = self.error_class(['']) 
+                    raise forms.ValidationError("The cross-reg end date field cannot be empty.")
+
 
             '''
             There was a request to remove the validation check below. This check validated
