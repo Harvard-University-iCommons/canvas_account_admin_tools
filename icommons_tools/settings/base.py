@@ -173,6 +173,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'term_tool',
+    'qualtrics_taker_auth',
     #'gunicorn',
     'crispy_forms',
 )

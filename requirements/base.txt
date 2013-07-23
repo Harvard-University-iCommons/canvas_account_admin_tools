@@ -12,4 +12,5 @@ git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#eg
 python-memcached>=1.48
 python-gnupg==0.3.3
 pycrypto==2.6
+bitly_api
 

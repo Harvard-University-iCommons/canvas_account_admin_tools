@@ -17,5 +17,6 @@ urlpatterns = patterns('',
 
     url(r'^tools/term_tool/', include('term_tool.urls', namespace="tt")),
 
+    url(r'^tools/qualtrics_taker_auth/', include('qualtrics_taker_auth.urls', namespace="qta")),
 
 )
