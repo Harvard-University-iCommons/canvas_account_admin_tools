@@ -7,6 +7,7 @@ from Crypto.Cipher import AES
 from Crypto import Random
 import bitly_api
 import os
+from django.http import HttpRequest
 
 # Create your views here.
 
@@ -37,9 +38,10 @@ def index(request):
             return render(request, 'qualtrics_taker_auth/index.html', {'message': message})
             
         target = base64.b64encode(qtarget_url)
-        dist_url = 'http://localhost.harvard.edu:3000/tools/qualtrics_taker_auth/?qtarget=%s' % target
-        short_url = get_bitly_url(dist_url)
 
+        dist_url = HttpRequest.build_absolute_uri(request, '/?qtarget=%s' % target)
+
+        short_url = get_bitly_url(dist_url)
 
         return render(request, 'qualtrics_taker_auth/index.html', {'qtarget_url': qtarget_url, 'dist_url': dist_url, 'short_url': short_url})
 
@@ -47,6 +49,9 @@ def index(request):
         """
         if the request doesn't contain a target and the request doesn't contain a target_url, then give the user a form to enter one
         """
+
+        #from pudb import set_trace; set_trace()
+
         return render(request, 'qualtrics_taker_auth/index.html')
 
 
