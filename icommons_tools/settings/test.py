@@ -81,6 +81,11 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'formatter': 'verbose'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
