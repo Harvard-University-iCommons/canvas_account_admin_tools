@@ -44,8 +44,8 @@ class EditTermForm(forms.ModelForm):
 
     active = forms.BooleanField(required=False, label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
-    include_in_catalog = forms.BooleanField(required=False, label='Include this term in the production Course Catalog')
-    include_in_preview = forms.BooleanField(required=False, label='Include this term in the preview Course Catalog')
+    include_in_catalog = forms.BooleanField(required=False, label='Include this term in the <b>production</b> Course Catalog')
+    include_in_preview = forms.BooleanField(required=False, label='Include this term in the <b>preview</b> Course Catalog')
     enrollment_end_date = forms.DateField(required=False, help_text='The last day students can enroll in courses in this term')
     drop_date = forms.DateField(required=False, help_text='Last day students can drop the course')
     withdrawal_date = forms.DateField(required=False, help_text='The last day students can withdraw from courses in this term')
@@ -270,6 +270,13 @@ class EditTermForm(forms.ModelForm):
             del cleaned_data['exam_end_date']
             raise forms.ValidationError(msg)
 
+        if exam_start_date and exam_end_date and exam_end_date < exam_start_date:
+            msg = u"The exam start date cannot be before the exam end date."
+            self._errors['exam_end_date'] = self.error_class([msg])
+            del cleaned_data['exam_start_date']
+            del cleaned_data['exam_end_date']
+            raise forms.ValidationError(msg)
+
         """        
         if calendar_year and start_date and calendar_year != start_date.year:
             msg = u"The calendar year must match the year in the start date."
@@ -332,6 +339,7 @@ class CreateTermForm(EditTermForm):
             Field('shopping_active'),
             Fieldset(
                 'Cross-registration and Catalog',
+                'xreg_available',
                 'xreg_start_date', 'xreg_end_date',
                 'include_in_catalog', 'include_in_preview',
             ),
