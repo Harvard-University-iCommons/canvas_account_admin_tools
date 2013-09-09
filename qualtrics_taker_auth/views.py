@@ -65,7 +65,14 @@ def get_qualtrics_token(user):
     """
 
     userid_hash = hashlib.sha256(user.username).hexdigest()
-    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
+    if user.role_type_cd == 'XIDHOLDER':
+        id_type = 'XID'
+    elif user.role_type_cd == 'POSTHARVARD':
+        id_type = 'POST'
+    else:
+        id_type = 'HUID'
+
+    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s&id_type=%s' % (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email, id_type)
 
     if 'QUALTRICS_API_KEY' not in os.environ:
         raise ValueError("Environment variable '{}' required".format('QUALTRICS_API_KEY'))
