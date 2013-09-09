@@ -1,0 +1,17 @@
+README
+------
+
+The files in this directory can be used to customize the virtualenv for this project so that the appropriate environment variables are automatically set/unset upon activating/deactivating the virtualenv. 
+
+The convention is to create a separate virtualenv for each project, and to give it the same name as the project.
+
+To install these customizations:
+
+1. Make sure that you've created a virtualenv for this project, and make sure it is active
+
+2. Copy the postactivate and postdeactivate scripts from this directory into your virtualenv bin directory:
+
+    cp post* $VIRTUAL_ENV/bin/
+
+3. Edit those two scripts in $VIRTUAL_ENV/bin/ to add the appropriate environment variable values.  MAKE SURE THAT THE SECRET VALUES DO NOT END UP IN THE SOURCE CODE REPOSITORY!
+
