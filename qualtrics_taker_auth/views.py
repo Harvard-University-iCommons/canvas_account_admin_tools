@@ -97,7 +97,7 @@ def get_bitly_url(dist_url):
     access_token = os.getenv(BITLY_ACCESS_TOKEN)
     bitly = bitly_api.Connection(access_token=access_token)
 
-    bitly_data = bitly.shorten(dist_url, preferred_domain='hvrd.me')
+    bitly_data = bitly.shorten(dist_url)
     short_url = bitly_data['url']
     return short_url
 
