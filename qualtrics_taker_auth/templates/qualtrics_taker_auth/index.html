@@ -3,50 +3,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
 
-  <link href="{% get_static_prefix %}bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
-  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
-  <link href="{% get_static_prefix %}Font-Awesome/css/font-awesome.css" rel="stylesheet" media="screen">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{% get_static_prefix %}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="{% get_static_prefix %}bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" media="screen">
+
+  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
+
+  <link href="{% get_static_prefix %}font-awesome-3.2.1/css/font-awesome.css" rel="stylesheet" media="screen">
+
   <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
-    <style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
-    <title>Qualtrics Login Link Generator</title>
+  <title>Qualtrics Login Link Generator</title>
 </head>
 <body>
+  <nav class="navbar navbar-default" role="navigation">
     <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">Qualtrics Login Link Generator</a>
-          
-<ul class="nav pull-right">
-{% if user.username %}
-  <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-      <i class="icon-user"></i> {{ user.email }}
-      <b class="caret"></b>
-    </a>
-    <ul class="dropdown-menu">
-      <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
-    </ul>
-  </li>
-{% endif %}
-</ul>
+      <div class="container">
 
-
-
-        </div>
+        <a class="navbar-brand" href="#">iCommons | <b>Qualtrics Login Link Tool</b></a>
+        
+        <ul class="nav navbar-nav navbar-right">
+        {% if user.username %}
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="icon-user"></i> {{ user.email }}
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
+            </ul>
+          </li>
+        {% endif %}
+        </ul>
       </div>
     </div>  
+  </nav>
+
+
+
+
 <div class="container">
 
 {% if message %}
@@ -63,11 +58,13 @@
 <h1>Qualtrics Login Link Generator</h1>
 
 
-<form>
-    <div class="input-append">
-        <input type="text" name="qtarget_url" class="span6" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
-        <button type="submit" class="btn">Get distributable URL</button>
+<form class="form-inline" role="form">
+    <div class="form-group col-lg-8">
+        <label class="sr-only" for="qtarget_url">Enter Qualtrics poll URL here</label>
+        <input type="text" name="qtarget_url" id="qtarget_url" class="form-control input-lg" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
     </div>
+
+    <button type="submit" class="btn btn-primary btn-lg">Get distributable URL</button>
 </form>
 
 {% if short_url %}

@@ -9,7 +9,7 @@
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
-    <li><a href="{% url "tt:schoollist" %}">Schools</a> <span class="divider">/</span></li>
+    <li><a href="{% url "tt:schoollist" %}">Schools</a></li>
     <li class="active"><a href="#">{{ school.school_id|upper }} Terms</a></li>
 </ul>
 {% endblock %}
@@ -70,28 +70,30 @@
                 {{ term.academic_year }}
             </td>
             <td>
-                {% if term.start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                {% if term.start_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.start_date|date }}
             </td>
             <td>
-                {% if term.end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                {% if term.end_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.end_date|date }}
             </td>
 
             {% if school.school_id == 'sum' or school.school_id == 'ext' or term.xreg_available == 0 %}
                 <td>
+                    <span class="label label-default">n/a</span>
                     {{ term.xreg_start_date|date }}
                 </td>
                 <td>
+                    <span class="label label-default">n/a</span>
                     {{ term.xreg_end_date|date }}
                 </td>
             {% else %}
                 <td>
-                    {% if term.xreg_start_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                    {% if term.xreg_start_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
                     {{ term.xreg_start_date|date }}
                 </td>
                 <td>
-                    {% if term.xreg_end_date == None %}<i class="icon-warning-sign"></i>{% endif %}
+                    {% if term.xreg_end_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
                     {{ term.xreg_end_date|date }}
                 </td>
             {% endif %}
@@ -107,8 +109,7 @@
 
 {% endif %}
 
-<div class="pagination pagination-centered">
-    <ul>
+    <ul class="pagination">
         {% if page_obj.has_previous %}
         <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="icon-chevron-left"></i> </a></li>
         {% else %}
@@ -130,6 +131,5 @@
 
     </ul>
 
-</div>
 
 {% endblock %}
