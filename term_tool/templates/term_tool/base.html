@@ -15,10 +15,11 @@
   <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
 </head>
 <body>
+  
   <nav class="navbar navbar-default" role="navigation">
-
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
+
         <a class="navbar-brand" href="#">iCommons | <b>Term Tool</b></a>
         
         <ul class="nav navbar-nav navbar-right">
@@ -34,12 +35,10 @@
           </li>
         {% endif %}
         </ul>
-
-
-
       </div>
     </div>	
   </nav>
+
   <div class="container">
     {% block breadcrumb %}{% endblock %}
   </div>
