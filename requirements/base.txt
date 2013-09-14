@@ -5,7 +5,7 @@ cx-Oracle>=5.1.2
 https://bitbucket.org/cmurtaugh/django-oraclepool/get/a790eaa64734.zip#egg=django-oraclepool
 
 django-braces>=0.2.2
-django-crispy-forms>=1.2.3
+django-crispy-forms>=1.4.0
 urwid>=1.1.1
 wsgiref>=0.1.2
 python-memcached>=1.48

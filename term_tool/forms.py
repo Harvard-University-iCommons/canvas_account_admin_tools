@@ -39,8 +39,8 @@ class EditTermForm(forms.ModelForm):
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
 
     xreg_available = forms.BooleanField(required=False, label='Cross-registration is available for this term. Uncheck this box if <b>none</b> of the courses in this term are available for cross-registration')
-    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date', help_text='Cross-registration starts at the beginning of the day specified.')
-    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date', help_text='Cross-registration ends at the end of the day specified.')
+    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date', help_text='Cross-registration starts at the <b>beginning</b> of the day specified.')
+    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date', help_text='Cross-registration ends at the <b>end</b> of the day specified.')
 
     active = forms.BooleanField(required=False, label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
@@ -57,8 +57,10 @@ class EditTermForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditTermForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.help_text_inline = True
         self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
         self.helper.form_error_title = u"There were problems with the information you submitted."        
         self.helper.layout = Layout(
@@ -322,8 +324,10 @@ class CreateTermForm(EditTermForm):
     def __init__(self, *args, **kwargs):
         super(CreateTermForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.help_text_inline = True
         self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
         self.helper.form_error_title = u"There were problems with the information you submitted."        
         self.helper.layout = Layout(

@@ -4,55 +4,44 @@
 <html lang="en">
 <head>
 	<title>{% block title %}page title{% endblock %}</title>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
 
-	<link href="{% get_static_prefix %}bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
-  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
-  <link href="{% get_static_prefix %}Font-Awesome/css/font-awesome.css" rel="stylesheet" media="screen">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{% get_static_prefix %}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-  <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
-    <style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
+  <link href="{% get_static_prefix %}bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" media="screen">
 
+  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
+
+  <link href="{% get_static_prefix %}font-awesome-3.2.1/css/font-awesome.css" rel="stylesheet" media="screen">
+  <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
 </head>
 <body>
+  <nav class="navbar navbar-default" role="navigation">
 
     <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">Term Tool</a>
-          
-<ul class="nav pull-right">
-{% if user.username %}
-  <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-      <i class="icon-user"></i> {{ user.email }}
-      <b class="caret"></b>
-    </a>
-    <ul class="dropdown-menu">
-      <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
-    </ul>
-  </li>
-{% endif %}
-</ul>
+      <div class="container">
+        <a class="navbar-brand" href="#">iCommons | <b>Term Tool</b></a>
+        
+        <ul class="nav navbar-nav navbar-right">
+        {% if user.username %}
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="icon-user"></i> {{ user.email }}
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
+            </ul>
+          </li>
+        {% endif %}
+        </ul>
 
 
 
-        </div>
       </div>
     </div>	
-
+  </nav>
   <div class="container">
     {% block breadcrumb %}{% endblock %}
-
   </div>
 
 	<div class="container">
@@ -77,9 +66,8 @@
 	</div>
 
 
-	<!--<script src="http://code.jquery.com/jquery-latest.js"></script>-->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-	<script src="{% get_static_prefix %}bootstrap/js/bootstrap.min.js"></script>
+	<script src="//code.jquery.com/jquery-latest.min.js"></script>
+	<script src="{% get_static_prefix %}bootstrap-3.0.0/js/bootstrap.min.js"></script>
 	<script src="{% get_static_prefix %}bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 
 
