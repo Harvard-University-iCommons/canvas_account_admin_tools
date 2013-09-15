@@ -27,7 +27,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
+        'ENGINE': 'oraclepool',
         'NAME': APP_CONFIG['DJANGO_DB_SID'],
         'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
@@ -38,6 +38,13 @@ DATABASES = {
         },
     }
 }
+
+# need to override the NLS_DATE_FORMAT that is set by oraclepool
+DATABASE_EXTRAS = {
+    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
+    'threaded': True
+}
+
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
@@ -97,12 +104,22 @@ LOGGING = {
     }
 }
 
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'django-cache.kc9kh3.0001.use1.cache.amazonaws.com:11211',
+    }
+}
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+
 '''
 The dictionary below contains group id's and school names. 
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
-ADMIN_GROUP = 'IcGroup:18611'
+ADMIN_GROUP = 'IcGroup:25292'
 
 ALLOWED_GROUPS = {
     'IcGroup:25096': 'gse',

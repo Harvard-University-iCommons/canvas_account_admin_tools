@@ -27,7 +27,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
+        'ENGINE': 'oraclepool',
         'NAME': APP_CONFIG['DJANGO_DB_SID'],
         'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
@@ -37,6 +37,12 @@ DATABASES = {
             'threaded': True,
         },
     }
+}
+
+# need to override the NLS_DATE_FORMAT that is set by oraclepool
+DATABASE_EXTRAS = {
+    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
+    'threaded': True
 }
 
 
@@ -60,6 +66,9 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
         'simple': {
             'format': '%(levelname)s %(module)s %(message)s'
         }
@@ -74,6 +83,11 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'formatter': 'verbose'
         },
         'console': {
             'level': 'DEBUG',
@@ -116,6 +130,8 @@ The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
+ADMIN_GROUP = 'IcGroup:25292'
+
 ALLOWED_GROUPS = {   
     'IcGroup:25096': 'gse',
     'IcGroup:25095': 'colgsas',

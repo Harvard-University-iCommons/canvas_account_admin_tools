@@ -173,6 +173,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'term_tool',
+    'qualtrics_taker_auth',
     #'gunicorn',
     'crispy_forms',
 )
@@ -180,4 +181,10 @@ INSTALLED_APPS = (
 # session cookie lasts for 7 hours (in seconds)
 SESSION_COOKIE_AGE = 60*60*7
 
+SESSION_COOKIE_NAME = 'djsessionid'
+
+SESSION_COOKIE_HTTPONLY = True
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

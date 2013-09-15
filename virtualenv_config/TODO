@@ -1,0 +1,13 @@
+TODO
+
+It would be great to have an installation script that would:
+
+1 - check to make sure that a virtual env is active, and confirm with the user that it is the correct one
+
+2 - read in one or more script templates, and prompt the user for the values 
+
+3 - write out the scripts into the $VIRTUAL_ENV/bin/ directory, replacing tokens with the user-entered values
+
+
+Validation of the user-entered values might be nice, but can be done later.
+

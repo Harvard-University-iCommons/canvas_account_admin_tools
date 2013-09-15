@@ -8,3 +8,5 @@
 django-debug-toolbar==0.9.4
 
 git+https://github.com/inducer/pudb.git#egg=pudb
+
+git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#egg=django-icommons-common

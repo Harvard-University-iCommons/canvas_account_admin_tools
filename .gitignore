@@ -5,3 +5,4 @@ sqlnet.log
 *.pid
 http_static/*
 *.pyc
+newrelic*.ini

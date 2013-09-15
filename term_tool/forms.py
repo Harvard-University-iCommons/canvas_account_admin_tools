@@ -38,13 +38,14 @@ class EditTermForm(forms.ModelForm):
     start_date = forms.DateField(required=True)
     end_date = forms.DateField(required=True, help_text='The last day of the term, including exam period')
 
-    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date')
-    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date')
+    xreg_available = forms.BooleanField(required=False, label='Cross-registration is available for this term. Uncheck this box if <b>none</b> of the courses in this term are available for cross-registration')
+    xreg_start_date = forms.DateField(required=False, label='Cross-reg start date', help_text='Cross-registration starts at the <b>beginning</b> of the day specified.')
+    xreg_end_date = forms.DateField(required=False, label='Cross-reg end date', help_text='Cross-registration ends at the <b>end</b> of the day specified.')
 
     active = forms.BooleanField(required=False, label='Active for Course iSites')
     shopping_active = forms.BooleanField(required=False)
-    include_in_catalog = forms.BooleanField(required=False, label='Include this term in the production Course Catalog')
-    include_in_preview = forms.BooleanField(required=False, label='Include this term in the preview Course Catalog')
+    include_in_catalog = forms.BooleanField(required=False, label='Include this term in the <b>production</b> Course Catalog')
+    include_in_preview = forms.BooleanField(required=False, label='Include this term in the <b>preview</b> Course Catalog')
     enrollment_end_date = forms.DateField(required=False, help_text='The last day students can enroll in courses in this term')
     drop_date = forms.DateField(required=False, help_text='Last day students can drop the course')
     withdrawal_date = forms.DateField(required=False, help_text='The last day students can withdraw from courses in this term')
@@ -56,8 +57,10 @@ class EditTermForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EditTermForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.help_text_inline = True
         self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
         self.helper.form_error_title = u"There were problems with the information you submitted."        
         self.helper.layout = Layout(
@@ -73,6 +76,7 @@ class EditTermForm(forms.ModelForm):
             Field('shopping_active'),
             Fieldset(
                 'Cross-registration and Catalog',
+                'xreg_available',
                 'xreg_start_date', 'xreg_end_date',
                 'include_in_catalog', 'include_in_preview',
             ),
@@ -109,6 +113,7 @@ class EditTermForm(forms.ModelForm):
         calendar_year = cleaned_data.get('calendar_year')
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
+        xreg_available = cleaned_data.get('xreg_available')
         xreg_start_date = cleaned_data.get('xreg_start_date')
         xreg_end_date = cleaned_data.get('xreg_end_date')
         display_name = cleaned_data.get('display_name')
@@ -127,12 +132,6 @@ class EditTermForm(forms.ModelForm):
         encoded = cleaned_data.get('user_id')
         cleaned_data['user_id'] = util.decrypt_string(encoded)
 
-        '''
-        Check if the term has already been created. If it has, raise a validation error.
-        '''
-        if not self.is_valid():
-            raise forms.ValidationError("The Term already exists.")
-
         # default the display_name if it's not set
         if display_name is None or display_name == '':
             cleaned_data['display_name'] = '{0} {1}'.format(term_code.term_name, academic_year)
@@ -149,14 +148,16 @@ class EditTermForm(forms.ModelForm):
             self._errors['end_date'] = self.error_class(['']) 
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
 
-        if not school.school_id == 'sum' and not school.school_id == 'ext':    
-            if (xreg_start_date is None or xreg_start_date == ''): 
-                self._errors['xreg_start_date'] = self.error_class(['']) 
-                raise forms.ValidationError("The cross-reg start date field cannot be empty.")
+        if not school.school_id == 'sum' and not school.school_id == 'ext':   
+            if xreg_available is True:
+                if (xreg_start_date is None or xreg_start_date == ''): 
+                    self._errors['xreg_start_date'] = self.error_class(['']) 
+                    raise forms.ValidationError("The cross-reg start date field cannot be empty.")
 
-            if (xreg_end_date is None or xreg_end_date == ''):
-                self._errors['xreg_end_date'] = self.error_class(['']) 
-                raise forms.ValidationError("The cross-reg end date field cannot be empty.")
+                if (xreg_end_date is None or xreg_end_date == ''):
+                    self._errors['xreg_end_date'] = self.error_class(['']) 
+                    raise forms.ValidationError("The cross-reg end date field cannot be empty.")
+
 
             '''
             There was a request to remove the validation check below. This check validated
@@ -231,7 +232,7 @@ class EditTermForm(forms.ModelForm):
         # not sure if we should do this here or somewhere else...
 
         # make sure that the calendar_year matches the start_date       
-        if start_date and cleaned_data['calendar_year'] != start_date.year:
+        if start_date and calendar_year != start_date.year:
             logger.warn('setting the calendar year to %s' % start_date.year)
             cleaned_data['calendar_year'] = start_date.year
 
@@ -268,6 +269,13 @@ class EditTermForm(forms.ModelForm):
         if exam_end_date and (exam_end_date < start_date or exam_end_date > end_date):
             msg = u"The exam end date, if provided, must fall between the term start and end dates."
             self._errors['exam_end_date'] = self.error_class([msg])
+            del cleaned_data['exam_end_date']
+            raise forms.ValidationError(msg)
+
+        if exam_start_date and exam_end_date and exam_end_date < exam_start_date:
+            msg = u"The exam start date cannot be before the exam end date."
+            self._errors['exam_end_date'] = self.error_class([msg])
+            del cleaned_data['exam_start_date']
             del cleaned_data['exam_end_date']
             raise forms.ValidationError(msg)
 
@@ -316,8 +324,10 @@ class CreateTermForm(EditTermForm):
     def __init__(self, *args, **kwargs):
         super(CreateTermForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.help_text_inline = True
         self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
         self.helper.form_error_title = u"There were problems with the information you submitted."        
         self.helper.layout = Layout(
@@ -333,6 +343,7 @@ class CreateTermForm(EditTermForm):
             Field('shopping_active'),
             Fieldset(
                 'Cross-registration and Catalog',
+                'xreg_available',
                 'xreg_start_date', 'xreg_end_date',
                 'include_in_catalog', 'include_in_preview',
             ),
@@ -352,17 +363,22 @@ class CreateTermForm(EditTermForm):
             ),
         )
 
+    """
     def clean(self):
 
         cleaned_data = super(CreateTermForm, self).clean()
 
-        return cleaned_data       
+        school = cleaned_data.get('school')
+        term_code = cleaned_data.get('term_code')
+        academic_year = cleaned_data.get('academic_year')
+        #calendar_year = cleaned_data.get('calendar_year')
 
-        #school = cleaned_data.get('school')
-        #term_code = cleaned_data.get('term_code')
-        #academic_year = cleaned_data.get('academic_year')
-        #calendar_year = cleaned_data.get('calendar_year')    
+        # check to see if this term already exists.
+        if Term.objects.filter(school_id=school.school_id, term_code=term_code.term_code, academic_year=academic_year):
+            raise forms.ValidationError("A term record already exists for this school/year/term_code")
 
+        return cleaned_data
+    """
 
 class xCreateTermForm(forms.ModelForm):
 

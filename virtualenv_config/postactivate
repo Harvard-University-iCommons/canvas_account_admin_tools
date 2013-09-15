@@ -1,0 +1,16 @@
+#!/bin/bash
+# This hook is run after this virtualenv is activated.
+# This script is also used by Upstart 
+
+export ORACLE_HOME=/opt/oracle/instantclient_11_2
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2
+export DJANGO_SETTINGS_MODULE=icommons_tools.settings.<changeme>
+export DJANGO_DB_PASSWORD='changeme'
+export ICOMMONSAPIHOST='https://isites.harvard.edu/services/'
+export ICOMMONSAPIUSER='changeme'
+export ICOMMONSAPIPASS='changeme'
+export TERM_TOOL_LOG='/home/vagrant/workspace/icommons_tools/term_tool.log'
+export CIPHER_KEY='changeme'
+export DJANGO_SECRET_KEY='changeme'
+export BITLY_ACCESS_TOKEN='changeme'
+export QUALTRICS_API_KEY='changeme'

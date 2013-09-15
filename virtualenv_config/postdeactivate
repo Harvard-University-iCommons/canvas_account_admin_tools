@@ -1,0 +1,15 @@
+#!/bin/bash
+# This hook is run after this virtualenv is de-activated.
+
+unset ORACLE_HOME
+unset LD_LIBRARY_PATH
+unset DJANGO_SETTINGS_MODULE
+unset DJANGO_DB_PASSWORD
+unset ICOMMONSAPIHOST
+unset ICOMMONSAPIUSER
+unset ICOMMONSAPIPASS
+unset TERM_TOOL_LOG
+unset CIPHER_KEY
+unset DJANGO_SECRET_KEY
+unset BITLY_ACCESS_TOKEN
+unset QUALTRICS_API_KEY
