@@ -82,7 +82,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'filename': join(SITE_ROOT, 'logs/term_tool.log'),
             'formatter': 'verbose'
         },
         'console': {
