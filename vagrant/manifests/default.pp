@@ -61,10 +61,10 @@ package {'libaio-dev':
 }
 
 
-package {'python-django':
-    ensure => installed,
-    require => Exec['apt-get-update'],
-}
+#package {'python-django':
+#    ensure => installed,
+#    require => Exec['apt-get-update'],
+#}
 
 
 package {'nodejs':
@@ -116,16 +116,16 @@ package {'sqlite3':
 
 # make a workspace directory and link it into the homedir
 
-file {'/vagrant/workspace':
-    ensure => directory,
-    owner => 'vagrant',
-    group => 'vagrant',
-}
+#file {'/vagrant/workspace':
+#    ensure => directory,
+#    owner => 'vagrant',
+#    group => 'vagrant',
+#}
 
-file {'/home/vagrant/workspace':
-    ensure => link,
-    target => '/vagrant/workspace',
-}
+#file {'/home/vagrant/workspace':
+#    ensure => link,
+#    target => '/vagrant/workspace',
+#}
 
 
 # install the Oracle instant client
