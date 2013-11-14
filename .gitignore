@@ -6,3 +6,4 @@ sqlnet.log
 http_static/*
 *.pyc
 newrelic*.ini
+.vagrant
