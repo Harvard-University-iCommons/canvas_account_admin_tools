@@ -27,7 +27,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'oraclepool',
+        'ENGINE': 'django.db.backends.oracle',
         'NAME': APP_CONFIG['DJANGO_DB_SID'],
         'USER': APP_CONFIG['DJANGO_DB_USER'],
         'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
@@ -36,14 +36,18 @@ DATABASES = {
         'OPTIONS': {
             'threaded': True,
         },
+        'CONN_MAX_AGE': None,
     }
 }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
+'''
 DATABASE_EXTRAS = {
     'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
     'threaded': True
 }
+'''
+
 
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
