@@ -18,7 +18,7 @@ class EditTermForm(forms.ModelForm):
     # this is a model form that's mostly automatically generated; here we specify that it should be based on the Term model:
     class Meta:
         model = Term
-        exclude = ("user_id")
+        exclude = ('user_id',)
     # make the school, term_code and academic_year fields hidden; they should not be changed once the term is created
     school = forms.ModelChoiceField(queryset=School.objects.all(), widget=forms.widgets.HiddenInput())
     term_code = forms.ModelChoiceField(queryset=TermCode.objects.all(), widget=forms.widgets.HiddenInput())

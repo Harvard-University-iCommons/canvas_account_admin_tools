@@ -243,3 +243,9 @@ file {'/etc/profile.d/venvwrapper.sh':
     require => Package['virtualenvwrapper'],
 }
 
+# Create a symlink from ~/<project_name> to /vagrant as a convenience for the developer
+file {'/home/vagrant/icommons_tools':
+    ensure => link,
+    target => '/vagrant',
+}
+
