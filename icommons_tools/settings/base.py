@@ -176,6 +176,7 @@ INSTALLED_APPS = (
     'qualtrics_taker_auth',
     #'gunicorn',
     'crispy_forms',
+    'isites_export_tool'
 )
 
 # session cookie lasts for 7 hours (in seconds)
