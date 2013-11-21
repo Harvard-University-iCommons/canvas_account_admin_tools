@@ -1,6 +1,6 @@
 from django.db import models
 
-class ISites_Export_Job(models.Model):
+class ISitesExportJob(models.Model):
     # Job status values
     STATUS_NEW = 'New'
     STATUS_IN_PROGRESS = 'In Progress'
@@ -15,7 +15,7 @@ class ISites_Export_Job(models.Model):
     )
     # Fields
     created_by = models.CharField(max_length=30)
-    created_on = models.DateField()
+    created_on = models.DateField(auto_now_add=True)
     site_keyword = models.CharField(max_length=255)
     status = models.CharField(max_length=15, choices=JOB_STATUS_CHOICES, default=STATUS_NEW)
     archived_on = models.DateField(null=True, blank=True)
@@ -26,4 +26,4 @@ class ISites_Export_Job(models.Model):
         db_table = u'isites_export_job'
         
     def __unicode__(self):
-        return self.id + " | " + self.status
+        return self.site_keyword + " | " + self.status

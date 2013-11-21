@@ -1,0 +1,90 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="{% static "favicon.ico" %}" rel="icon" type="image/x-icon"> 
+  {% block stylesheet %}
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
+  <link href="{% static "bootstrap-3.0.0/css/bootstrap.css" %}" rel="stylesheet" media="screen">
+  <link href="{% static "bootstrap-datepicker/css/datepicker.css" %}" rel="stylesheet" media="screen">
+  <link href="{% static "font-awesome-3.2.1/css/font-awesome.css" %}" rel="stylesheet" media="screen">
+  <link href="{% static "datatables-bootstrap3/BS3/assets/css/datatables.css" %}" rel="stylesheet" media="screen">
+  {% endblock %}
+  <title>ISites Export Tool</title>
+</head>
+<body>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+
+        <a class="navbar-brand" href="#">iCommons | <b>ISites Export Tool</b></a>
+        
+        <ul class="nav navbar-nav navbar-right">
+        {% if user.username %}
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i class="icon-user"></i> {{ user.email }}
+              <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
+            </ul>
+          </li>
+        {% endif %}
+        </ul>
+      </div>
+    </div>  
+  </nav>
+
+  <div class="container">
+    {% if message %}
+    <div class="alert alert-error">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      {% if message.tags == 'success' %}
+        <i class="icon-ok icon-large"></i>
+      {% endif %}
+      {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="well">
+      <h1>ISites Export Tool</h1>
+
+      <form class="form-inline" role="form">
+          <div class="form-group col-lg-8">
+              <label class="sr-only" for="qtarget_url">Enter Qualtrics poll URL here</label>
+              <input type="text" name="qtarget_url" id="qtarget_url" class="form-control input-lg" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg">Get distributable URL</button>
+      </form>
+
+      {% if short_url %}
+      <h3>Short URL:</h3>
+      <p><a href="{{ short_url }}">{{ short_url }}</a></p>
+      {% endif %}
+
+      {% if dist_url %}
+      <h3>Full URL:</h3>
+      <p><a href="{{ dist_url }}">{{ dist_url }}</a></p>
+      {% endif %}
+
+      <h3>Sample poll url:</h3>
+      https://harvard.qualtrics.com/SE/?SID=SV_cGhUMm2my8xWK6F
+
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
+  
+  {% block javascript %}
+  <script src="//code.jquery.com/jquery-latest.min.js"></script>
+  <script src="{% static "bootstrap-3.0.0/js/bootstrap.min.js" %}"></script>
+  <script src="{% static "bootstrap-datepicker/js/bootstrap-datepicker.js" %}"></script>
+  <script src="{% static "datatables-1.9.4/media/js/jquery.dataTables.min.js" %}"></script>
+  <script src="{% static "datatables-bootstrap3/BS3/assets/js/datatables.js" %}"></script>
+  {% endblock %}
+</body>
+</html>
