@@ -1,15 +1,15 @@
-Django>=1.5.4
-cx-Oracle>=5.1.2
+Django==1.6
+cx-Oracle==5.1.2
 
 # django-oraclepool>=1.3
 https://bitbucket.org/cmurtaugh/django-oraclepool/get/a790eaa64734.zip#egg=django-oraclepool
 
-django-braces>=0.2.2
-django-crispy-forms>=1.4.0
-urwid>=1.1.1
-wsgiref>=0.1.2
-python-memcached>=1.48
+django-braces==1.2.2
+django-crispy-forms==1.4.0
+urwid==1.1.1
+wsgiref==0.1.2
+python-memcached==1.53
 python-gnupg==0.3.3
 pycrypto==2.6
-bitly_api
+bitly_api==0.3
 
