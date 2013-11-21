@@ -254,10 +254,10 @@ exec {'create-virtualenv':
     provider => 'shell',
     user => 'vagrant',
     group => 'vagrant',
-    require => [ Package['virtualenvwrapper'], File['/home/vagrant/lti_sandbox'] ],
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_tools'] ],
     environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/venv_bootstrap.sh',
-    creates => '/home/vagrant/.virtualenvs/lti_sandbox',
+    creates => '/home/vagrant/.virtualenvs/icommons_tools',
 }
 
 # Active this virtualenv upon login
