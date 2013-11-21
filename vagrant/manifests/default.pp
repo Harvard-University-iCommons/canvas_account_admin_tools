@@ -251,10 +251,13 @@ file {'/home/vagrant/icommons_tools':
 
 # Create a virtualenv for <project_name>
 exec {'create-virtualenv':
+    provider => 'shell',
     user => 'vagrant',
-    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_tools'] ],
-    command => 'HOME=/home/vagrant source `which virtualenvwrapper.sh`; mkvirtualenv icommons_tools -a /home/vagrant/icommons_tools',
-    creates => '/home/vagrant/.virtualenvs/icommons_tools',
+    group => 'vagrant',
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/lti_sandbox'] ],
+    environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    command => '/vagrant/vagrant/venv_bootstrap.sh',
+    creates => '/home/vagrant/.virtualenvs/lti_sandbox',
 }
 
 # Active this virtualenv upon login
