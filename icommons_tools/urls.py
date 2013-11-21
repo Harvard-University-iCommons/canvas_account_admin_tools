@@ -13,10 +13,12 @@ urlpatterns = patterns('',
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
+    #url(r'^admin/', include(admin.site.urls)),
 
     url(r'^tools/term_tool/', include('term_tool.urls', namespace="tt")),
 
     url(r'^tools/qualtrics_taker_auth/', include('qualtrics_taker_auth.urls', namespace="qta")),
+
+    url(r'^tools/shopping/', include('canvas_shopping.urls', namespace="shopping")),
 
 )
