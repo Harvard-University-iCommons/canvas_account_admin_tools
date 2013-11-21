@@ -249,3 +249,18 @@ file {'/home/vagrant/icommons_tools':
     target => '/vagrant',
 }
 
+# Create a virtualenv for <project_name>
+exec {'create-virtualenv':
+    user => 'vagrant',
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_tools'] ],
+    command => 'HOME=/home/vagrant source `which virtualenvwrapper.sh`; mkvirtualenv icommons_tools -a /home/vagrant/icommons_tools',
+    creates => '/home/vagrant/.virtualenvs/icommons_tools',
+}
+
+# Active this virtualenv upon login
+file {'/home/vagrant/.bash_profile':
+    owner => 'vagrant',
+    content => 'echo "Activating python virtual environment \"icommons_tools\""; workon icommons_tools',
+    require => Exec['create-virtualenv'],
+}
+
