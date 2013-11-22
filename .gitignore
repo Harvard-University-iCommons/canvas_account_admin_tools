@@ -7,4 +7,3 @@ http_static/*
 *.pyc
 newrelic*.ini
 .vagrant
-logs/*
