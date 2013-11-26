@@ -19,5 +19,5 @@ urlpatterns = patterns('',
 
     url(r'^tools/qualtrics_taker_auth/', include('qualtrics_taker_auth.urls', namespace="qta")),
 
-    url(r'^tools/isites_export/', include('isites_export_tool.urls', namespace="iset")),
+    url(r'^tools/isites_export/', include('isites_export_tool.urls', namespace="et")),
 )

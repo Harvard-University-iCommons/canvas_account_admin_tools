@@ -1,6 +1,8 @@
 from django.conf import settings
-from django.views.generic.list import ListView
-from .models import ISitesExportJob
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.edit import BaseCreateView
+from .models import ISitesExportJob, ISitesExportJobForm
+from django.core.urlresolvers import reverse_lazy
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -11,7 +13,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 # When setting up a tool in iSites, a POST request is initially made to the tool so we need to mark this entrypoint as exempt from the csrf requirement
-class JobsIndexView(ListView):
-    template_name = "job_index.html"
-    context_object_name = 'jobs'
-    queryset = ISitesExportJob.objects.all()
+class JobListOrCreate(TemplateResponseMixin, BaseCreateView):
+    template_name = "job_list.html"
+    form_class = ISitesExportJobForm
+    success_url = reverse_lazy('et:job_list')
+
+    def get_context_data(self, **kwargs):
+        context = super(JobListOrCreate, self).get_context_data(**kwargs)
+
+        # Retrieve list of export jobs
+        job_list = ISitesExportJob.objects.all()
+
+        context['jobs'] = job_list
+        return context
+        

@@ -1,4 +1,16 @@
 from django.db import models
+from django.forms import ModelForm, ValidationError
+
+class Site(models.Model):
+    site_id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=150, null=False)
+    keyword = models.CharField(max_length=30, null=False, unique=True)
+    site_type = models.IntegerField(max_length=10)
+    enabled = models.CharField(max_length=1, null=False)
+
+    class Meta:
+        db_table = u'site'
+        managed = False
 
 class ISitesExportJob(models.Model):
     # Job status values
@@ -15,8 +27,9 @@ class ISitesExportJob(models.Model):
     )
     # Fields
     created_by = models.CharField(max_length=30)
-    created_on = models.DateField(auto_now_add=True)
-    site_keyword = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    site_keyword = models.CharField(max_length=30)
     status = models.CharField(max_length=15, choices=JOB_STATUS_CHOICES, default=STATUS_NEW)
     archived_on = models.DateField(null=True, blank=True)
     output_file_name = models.CharField(max_length=100, blank=True)
@@ -27,3 +40,19 @@ class ISitesExportJob(models.Model):
         
     def __unicode__(self):
         return self.site_keyword + " | " + self.status
+
+
+class ISitesExportJobForm(ModelForm):
+    class Meta:
+        model = ISitesExportJob
+        fields = ['site_keyword']
+
+    def clean(self):
+        cleaned_data = super(ISitesExportJobForm, self).clean()
+        site_keyword = cleaned_data.get("site_keyword")
+        if (Site.objects.filter(keyword=site_keyword).count() > 0):
+            print "site keyword exists!"
+        else:
+            raise ValidationError("site keyword does not map to an existing iSite!")
+
+        return cleaned_data

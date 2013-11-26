@@ -1,8 +1,8 @@
 from django.conf.urls import patterns, url
 
-from .views import JobsIndexView
+from .views import JobListOrCreate
 
 urlpatterns = patterns('',
     
-    url(r'^', JobsIndexView.as_view(), name='jobs_index'),
+    url(r'^', JobListOrCreate.as_view(), name='job_list'),
 )
