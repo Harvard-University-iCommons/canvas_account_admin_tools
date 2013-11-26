@@ -1,0 +1,27 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}List of People{% endblock %}
+{% block pagetitle %}List of People{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">Persons</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+{% if qualtrics_access_list %}
+<table class="table">
+	{% for person in qualtrics_access_list %}
+		<tr><td>{{ person.user_id|upper }}</td><td>{{ person.description }}</td></tr>
+	{% endfor %}
+</table>
+
+{% endif %}
+
+
+{% endblock %}

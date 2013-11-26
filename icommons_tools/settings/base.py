@@ -174,6 +174,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'term_tool',
     'qualtrics_taker_auth',
+    'qualtrics_whitelist',
     #'gunicorn',
     'crispy_forms',
 )

@@ -19,4 +19,6 @@ urlpatterns = patterns('',
 
     url(r'^tools/qualtrics_taker_auth/', include('qualtrics_taker_auth.urls', namespace="qta")),
 
+    url(r'tools/qualtrics_whitelist/', include('qualtrics_whitelist.urls'))
+
 )
