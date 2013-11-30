@@ -1,0 +1,35 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Canvas Courses for {{ school.title_short }}{% endblock %}
+{% block pagetitle %}Canvas Courses for {{ school.title_short }}{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url 'sh:schoollist' %}">Schools</a></li>
+    <li class="active"><a href="#">{{ school.title_short }} Courses</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+{% if course_list %}
+<table class="table">
+    {% for course in course_list %}
+        <tr><td>{{ course.course.registrar_code }}</td><td><a href="#"> {{ course.title }}</a></td>
+            <td>{{ course.course_instance_id }}</td>
+            {% if course.course_instance_id in shopped_course_instance_ids %}
+            <td><button type="button" class="btn btn-default"><i class="icon-trash"></i> Remove this course</button></td>
+            {% else %}
+            <td><button type="button" class="btn btn-success"><i class="icon-shopping-cart"></i> Shop this course</button></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+
+{% endif %}
+
+
+{% endblock %}
