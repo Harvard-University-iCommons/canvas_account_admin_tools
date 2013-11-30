@@ -6,12 +6,10 @@ from django.http import HttpResponse
 from django.views import generic
 from django.shortcuts import redirect
 from django.contrib import messages
-#from django.contrib.auth import authenticate, logout, login
-#rom django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 
-from icommons_common.models import *
+from icommons_common.models import School, Term
+from icommons_common.auth.views import LoginRequiredMixin
 from term_tool.forms import EditTermForm, CreateTermForm
 
 from django.conf import settings
@@ -19,7 +17,6 @@ from django.conf import settings
 import logging
 
 from util import util
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,24 +30,19 @@ class TermActionMixin(object):
         messages.success(self.request, msg)
         return super(TermActionMixin, self).form_valid(form)
 
-"""
-class PinLoginRequiredMixin(object):
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
-"""
 ### /Mixins
 
 
 ### Class-based views:
 
-class SchoolListView(generic.ListView):
+class SchoolListView(LoginRequiredMixin, generic.ListView):
     model = School
     template_name = 'term_tool/school_list.html'
     context_object_name = 'school_list'
     queryset = School.objects.filter(active=1)
 
 
-class TermListView(generic.ListView):
+class TermListView(LoginRequiredMixin, generic.ListView):
     """
     This view provides a list of all of the terms for a particular school.
     The school_id appears in the URL, and is available in the 'school_id' kwarg.
@@ -120,7 +112,7 @@ class TermListView(generic.ListView):
         return context
 
 
-class TermEditView(TermActionMixin, generic.edit.UpdateView):
+class TermEditView(LoginRequiredMixin, TermActionMixin, generic.edit.UpdateView):
     form_class = EditTermForm
     template_name = 'term_tool/term_edit.html'
     action = 'updated'
@@ -148,7 +140,7 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
 
-class TermCreateView(TermActionMixin, generic.edit.CreateView):
+class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateView):
     form_class = CreateTermForm
     template_name = 'term_tool/term_create.html'
     action = 'created'
