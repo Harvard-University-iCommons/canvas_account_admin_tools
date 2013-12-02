@@ -109,6 +109,11 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
+        },        
+        'isites_export_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
         'icommons_common': {
             'handlers': ['console', 'logfile'],
@@ -119,9 +124,24 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'huey.consumer': {
+            'handlers': ['logfile'],
+            'level': 'INFO',
+            'propagate': True,
+        },
 
     }
+}
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'hueytest',
+    'connection': {'host': 'localhost', 'port': 6379},
+    'always_eager': False, # Defaults to False when running via manage.py run_huey
+
+    # Options to pass into the consumer when running ``manage.py run_huey``
+    'consumer_options': {'workers': 2},
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'

@@ -12,4 +12,5 @@ python-memcached==1.53
 python-gnupg==0.3.3
 pycrypto==2.6
 bitly_api==0.3
-
+huey==0.4.1
+redis==2.8.0

@@ -1,25 +1,37 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+
 {% block content %}
+
+    {% crispy form %}
+
     <table id="joblist_tbl" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered">
-        <thead>
+      <thead>
          <tr>
              <th>Site</th>
              <th>Created On</th>
              <th>Status</th>
              <th>File</th>
          </tr>
-        </thead>
-        <tbody>
-        {% for job in jobs %}
-            <tr>
-                <td><div>{{ job.site_keyword }}</div></td>                
-                <td><div>{{ job.created_on }}</div></td>
-                <td><div>{{ job.status }}</div></td>
-                <td><div>{{ job.output_file }}</div></td>
-            </tr>
-        {% endfor %}
-        </tbody>
+      </thead>
+      <tbody>
+      {% for job in jobs %}
+          <tr>
+              <td><div>{{ job.site_keyword }}</div></td>                
+              <td><div>{{ job.created_at }}</div></td>
+              <td><div>{{ job.status }}</div></td>
+              <td><div>{{ job.output_file_name }}</div></td>
+          </tr>
+      {% endfor %}
+      </tbody>
     </table>
+{% endblock %}
+{% block stylesheet %}
+    {{ block.super }}
+    <style>
+      .form-inline * { vertical-align: top}
+      #div_id_site_keyword { width:33%; }
+    </style>
 {% endblock %}
 {% block javascript %}
     {{ block.super }}
@@ -35,7 +47,7 @@
          *           bool:bIgnoreEmpty - optional - if set to false empty values are not filtered from the result array
          * Author:   Benedikt Forchhammer
          */
-        /*jQuery.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique, bFiltered, bIgnoreEmpty ) {
+        $.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique, bFiltered, bIgnoreEmpty ) {
             // check that we have a column id
             if ( typeof iColumn == "undefined" ) return new Array();
              
@@ -75,7 +87,7 @@
             }
              
             return asResultData;
-        };*/
+        };
 
         function fnCreateSelect( aData )
         {
@@ -96,14 +108,17 @@
                 ],*/
                 "aaSorting": [[ 1, 'desc' ]],
                 "bAutoWidth": false,
-                
+                "sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",
+                "oLanguage": {
+                  "sSearch": "Search"
+                }
             });
             /* Add a select menu to limit by enrollee type */
-            /*$("div.enrollee-limiter").html('<label for="member-type-select">Show only:</label>');
-            $("div.enrollee-limiter").append(fnCreateSelect( oTable.fnGetColumnData(2) ));
-            $('select', $('div.enrollee-limiter')).change( function() {
-                oTable.fnFilter( $(this).val(), 0 );
-            });*/
+            $("div.status-limiter").html('<label for="member-type-select">Show only:</label>');
+            $("div.status-limiter").append(fnCreateSelect( oTable.fnGetColumnData(2) ));
+            $('select', $('div.status-limiter')).change( function() {
+                oTable.fnFilter( $(this).val(), 2 );
+            });
         });
     </script>
 {% endblock %}

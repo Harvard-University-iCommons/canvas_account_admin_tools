@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
 from .models import ISitesExportJob, ISitesExportJobForm
 from django.core.urlresolvers import reverse_lazy
+from .tasks import process_job
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -26,4 +27,9 @@ class JobListOrCreate(TemplateResponseMixin, BaseCreateView):
 
         context['jobs'] = job_list
         return context
+
+    def get_success_url(self):
+        logger.info("Inside get_success_url with keyword created of %s" % self.object.site_keyword)
+        process_job(self.object.site_keyword) # Kick off queue process
+        return super(JobListOrCreate, self).get_success_url()
         

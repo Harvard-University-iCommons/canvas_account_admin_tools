@@ -1,5 +1,13 @@
 from django.db import models
 from django.forms import ModelForm, ValidationError
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button
+from crispy_forms.bootstrap import FormActions
+
+def validate_site_exists(keyword):
+    if (Site.objects.filter(keyword=keyword).count() == 0):
+        raise ValidationError(u'keyword does not map to an existing iSite!')
+
 
 class Site(models.Model):
     site_id = models.IntegerField(primary_key=True)
@@ -29,7 +37,7 @@ class ISitesExportJob(models.Model):
     created_by = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    site_keyword = models.CharField(max_length=30)
+    site_keyword = models.CharField(max_length=30, validators=[validate_site_exists])
     status = models.CharField(max_length=15, choices=JOB_STATUS_CHOICES, default=STATUS_NEW)
     archived_on = models.DateField(null=True, blank=True)
     output_file_name = models.CharField(max_length=100, blank=True)
@@ -43,16 +51,21 @@ class ISitesExportJob(models.Model):
 
 
 class ISitesExportJobForm(ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ISitesExportJobForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline'
+        self.helper.form_show_labels = False
+
+        self.helper.layout = Layout(
+            'site_keyword',
+            Submit('save', 'Save changes', css_class='btn_default'),
+        )
+
+
     class Meta:
         model = ISitesExportJob
         fields = ['site_keyword']
 
-    def clean(self):
-        cleaned_data = super(ISitesExportJobForm, self).clean()
-        site_keyword = cleaned_data.get("site_keyword")
-        if (Site.objects.filter(keyword=site_keyword).count() > 0):
-            print "site keyword exists!"
-        else:
-            raise ValidationError("site keyword does not map to an existing iSite!")
 
-        return cleaned_data
