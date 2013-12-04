@@ -1,0 +1,67 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Results List{% endblock %}
+{% block pagetitle %}Results List{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">Choose from the list</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+<h4>Choose one or more and enter the reason and access end date, if necessary</h4>
+	{% if qualtrics_access_results %}
+	{% endif %}
+<!-- {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %} -->
+
+<!-- <form action="/qualtrics_access_list/" method="POST">{% csrf_token %} -->
+
+Hello<br>
+
+This is your input:
+<p>{{ user_input }}</p>
+
+<table border="2">
+	<thead>
+        <tr>
+        	<th></th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Reason</th>
+            <th>Access End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+	{% for choice in results_list.all %}
+		<tr>
+			<td><input type='checkbox' name="access_user_id" id="option{{choice.user_id}}" value={{choice.user_id}} /></td>
+			<td>{{ choice.user_id }}</td>
+			<td>{{ choice.first_name }}</td>
+			<td>{{ choice.last_name }}</td>
+			<td>{{ choice.email }}</td>
+			<td><div contenteditable>{{ choice.description }}</div></td>
+			<td><div contenteditable>To Be Filled</div></td>
+			<!-- <td><div contenteditable>{{ choice.access_end_date }}</div></td> -->
+		</tr>
+	{% endfor %}
+	<tbody>
+</table>
+
+<table>
+	<tr>
+		<td><input type='submit' value='Save'></td>
+		<td><input type='submit' value='Cancel'></td>
+	<tr>
+</table>
+<!-- </form> -->
+
+
+
+{% endblock %}

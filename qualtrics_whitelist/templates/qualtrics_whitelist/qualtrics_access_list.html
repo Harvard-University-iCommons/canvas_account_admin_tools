@@ -16,12 +16,42 @@
 {% block content %}
 {% if qualtrics_access_list %}
 <table class="table">
-	{% for person in qualtrics_access_list %}
-		<tr><td>{{ person.user_id|upper }}</td><td>{{ person.description }}</td></tr>
-	{% endfor %}
+    <thead>
+        <tr>
+            <th>HUID</th>
+            <th>Reason</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Access End Date</th>
+            <th colspan="2">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+		{% for person in qualtrics_access_list %}
+
+			<tr>
+				<td>{{ person.user_id|upper }}</td>
+				<td>{{ person.description }}</td>
+				<td>{{ person.name_first }}</td>
+				<td>{{ person.name_last }}</td>
+				<td>{{ person.email_address }}</td>
+				<td></td>
+				<td><a href="{% url "qwl:qualtricsaccesslist" %}">Edit</a></td><td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td>
+			</tr>
+
+		{% endfor %}
+	<tbody>
 </table>
 
 {% endif %}
 
+<form action="qualtrics_access_search/" method="post">{% csrf_token %}
+    
+	<input type="submit" value="Add a Person" />
+</form>
 
 {% endblock %}
+
+
+
