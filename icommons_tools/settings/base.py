@@ -176,6 +176,7 @@ INSTALLED_APPS = (
     'canvas_shopping',
     #'gunicorn',
     'crispy_forms',
+    'rest_framework',
 )
 
 # session cookie lasts for 7 hours (in seconds)

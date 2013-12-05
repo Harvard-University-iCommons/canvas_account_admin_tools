@@ -13,3 +13,4 @@ python-gnupg==0.3.3
 pycrypto==2.6
 bitly_api==0.3
 ims_lti_py
+djangorestframework==2.3.9

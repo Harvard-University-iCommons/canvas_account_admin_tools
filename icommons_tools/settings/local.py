@@ -36,11 +36,12 @@ DATABASES = {
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': None,
+        'CONN_MAX_AGE': 0,
     }
 }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
+
 '''
 DATABASE_EXTRAS = {
     'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
@@ -48,9 +49,14 @@ DATABASE_EXTRAS = {
 }
 '''
 
+API_HOSTNAME = 'canvas.icommons.harvard.edu'
+
+API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
+
+
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
-INSTALLED_APPS += ('debug_toolbar',)
+INSTALLED_APPS += ('debug_toolbar','rest_framework.authtoken',)
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:
@@ -119,12 +125,39 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'icommons_common.auth.views': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'rest_framework': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.db.backends.oracle': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
     }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 '''
 The dictionary below contains group id's and school names. 
