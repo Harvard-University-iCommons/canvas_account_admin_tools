@@ -60,7 +60,7 @@ class ISitesExportJobForm(ModelForm):
 
         self.helper.layout = Layout(
             'site_keyword',
-            Submit('save', 'Save changes', css_class='btn_default'),
+            Submit('export', 'Export', css_class='btn_default'),
         )
 
 

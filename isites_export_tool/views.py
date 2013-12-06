@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # When setting up a tool in iSites, a POST request is initially made to the tool so we need to mark this entrypoint as exempt from the csrf requirement
 class JobListOrCreate(TemplateResponseMixin, BaseCreateView):
-    template_name = "job_list.html"
+    template_name = "isites_export_tool/job_list.html"
     form_class = ISitesExportJobForm
     success_url = reverse_lazy('et:job_list')
 
