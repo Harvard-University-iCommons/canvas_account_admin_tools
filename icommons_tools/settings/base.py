@@ -158,6 +158,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    normpath(join(SITE_ROOT, 'templates')), # Shared project templates
 )
 
 
@@ -176,6 +177,8 @@ INSTALLED_APPS = (
     'qualtrics_taker_auth',
     #'gunicorn',
     'crispy_forms',
+    'isites_export_tool',
+    'huey.djhuey',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -188,3 +191,4 @@ SESSION_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
