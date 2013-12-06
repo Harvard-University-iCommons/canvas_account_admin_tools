@@ -6,37 +6,37 @@
   <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{% get_static_prefix %}bootstrap-3.0.0/css/bootstrap.css" rel="stylesheet" media="screen">
+  <link href="{% get_static_prefix %}bootstrap-3.0.2/css/bootstrap.min.css" rel="stylesheet" media="screen">
 
   <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
 
-  <link href="{% get_static_prefix %}font-awesome-3.2.1/css/font-awesome.css" rel="stylesheet" media="screen">
+  <!--<link href="{% get_static_prefix %}font-awesome-3.2.1/css/font-awesome.css" rel="stylesheet" media="screen">-->
 
   <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
   <title>Qualtrics Login Link Generator</title>
 </head>
 <body>
-  <nav class="navbar navbar-default" role="navigation">
-    <div class="navbar navbar-inverse navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <!--div class="navbar navbar-fixed-top"-->
       <div class="container">
-
-        <a class="navbar-brand" href="#">iCommons | <b>Qualtrics Login Link Tool</b></a>
+		<a class="navbar-brand" href="#"><img src="{% get_static_prefix %}images/harvardLogo.png" title="Harvard University." alt="Harvard University."/>
+         iCommons | <strong>Qualtrics Login Link Tool</strong></a>
         
         <ul class="nav navbar-nav navbar-right">
         {% if user.username %}
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <i class="icon-user"></i> {{ user.email }}
+              <i class="glyphicon glyphicon-user"></i> {{ user.email }}
               <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
-              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
+              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="glyphicon glyphicon-log-out"></i> sign out</a></li>
             </ul>
           </li>
         {% endif %}
         </ul>
       </div>
-    </div>  
+    <!--/div-->  
   </nav>
 
 
@@ -45,12 +45,13 @@
 <div class="container">
 
 {% if message %}
-            <div class="alert alert-error">
-              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <!--<div class="alert alert-error">-->
+            <div class="alert alert-warning alert-dismissable">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
               {% if message.tags == 'success' %}
                 <i class="icon-ok icon-large"></i>
               {% endif %}
-              {{ message }}
+              <strong>{{ message }}</strong>
             </div>
 {% endif %}
 
@@ -84,7 +85,7 @@ https://harvard.qualtrics.com/SE/?SID=SV_cGhUMm2my8xWK6F
 </div>
 </div>
     <script src="//code.jquery.com/jquery-latest.min.js"></script>
-    <script src="{% get_static_prefix %}bootstrap-3.0.0/js/bootstrap.min.js"></script>
+    <script src="{% get_static_prefix %}bootstrap-3.0.2/js/bootstrap.min.js"></script>
     <script src="{% get_static_prefix %}bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 
 </body>
