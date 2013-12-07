@@ -20,7 +20,7 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
 
-        <a class="navbar-brand" href="#">iCommons | <b>Term Tool</b></a>
+        <a class="navbar-brand" href="#">iCommons | <b>{% block tool_title %}{% endblock %}</b></a>
         
         <ul class="nav navbar-nav navbar-right">
         {% if user.username %}
