@@ -205,4 +205,4 @@ if 'http_proxy' in os.environ:
 if 'https_proxy' in os.environ:
     PROXIES['https'] = os.environ['https_proxy']
 
-LOGIN_URL = '/pin/login/'
+LOGIN_URL = '/tools/pin/login/'

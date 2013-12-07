@@ -23,8 +23,8 @@ urlpatterns = patterns('',
 
     url(r'^tools/shopping/', include('canvas_shopping.urls', namespace="sh")),
 
-    url(r'^pin/login/', 'icommons_common.auth.views.login', name='login'),
+    url(r'^tools/pin/login/', 'icommons_common.auth.views.login', name='login'),
 
-    url(r'^pin/logout/', 'icommons_common.auth.views.logout', name='logout'),
+    url(r'^tools/pin/logout/', 'icommons_common.auth.views.logout', name='logout'),
 
 )
