@@ -49,6 +49,10 @@ DATABASE_EXTRAS = {
 }
 '''
 
+API_HOSTNAME = 'canvas.icommons.harvard.edu'
+
+API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
+
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += (
