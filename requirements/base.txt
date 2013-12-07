@@ -14,3 +14,5 @@ pycrypto==2.6
 bitly_api==0.3
 huey==0.4.1
 redis==2.8.0
+ims_lti_py
+djangorestframework==2.3.9

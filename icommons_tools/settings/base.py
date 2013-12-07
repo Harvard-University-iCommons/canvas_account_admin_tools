@@ -124,7 +124,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'icommons_common.auth.middleware.PINAuthMiddleware',
     'icommons_common.auth.middleware.GroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
@@ -170,15 +169,17 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+    #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'term_tool',
     'qualtrics_taker_auth',
+    'canvas_shopping',
     #'gunicorn',
     'crispy_forms',
     'isites_export_tool',
     'huey.djhuey',
+    'rest_framework',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -192,3 +193,16 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+CANVAS_TOKEN = get_env_variable('CANVAS_TOKEN')
+
+API_HEADERS = {'Authorization': 'Bearer '+ CANVAS_TOKEN}
+
+PROXIES = {}
+
+if 'http_proxy' in os.environ:
+    PROXIES['http'] = os.environ['http_proxy']
+
+if 'https_proxy' in os.environ:
+    PROXIES['https'] = os.environ['https_proxy']
+
+LOGIN_URL = '/pin/login/'

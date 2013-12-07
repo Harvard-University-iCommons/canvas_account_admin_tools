@@ -9,4 +9,4 @@ gunicorn==0.16.1
 
 newrelic==1.12.0.56
 
-git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git@release_0.4#egg=django-icommons-common
+git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git@release_0.8#egg=django-icommons-common

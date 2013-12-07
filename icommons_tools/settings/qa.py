@@ -36,7 +36,7 @@ DATABASES = {
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': None,
+        'CONN_MAX_AGE': 600,
     }
 }
 

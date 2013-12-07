@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
 from time import gmtime, strftime, time
 import hmac
 import base64
@@ -11,7 +13,7 @@ from django.http import HttpRequest
 
 # Create your views here.
 
-
+@login_required
 def index(request):
 
     if request.GET.get('qtarget') is not None:
