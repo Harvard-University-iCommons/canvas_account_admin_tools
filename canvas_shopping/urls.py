@@ -5,10 +5,17 @@ from canvas_shopping import views
 urlpatterns = patterns('',
 
     url(r'^index$', 'canvas_shopping.views.index', name='index'),
+    url(r'^add_shopper$', 'canvas_shopping.views.add_shopper', name='add_shopper'),
+    url(r'^add_shopper_ui$', 'canvas_shopping.views.add_shopper_ui', name='add_shopper_ui'),
+    url(r'^remove_shopper$', 'canvas_shopping.views.remove_shopper', name='remove_shopper'),
+    url(r'^remove_shopper_ui$', 'canvas_shopping.views.remove_shopper_ui', name='remove_shopper_ui'),
+
+    url(r'^course/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.course', name='course'),
 
     url(r'^$', views.SchoolListView.as_view(), name='schoollist'),
 
     url(r'^(?P<school_id>\w+)$', views.CourseListView.as_view(), name='courselist'),
+
 
 )
 
