@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
+from icommons_common.auth.views import LoginRequiredMixin
 from .models import ISitesExportJob, ISitesExportJobForm
 from django.core.urlresolvers import reverse_lazy
 from .tasks import process_job
@@ -14,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # When setting up a tool in iSites, a POST request is initially made to the tool so we need to mark this entrypoint as exempt from the csrf requirement
-class JobListOrCreate(TemplateResponseMixin, BaseCreateView):
+class JobListOrCreate(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView):
     template_name = "isites_export_tool/job_list.html"
     form_class = ISitesExportJobForm
     success_url = reverse_lazy('et:job_list')
