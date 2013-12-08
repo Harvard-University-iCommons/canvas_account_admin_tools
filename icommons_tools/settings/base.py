@@ -1,6 +1,9 @@
 # Django settings for icommons_tools project.
 import os
 
+from .secure import SECURE_SETTINGS
+
+
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
@@ -110,7 +113,7 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 #SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = get_env_variable('DJANGO_SECRET_KEY')
+SECRET_KEY = SECURE_SETTINGS['DJANGO_SECRET_KEY']
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -193,9 +196,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-CANVAS_TOKEN = get_env_variable('CANVAS_TOKEN')
 
-API_HEADERS = {'Authorization': 'Bearer '+ CANVAS_TOKEN}
+CANVAS_API_HEADERS = {'Authorization': 'Bearer '+ SECURE_SETTINGS['CANVAS_TOKEN']}
 
 PROXIES = {}
 

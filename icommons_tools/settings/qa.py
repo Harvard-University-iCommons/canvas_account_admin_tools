@@ -15,24 +15,20 @@ ICOMMONSAPIPASS - must be defined in the environment
 
 '''
 APP_CONFIG = {
-    'DJANGO_DB_HOST': 'icd3.isites.harvard.edu',
-    'DJANGO_DB_PORT': '8003',
-    'DJANGO_DB_SID': 'isiteqa',
-    'DJANGO_DB_USER': 'termtool',
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONSAPIUSER': '2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS': get_env_variable('ICOMMONSAPIPASS'),
+    'ICOMMONSAPIUSER': SECURE_SETTINGS['ICOMMONS_API_USER'],
+    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONSAPIPASS'],
     'TERM_TOOL_LOG': 'term_tool.log'
 }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': APP_CONFIG['DJANGO_DB_SID'],
-        'USER': APP_CONFIG['DJANGO_DB_USER'],
-        'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
-        'HOST': APP_CONFIG['DJANGO_DB_HOST'],
-        'PORT': APP_CONFIG['DJANGO_DB_PORT'],
+        'NAME': 'isiteqa',
+        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
+        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'HOST': 'icd3.isites.harvard.edu',
+        'PORT': '8003',
         'OPTIONS': {
             'threaded': True,
         },
@@ -48,7 +44,8 @@ DATABASE_EXTRAS = {
 }
 '''
 
-
+CANVAS_API_HOSTNAME = 'harvard.test.instructure.com'
+CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
