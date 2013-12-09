@@ -2,37 +2,50 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    {{ block.super }}
-    {% crispy form %}
+  {{ block.super }}
 
-    <table id="joblist_tbl" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered">
-      <thead>
-         <tr>
-             <th>Site</th>
-             <th>Created On</th>
-             <th>Status</th>
-             <th>Output</th>
-             <th></th>
-         </tr>
-      </thead>
-      <tbody>
-      {% for job in jobs %}
-          <tr>
-              <td><div>{{ job.site_keyword }}</div></td>                
-              <td><div>{{ job.created_at }}</div></td>
-              <td><div>{{ job.status }}</div></td>
-              <td><div>{{ job.output_message|default:job.output_file_name }}</div></td>
-              <td></td>
-          </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+  <div class="row spacer">
+    {% crispy form %}
+    <div class="col-sm-4">
+        {% if showing_archive %}
+          <a class="pull-right" href="{% url 'et:job_list' %}">Show Current</a>
+        {% else %}
+          <a class="pull-right" href="{% url 'et:job_list_archive' %}">Show Archived</a>
+        {% endif %}
+    </div>
+  </div>
+
+  <table id="joblist_tbl" cellpadding="0" cellspacing="0" border="0" class="datatable table table-striped table-bordered">
+    <thead>
+       <tr>
+           <th>Site</th>
+           <th>Created On</th>           
+           <th>Created By</th>
+           <th>Status</th>
+           <th>Output</th>
+           <th></th>
+       </tr>
+    </thead>
+    <tbody>
+    {% for job in jobs %}
+        <tr>
+            <td><div>{{ job.site_keyword }}</div></td>                
+            <td><div>{{ job.created_at }}</div></td>
+            <td><div>Jaime Bermudez</div></td>
+            <td><div>{{ job.status }}</div></td>
+            <td><div>{{ job.output_message|default:job.output_file_name }}</div></td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
 {% block stylesheet %}
     {{ block.super }}
     <style>
-      .form-inline * { vertical-align: top}
-      #div_id_site_keyword { width:33%; }
+      .form-inline .btn { vertical-align: top}
+      #div_id_site_keyword { width:50%; }
+      .spacer { margin-bottom: 40px; }
     </style>
 {% endblock %}
 {% block javascript %}
@@ -41,7 +54,7 @@
         $("document").ready(function() {
             var oTable = $('#joblist_tbl').dataTable({
                 "aoColumnDefs": [
-                  { "bSearchable": false, "bSortable": false, "aTargets": [ 4 ] } // Action buttons
+                  { "bSearchable": false, "bSortable": false, "aTargets": [ 5 ] } // Action buttons
                 ],
                 "aaSorting": [[ 1, 'desc' ]],
                 /*"sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",*/

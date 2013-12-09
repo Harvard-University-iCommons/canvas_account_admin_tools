@@ -57,7 +57,7 @@ class ISitesExportJobForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ISitesExportJobForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-inline'
+        self.helper.form_class = 'form-inline col-sm-8'
         self.helper.form_show_labels = False
 
         self.helper.layout = Layout(

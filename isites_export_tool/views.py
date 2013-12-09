@@ -31,6 +31,7 @@ class JobListOrCreate(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView)
             job_list = ISitesExportJob.objects.exclude(status=ISitesExportJob.STATUS_ARCHIVED)
 
         context['jobs'] = job_list
+        context['showing_archive'] = self.archive
         return context
 
     def get_success_url(self):
