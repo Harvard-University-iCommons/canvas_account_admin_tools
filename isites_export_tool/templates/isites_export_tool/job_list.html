@@ -11,7 +11,8 @@
              <th>Site</th>
              <th>Created On</th>
              <th>Status</th>
-             <th>File</th>
+             <th>Output</th>
+             <th></th>
          </tr>
       </thead>
       <tbody>
@@ -20,7 +21,8 @@
               <td><div>{{ job.site_keyword }}</div></td>                
               <td><div>{{ job.created_at }}</div></td>
               <td><div>{{ job.status }}</div></td>
-              <td><div>{{ job.output_file_name }}</div></td>
+              <td><div>{{ job.output_message|default:job.output_file_name }}</div></td>
+              <td></td>
           </tr>
       {% endfor %}
       </tbody>
@@ -36,89 +38,23 @@
 {% block javascript %}
     {{ block.super }}
     <script>
-        /*
-         * Function: fnGetColumnData
-         * Purpose:  Return an array of table values from a particular column.
-         * Returns:  array string: 1d data array 
-         * Inputs:   object:oSettings - dataTable settings object. This is always the last argument past to the function
-         *           int:iColumn - the id of the column to extract the data from
-         *           bool:bUnique - optional - if set to false duplicated values are not filtered out
-         *           bool:bFiltered - optional - if set to false all the table data is used (not only the filtered)
-         *           bool:bIgnoreEmpty - optional - if set to false empty values are not filtered from the result array
-         * Author:   Benedikt Forchhammer
-         */
-        $.fn.dataTableExt.oApi.fnGetColumnData = function ( oSettings, iColumn, bUnique, bFiltered, bIgnoreEmpty ) {
-            // check that we have a column id
-            if ( typeof iColumn == "undefined" ) return new Array();
-             
-            // by default we only wany unique data
-            if ( typeof bUnique == "undefined" ) bUnique = true;
-             
-            // by default we do want to only look at filtered data
-            if ( typeof bFiltered == "undefined" ) bFiltered = true;
-             
-            // by default we do not wany to include empty values
-            if ( typeof bIgnoreEmpty == "undefined" ) bIgnoreEmpty = true;
-             
-            // list of rows which we're going to loop through
-            var aiRows;
-             
-            // use only filtered rows
-            if (bFiltered == true) aiRows = oSettings.aiDisplay; 
-            // use all rows
-            else aiRows = oSettings.aiDisplayMaster; // all row numbers
-         
-            // set up data array    
-            var asResultData = new Array();
-             
-            for (var i=0,c=aiRows.length; i<c; i++) {
-                iRow = aiRows[i];
-                var aData = this.fnGetData(iRow);
-                var sValue = aData[iColumn];
-                 
-                // ignore empty values?
-                if (bIgnoreEmpty == true && sValue.length == 0) continue;
-         
-                // ignore unique values?
-                else if (bUnique == true && jQuery.inArray(sValue, asResultData) > -1) continue;
-                 
-                // else push the value onto the result data array
-                else asResultData.push(sValue);
-            }
-             
-            return asResultData;
-        };
-
-        function fnCreateSelect( aData )
-        {
-            var r='<select id="member-type-select"><option value=""></option>', i, iLen=aData.length;
-            for ( i=0 ; i < iLen ; i++ ) {
-                r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
-            }
-            return r+'</select>';
-        };
-
         $("document").ready(function() {
             var oTable = $('#joblist_tbl').dataTable({
-                /*"aoColumnDefs": [
-                  { "bSearchable": false, "bSortable": false, "aTargets": [ 1 ] },  
-                  { "aDataSort": [ 2, 3 ], "aTargets": [ 2 ] }, // Sort last name and first name together
-                  { "aDataSort": [ 3, 2 ], "aTargets": [ 3 ] }, // Sort first name and last name together
-                  { "bSearchable": false, "bSortable": false, "aTargets": [ 4 ] } // Email
-                ],*/
+                "aoColumnDefs": [
+                  { "bSearchable": false, "bSortable": false, "aTargets": [ 4 ] } // Action buttons
+                ],
                 "aaSorting": [[ 1, 'desc' ]],
-                "bAutoWidth": false,
-                "sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",
+                /*"sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",*/
                 "oLanguage": {
                   "sSearch": "Search"
                 }
             });
             /* Add a select menu to limit by enrollee type */
-            $("div.status-limiter").html('<label for="member-type-select">Show only:</label>');
+            /*$("div.status-limiter").html('<label for="member-type-select">Show only:</label>');
             $("div.status-limiter").append(fnCreateSelect( oTable.fnGetColumnData(2) ));
             $('select', $('div.status-limiter')).change( function() {
                 oTable.fnFilter( $(this).val(), 2 );
-            });
+            });*/
         });
     </script>
 {% endblock %}
