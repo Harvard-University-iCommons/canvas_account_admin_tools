@@ -1,0 +1,38 @@
+body { padding-top: @harvardBodyPaddingTop; }
+
+.navbar {
+    border-radius: 0;
+}
+
+.navbar-default{
+    background-color: @harvard-ink;
+    border: 0;
+}
+.navbar-default .navbar-brand{
+    color: @harvard-parchment;
+}
+.navbar-brand {
+    color: @harvard-parchment;
+    padding: 13px;
+    &:hover,
+    &:focus {
+      color: @harvard-ink;
+      background-color: @harvard-parchment;
+    }
+}
+    .navbar-brand img{
+        margin-top: -3px;
+    }
+    
+.navbar-default .navbar-nav > li > a:hover
+, .navbar-default .navbar-nav > li > a:focus
+{
+    color: @harvard-parchment;
+}
+
+.navbar-default .navbar-nav > .dropdown > a:hover .caret
+, .navbar-default .navbar-nav > .dropdown > a:focus .caret
+{
+    border-bottom-color: @harvard-parchment;
+    border-top-color: @harvard-parchment;
+}

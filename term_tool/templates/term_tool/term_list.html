@@ -17,6 +17,7 @@
 
 
 {% block content %}
+
 {% if term_list %}
 
 
@@ -71,11 +72,11 @@
                 {{ term.academic_year }}
             </td>
             <td>
-                {% if term.start_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
+                {% if term.start_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.start_date|date }}
             </td>
             <td>
-                {% if term.end_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
+                {% if term.end_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.end_date|date }}
             </td>
 
