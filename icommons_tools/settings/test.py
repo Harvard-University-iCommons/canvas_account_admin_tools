@@ -6,38 +6,25 @@ ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
 
 '''
 Configure application settings
-
-Also Required but not set here:
-DJANGO_DB_PASSWORD - must be defined in the environment
-DJANGO_SECRET_KEY - must be defined in the environment
-CIPHER_KEY - must be defined in the environment
-ICOMMONSAPIPASS - must be defined in the environment
-
 '''
 APP_CONFIG = {
-    'DJANGO_DB_HOST': 'icd3.isites.harvard.edu',
-    'DJANGO_DB_PORT': '8103',
-    'DJANGO_DB_SID': 'isitedev',
-    'DJANGO_DB_USER': 'termtool',
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONSAPIUSER': '2CF64ADC-4907-11E1-B318-E3828F1150F0',
-    'ICOMMONSAPIPASS': get_env_variable('ICOMMONSAPIPASS'),
-    'TERM_TOOL_LOG': 'term_tool.log'
+    'ICOMMONSAPIUSER': SECURE_SETTINGS['ICOMMONS_API_USER'],
+    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
 }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': APP_CONFIG['DJANGO_DB_SID'],
-        'USER': APP_CONFIG['DJANGO_DB_USER'],
-        'PASSWORD': get_env_variable('DJANGO_DB_PASSWORD'),
-        'HOST': APP_CONFIG['DJANGO_DB_HOST'],
-        'PORT': APP_CONFIG['DJANGO_DB_PORT'],
+        'NAME': 'isitedev',
+        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
+        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'HOST': 'icd3.isites.harvard.edu',
+        'PORT': '8103',
         'OPTIONS': {
             'threaded': True,
         },
         'CONN_MAX_AGE': 600,
-
     }
 }
 
@@ -49,9 +36,8 @@ DATABASE_EXTRAS = {
 }
 '''
 
-API_HOSTNAME = 'canvas.icommons.harvard.edu'
-
-API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
+CANVAS_API_HOSTNAME = 'canvas.icommons.harvard.edu'
+CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
@@ -93,8 +79,9 @@ LOGGING = {
         },
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': APP_CONFIG['TERM_TOOL_LOG'],
-            'formatter': 'verbose'
+            'filename': '/home/ubuntu/icommons_tools/logs/icommons_tools.log',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
         },
         'console': {
             'level': 'DEBUG',
@@ -117,7 +104,13 @@ LOGGING = {
             'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
 
     }
 }
@@ -133,7 +126,7 @@ CACHES = {
 
 
 '''
-The dictionary below contains group id's and school names. 
+The dictionary below contains group ids and school names. 
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
