@@ -71,11 +71,11 @@
                 {{ term.academic_year }}
             </td>
             <td>
-                {% if term.start_date == None %}<span class=""><i class="glyphicon glyphicon-warningsign"></i></span>{% endif %}
+                {% if term.start_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.start_date|date }}
             </td>
             <td>
-                {% if term.end_date == None %}<span class=""><i class="glyphicon glyphicon-warning-sign"></i></span>{% endif %}
+                {% if term.end_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
                 {{ term.end_date|date }}
             </td>
 
@@ -112,9 +112,9 @@
 
     <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="glyphicon plyphicon-chevron-left"></i> </a></li>
+        <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="icon-chevron-left"></i> </a></li>
         {% else %}
-        <li class="disabled"><a href="#"> <i class="glyphicon glyphicon-chevron-left"></i> </a></li>
+        <li class="disabled"><a href="#"> <i class="icon-chevron-left"></i> </a></li>
         {% endif %}
 
         {% for page_num in paginator.page_range %}
