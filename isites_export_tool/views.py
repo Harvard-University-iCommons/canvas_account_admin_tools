@@ -19,14 +19,19 @@ class JobListOrCreate(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView)
     template_name = "isites_export_tool/job_list.html"
     form_class = ISitesExportJobForm
     success_url = reverse_lazy('et:job_list')
+    archive = False # Whether to display archived jobs or not
 
     def get_context_data(self, **kwargs):
         context = super(JobListOrCreate, self).get_context_data(**kwargs)
 
-        # Retrieve list of export jobs
-        job_list = ISitesExportJob.objects.all()
+        # Retrieve list of export jobs, archived or no archive, depending on value of instance variable
+        if self.archive :
+            job_list = ISitesExportJob.objects.filter(status=ISitesExportJob.STATUS_ARCHIVED)
+        else :
+            job_list = ISitesExportJob.objects.exclude(status=ISitesExportJob.STATUS_ARCHIVED)
 
         context['jobs'] = job_list
+        context['showing_archive'] = self.archive
         return context
 
     def get_success_url(self):

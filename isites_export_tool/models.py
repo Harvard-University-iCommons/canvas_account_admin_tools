@@ -26,12 +26,14 @@ class ISitesExportJob(models.Model):
     STATUS_IN_PROGRESS = 'In Progress'
     STATUS_ERROR = 'Error'
     STATUS_COMPLETE = 'Complete'
+    STATUS_ARCHIVED = 'Archived'
     # Job status choices
     JOB_STATUS_CHOICES = (
         (STATUS_NEW, STATUS_NEW),
         (STATUS_IN_PROGRESS, STATUS_IN_PROGRESS),
         (STATUS_ERROR, STATUS_ERROR),
-        (STATUS_COMPLETE, STATUS_COMPLETE)
+        (STATUS_COMPLETE, STATUS_COMPLETE),
+        (STATUS_ARCHIVED, STATUS_ARCHIVED),
     )
     # Fields
     created_by = models.CharField(max_length=30)
@@ -55,7 +57,7 @@ class ISitesExportJobForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ISitesExportJobForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'form-inline'
+        self.helper.form_class = 'form-inline col-sm-8'
         self.helper.form_show_labels = False
 
         self.helper.layout = Layout(
