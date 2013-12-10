@@ -11,7 +11,6 @@ APP_CONFIG = {
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER': SECURE_SETTINGS['ICOMMONS_API_USER'],
     'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
-    'TERM_TOOL_LOG': 'term_tool.log'
 }
 
 DATABASES = {
@@ -80,8 +79,9 @@ LOGGING = {
         },
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': APP_CONFIG['TERM_TOOL_LOG'],
-            'formatter': 'verbose'
+            'filename': '/home/ubuntu/icommons_tools/logs/icommons_tools.log',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
         },
         'console': {
             'level': 'DEBUG',
@@ -104,7 +104,13 @@ LOGGING = {
             'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
 
     }
 }
