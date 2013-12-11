@@ -7,7 +7,8 @@ import subprocess, sys, logging
 logger = logging.getLogger(__name__)
 
 HOST = "isites-qa"
-COMMAND = "/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl"
+EXPORT_COMMAND = "/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl"
+RM_COMMAND = "/u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl"
 
 @task()
 def process_job(site_keyword):
@@ -17,7 +18,7 @@ def process_job(site_keyword):
     # Update job status to In-Progress before proceeding
     job.status = ISitesExportJob.STATUS_IN_PROGRESS
     job.save()
-    result = subprocess.check_output(["ssh", HOST, COMMAND, "--keyword %s" % site_keyword],
+    result = subprocess.check_output(["ssh", HOST, EXPORT_COMMAND, "--keyword %s" % site_keyword],
                                      stderr=subprocess.STDOUT)
     
     if (result.startswith("Success")):
@@ -38,10 +39,15 @@ def process_job(site_keyword):
 def archive_jobs():
     # Set up time difference
     days_ago_threshold = datetime.now() - timedelta(hours=48)
-    # Pick jobs that have been completed and are older than the interval defined in settings
-    archivable_jobs = ISitesExportJob.objects.filter(status=ISitesExportJob.STATUS_COMPLETE, created_at__lt=days_ago_threshold).order_by('created_at')
+    # Pick jobs that are older than the interval defined in settings
+    archivable_jobs = ISitesExportJob.objects.filter(created_at__lt=days_ago_threshold).order_by('created_at')
     # Iterate over these jobs and set their status to archived
     for job in archivable_jobs:
+        # For jobs that have been completed and have file output, we will delete the remote file
+        if (job.status == ISitesExportJob.STATUS_COMPLETE and job.output_file_name):
+            result = subprocess.check_output(["ssh", HOST, RM_COMMAND, "--filename %s" % job.output_file_name],
+                                             stderr=subprocess.STDOUT)
+
         job.status = ISitesExportJob.STATUS_ARCHIVED
         job.archived_on = datetime.now()
         job.save()

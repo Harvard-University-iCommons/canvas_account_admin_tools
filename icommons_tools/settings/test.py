@@ -39,8 +39,6 @@ DATABASE_EXTRAS = {
 CANVAS_API_HOSTNAME = 'canvas.icommons.harvard.edu'
 CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
 
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
-
 INSTALLED_APPS += (
     'debug_toolbar',
     'gunicorn'

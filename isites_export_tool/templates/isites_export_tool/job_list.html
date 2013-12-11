@@ -1,8 +1,9 @@
-{% extends "isites_export_tool/base_isites_export_tool.html" %}
+{% extends "base_datatables.html" %}
 {% load crispy_forms_tags %}
 
 {% block content %}
-  {{ block.super }}
+
+  <h1>{% block nav_title %} {% block title %} iSites Export Tool {% endblock title %} {% endblock nav_title %}</h1>
 
   <div class="row spacer">
     {% crispy form %}
@@ -19,11 +20,10 @@
     <thead>
        <tr>
            <th>Site</th>
-           <th>Created On</th>           
+           <th>Created On</th>
            <th>Created By</th>
            <th>Status</th>
            <th>Output</th>
-           <th></th>
        </tr>
     </thead>
     <tbody>
@@ -34,12 +34,12 @@
             <td><div>Jaime Bermudez</div></td>
             <td><div>{{ job.status }}</div></td>
             <td><div>{{ job.output_message|default:job.output_file_name }}</div></td>
-            <td></td>
         </tr>
     {% endfor %}
     </tbody>
   </table>
 {% endblock %}
+
 {% block stylesheet %}
     {{ block.super }}
     <style>
@@ -48,26 +48,19 @@
       .spacer { margin-bottom: 40px; }
     </style>
 {% endblock %}
+
 {% block javascript %}
     {{ block.super }}
     <script>
         $("document").ready(function() {
             var oTable = $('#joblist_tbl').dataTable({
-                "aoColumnDefs": [
-                  { "bSearchable": false, "bSortable": false, "aTargets": [ 5 ] } // Action buttons
-                ],
+                //"aoColumnDefs": [],
                 "aaSorting": [[ 1, 'desc' ]],
                 /*"sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",*/
                 "oLanguage": {
                   "sSearch": "Search"
                 }
             });
-            /* Add a select menu to limit by enrollee type */
-            /*$("div.status-limiter").html('<label for="member-type-select">Show only:</label>');
-            $("div.status-limiter").append(fnCreateSelect( oTable.fnGetColumnData(2) ));
-            $('select', $('div.status-limiter')).change( function() {
-                oTable.fnFilter( $(this).val(), 2 );
-            });*/
         });
     </script>
 {% endblock %}
