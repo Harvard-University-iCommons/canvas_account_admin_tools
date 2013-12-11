@@ -37,7 +37,7 @@ DATABASE_EXTRAS = {
 '''
 
 CANVAS_API_HOSTNAME = 'canvas.icommons.harvard.edu'
-CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
+CANVAS_API_BASE_URL = 'https://'+CANVAS_API_HOSTNAME+'/api/v1'
 
 INSTALLED_APPS += (
     'debug_toolbar',
