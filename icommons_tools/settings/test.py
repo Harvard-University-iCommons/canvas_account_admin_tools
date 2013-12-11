@@ -77,7 +77,7 @@ LOGGING = {
         },
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/home/ubuntu/icommons_tools/logs/icommons_tools.log',
+            'filename': join(SITE_ROOT, 'logs/icommons_tools.log'),
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
