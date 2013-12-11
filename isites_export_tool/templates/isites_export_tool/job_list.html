@@ -29,11 +29,19 @@
     <tbody>
     {% for job in jobs %}
         <tr>
-            <td><div>{{ job.site_keyword }}</div></td>                
+            <td><div>{{ job.site_keyword }}</div></td>
             <td><div>{{ job.created_at }}</div></td>
             <td><div>Jaime Bermudez</div></td>
             <td><div>{{ job.status }}</div></td>
-            <td><div>{{ job.output_message|default:job.output_file_name }}</div></td>
+            <td>
+              <div>
+                  {% if job.is_complete %}
+                    <a href="{{ base_download_url|add:job.output_file_name }}" ><i class="fa fa-download"></i>{{ job.output_file_name }}</a>
+                  {% else %}
+                    {{ job.output_message }}
+                  {% endif %}
+              </div>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

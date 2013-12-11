@@ -7,19 +7,6 @@ from .secure import SECURE_SETTINGS
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
-# Normally you should not import ANYTHING from Django directly
-# into your settings, but ImproperlyConfigured is an exception.
-from django.core.exceptions import ImproperlyConfigured
-
-def get_env_variable(var_name):
-    """ Get the environment variable or return exception """
-    try:
-        return os.environ[var_name]
-    except KeyError:
-        error_msg = "Set the %s environment variable" % var_name
-        raise ImproperlyConfigured(error_msg)
-
-
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
@@ -39,7 +26,6 @@ SITE_NAME = basename(SITE_ROOT)
 path.append(SITE_ROOT)
 
 ### End path stuff
-
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -139,7 +125,6 @@ AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',
 )
 
-
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
@@ -150,7 +135,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "icommons_common.auth.context_processors.pin_context",
 )
-
 
 ROOT_URLCONF = 'icommons_tools.urls'
 
@@ -209,3 +193,4 @@ if 'https_proxy' in os.environ:
     PROXIES['https'] = os.environ['https_proxy']
 
 LOGIN_URL = '/tools/pin/login/'
+

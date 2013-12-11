@@ -186,4 +186,4 @@ ALLOWED_GROUPS = {
     'IcGroup:25178': 'sum'
 }
 
-
+BASE_ISITES_EXPORT_FILE_DOWNLOAD_URL = 'https://qa.isites.harvard.edu/exports/'

@@ -1,7 +1,7 @@
 from django.db import models
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button
+from crispy_forms.layout import Layout, Field, Submit
 from crispy_forms.bootstrap import FormActions
 
 def validate_site_exists(keyword):
@@ -51,6 +51,9 @@ class ISitesExportJob(models.Model):
     def __unicode__(self):
         return self.site_keyword + " | " + self.status
 
+    def is_complete(self):
+        return self.status == ISitesExportJob.STATUS_COMPLETE
+
 
 class ISitesExportJobForm(ModelForm):
 
@@ -61,7 +64,7 @@ class ISitesExportJobForm(ModelForm):
         self.helper.form_show_labels = False
 
         self.helper.layout = Layout(
-            'site_keyword',
+            Field('site_keyword', placeholder='Enter a site keyword to archive...'),
             Submit('export', 'Export', css_class='btn_default'),
         )
 
