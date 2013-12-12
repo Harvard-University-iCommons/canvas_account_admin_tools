@@ -15,14 +15,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 # When setting up a tool in iSites, a POST request is initially made to the tool so we need to mark this entrypoint as exempt from the csrf requirement
-class JobListOrCreate(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView):
+class JobListView(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView):
     template_name = "isites_export_tool/job_list.html"
     form_class = ISitesExportJobForm
     success_url = reverse_lazy('et:job_list')
     archive = False # Whether to display archived jobs or not
 
+    def get_form_kwargs(self):
+        # Ensure the current `request` is provided to ISitesExportJobForm.
+        kwargs = super(JobListView, self).get_form_kwargs()
+        kwargs.update({ 'request': self.request })
+        return kwargs
+
     def get_context_data(self, **kwargs):
-        context = super(JobListOrCreate, self).get_context_data(**kwargs)
+        context = super(JobListView, self).get_context_data(**kwargs)
 
         # Retrieve list of export jobs, archived or no archive, depending on value of instance variable
         if self.archive :
@@ -38,5 +44,5 @@ class JobListOrCreate(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView)
     def get_success_url(self):
         logger.info("Inside get_success_url with keyword created of %s" % self.object.site_keyword)
         process_job(self.object.site_keyword) # Kick off queue process
-        return super(JobListOrCreate, self).get_success_url()
+        return super(JobListView, self).get_success_url()
         

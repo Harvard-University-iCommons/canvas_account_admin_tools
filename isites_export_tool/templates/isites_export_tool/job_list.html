@@ -31,7 +31,11 @@
         <tr>
             <td><div>{{ job.site_keyword }}</div></td>
             <td><div>{{ job.created_at }}</div></td>
-            <td><div>Jaime Bermudez</div></td>
+            <td><div>
+              {% with exporter=job.person %}
+                  {{ exporter.name_first}} {{ exporter.name_last }}
+              {% endwith %}
+            </div></td>
             <td><div>{{ job.status }}</div></td>
             <td>
               <div>

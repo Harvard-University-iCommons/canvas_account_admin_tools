@@ -1,4 +1,5 @@
 from django.db import models
+from icommons_common.models import Person
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
@@ -36,7 +37,7 @@ class ISitesExportJob(models.Model):
         (STATUS_ARCHIVED, STATUS_ARCHIVED),
     )
     # Fields
-    created_by = models.CharField(max_length=30)
+    created_by = models.CharField(max_length=30, default=None) # defaulting to None to force validation to require a value (default is '' which Django thinks is fine!)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     site_keyword = models.CharField(max_length=30, validators=[validate_site_exists])
@@ -54,11 +55,15 @@ class ISitesExportJob(models.Model):
     def is_complete(self):
         return self.status == ISitesExportJob.STATUS_COMPLETE
 
+    def person(self):
+        return Person.objects.filter(univ_id=self.created_by)[0]
+
 
 class ISitesExportJobForm(ModelForm):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, request=None, *args, **kwargs):
         super(ISitesExportJobForm, self).__init__(*args, **kwargs)
+        self.request = request
         self.helper = FormHelper()
         self.helper.form_class = 'form-inline col-sm-8'
         self.helper.form_show_labels = False
@@ -68,6 +73,14 @@ class ISitesExportJobForm(ModelForm):
             Submit('export', 'Export', css_class='btn_default'),
         )
 
+    # Trick lifted from stack overflow to also save the created_by based on the currently logged in user...
+    def save(self, *args, **kwargs):
+        kwargs['commit']=False # Don't want to save the model twice
+        obj = super(ISitesExportJobForm, self).save(*args, **kwargs)
+        if self.request:
+            obj.created_by = self.request.user.username # Username is equivalent to univ_id 
+        obj.save()
+        return obj #<--- Return saved object to caller.
 
     class Meta:
         model = ISitesExportJob
