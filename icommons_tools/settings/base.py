@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -195,7 +196,6 @@ SESSION_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 
 CANVAS_API_HEADERS = {'Authorization': 'Bearer '+ SECURE_SETTINGS['CANVAS_TOKEN']}
 
