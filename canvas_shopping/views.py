@@ -12,6 +12,8 @@ from icommons_common.models import School, CourseInstance
 from icommons_common.canvas_utils import *
 from django.core.cache import cache
 from django.views import generic
+from django.conf import settings
+
 
 import logging
 from django.views.decorators.csrf import csrf_exempt

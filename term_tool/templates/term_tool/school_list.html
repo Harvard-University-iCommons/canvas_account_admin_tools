@@ -2,9 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block tool_name %}Term Tool{% endblock %}
-{% block title %}Choose a School{% endblock %}
-{% block pagetitle %}Choose a School{% endblock %}
+{% block page_title %}Choose a School{% endblock %}
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
@@ -15,6 +13,10 @@
 
 {% block content %}
 {% if school_list %}
+<div class="page-header">
+    <h1>Choose a school</h1>
+</div>
+
 <table class="table">
 	{% for school in school_list %}
 		<tr><td>{{ school.school_id|upper }}</td><td><a href="{% url "tt:termlist" school_id=school.school_id %}"> {{ school.title_short }}</a></td></tr>

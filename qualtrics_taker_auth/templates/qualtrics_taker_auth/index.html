@@ -1,93 +1,41 @@
+{% extends "icommons_tools/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{% get_static_prefix %}bootstrap-3.0.2/css/bootstrap.min.css" rel="stylesheet" media="screen">
+{% block tool_title %}Qualtrics Login Link Tool{% endblock %}
 
-  <link href="{% get_static_prefix %}bootstrap-datepicker/css/datepicker.css" rel="stylesheet" media="screen">
+{% block page_title %}Main{% endblock %}
 
-  <link href="{% get_static_prefix %}font-awesome-3.2.1/css/font-awesome.css" rel="stylesheet" media="screen">
-
-  <link href="{% get_static_prefix %}favicon.ico" rel="icon" type="image/x-icon">
-  <title>Qualtrics Login Link Generator</title>
-</head>
-<body>
-  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <!--div class="navbar navbar-fixed-top"-->
-      <div class="container">
-		<a class="navbar-brand" href="#"><img src="{% get_static_prefix %}images/harvardLogo.png" title="Harvard University." alt="Harvard University."/>
-         iCommons | <strong>Qualtrics Login Link Tool</strong></a>
-        
-        <ul class="nav navbar-nav navbar-right">
-        {% if user.username %}
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <i class="icon-user"></i> {{ user.email }}
-              <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="{{ PIN_LOGOUT_URL }}"><i class="icon-signout"></i> sign out</a></li>
-            </ul>
-          </li>
-        {% endif %}
-        </ul>
-      </div>
-    <!--/div-->  
-  </nav>
-
-
-
-
-<div class="container">
-
-{% if message %}
-            <!--<div class="alert alert-error">-->
-            <div class="alert alert-warning alert-dismissable">
-              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-              {% if message.tags == 'success' %}
-                <i class="icon-ok icon-large"></i>
-              {% endif %}
-              <strong>{{ message }}</strong>
-            </div>
-{% endif %}
+{% block content %}
+<div class="page-header">
+  <h1>Create a Qualtrics Login Link</h1>
+</div>
+<p class="lead">
+  Use this form to generate a link to a Qualtrics survey that will require the survey taker to authenticate via PIN.  
+</p>
 
 <div class="well">
-<h1>Qualtrics Login Link Generator</h1>
-
 
 <form class="form-inline" role="form">
     <div class="form-group col-lg-8">
         <label class="sr-only" for="qtarget_url">Enter Qualtrics poll URL here</label>
         <input type="text" name="qtarget_url" id="qtarget_url" class="form-control input-lg" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
     </div>
-
     <button type="submit" class="btn btn-primary btn-lg">Get distributable URL</button>
 </form>
 
 {% if short_url %}
 <h3>Short URL:</h3>
-<p><a href="{{ short_url }}">{{ short_url }}</a></p>
+<p class="lead"><a href="{{ short_url }}">{{ short_url }}</a></p>
 {% endif %}
 
 {% if dist_url %}
 <h3>Full URL:</h3>
-<p><a href="{{ dist_url }}">{{ dist_url }}</a></p>
+<p class="lead"><a href="{{ dist_url }}">{{ dist_url }}</a></p>
 {% endif %}
 
 <h3>Sample poll url:</h3>
 https://harvard.qualtrics.com/SE/?SID=SV_cGhUMm2my8xWK6F
-
-
 </div>
-</div>
-    <script src="//code.jquery.com/jquery-latest.min.js"></script>
-    <script src="{% get_static_prefix %}bootstrap-3.0.2/js/bootstrap.min.js"></script>
-    <script src="{% get_static_prefix %}bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 
-</body>
-</html>
-
+{% endblock content %}
