@@ -17,11 +17,14 @@
 <h4>Choose one or more and enter the reason and access end date, if necessary</h4>
 	{% if qualtrics_access_results %}
 	{% endif %}
-<!-- {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %} -->
 
-<!-- <form action="/qualtrics_access_list/" method="POST">{% csrf_token %} -->
 
-Hello<br>
+
+<form name="form1" id="checkboxForm" action="./" method="POST">{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user_input }}" >
+<input type="hidden" name="users_list" value="{{ results_list }}" >
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 This is your input:
 <p>{{ user_input }}</p>
@@ -30,38 +33,159 @@ This is your input:
 	<thead>
         <tr>
         	<th></th>
+            <th>Role Type</th>
             <th>HUID</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
-            <th>Reason</th>
-            <th>Access End Date</th>
         </tr>
     </thead>
     <tbody>
-	{% for choice in results_list.all %}
-		<tr>
-			<td><input type='checkbox' name="access_user_id" id="option{{choice.user_id}}" value={{choice.user_id}} /></td>
-			<td>{{ choice.user_id }}</td>
-			<td>{{ choice.first_name }}</td>
-			<td>{{ choice.last_name }}</td>
-			<td>{{ choice.email }}</td>
-			<td><div contenteditable>{{ choice.description }}</div></td>
-			<td><div contenteditable>To Be Filled</div></td>
-			<!-- <td><div contenteditable>{{ choice.access_end_date }}</div></td> -->
-		</tr>
-	{% endfor %}
+    {% if results_list %}
+		{% for choice in results_list %}
+			<tr>
+			{% if choice.on_list %}
+				<td>Already Added</td>
+			{% else %}	
+				<td><input type="checkbox" class="checkbox" name="user_check_list" id="checkbox" value={{choice.user_id}} onclick="enableSubmit()" /></td>
+			{% endif %}
+				<td>{{ choice.role_type }}</td>
+				<td>{{ choice.user_id }}</td>
+				<td>{{ choice.first_name }}</td>
+				<td>{{ choice.last_name }}</td>
+				<td>{{ choice.email }}</td>
+			</tr>
+		{% endfor %}
+	{% endif %}
 	<tbody>
 </table>
-
+<br>
 <table>
 	<tr>
-		<td><input type='submit' value='Save'></td>
-		<td><input type='submit' value='Cancel'></td>
+		<td>Enter Reason Description:</td><td><input type="text" name="description" ></td>
+	</tr>
+	<tr>
+		<td>Enter Access End Date:</td><td><input type="text" id="datepicker" name="access_end_date"</td>
+	</tr>
+	<tr>
+		<td/>
+		<td><input type="submit" class="save" name="Save" value="Save" id="saveBtn" disabled="disabled" >		<input type="submit" name="Cancel" value="Cancel" id="cancel" /></td>
 	<tr>
 </table>
-<!-- </form> -->
+</form>
 
 
+{% endblock %}
+
+{% block pagescripts %}
+
+<script>
+
+// $(document).ready(function() {
+//      $('input:checkbox').click(function() {
+//             var buttonsChecked = $('input:checkbox:checked');
+//             if (buttonsChecked.length) {
+//                 $('#submitButton').removeAttr('disabled');
+//                 } 
+//             else {
+//                 $('#submitButton').attr('disabled', 'disabled');
+//                 }
+//             });
+//         });
+
+function chkCount()
+{
+	// assign a 0 value to the number of selected checkboxes variable
+	var chkTotal = 0;
+	// loop though the checkboxes and count how many are checked
+	for(counter=0;counter<document.form1.checkbox.length;counter++)
+	{
+		if(document.form1.checkbox[counter].checked)
+		{
+			chkTotal = chkTotal + 1;
+		}
+	}
+	// if at least 1 checkbox is checked, activate the submit button
+	if (chkTotal > 0)
+	{
+		document.form1.Save.disabled=false;
+	}
+	else
+	// leave the submit button disabled
+	{
+		document.form1.Save.disabled=true;
+	}
+}
+
+// $(document).ready(function() {
+//     $('input:checkbox').click(function() {
+//         var buttonsChecked = $('input:checkbox:checked');
+//         if (buttonsChecked.length) {
+//             $('#saveBtn').removeAttr('disabled');
+//             } 
+//         else {
+//             $('#saveBtn').attr('disabled', 'disabled');
+//             }
+//     });
+// });
+
+
+  	// EnableSubmit = function()   need to test with multiple checkbox
+  	function enableSubmit()
+	{
+    	var checkbox = document.getElementById("checkbox");
+
+    	if (checkbox.checked == true)
+    	{
+        	document.getElementById("saveBtn").disabled = false;
+    	}
+    	else
+    	{
+        	document.getElementById("saveBtn").disabled = true;
+    	}
+	}                     
+
+
+	function doSubmit()
+	{
+  		var c = document.getElementsByTagName('input'); 
+  		for( var i = 0; i < c.length; i++ )
+  		{ 
+    		if( c[i].type.toLowerCase() == 'checkbox' && c[i].checked ) 
+    		{
+      		// A checkbox was checked, good user
+      		document.getElementById("saveBtn").disabled = false;
+      			//return( true );
+    		} 
+  		}
+  		// No checkbox checks, bad user
+  		document.getElementById("saveBtn").disabled = true;
+  		//return( false );
+	}
+		// $('#checklist').submit(function() {
+		// 	var myVal = $(this).val();
+		// 	if ( myVal == "Save") {
+  //       		var $fields = $(this).find('input[name="access_user_id_list"]:checked');
+  //       		if (!$fields.length) {
+  //           		alert('You must check at least one box!');
+  //           		return false; // The form will *not* submit
+  //       		}
+  //       	}
+  //   	});
+
+		// $('#checklist').click(function (event) {
+		// 	alert ("check for checkboxes");
+		// 	event.preventDefault();
+			/*var checkboxes = $("input[type='checkbox']"),
+				submitButton = $("input[type='submit']");
+*/
+			// checkboxes.click(function () {
+			// 	//display message box
+			// 	alert ("check for checkboxes");
+			// 	event.preventDefault();
+			// 	//allow post
+			// });
+
+</script>
 
 {% endblock %}

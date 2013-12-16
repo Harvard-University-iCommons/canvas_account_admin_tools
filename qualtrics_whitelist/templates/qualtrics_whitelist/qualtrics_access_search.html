@@ -14,39 +14,27 @@
 
 
 {% block content %}
-<!-- {% if qualtrics_access_list %}
-
-<table class="table">
-	{% for person in qualtrics_access_list %}
-		<tr><td>{{ person.user_id|upper }}</td><td>{{ person.description }}</td></tr>
-	{% endfor %}
-</table>
-
-{% endif %} -->
-<h4>Search By HUID</h4>
-
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
 <form action="../qualtrics_access_results_list/" method="POST">{% csrf_token %}
-	Search For:
-	<input type="text" name="search_huid"><br><br>
-    
-	<input type="submit" value="Search Now" />
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<table>
+	<tr>
+		<td>
+			<h4>Search By HUID: </h4></td></tr>
+	<tr>
+		<td>
+			<input type="text" name="search_by_huid"><br><br></td></tr>
+	<tr>
+		<td>
+			<h4>Search By Email Adress: </h4></td></tr>
+	<tr>
+		<td>
+			<input type="text" name="search_by_email"><br><br></td>
+	</tr>
+</table>
+<input type="submit" name="Search" value="Search Now" />
+<input type="submit" name="Cancel" value="Cancel" />
 </form>
+
 
 {% endblock %}
 
-<!-- {% block pagescripts %}
-<script>
-    $(document).ready(function(){
-
-        $('#button-id-cancel').click(function(){
-            parent.history.back();
-            return false;
-        });
-
-        
-
-    });
-</script>
-{% endblock %} -->

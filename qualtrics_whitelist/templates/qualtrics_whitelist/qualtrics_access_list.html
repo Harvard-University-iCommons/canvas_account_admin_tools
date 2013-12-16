@@ -18,6 +18,7 @@
 <table class="table">
     <thead>
         <tr>
+        	<th>Role Type</th>
             <th>HUID</th>
             <th>Reason</th>
             <th>First Name</th>
@@ -31,13 +32,25 @@
 		{% for person in qualtrics_access_list %}
 
 			<tr>
+				<td>{{ person.role_type }}</td>
 				<td>{{ person.user_id|upper }}</td>
-				<td>{{ person.description }}</td>
+				<td><div id="description" contenteditable>{{ person.description }}</div></td>
 				<td>{{ person.name_first }}</td>
 				<td>{{ person.name_last }}</td>
 				<td>{{ person.email_address }}</td>
-				<td></td>
-				<td><a href="{% url "qwl:qualtricsaccesslist" %}">Edit</a></td><td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td>
+				<td><div id="access_end_date" contenteditable>Edit Date</div></td>
+				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Edit</a></td> -->
+				<td><form id="updateForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
+						<input type="hidden" name="update" value={{ person.user_id }} />
+						<a href="#" onclick="document.getElementById('updateForm').submit()">Update</a>
+					</form>
+				</td>
+				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td> -->
+				<td><form id="deleteForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
+						<input type="hidden" name="delete" value={{ person.user_id }} />
+						<a href="#" onclick="document.getElementById('deleteForm').submit()">Delete</a>
+					</form>
+				</td>
 			</tr>
 
 		{% endfor %}
