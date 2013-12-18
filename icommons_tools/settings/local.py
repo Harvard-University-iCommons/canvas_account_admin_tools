@@ -85,7 +85,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
-        }
+        },
     },
     'loggers': {
         'django.request': {

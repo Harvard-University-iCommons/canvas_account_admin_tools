@@ -24,9 +24,7 @@ urlpatterns = patterns('',
 
     url(r'^tools/shopping/', include('canvas_shopping.urls', namespace="sh")),
 
-    url(r'^tools/pin/login/', 'icommons_common.auth.views.login', name='login'),
-
-    url(r'^tools/pin/logout/', 'icommons_common.auth.views.logout', name='logout'),
+    url(r'^tools/pin/', include('icommons_common.auth.urls', namespace="pin")),
 
     url(r'^tools/sample/', TemplateView.as_view(template_name="icommons_tools/sample.html"), name="sample"),
     url(r'^tools/sample-dn/', TemplateView.as_view(template_name="icommons_tools/sample-defaultnav.html"), name="sample-dn"),
