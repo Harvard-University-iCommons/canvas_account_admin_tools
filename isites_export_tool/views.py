@@ -38,7 +38,7 @@ class JobListView(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView):
 
         context['jobs'] = job_list
         context['showing_archive'] = self.archive
-        context['base_download_url'] = settings.BASE_ISITES_EXPORT_FILE_DOWNLOAD_URL
+        context['base_download_url'] = settings.EXPORT_TOOL['base_file_download_url']
         return context
 
     def get_success_url(self):

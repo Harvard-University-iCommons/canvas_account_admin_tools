@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'isites_export_tool',
     'huey.djhuey',
     'rest_framework',
+    'djsupervisor',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -193,4 +194,13 @@ if 'https_proxy' in os.environ:
     PROXIES['https'] = os.environ['https_proxy']
 
 LOGIN_URL = '/tools/pin/login/'
+
+EXPORT_TOOL = {
+    'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
+    'ssh_hostname' : 'isites-qa', # name used to connect via ssh to perl script server
+    'base_script_path' : '/u02/icommons/perlapps/iSitesAPI/scripts/', # base file path for perl scripts
+    'create_site_zip_cmd' : 'export_site_files_zip.pl',
+    'remove_site_zip_cmd' : 'rm_export_file.pl',
+    'archive_cutoff_time_in_hours' : 2 * 7 * 24, # express cutoff time in hours
+}
 
