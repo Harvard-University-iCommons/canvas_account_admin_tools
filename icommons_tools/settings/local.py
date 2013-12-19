@@ -188,6 +188,8 @@ ALLOWED_GROUPS = {
     'IcGroup:25178': 'sum'
 }
 
+GUNICORN_CONFIG = 'gunicorn_local.py'
+
 EXPORT_TOOL = {
     'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
     'ssh_hostname' : 'icommons@qa.isites.harvard.edu', # name used to connect via ssh to perl script server

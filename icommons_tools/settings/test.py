@@ -147,6 +147,8 @@ ALLOWED_GROUPS = {
     'IcGroup:25178': 'sum'
 }
 
+# When starting gunicorn, this setting will tell the script which config to pull
+GUNICORN_CONFIG = 'gunicorn_test.py'
 
 EXPORT_TOOL = {
     'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 

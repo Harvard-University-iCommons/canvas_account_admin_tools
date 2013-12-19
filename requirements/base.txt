@@ -17,4 +17,6 @@ redis==2.8.0
 ims_lti_py
 djangorestframework==2.3.9
 django-supervisor==0.3.2
+gunicorn==18.0
+git+ssh://git@git.huit.harvard.edu/icommons-python/django-icommons-common.git#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git#egg=django-icommons-ui
