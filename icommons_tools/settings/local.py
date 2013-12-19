@@ -159,9 +159,8 @@ HUEY = {
     'name': 'hueytest',
     'connection': {'host': 'localhost', 'port': 6379},
     'always_eager': False, # Defaults to False when running via manage.py run_huey
-
     # Options to pass into the consumer when running ``manage.py run_huey``
-    'consumer_options': {'workers': 2},
+    'consumer_options': {'workers': 1, },
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
@@ -191,8 +190,10 @@ ALLOWED_GROUPS = {
 
 EXPORT_TOOL = {
     'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
-    'ssh_hostname' : 'isites-qa', # name used to connect via ssh to perl script server
+    'ssh_hostname' : 'icommons@qa.isites.harvard.edu', # name used to connect via ssh to perl script server
+    'ssh_private_key' : '/home/vagrant/.ssh/id_rsa',
     'create_site_zip_cmd' : '/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
     'remove_site_zip_cmd' : '/u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
     'archive_cutoff_time_in_hours' : 2, # express cutoff time in hours
+    'archive_task_crontab_hours' : "*/1", # hourly frequency that periodic task executes in crontab format
 }
