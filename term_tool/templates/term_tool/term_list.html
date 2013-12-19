@@ -2,10 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-
-{% block tool_name %}Term Tool{% endblock %}
-{% block title %}{{ school.school_id|upper }} Terms{% endblock %}
-{% block pagetitle %}{{ school.school_id|upper }} Terms{% endblock %}
+{% block page_title %}{{ school.school_id|upper }} Terms{% endblock %}
 
 
 {% block breadcrumb %}
@@ -19,8 +16,6 @@
 {% block content %}
 
 {% if term_list %}
-
-
 {% if AUTHORIZEDTOEDIT %}
     <a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success">
         <i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
@@ -72,11 +67,11 @@
                 {{ term.academic_year }}
             </td>
             <td>
-                {% if term.start_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
+                {% if term.start_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
                 {{ term.start_date|date }}
             </td>
             <td>
-                {% if term.end_date == None %}<span class=""><i class="icon-warning-sign"></i></span>{% endif %}
+                {% if term.end_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
                 {{ term.end_date|date }}
             </td>
 
@@ -91,11 +86,11 @@
                 </td>
             {% else %}
                 <td>
-                    {% if term.xreg_start_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
+                    {% if term.xreg_start_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
                     {{ term.xreg_start_date|date }}
                 </td>
                 <td>
-                    {% if term.xreg_end_date == None %}<span class="label label-danger"><i class="icon-warning-sign"></i></span>{% endif %}
+                    {% if term.xreg_end_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
                     {{ term.xreg_end_date|date }}
                 </td>
             {% endif %}
@@ -113,9 +108,9 @@
 
     <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="icon-chevron-left"></i> </a></li>
+        <li><a href="?page={{ page_obj.previous_page_number }}"> <i class="fa fa-chevron-left"></i> </a></li>
         {% else %}
-        <li class="disabled"><a href="#"> <i class="icon-chevron-left"></i> </a></li>
+        <li class="disabled"><a href="#"> <i class="fa fa-chevron-left"></i> </a></li>
         {% endif %}
 
         {% for page_num in paginator.page_range %}
@@ -126,9 +121,9 @@
         {% endfor %}
 
         {% if page_obj.has_next %}
-            <li><a href="?page={{ page_obj.next_page_number }}"> <i class="icon-chevron-right"></i> </a></li>
+            <li><a href="?page={{ page_obj.next_page_number }}"> <i class="fa fa-chevron-right"></i> </a></li>
         {% else %}
-            <li class="disabled"><a href="#"> <i class="icon-chevron-right"></i> </a></li>
+            <li class="disabled"><a href="#"> <i class="fa fa-chevron-right"></i> </a></li>
         {% endif %}
 
     </ul>

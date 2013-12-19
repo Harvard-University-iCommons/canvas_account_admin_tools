@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}Canvas Courses for {{ school.title_short }}{% endblock %}
-{% block pagetitle %}Canvas Courses for {{ school.title_short }}{% endblock %}
+{% block page_title %}Canvas Courses for {{ school.title_short }}{% endblock %}
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
@@ -15,6 +15,7 @@
 
 {% block content %}
 {% if course_list %}
+<h1>Canvas Courses for {{ school.title_short }}</h1>
 <table class="table">
     {% for course_instance_id, course in course_list.items %}
         <tr>
@@ -23,7 +24,7 @@
             </td>
             <td>
                 {% if course.enrollee %}
-                    <a href="{{ canvas_base_url }}{{ course.instance.canvas_course_id }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Visit course website</a>
+                    <a href="{{ canvas_base_url }}/courses/{{ course.instance.canvas_course_id }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Visit course website</a>
                 {% endif %}
             </td>
             {% if course.enrollee %}

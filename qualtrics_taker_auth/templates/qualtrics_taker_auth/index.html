@@ -1,30 +1,40 @@
-{% extends "base.html" %}
+{% extends "icommons_ui/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block tool_title %}Qualtrics Login Link Tool{% endblock %}
+
+{% block page_title %}Main{% endblock %}
 
 {% block content %}
-  <h1>{% block nav_title %} {% block title %} Qualtrics Login Link Generator {% endblock title %} {% endblock nav_title %}</h1>
+<div class="page-header">
+  <h1>Create a Qualtrics Login Link</h1>
+</div>
+<p class="lead">
+  Use this form to generate a link to a Qualtrics survey that will require the survey taker to authenticate via PIN.  
+</p>
 
-  <div class="row">
-    <form class="form-inline" role="form">
-        <div class="form-group col-lg-8">
-            <label class="sr-only" for="qtarget_url">Enter Qualtrics poll URL here</label>
-            <input type="text" name="qtarget_url" id="qtarget_url" class="form-control input-lg" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
-        </div>
+<div class="well">
 
-        <button type="submit" class="btn btn-primary btn-lg">Get distributable URL</button>
-    </form> 
-  </div>
+<form class="form-inline" role="form">
+    <div class="form-group col-lg-8">
+        <label class="sr-only" for="qtarget_url">Enter Qualtrics poll URL here</label>
+        <input type="text" name="qtarget_url" id="qtarget_url" class="form-control input-lg" placeholder="Enter Qualtrics poll URL here" value="{{ qtarget_url }}"/>
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">Get distributable URL</button>
+</form>
 
-  {% if short_url %}
-  <h3>Short URL:</h3>
-  <p><a href="{{ short_url }}">{{ short_url }}</a></p>
-  {% endif %}
+{% if short_url %}
+<h3>Short URL:</h3>
+<p class="lead"><a href="{{ short_url }}">{{ short_url }}</a></p>
+{% endif %}
 
-  {% if dist_url %}
-  <h3>Full URL:</h3>
-  <p><a href="{{ dist_url }}">{{ dist_url }}</a></p>
-  {% endif %}
+{% if dist_url %}
+<h3>Full URL:</h3>
+<p class="lead"><a href="{{ dist_url }}">{{ dist_url }}</a></p>
+{% endif %}
 
-  <h3>Sample poll url:</h3>
-  https://harvard.qualtrics.com/SE/?SID=SV_cGhUMm2my8xWK6F
-
+<h3>Sample poll url:</h3>
+https://harvard.qualtrics.com/SE/?SID=SV_cGhUMm2my8xWK6F
+</div>
 {% endblock content %}

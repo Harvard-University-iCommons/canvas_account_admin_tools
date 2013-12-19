@@ -3,8 +3,7 @@
 {% load static %}
 
 
-{% block title %}Choose a School{% endblock %}
-{% block pagetitle %}Choose a School{% endblock %}
+{% block page_title %}Choose a School{% endblock %}
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
@@ -14,6 +13,7 @@
 
 
 {% block content %}
+<h1>Choose a School</h1>
 {% if school_list %}
 <table class="table">
     {% for school in school_list %}

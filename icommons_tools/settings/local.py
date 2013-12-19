@@ -39,6 +39,9 @@ DATABASE_EXTRAS = {
 
 CANVAS_API_HOSTNAME = 'canvas.icommons.harvard.edu'
 CANVAS_API_BASE_URL = 'https://'+CANVAS_API_HOSTNAME+'/api/v1'
+CANVAS_BASE_URL = 'https://'+CANVAS_API_HOSTNAME
+
+STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += ('debug_toolbar','rest_framework.authtoken',)
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
@@ -82,7 +85,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
-        }
+        },
     },
     'loggers': {
         'django.request': {

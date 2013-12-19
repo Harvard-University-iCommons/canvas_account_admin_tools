@@ -7,4 +7,5 @@ sqlnet.log
 newrelic*.ini
 .vagrant
 *.sqlite3
-secure.py
+secure*.py*
+!secure.py.example

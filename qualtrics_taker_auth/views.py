@@ -10,6 +10,8 @@ from Crypto import Random
 import bitly_api
 import os
 from django.http import HttpRequest
+from django.conf import settings
+
 
 # Create your views here.
 
@@ -79,9 +81,13 @@ def get_qualtrics_token(user):
     '''
     token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
 
+    '''
     if 'QUALTRICS_API_KEY' not in os.environ:
         raise ValueError("Environment variable '{}' required".format('QUALTRICS_API_KEY'))
     qualtrics_api_key = os.getenv('QUALTRICS_API_KEY')
+    '''
+
+    qualtrics_api_key = settings.SECURE_SETTINGS['QUALTRICS_API_KEY']
 
     mac = base64.b64encode(hmac.new(qualtrics_api_key, token_string, hashlib.md5).digest())
 
@@ -95,11 +101,14 @@ def get_qualtrics_token(user):
 
 
 def get_bitly_url(dist_url):
+    '''
     BITLY_ACCESS_TOKEN = "BITLY_ACCESS_TOKEN"
 
     if BITLY_ACCESS_TOKEN not in os.environ:
         raise ValueError("Environment variable '{}' required".format(BITLY_ACCESS_TOKEN))
     access_token = os.getenv(BITLY_ACCESS_TOKEN)
+    '''
+    access_token = settings.SECURE_SETTINGS['BITLY_ACCESS_TOKEN']
     bitly = bitly_api.Connection(access_token=access_token)
 
     bitly_data = bitly.shorten(dist_url)
