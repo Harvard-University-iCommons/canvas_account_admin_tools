@@ -1,0 +1,40 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Search a Person{% endblock %}
+{% block pagetitle %}Search a Person{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">You are here trying to lookup a Person</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+<form action="../qualtrics_access_results_list/" method="POST">{% csrf_token %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<table>
+	<tr>
+		<td>
+			<h4>Search By HUID: </h4></td></tr>
+	<tr>
+		<td>
+			<input type="text" name="search_by_huid"><br><br></td></tr>
+	<tr>
+		<td>
+			<h4>Search By Email Adress: </h4></td></tr>
+	<tr>
+		<td>
+			<input type="text" name="search_by_email"><br><br></td>
+	</tr>
+</table>
+<input type="submit" name="Search" value="Search Now" />
+<input type="submit" name="Cancel" value="Cancel" />
+</form>
+
+
+{% endblock %}
+

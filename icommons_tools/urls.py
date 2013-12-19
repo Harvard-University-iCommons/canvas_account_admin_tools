@@ -30,4 +30,6 @@ urlpatterns = patterns('',
     #url(r'^tools/sample-dn/', TemplateView.as_view(template_name="icommons_tools/sample-defaultnav.html"), name="sample-dn"),
     #url(r'^tools/sample-jt/', TemplateView.as_view(template_name="icommons_tools/sample-jumbotron.html"), name="sample-jt"),
 
+    url(r'^tools/qualtrics_whitelist/', include('qualtrics_whitelist.urls', namespace="qwl")),
+
 )

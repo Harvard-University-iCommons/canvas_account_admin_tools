@@ -1,0 +1,71 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}List of People{% endblock %}
+{% block pagetitle %}List of People{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">Persons</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+{% if qualtrics_access_list %}
+<table class="table">
+    <thead>
+        <tr>
+        	<th>Role Type</th>
+            <th>HUID</th>
+            <th>Reason</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Access End Date</th>
+            <th colspan="2">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+		{% for person in qualtrics_access_list %}
+
+			<tr>
+				<td>{{ person.role_type }}</td>
+				<td>{{ person.user_id|upper }}</td>
+				<td><div id="description" contenteditable>{{ person.description }}</div></td>
+				<td>{{ person.name_first }}</td>
+				<td>{{ person.name_last }}</td>
+				<td>{{ person.email_address }}</td>
+				<td><div id="access_end_date" contenteditable>Edit Date</div></td>
+				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Edit</a></td> -->
+				<td><form id="updateForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
+						<input type="hidden" name="update" value={{ person.user_id }} />
+						<a href="#" onclick="document.getElementById('updateForm').submit()">Update</a>
+					</form>
+				</td>
+				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td> -->
+				<td><a href="{% url 'qwl:access_confirmdelete' person.id %}">delete</a>
+
+				<!--<form id="deleteForm" action="{% url 'qwl:access_confirmdelete' person.id %}" method="get">{% csrf_token %}
+						<a href="#" onclick="document.getElementById('deleteForm').submit()">Delete</a>
+					</form>-->
+				</td>
+			</tr>
+
+		{% endfor %}
+	<tbody>
+</table>
+
+{% endif %}
+
+<form action="qualtrics_access_search/" method="post">{% csrf_token %}
+    
+	<input type="submit" value="Add a Person" />
+</form>
+
+{% endblock %}
+
+
+

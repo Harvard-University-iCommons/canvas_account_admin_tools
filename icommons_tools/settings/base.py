@@ -164,6 +164,7 @@ INSTALLED_APPS = (
     'term_tool',
     'qualtrics_taker_auth',
     'canvas_shopping',
+    'qualtrics_whitelist',
     #'gunicorn',
     'crispy_forms',
     'isites_export_tool',

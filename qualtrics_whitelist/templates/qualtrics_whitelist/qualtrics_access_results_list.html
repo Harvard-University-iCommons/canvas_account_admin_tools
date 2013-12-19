@@ -1,0 +1,177 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Results List{% endblock %}
+{% block pagetitle %}Results List{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">Choose from the list</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+<h4>Choose one or more and enter the reason and access end date, if necessary</h4>
+	{% if qualtrics_access_results %}
+	{% endif %}
+
+
+
+<form name="form1" id="checkboxForm" action="./" method="POST">{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user_input }}" >
+<input type="hidden" name="users_list" value="{{ results_list }}" >
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+This is your input:
+<p>{{ user_input }}</p>
+
+<table border="2">
+	<thead>
+        <tr>
+        	<th></th>
+            <th>Role Type</th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if results_list %}
+		{% for choice in results_list %}
+			<tr>
+			{% if choice.on_list %}
+				<td>Already Added</td>
+			{% else %}	
+				<td><input type="checkbox" class="check" name="user_check_list" id="checkbox" value={{choice.user_id}}></td>
+			{% endif %}
+				<td>{{ choice.role_type }}</td>
+				<td>{{ choice.user_id }}</td>
+				<td>{{ choice.first_name }}</td>
+				<td>{{ choice.last_name }}</td>
+				<td>{{ choice.email }}</td>
+			</tr>
+		{% endfor %}
+	{% endif %}
+	<tbody>
+</table>
+<br>
+<table>
+	<tr>
+		<td>Enter Reason Description:</td><td><input type="text" name="description" ></td>
+	</tr>
+	<tr>
+		<td>Enter Access End Date:</td><td><input type="text" id="datepicker" name="access_end_date"</td>
+	</tr>
+	<tr>
+		<td/>
+		<td><input type="submit" class="save" name="Save" value="Save" id="saveBtn" onclick="return checkReason()">		<input type="submit" name="Cancel" value="Cancel" id="cancel" /></td>
+	<tr>
+</table>
+</form>
+
+
+{% endblock %}
+
+{% block pagescripts %}
+
+<script>
+
+
+function chkCount1()
+{
+	var chkTotal = 0;
+	var checked = document.getElementByName('user_check_list');
+	for (var i = 0; i <chkTotal.length; ++i)
+	{
+		chkTotal = chkTotal + 1;	
+	}
+	// if at least 1 checkbox is checked, activate the submit button
+	if (chkTotal > 0)
+	{
+		document.form1.Save.disabled=false;
+	}
+	else
+	// leave the submit button disabled
+	{
+		document.form1.Save.disabled=true;
+	}
+}
+
+
+/*$('.check').change(function() {
+    if ($('.check:checked').length) {
+        $('#saveBtn').removeAttr('disabled');
+    } else {
+        $('#saveBtn').attr('disabled', 'disabled');
+    }
+});
+*/
+function checkCount()
+{
+	var checkedAtLeastOne = false;
+	$('input[type="checkbox"]').each(function() 
+	{
+    	if ($(this).is(":checked")) 
+    	{
+        	checkedAtLeastOne = true;
+        	document.form1.Save.disabled=false; 
+        }
+        else 
+        {
+        	document.form1.Save.disabled=true; 
+        }
+    });
+}
+
+/*$(function()
+{
+	$(".check").click(function(){
+        $('.save').prop('disabled',$('input.checkbox:checked').length == 0);
+    });
+});*/
+
+
+function chkCount()
+{
+	// assign a 0 value to the number of selected checkboxes variable
+	var chkTotal = 0;
+	// loop though the checkboxes and count how many are checked
+	for(counter=0;counter<document.form1.checkbox.length;counter++)
+	{
+		// alert ("counter is" + counter);
+		console.log("counter is");
+		if(document.form1.checkbox[counter].checked)
+		{
+			chkTotal = chkTotal + 1;
+		}
+	}
+	// if at least 1 checkbox is checked, activate the submit button
+	if (chkTotal > 0)
+	{
+		document.form1.Save.disabled=false;
+	}
+	else
+	// leave the submit button disabled
+	{
+		document.form1.Save.disabled=true;
+	}
+}
+
+function checkReason()
+{
+	if (!form1.description.value)
+	{
+		alert ("Please Enter a Reason description.");
+		return false;
+	}
+	return true;
+}
+	
+</script>
+
+{% endblock %}
