@@ -26,8 +26,8 @@ urlpatterns = patterns('',
 
     url(r'^tools/pin/', include('icommons_common.auth.urls', namespace="pin")),
 
-    url(r'^tools/sample/', TemplateView.as_view(template_name="icommons_tools/sample.html"), name="sample"),
-    url(r'^tools/sample-dn/', TemplateView.as_view(template_name="icommons_tools/sample-defaultnav.html"), name="sample-dn"),
-    url(r'^tools/sample-jt/', TemplateView.as_view(template_name="icommons_tools/sample-jumbotron.html"), name="sample-jt"),
+    #url(r'^tools/sample/', TemplateView.as_view(template_name="icommons_tools/sample.html"), name="sample"),
+    #url(r'^tools/sample-dn/', TemplateView.as_view(template_name="icommons_tools/sample-defaultnav.html"), name="sample-dn"),
+    #url(r'^tools/sample-jt/', TemplateView.as_view(template_name="icommons_tools/sample-jumbotron.html"), name="sample-jt"),
 
 )
