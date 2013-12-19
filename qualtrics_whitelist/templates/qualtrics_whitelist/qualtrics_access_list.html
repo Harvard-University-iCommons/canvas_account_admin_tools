@@ -46,10 +46,11 @@
 					</form>
 				</td>
 				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td> -->
-				<td><form id="deleteForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
-						<input type="hidden" name="delete" value={{ person.user_id }} />
+				<td><a href="{% url 'qwl:access_confirmdelete' person.id %}">delete</a>
+
+				<!--<form id="deleteForm" action="{% url 'qwl:access_confirmdelete' person.id %}" method="get">{% csrf_token %}
 						<a href="#" onclick="document.getElementById('deleteForm').submit()">Delete</a>
-					</form>
+					</form>-->
 				</td>
 			</tr>
 

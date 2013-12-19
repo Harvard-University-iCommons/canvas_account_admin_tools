@@ -47,7 +47,7 @@ This is your input:
 			{% if choice.on_list %}
 				<td>Already Added</td>
 			{% else %}	
-				<td><input type="checkbox" class="checkbox" name="user_check_list" id="checkbox" value={{choice.user_id}} onclick="enableSubmit()" /></td>
+				<td><input type="checkbox" class="check" name="user_check_list" id="checkbox" value={{choice.user_id}}></td>
 			{% endif %}
 				<td>{{ choice.role_type }}</td>
 				<td>{{ choice.user_id }}</td>
@@ -69,7 +69,7 @@ This is your input:
 	</tr>
 	<tr>
 		<td/>
-		<td><input type="submit" class="save" name="Save" value="Save" id="saveBtn" disabled="disabled" >		<input type="submit" name="Cancel" value="Cancel" id="cancel" /></td>
+		<td><input type="submit" class="save" name="Save" value="Save" id="saveBtn" onclick="return checkReason()">		<input type="submit" name="Cancel" value="Cancel" id="cancel" /></td>
 	<tr>
 </table>
 </form>
@@ -81,17 +81,60 @@ This is your input:
 
 <script>
 
-// $(document).ready(function() {
-//      $('input:checkbox').click(function() {
-//             var buttonsChecked = $('input:checkbox:checked');
-//             if (buttonsChecked.length) {
-//                 $('#submitButton').removeAttr('disabled');
-//                 } 
-//             else {
-//                 $('#submitButton').attr('disabled', 'disabled');
-//                 }
-//             });
-//         });
+
+function chkCount1()
+{
+	var chkTotal = 0;
+	var checked = document.getElementByName('user_check_list');
+	for (var i = 0; i <chkTotal.length; ++i)
+	{
+		chkTotal = chkTotal + 1;	
+	}
+	// if at least 1 checkbox is checked, activate the submit button
+	if (chkTotal > 0)
+	{
+		document.form1.Save.disabled=false;
+	}
+	else
+	// leave the submit button disabled
+	{
+		document.form1.Save.disabled=true;
+	}
+}
+
+
+/*$('.check').change(function() {
+    if ($('.check:checked').length) {
+        $('#saveBtn').removeAttr('disabled');
+    } else {
+        $('#saveBtn').attr('disabled', 'disabled');
+    }
+});
+*/
+function checkCount()
+{
+	var checkedAtLeastOne = false;
+	$('input[type="checkbox"]').each(function() 
+	{
+    	if ($(this).is(":checked")) 
+    	{
+        	checkedAtLeastOne = true;
+        	document.form1.Save.disabled=false; 
+        }
+        else 
+        {
+        	document.form1.Save.disabled=true; 
+        }
+    });
+}
+
+/*$(function()
+{
+	$(".check").click(function(){
+        $('.save').prop('disabled',$('input.checkbox:checked').length == 0);
+    });
+});*/
+
 
 function chkCount()
 {
@@ -100,6 +143,8 @@ function chkCount()
 	// loop though the checkboxes and count how many are checked
 	for(counter=0;counter<document.form1.checkbox.length;counter++)
 	{
+		// alert ("counter is" + counter);
+		console.log("counter is");
 		if(document.form1.checkbox[counter].checked)
 		{
 			chkTotal = chkTotal + 1;
@@ -117,75 +162,16 @@ function chkCount()
 	}
 }
 
-// $(document).ready(function() {
-//     $('input:checkbox').click(function() {
-//         var buttonsChecked = $('input:checkbox:checked');
-//         if (buttonsChecked.length) {
-//             $('#saveBtn').removeAttr('disabled');
-//             } 
-//         else {
-//             $('#saveBtn').attr('disabled', 'disabled');
-//             }
-//     });
-// });
-
-
-  	// EnableSubmit = function()   need to test with multiple checkbox
-  	function enableSubmit()
+function checkReason()
+{
+	if (!form1.description.value)
 	{
-    	var checkbox = document.getElementById("checkbox");
-
-    	if (checkbox.checked == true)
-    	{
-        	document.getElementById("saveBtn").disabled = false;
-    	}
-    	else
-    	{
-        	document.getElementById("saveBtn").disabled = true;
-    	}
-	}                     
-
-
-	function doSubmit()
-	{
-  		var c = document.getElementsByTagName('input'); 
-  		for( var i = 0; i < c.length; i++ )
-  		{ 
-    		if( c[i].type.toLowerCase() == 'checkbox' && c[i].checked ) 
-    		{
-      		// A checkbox was checked, good user
-      		document.getElementById("saveBtn").disabled = false;
-      			//return( true );
-    		} 
-  		}
-  		// No checkbox checks, bad user
-  		document.getElementById("saveBtn").disabled = true;
-  		//return( false );
+		alert ("Please Enter a Reason description.");
+		return false;
 	}
-		// $('#checklist').submit(function() {
-		// 	var myVal = $(this).val();
-		// 	if ( myVal == "Save") {
-  //       		var $fields = $(this).find('input[name="access_user_id_list"]:checked');
-  //       		if (!$fields.length) {
-  //           		alert('You must check at least one box!');
-  //           		return false; // The form will *not* submit
-  //       		}
-  //       	}
-  //   	});
-
-		// $('#checklist').click(function (event) {
-		// 	alert ("check for checkboxes");
-		// 	event.preventDefault();
-			/*var checkboxes = $("input[type='checkbox']"),
-				submitButton = $("input[type='submit']");
-*/
-			// checkboxes.click(function () {
-			// 	//display message box
-			// 	alert ("check for checkboxes");
-			// 	event.preventDefault();
-			// 	//allow post
-			// });
-
+	return true;
+}
+	
 </script>
 
 {% endblock %}

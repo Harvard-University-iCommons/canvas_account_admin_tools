@@ -1,0 +1,36 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Confirm a delete{% endblock %}
+{% block pagetitle %}Confirm a delete{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+	<li class="active"><a href="#">You are here trying to delete a Person</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'qwl:delete' %}" method="POST">{% csrf_token %}
+	<p>Are you sure you want to delete this record?</p><br/>
+	
+	<table class="table">
+		<tr><td>HUID</td><td>{{ object.user_id }}</td></tr>
+		<tr><td>First Name</td><td>{{ object.first_name }}</td></tr>
+		<tr><td>Last Name</td><td>{{ object.last_name }}</td></tr>
+		<tr><td>Email</td><td>{{ object.email_address }}</td></tr>
+		<tr><td>Reason</td><td>{{ object.description }}</td></tr>
+		<tr><td>Access End Date</td><td>{{ object.access_end_date }}</td></tr>
+	</table>
+	<input type="hidden" name="id" value="{{ object.id }}" >
+    <input type="submit" name="confirm" value="Confirm" />	<input type="submit" name="cancel" value="Cancel" id="cancel" />
+
+</form>
+
+{% endblock %}
