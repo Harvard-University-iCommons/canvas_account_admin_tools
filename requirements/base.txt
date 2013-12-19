@@ -1,4 +1,4 @@
-Django==1.6
+Django==1.6.1
 cx-Oracle==5.1.2
 
 # django-oraclepool>=1.3
