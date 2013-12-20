@@ -1,4 +1,4 @@
-{% extends "qualtrics_whitelist/base.html" %}
+{% extends "icommons_ui/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -7,9 +7,7 @@
 {% block pagetitle %}List of People{% endblock %}
 
 {% block breadcrumb %}
-<ul class="breadcrumb">
-	<li class="active"><a href="#">Persons</a></li>
-</ul>
+
 {% endblock %}
 
 
@@ -45,12 +43,8 @@
 						<a href="#" onclick="document.getElementById('updateForm').submit()">Update</a>
 					</form>
 				</td>
-				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Delete</a></td> -->
-				<td><a href="{% url 'qwl:access_confirmdelete' person.id %}">delete</a>
-
-				<!--<form id="deleteForm" action="{% url 'qwl:access_confirmdelete' person.id %}" method="get">{% csrf_token %}
-						<a href="#" onclick="document.getElementById('deleteForm').submit()">Delete</a>
-					</form>-->
+				<td>
+					<a href="{% url 'qwl:access_confirmdelete' person.id %}">Delete</a>
 				</td>
 			</tr>
 
@@ -62,7 +56,7 @@
 
 <form action="qualtrics_access_search/" method="post">{% csrf_token %}
     
-	<input type="submit" value="Add a Person" />
+	<input type="submit" class="btn btn-primary" value="Add a Person" />
 </form>
 
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends "qualtrics_whitelist/base.html" %}
+{% extends "icommons_ui/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -7,9 +7,7 @@
 {% block pagetitle %}Results List{% endblock %}
 
 {% block breadcrumb %}
-<ul class="breadcrumb">
-	<li class="active"><a href="#">Choose from the list</a></li>
-</ul>
+
 {% endblock %}
 
 
@@ -47,7 +45,7 @@ This is your input:
 			{% if choice.on_list %}
 				<td>Already Added</td>
 			{% else %}	
-				<td><input type="checkbox" class="check" name="user_check_list" id="checkbox" value={{choice.user_id}}></td>
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" ></td>
 			{% endif %}
 				<td>{{ choice.role_type }}</td>
 				<td>{{ choice.user_id }}</td>
@@ -65,11 +63,12 @@ This is your input:
 		<td>Enter Reason Description:</td><td><input type="text" name="description" ></td>
 	</tr>
 	<tr>
-		<td>Enter Access End Date:</td><td><input type="text" id="datepicker" name="access_end_date"</td>
+		<td>Enter Access End Date:</td><td><input type="text" class="dateinput" name="access_end_date"</td>
 	</tr>
 	<tr>
 		<td/>
-		<td><input type="submit" class="save" name="Save" value="Save" id="saveBtn" onclick="return checkReason()">		<input type="submit" name="Cancel" value="Cancel" id="cancel" /></td>
+		<td><input type="submit" class="btn btn-primary" name="Save" value="Save" id="saveBtn" onclick="return checkReason()" >
+				<input type="submit" class="btn btn-primary" name="Cancel" value="Cancel" id="cancel" /></td>
 	<tr>
 </table>
 </form>
@@ -77,8 +76,9 @@ This is your input:
 
 {% endblock %}
 
-{% block pagescripts %}
 
+{% block javascript %}
+{{ block.super }}
 <script>
 
 
@@ -103,14 +103,7 @@ function chkCount1()
 }
 
 
-/*$('.check').change(function() {
-    if ($('.check:checked').length) {
-        $('#saveBtn').removeAttr('disabled');
-    } else {
-        $('#saveBtn').attr('disabled', 'disabled');
-    }
-});
-*/
+
 function checkCount()
 {
 	var checkedAtLeastOne = false;
@@ -128,12 +121,6 @@ function checkCount()
     });
 }
 
-/*$(function()
-{
-	$(".check").click(function(){
-        $('.save').prop('disabled',$('input.checkbox:checked').length == 0);
-    });
-});*/
 
 
 function chkCount()
@@ -160,6 +147,7 @@ function chkCount()
 	{
 		document.form1.Save.disabled=true;
 	}
+	return true;
 }
 
 function checkReason()

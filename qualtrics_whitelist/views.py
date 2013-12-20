@@ -25,7 +25,7 @@ def delete(request):
 		id_delete = request.POST.get('id')
 		print 'now deleting %s' % id_delete
 		delete_id = QualtricsAccessList.objects.get(id=id_delete).delete()
-		messages.success(request, "Whitelist update/deleted")
+		messages.success(request, "Whitelist update/deleted successful")
 	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 	
 
@@ -246,6 +246,8 @@ class QualtricsAccessResultsListView(generic.ListView):
 							wlistSave.save()
 						except IntegrityError, e:
 							print 'Exception raised while saving to database:%s (%s)' % (e.args[0], type (e))
+							messages.error(request, "Whitelist update/deleted failed")
+					return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 						# for person in input_list:
 						# 	if person.user_id == user_id:
 						# 		wlistSave.
