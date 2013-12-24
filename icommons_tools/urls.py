@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 #from django.contrib import admin
@@ -26,10 +25,8 @@ urlpatterns = patterns('',
 
     url(r'^tools/pin/', include('icommons_common.auth.urls', namespace="pin")),
 
-    #url(r'^tools/sample/', TemplateView.as_view(template_name="icommons_tools/sample.html"), name="sample"),
-    #url(r'^tools/sample-dn/', TemplateView.as_view(template_name="icommons_tools/sample-defaultnav.html"), name="sample-dn"),
-    #url(r'^tools/sample-jt/', TemplateView.as_view(template_name="icommons_tools/sample-jumbotron.html"), name="sample-jt"),
-
     url(r'^tools/qualtrics_whitelist/', include('qualtrics_whitelist.urls', namespace="qwl")),
+
+    url(r'^icommons_ui/', include('icommons_ui.urls')),
 
 )
