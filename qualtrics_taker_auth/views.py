@@ -8,7 +8,6 @@ import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
 import bitly_api
-import os
 from django.http import HttpRequest
 from django.conf import settings
 
@@ -19,7 +18,7 @@ from django.conf import settings
 def index(request):
 
     if request.GET.get('qtarget') is not None:
-        """ 
+        """
         if the request contains a target, create the token and redirect the user to qualtrics
         """
 
@@ -40,7 +39,7 @@ def index(request):
         if not qtarget_url.startswith('https://harvard.qualtrics.com/'):
             message = "Sorry, you can only use this tool to link to Harvard Qualtrics surveys."
             return render(request, 'qualtrics_taker_auth/index.html', {'message': message})
-            
+
         target = base64.b64encode(qtarget_url)
 
         dist_url = HttpRequest.build_absolute_uri(request, '%s?qtarget=%s' % (request.path, target))
@@ -51,7 +50,7 @@ def index(request):
 
         return render(request, 'qualtrics_taker_auth/index.html', {'qtarget_url': qtarget_url, 'dist_url': dist_url, 'short_url': short_url})
 
-    else: 
+    else:
         """
         if the request doesn't contain a target and the request doesn't contain a target_url, then give the user a form to enter one
         """
@@ -69,7 +68,7 @@ def get_qualtrics_token(user):
     """
 
     userid_hash = hashlib.sha256(user.username).hexdigest()
-    
+
     # the Django User object doesn't have role_type_cd; we need to get a Person
     '''
     if user.role_type_cd == 'XIDHOLDER':
@@ -79,7 +78,8 @@ def get_qualtrics_token(user):
     else:
         id_type = 'HUID'
     '''
-    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
+    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % \
+        (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
 
     '''
     if 'QUALTRICS_API_KEY' not in os.environ:
@@ -124,5 +124,3 @@ def PKCS5Padding(string):
     else:
         appendage = chr(packingLength) * packingLength
         return string + appendage
-
-
