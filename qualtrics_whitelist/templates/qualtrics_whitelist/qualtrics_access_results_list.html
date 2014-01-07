@@ -1,4 +1,4 @@
-{% extends "icommons_ui/base.html" %}
+{% extends "qualtrics_whitelist/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -6,16 +6,9 @@
 {% block title %}Results List{% endblock %}
 {% block pagetitle %}Results List{% endblock %}
 
-{% block breadcrumb %}
-
-{% endblock %}
-
 
 {% block content %}
 <h4>Choose one or more and enter the reason and access end date, if necessary</h4>
-	{% if qualtrics_access_results %}
-	{% endif %}
-
 
 
 <form name="form1" id="checkboxForm" action="./" method="POST">{% csrf_token %}
@@ -23,9 +16,6 @@
 <input type="hidden" name="users_list" value="{{ results_list }}" >
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-This is your input:
-<p>{{ user_input }}</p>
 
 <table border="2">
 	<thead>

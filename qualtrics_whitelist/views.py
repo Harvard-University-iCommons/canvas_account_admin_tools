@@ -13,12 +13,16 @@ from django.contrib import messages
 from icommons_common.models import *
 from itertools import chain
 from icommons_common.models import Person
+from icommons_common.auth.views import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+
 
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+@login_required
 def delete(request):
 	# logger.debug ('trying to delete now/////////')
 	# print 'trying to delete now/////////'
@@ -34,6 +38,7 @@ def delete(request):
 			messages.success(request, "Whitelist update/deleted successful")
 	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 	
+@login_required
 def access_update_person(request):
 	logger.debug ('trying to update now/////////')
 	# print 'In access_update_person function now'
@@ -70,7 +75,7 @@ def access_update_person(request):
 
 ### Class-based views:
 
-class QualtricsAccessListView(generic.ListView):
+class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_list.html' 
 	context_object_name = 'qualtrics_access_list'
@@ -110,13 +115,13 @@ class QualtricsAccessListView(generic.ListView):
 
 
 
-class QualtricsAccessSearchView(generic.CreateView):
+class QualtricsAccessSearchView(LoginRequiredMixin, generic.CreateView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_search.html'
 	queryset = QualtricsAccessList.objects.none()
 
 
-class QualtricsAccessResultsListView(generic.ListView):
+class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_results_list.html'
 	context_object_name = 'qualtrics_access_list'
@@ -254,24 +259,37 @@ class QualtricsAccessResultsListView(generic.ListView):
 		return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', {'user_input' : input_user_id, 'results_list' : results_list, 'error_message' : error_message } )
 
 
-class QualtricsAccessEditView(generic.UpdateView):
+class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_edit.html'
 	context_object_name = 'qualtrics_access_edit'
-	# print 'Now in QualtricsAccessEditView'
+	print 'Now in QualtricsAccessEditView'
 
 	# override get_context to filter by name
-	def get_context_data(self, **kwargs):
-		# Call the base implementation first to get a context
-		context = super(QualtricsAccessEditView, self).get_context_data(**kwargs)
-		return context
+	# def get_context_data(self, **kwargs):
+	# 	# Call the base implementation first to get a context
+	# 	context = super(QualtricsAccessEditView, self).get_context_data(**kwargs)
+	# 	return context
+
+	def get_object(self):
+		wlobject = super(QualtricsAccessEditView, self).get_object()
+		
+		personList = Person.objects.filter(univ_id=wlobject.user_id)
+		
+		for plist in personList:
+			wlobject.first_name = plist.name_first
+			wlobject.last_name = plist.name_last
+			wlobject.email_address = plist.email_address
+		
+		return wlobject
 
 
-class QualtricsAccessAddView(generic.CreateView):
+
+class QualtricsAccessAddView(LoginRequiredMixin, generic.CreateView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_add.html'
 
-class QualtricsAccessConfirmDeleteView(generic.DetailView):
+class QualtricsAccessConfirmDeleteView(LoginRequiredMixin, generic.DetailView):
 	"""docstring for QualtricsAccessConfirmDeleteView"""
 	# print 'now in QualtricsAccessConfirmDeleteView'
 	model = QualtricsAccessList
