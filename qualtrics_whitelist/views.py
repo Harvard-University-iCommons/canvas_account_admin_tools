@@ -13,21 +13,55 @@ from django.contrib import messages
 from icommons_common.models import *
 from itertools import chain
 from icommons_common.models import Person
-# from app.forms import Form1, Form2
+
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 def delete(request):
-	print 'trying to delete now/////////'
+	# logger.debug ('trying to delete now/////////')
+	# print 'trying to delete now/////////'
 	if request.method == 'POST':
 		id_delete = request.POST.get('id')
-		print 'now deleting %s' % id_delete
-		delete_id = QualtricsAccessList.objects.get(id=id_delete).delete()
-		messages.success(request, "Whitelist update/deleted successful")
+		
+		if 'cancel' in request.POST:
+			logger.warning("Now canceling and returning")
+		else:
+			logger.debug ('now deleting %s' % id_delete)
+			# print 'now deleting %s' % id_delete
+			delete_id = QualtricsAccessList.objects.get(id=id_delete).delete()
+			messages.success(request, "Whitelist update/deleted successful")
 	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 	
+def access_update_person(request):
+	logger.debug ('trying to update now/////////')
+	# print 'In access_update_person function now'
+	id_update = request.POST.get('id')
+	if 'cancel' in request.POST:
+		logger.warning("Now canceling and returning")
+		# return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
+	else:
+		# print 'now trying to update to database'
+		wlistSave = QualtricsAccessList()
+		wlistSave.id = id_update
+		logger.debug ('Trying to update id :%s:' % id_update)
+		# print 'Trying to update id :%s:' % id_update
+		user = request.POST.get('user_id')
+		# print 'My user is :%s:' % user
+		wlistSave.user_id = user
+		wlistSave.description = request.POST.get('description')
+		# print 'The description is now :%s:' % wlistSave.description
+		wlistSave.version = 0
+		# wlistSave.access_end_date = request.POST.get('access_end_date')
+		try:
+			wlistSave.save()
+		except IntegrityError, e:
+			logger.error ('Exception raised while saving to database:%s (%s)' % (e.args[0], type (e)))
+			# print 'Exception raised while saving to database:%s (%s)' % (e.args[0], type (e))
+			messages.error(request, "Whitelist update/deleted failed")
+
+	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 
 ### Mixins:
 
@@ -41,10 +75,7 @@ class QualtricsAccessListView(generic.ListView):
 	template_name = 'qualtrics_whitelist/qualtrics_access_list.html' 
 	context_object_name = 'qualtrics_access_list'
 	input_user_id = ""
-	# form_class = Form1
-	# second_form_class = Form2
 	success_url = reverse_lazy("success")
-	# queryset = QualtricsAccessList.objects.all()
 
 	# override get_context to filter by name
 	def get_context_data(self, **kwargs):
@@ -55,8 +86,8 @@ class QualtricsAccessListView(generic.ListView):
 		for wlobj in all_whitelist:
 			alist.append(wlobj.user_id)
 	
-		for item in alist:
-			print item
+		# for item in alist:
+		# 	print item
 
 		personlist = Person.objects.filter(univ_id__in=alist)
 		
@@ -77,29 +108,6 @@ class QualtricsAccessListView(generic.ListView):
 		context['qualtrics_access_list'] = all_whitelist
 		return context		
 
-	def post(self, request, *args, **kwargs):
-		
-		
- #        # determine which form is being submitted
- #        # uses the name of the form's submit button
-		if 'updateForm' in request.POST:
- 			
- 			print "Update now"
- #            # get the primary form
- #            # form_class = self.get_form_class()
- #            # form_name = 'updateForm'
- 
-		elif 'deleteForm' in request.POST:
- 
-			print "redirect to confirm delete now"
-
-			url = reverse('access_confirmdelete', kwargs={'id': user_id})
- 			return HttpResponseRedirect(url)
-
-		return HttpResponse("update/delete successful")
-
-        
-
 
 
 class QualtricsAccessSearchView(generic.CreateView):
@@ -108,31 +116,28 @@ class QualtricsAccessSearchView(generic.CreateView):
 	queryset = QualtricsAccessList.objects.none()
 
 
-
-
 class QualtricsAccessResultsListView(generic.ListView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_results_list.html'
 	context_object_name = 'qualtrics_access_list'
 
 	def post(self, request, *args, **kwargs):
-		print "Now in the dangerzone"
+		# print "Now in QualtricsAccessResultsListView post function///////"
 		error_message = ""
 		results_list = []
 		if request.method == 'POST':
 			if 'Search' in request.POST:
 				input_user_id = request.POST.get('search_by_huid')
-				print input_user_id
+				# print input_user_id
 				input_email = request.POST.get('search_by_email')
-				
+				# print input_email
 
 				if not len(input_user_id) <= 0:
 					alist = []
-					# results_list = []
 					qlist = QualtricsAccessList.objects.all().filter(user_id=input_user_id)  ## return all the objects from the WL table
 
 					if qlist:
-						print "User already exist on whitelist============="
+						# print "User already exist on whitelist============="
 						for wlobj in qlist:
 							alist.append(wlobj.user_id)
 
@@ -151,7 +156,7 @@ class QualtricsAccessResultsListView(generic.ListView):
 										wlist.role_type = 'HUID'
 									results_list.append(wlist)
 					else:
-						print "User is not on the whitelist"
+						# print "User is not on the whitelist"
 						personlist = Person.objects.filter(univ_id=input_user_id)
 
 						for plist in personlist:
@@ -169,16 +174,16 @@ class QualtricsAccessResultsListView(generic.ListView):
 							return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', {'user_input' : input_user_id, 'results_list' : results_list, 'error_message': "User id not on the whitelist.",})
 				
 				elif input_email:
-					print "checking for email now"
-					print input_email
+					# print "checking for email now"
+					# print input_email
 					personlist = Person.objects.filter(email_address__iexact=input_email)
 					# count = personlist.count()
-					print personlist.count()
+					# print personlist.count()
 					if personlist:
-						print "not empty"
+						# print "not empty"
 						for plist in personlist:
 							input_user_id = plist.univ_id 
-							print plist.univ_id
+							# print plist.univ_id
 							q = QualtricsAccessList.objects.all().filter(user_id=plist.univ_id)
 							if q:
 								
@@ -206,99 +211,60 @@ class QualtricsAccessResultsListView(generic.ListView):
 					
 					else:
 						# person not found in Person database
-						print "empty personlist"
-
+						# print "empty personlist"
+						logger.error ('Email not found in Person database :%s:' % input_email)
 						return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', {'user_input' : input_user_id, 'results_list' : results_list, 'error_message': "Person not found in database",})
-					
-
-					
-
+										
 
 			elif 'Cancel' in request.POST:
-				print "now trying to cancel and return to home page"
+				# print "now trying to cancel and return to home page"
 				return HttpResponseRedirect('../../qualtrics_whitelist/')
 			elif 'Save' in request.POST:
-				print "now in Save"
+				# print "now in Save"
 				input_user_id =  request.POST.get('user_id')
-				print input_user_id
+				# print input_user_id
 				input_list = request.POST.get('users_list')
-				print input_list
-				input_check_list = request.POST.getlist('user_check_list')
-				print input_check_list 
+
+				input_check_list = request.POST.getlist('user_check_list')				
 				input_description = request.POST.get('description')
+				# print input_description
 				input_access_end_date = request.POST.get('access_end_date')
 
 				if not input_check_list :
-					print "Empty List"
+					# print "Empty List"
 					error_message = "Nothing to update"
-					#results_list = input_list 
 					
 				else:
-					print "Updating now and return to home page"
+					# print "Updating now and return to home page"
 					wlistSave = QualtricsAccessList()
 
 					for user in input_check_list:
-						print user
+						# print user
 						wlistSave.user_id = user
 						wlistSave.description = input_description
 						wlistSave.version = 0
 						try:
 							wlistSave.save()
 						except IntegrityError, e:
-							print 'Exception raised while saving to database:%s (%s)' % (e.args[0], type (e))
+							# print 'Exception raised while saving to database:%s (%s)' % (e.args[0], type (e))
+							logger.error ('Exception raised while saving to database:%s (%s)' % (e.args[0], type (e)))
 							messages.error(request, "Whitelist update/deleted failed")
 					return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-						# for person in input_list:
-						# 	if person.user_id == user_id:
-						# 		wlistSave.
-					# return HttpResponseRedirect('../../qualtrics_whitelist/')
 
 		return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', {'user_input' : input_user_id, 'results_list' : results_list, 'error_message' : error_message } )
-
-		# def Cancel(request):
-		# 	print "Trying to cancel"
-		# 	return redirect('qualtrics_whitelist/qualtrics_access_list.html')
-
-# class NamedRedirectView(RedirectView):
-#     url_name = None
-
-#     def get_redirect_url(self, *args, **kwargs):
-#     	return super(NamedRedirectView, self).get_redirect_url(**kwargs)
-        # if self.url_name:
-        #     return reverse(url_name)
-        # return super(NamedRedirectView, self).get_redirect_url(**kwargs)
-
-# class RedirectView(RedirectView):
-
-# 	def get_redirect_url(self, *args, **kwargs):
-# 		print "you are in RedirectView now"
-# 		return super(RedirectView, self).get_redirect_url(*args, **kwargs)
-
-
-	# # override get_context to filter by name
-	# def get_context_data(self, **kwargs):
-	# 	# Call the base implementation first to get a context
-	# 	# context = super(QualtricsAccessResultsListView, self).get_context_data(**kwargs)
-
-	# 	plist = Person.objects.filter(univ_id__in=request.POST.get('search_huid'))
-		
-	# 	print "Getting context now ##########"
-	# 	kwargs['results_list'] = plist
-	# 	return super(QualtricsAccessResultsListView, self).get_context_data(**kwargs)
-
 
 
 class QualtricsAccessEditView(generic.UpdateView):
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_edit.html'
-	# queryset = QualtricsAccessList.objects.none()
-	context_object_name = 'qualtrics_access_add'
-
+	context_object_name = 'qualtrics_access_edit'
+	# print 'Now in QualtricsAccessEditView'
 
 	# override get_context to filter by name
 	def get_context_data(self, **kwargs):
 		# Call the base implementation first to get a context
-		context = super(QualtricsAccessListView, self).get_context_data(**kwargs)
+		context = super(QualtricsAccessEditView, self).get_context_data(**kwargs)
+		return context
 
 
 class QualtricsAccessAddView(generic.CreateView):
@@ -307,76 +273,24 @@ class QualtricsAccessAddView(generic.CreateView):
 
 class QualtricsAccessConfirmDeleteView(generic.DetailView):
 	"""docstring for QualtricsAccessConfirmDeleteView"""
-	print 'now in QualtricsAccessConfirmDeleteView'
+	# print 'now in QualtricsAccessConfirmDeleteView'
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_confirmdelete.html'
 	queryset = QualtricsAccessList.objects.all()
-	
 
-
-	
-
-	# context_object_name = 'get_user_id'
-
-	# template_name = 'qualtrics_whitelist/qualtrics_access_confirmdelete.html'
-
-	# def get_object(self):
-	# 	return get_object_or_404(QualtricsAccessList, pk=request.POST.get('user_id'))
-
-
-# def access_confirmdelete(request, user_id):
-# 	print 'now in access_confirmdelete'
-# 	print request
-# 	p = get_object_or_404 (QualtricsAccessList, pk=id)
-# 	try:
-# 		select_user = QualtricsAccessList.get(pk=request.POST['user_id'])
-# 	except (KeyError, QualtricsAccessList.DoesNotExist):
-# 		return render (request, 'qualtrics_whitelist/qualtrics_access_confirmdelete.html', { 'error_message': "Not found on database", })
-
-	# def get_context_data(self, **kwargs):
-	# 	context = super(QualtricsAccessConfirmDeleteView, self).get_context_data(**kwargs)
-
-	# 	plist = QualtricsAccessList.objects.get(user_id=id)
-
-	# 	context['user_id'] = plist.user_id
-	# 	# context['first_name'] = 'John'
-	# 	# context['last_name'] = 'Smith'
-	# 	# context['email'] = 'something@home.com'
-	# 	# context['description'] = 'Testing purposes'
-	# 	# context['access_end_date'] = 'Dec 19, 2013'
-	# 	return context
-
-
-	# def __init__(self, arg):
-	# 	super(QualtricsAccessConfirmDeleteView, self).__init__()
-	# 	self.arg = arg
+	def get_object(self):
+		wlobject = super(QualtricsAccessConfirmDeleteView, self).get_object()
 		
-	# def post(self, request, *args, **kwargs):
-	# 	print "Now in the confirm delete function"
-	# 	#user_id = request.POST.get('user_id')
-	# 	if request.method == 'POST':
-	# 		print request
-	# 	user_id = 'Test Id'
-	# 	first_name = 'John'
-	# 	last_name = 'Smith'
-	# 	email = 'something@home.com'
-	# 	description = 'Testing purposes'
-	# 	access_end_date = 'Dec 19, 2013'
-	# 	return render(request, 'qualtrics_whitelist/qualtrics_access_confirmdelete.html', {'user_id': user_id, 'first_name': first_name, 'last_name': last_name, 'email': email, 'reason_desc': description, 'access_end_date': access_end_date} )
+		personList = Person.objects.filter(univ_id=wlobject.user_id)
+		
+		for plist in personList:
+			wlobject.first_name = plist.name_first
+			wlobject.last_name = plist.name_last
+			wlobject.email_address = plist.email_address
+		
+		return wlobject
 
-	# def get_context_data(self, **kwargs):
-	# 	context = super(QualtricsAccessConfirmDeleteView, self).get_context_data(**kwargs)
-	# 	context['user_id'] = 'Test ID'
-	# 	context['first_name'] = 'John'
-	# 	context['last_name'] = 'Smith'
-	# 	context['email'] = 'something@home.com'
-	# 	context['description'] = 'Testing purposes'
-	# 	context['access_end_date'] = 'Dec 19, 2013'
-	# 	return render(request, 'qualtrics_whitelist/qualtrics_access_confirmdelete.html', {'user_id': user_id, 'first_name': first_name, 'last_name': last_name, 'email': email, 'reason_desc': description, 'access_end_date': access_end_date} )
+	
 
-
-
-
-
-
+	
 

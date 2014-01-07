@@ -6,12 +6,6 @@
 {% block title %}Confirm a delete{% endblock %}
 {% block pagetitle %}Confirm a delete{% endblock %}
 
-{% block breadcrumb %}
-<ul class="breadcrumb">
-	<li class="active"><a href="#">You are here trying to delete a Person</a></li>
-</ul>
-{% endblock %}
-
 
 {% block content %}
 
@@ -29,7 +23,7 @@
 		<tr><td>Access End Date</td><td>{{ object.access_end_date }}</td></tr>
 	</table>
 	<input type="hidden" name="id" value="{{ object.id }}" >
-    <input type="submit" name="confirm" value="Confirm" />	<input type="submit" name="cancel" value="Cancel" id="cancel" />
+    <input type="submit" class="btn btn-primary" name="confirm" value="Confirm" />	<input type="submit" class="btn btn-primary" name="cancel" value="Cancel" id="cancel" />
 
 </form>
 

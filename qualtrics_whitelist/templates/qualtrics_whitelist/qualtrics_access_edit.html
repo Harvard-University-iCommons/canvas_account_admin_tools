@@ -1,4 +1,4 @@
-{% extends "qualtrics_whitelist/base.html" %}
+{% extends "icommons_ui/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -6,57 +6,56 @@
 {% block title %}Edit a Person{% endblock %}
 {% block pagetitle %}Edit Person{% endblock %}
 
-{% block breadcrumb %}
-<ul class="breadcrumb">
-	<li class="active"><a href="#">You are here trying to edit a Person</a></li>
-</ul>
-{% endblock %}
-
 
 {% block content %}
-<h4>Confirm and Edit a Person</h4>
-{% if qualtrics_access_add %}
+<h4>Update the reason and/or the access end date</h4>
+
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="/qualtrics_access_list/" method="POST">{% csrf_token %}
-
-Hello
+<form action="{% url 'qwl:access_update' %}" method="POST">{% csrf_token %}
+<input type="hidden" name="id" value="{{ object.id }}" >
+<input type="hidden" name="user_id" value="{{ object.user_id }}" >
 
 <table class="table">
-	<tr><td>HUID</td><td>{{ user_id }}</td></tr>
-	<tr><td>First Name</td><td>{{ first_name }}</td></tr>
-	<tr><td>Last Name</td><td>{{ last_name }}</td></tr>
-	<tr><td>Email</td><td>{{ email }}</td></tr>
-	<tr><td>Reason</td><td>{{ reason_desc }}</td></tr>
-	<tr><td>Access End Date</td><td>{{ access_end_date }}</td></tr>
-	<tr><td><input type="submit" value="Save" /></td><td><input type="submit" value="Cancel" /></td><tr>
+	<tr><td>HUID</td><td>{{ object.user_id }}</td></tr>
+	<tr><td>First Name</td><td>{{ object.first_name }}</td></tr>
+	<tr><td>Last Name</td><td>{{ object.last_name }}</td></tr>
+	<tr><td>Email</td><td>{{ object.email_address }}</td></tr>
+	<!-- <tr><td>Reason</td><td>{{ object.description }}</td></tr> -->
+	<!-- <tr><td>Reason</td><td><div id="description" contenteditable>{{ object.description }}</div></td></tr> -->
+	<tr><td>Reason</td><td><input type="text" name="description" value="{{ object.description }}">
+	<!-- <td><div id="description" contenteditable>{{ person.description }}</div></td> -->
+	<tr><td>Access End Date</td><td><input type="text" id="datepicker" class="dateinput" name="access_end_date" value="{{ object.access_end_date }}"></td>
+	</tr>
+	<tr><td>
+		<!-- <input type="submit" class="btn btn-primary" value="Update" /> -->
+		<button class="btn btn-primary" type="submit" name="Update" onclick="return checkReason()" >Update</button>
+		<input type="submit" class="btn btn-primary" value="Cancel" name="cancel"/></td><tr>
 </table>
-
-
-<!-- HUID: <label>{{ user_id }}</label><br />
-First Name: <label>{{ first_name }}</label><br />
-Last Name: <label>{{ last_name }}</label><br />
-Email Address: <label>{{ email_address }}</label><br />
-Reason: <input type=text name="description"> <br />
-Access End Date: <type=text name="description"> <br /> -->
-    
-    <!-- <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
-    
-	<input type="submit" value="Save it now" /> -->
-
 
 </form>
 
-{% endif %}
-<!-- {% if qualtrics_access_list %}
 
-<table class="table">
-	{% for person in qualtrics_access_list %}
-		<tr><td>{{ person.user_id|upper }}</td><td>{{ person.description }}</td></tr>
-	{% endfor %}
-</table>
+{% endblock %}
 
-{% endif %}  -->
+{% block javascript %}
+{{ block.super }}
+<script>
 
+$(document).ready(function() { 
+	$('.dateinput').datepicker();
+});
+
+function checkReason()
+{
+	if (!form1.description.value)
+	{
+		alert ("Please Enter a Reason description.");
+		return false;
+	}
+	return true;
+}
+	
+</script>
 
 {% endblock %}
