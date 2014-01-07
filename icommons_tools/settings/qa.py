@@ -17,7 +17,7 @@ ICOMMONSAPIPASS - must be defined in the environment
 APP_CONFIG = {
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER': SECURE_SETTINGS['ICOMMONS_API_USER'],
-    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONSAPIPASS'],
+    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
     'TERM_TOOL_LOG': 'term_tool.log'
 }
 
@@ -45,7 +45,7 @@ DATABASE_EXTRAS = {
 '''
 
 CANVAS_API_HOSTNAME = 'harvard.test.instructure.com'
-CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
+CANVAS_API_BASE_URL = 'https://'+CANVAS_API_HOSTNAME+'/api/v1'
 CANVAS_BASE_URL = 'https://'+CANVAS_API_HOSTNAME
 
 INSTALLED_APPS += ('gunicorn',)
@@ -138,3 +138,15 @@ ALLOWED_GROUPS = {
 }
 
 BASE_ISITES_EXPORT_FILE_DOWNLOAD_URL = 'https://qa.isites.harvard.edu/exports/'
+
+GUNICORN_CONFIG = 'gunicorn_qa.py'
+
+EXPORT_TOOL = {
+    'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
+    'ssh_hostname' : 'icommons@qa.isites.harvard.edu', # name used to connect via ssh to perl script server
+    'ssh_private_key' : '/home/ubuntu/.ssh/id_rsa',
+    'create_site_zip_cmd' : '/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
+    'remove_site_zip_cmd' : '/u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
+    'archive_cutoff_time_in_hours' : 2, # express cutoff time in hours
+    'archive_task_crontab_hours' : "*/1", # hourly frequency that periodic task executes in crontab format
+}

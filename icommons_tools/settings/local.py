@@ -32,7 +32,7 @@ DATABASES = {
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
 DATABASE_EXTRAS = {
-    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
+    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ],
     'threaded': True
 }
 '''
@@ -43,7 +43,11 @@ CANVAS_BASE_URL = 'https://'+CANVAS_API_HOSTNAME
 
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
-INSTALLED_APPS += ('debug_toolbar','rest_framework.authtoken',)
+INSTALLED_APPS += (
+    'debug_toolbar',
+    'rest_framework.authtoken',
+)
+
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:
@@ -74,7 +78,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        },    
+        },
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
@@ -102,7 +106,7 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        },        
+        },
         'isites_export_tool': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',

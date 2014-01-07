@@ -150,3 +150,5 @@ ALLOWED_GROUPS = {
     'IcGroup:25178': 'sum'
 }
 
+GUNICORN_CONFIG = 'gunicorn_prod.py'
+

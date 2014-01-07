@@ -1,12 +1,7 @@
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.template import Context, loader
-from django.template.response import TemplateResponse
+from django.core.urlresolvers import reverse
 
-from django.http import HttpResponse
 from django.views import generic
-from django.shortcuts import redirect
 from django.contrib import messages
-from django.utils.http import urlquote
 
 from icommons_common.models import School, Term
 from icommons_common.auth.views import LoginRequiredMixin
@@ -52,7 +47,6 @@ class TermListView(LoginRequiredMixin, generic.ListView):
     template_name = 'term_tool/term_list.html'
     context_object_name = 'term_list'
     paginate_by = 12
-    #login_url = reverse_lazy('tt:login')
 
     # override the get_queryset method to limit the results to a particular school
     def get_queryset(self):
@@ -75,7 +69,7 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         '''
         usergroups_set = set(self.request.session['USER_GROUPS'])
         user_admin_set = admingroup_set & usergroups_set
-        
+
         '''
         if a user is in the admin group, they can edit all terms for all schools.
         if not, they must be in the admin group for the specific school.
@@ -168,5 +162,3 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
     def get_success_url(self):
         logger.info('User %s created new term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
-            
-        
