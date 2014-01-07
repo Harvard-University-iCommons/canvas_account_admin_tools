@@ -17,7 +17,7 @@ ICOMMONSAPIPASS - must be defined in the environment
 APP_CONFIG = {
     'ICOMMONSAPIHOST': 'https://isites.harvard.edu/services/',
     'ICOMMONSAPIUSER': SECURE_SETTINGS['ICOMMONS_API_USER'],
-    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONSAPIPASS'],
+    'ICOMMONSAPIPASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
     'TERM_TOOL_LOG': 'term_tool.log'
 }
 
