@@ -1,4 +1,4 @@
-{% extends "icommons_ui/base.html" %}
+{% extends "qualtrics_whitelist/base.html" %}
 {% load crispy_forms_tags %}
 {% load static %}
 
@@ -21,14 +21,10 @@
 	<tr><td>First Name</td><td>{{ object.first_name }}</td></tr>
 	<tr><td>Last Name</td><td>{{ object.last_name }}</td></tr>
 	<tr><td>Email</td><td>{{ object.email_address }}</td></tr>
-	<!-- <tr><td>Reason</td><td>{{ object.description }}</td></tr> -->
-	<!-- <tr><td>Reason</td><td><div id="description" contenteditable>{{ object.description }}</div></td></tr> -->
 	<tr><td>Reason</td><td><input type="text" name="description" value="{{ object.description }}">
-	<!-- <td><div id="description" contenteditable>{{ person.description }}</div></td> -->
 	<tr><td>Access End Date</td><td><input type="text" id="datepicker" class="dateinput" name="access_end_date" value="{{ object.access_end_date }}"></td>
 	</tr>
 	<tr><td>
-		<!-- <input type="submit" class="btn btn-primary" value="Update" /> -->
 		<button class="btn btn-primary" type="submit" name="Update" onclick="return checkReason()" >Update</button>
 		<input type="submit" class="btn btn-primary" value="Cancel" name="cancel"/></td><tr>
 </table>
