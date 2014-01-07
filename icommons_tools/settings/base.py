@@ -6,6 +6,8 @@ from .secure import SECURE_SETTINGS
 
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
+from django.core.urlresolvers import reverse_lazy
+
 
 ### Path stuff as recommended by Two Scoops / with local mods
 
