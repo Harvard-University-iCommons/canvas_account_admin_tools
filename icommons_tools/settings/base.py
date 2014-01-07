@@ -10,7 +10,7 @@ from sys import path
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides, 
+# (this is the parent of the directory where this file resides,
 # since this file is now inside a 'settings' pacakge directory)
 DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
 
@@ -194,7 +194,7 @@ if 'http_proxy' in os.environ:
 if 'https_proxy' in os.environ:
     PROXIES['https'] = os.environ['https_proxy']
 
-LOGIN_URL = '/tools/pin/login/'
+LOGIN_URL = reverse_lazy('pin:login')
 
 EXPORT_TOOL = {
     'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
