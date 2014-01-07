@@ -138,3 +138,6 @@ ALLOWED_GROUPS = {
 }
 
 BASE_ISITES_EXPORT_FILE_DOWNLOAD_URL = 'https://qa.isites.harvard.edu/exports/'
+
+GUNICORN_CONFIG = 'gunicorn_qa.py'
+
