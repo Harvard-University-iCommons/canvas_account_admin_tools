@@ -32,16 +32,20 @@
 			<tr>
 				<td>{{ person.role_type }}</td>
 				<td>{{ person.user_id|upper }}</td>
-				<td><div id="description" contenteditable>{{ person.description }}</div></td>
+				<!-- <td><div id="description" contenteditable>{{ person.description }}</div></td> -->
+				<td>{{ person.description }}</td>
 				<td>{{ person.name_first }}</td>
 				<td>{{ person.name_last }}</td>
 				<td>{{ person.email_address }}</td>
-				<td><div id="access_end_date" contenteditable>Edit Date</div></td>
+				<!-- <td><div id="access_end_date" contenteditable>Edit Date</div></td> -->
+				<td>Access End Date to be changed</td>
 				<!-- <td><a href="{% url "qwl:qualtricsaccesslist" %}">Edit</a></td> -->
-				<td><form id="updateForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
+				<td>
+					<a href="{% url 'qwl:access_editview' person.id %}">Update</a>
+					<!-- <form id="updateForm" action="{% url 'qwl:qualtricsaccesslist' %}" method="post">{% csrf_token %}
 						<input type="hidden" name="update" value={{ person.user_id }} />
 						<a href="#" onclick="document.getElementById('updateForm').submit()">Update</a>
-					</form>
+					</form> -->
 				</td>
 				<td>
 					<a href="{% url 'qwl:access_confirmdelete' person.id %}">Delete</a>
@@ -54,8 +58,7 @@
 
 {% endif %}
 
-<form action="qualtrics_access_search/" method="post">{% csrf_token %}
-    
+<form action="qualtrics_access_search/" method="post">{% csrf_token %} 
 	<input type="submit" class="btn btn-primary" value="Add a Person" />
 </form>
 

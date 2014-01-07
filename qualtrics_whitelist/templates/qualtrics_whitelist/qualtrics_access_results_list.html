@@ -45,7 +45,7 @@ This is your input:
 			{% if choice.on_list %}
 				<td>Already Added</td>
 			{% else %}	
-				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" ></td>
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" class="checkbox"></td>
 			{% endif %}
 				<td>{{ choice.role_type }}</td>
 				<td>{{ choice.user_id }}</td>
@@ -67,8 +67,12 @@ This is your input:
 	</tr>
 	<tr>
 		<td/>
-		<td><input type="submit" class="btn btn-primary" name="Save" value="Save" id="saveBtn" onclick="return checkReason()" >
-				<input type="submit" class="btn btn-primary" name="Cancel" value="Cancel" id="cancel" /></td>
+		<td>
+			<!-- <input type="submit" class="delete" name="Save" value="Save" id="saveBtn" onclick="return checkReason()" disabled> -->
+			<button id="sub" class="btn btn-primary" type="submit" onclick="return checkReason()"  name="Save" disabled="disabled" >Save Button</button>
+			<!-- <input type="submit" class="btn btn-primary" name="Cancel" value="Cancel" id="cancel"> -->
+			<button class="btn btn-primary" type="submit" name="Cancel">Cancel</button>
+		</td>
 	<tr>
 </table>
 </form>
@@ -81,74 +85,18 @@ This is your input:
 {{ block.super }}
 <script>
 
+$(document).ready(function() { 
+	$('.dateinput').datepicker();
+});
 
-function chkCount1()
-{
-	var chkTotal = 0;
-	var checked = document.getElementByName('user_check_list');
-	for (var i = 0; i <chkTotal.length; ++i)
-	{
-		chkTotal = chkTotal + 1;	
-	}
-	// if at least 1 checkbox is checked, activate the submit button
-	if (chkTotal > 0)
-	{
-		document.form1.Save.disabled=false;
-	}
-	else
-	// leave the submit button disabled
-	{
-		document.form1.Save.disabled=true;
-	}
-}
+$('.checkbox').change(function() {
+    if ($('.checkbox:checked').length) {
+        $('#sub').removeAttr('disabled');
+    } else {
+        $('#sub').attr('disabled', 'disabled');
+    }
+});
 
-
-
-function checkCount()
-{
-	var checkedAtLeastOne = false;
-	$('input[type="checkbox"]').each(function() 
-	{
-    	if ($(this).is(":checked")) 
-    	{
-        	checkedAtLeastOne = true;
-        	document.form1.Save.disabled=false; 
-        }
-        else 
-        {
-        	document.form1.Save.disabled=true; 
-        }
-    });
-}
-
-
-
-function chkCount()
-{
-	// assign a 0 value to the number of selected checkboxes variable
-	var chkTotal = 0;
-	// loop though the checkboxes and count how many are checked
-	for(counter=0;counter<document.form1.checkbox.length;counter++)
-	{
-		// alert ("counter is" + counter);
-		console.log("counter is");
-		if(document.form1.checkbox[counter].checked)
-		{
-			chkTotal = chkTotal + 1;
-		}
-	}
-	// if at least 1 checkbox is checked, activate the submit button
-	if (chkTotal > 0)
-	{
-		document.form1.Save.disabled=false;
-	}
-	else
-	// leave the submit button disabled
-	{
-		document.form1.Save.disabled=true;
-	}
-	return true;
-}
 
 function checkReason()
 {
