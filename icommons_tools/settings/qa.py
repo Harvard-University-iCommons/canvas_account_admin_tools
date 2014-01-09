@@ -50,6 +50,20 @@ CANVAS_BASE_URL = 'https://'+CANVAS_API_HOSTNAME
 
 INSTALLED_APPS += ('gunicorn',)
 
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+        'OPTIONS': {
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+    },
+}
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_PORT = 6379
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
