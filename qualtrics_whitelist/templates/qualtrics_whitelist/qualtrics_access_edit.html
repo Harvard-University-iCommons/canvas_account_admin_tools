@@ -12,7 +12,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'qwl:access_update' %}" method="POST">{% csrf_token %}
+<form name="form1" action="{% url 'qwl:access_update' %}" method="POST">{% csrf_token %}
 <input type="hidden" name="id" value="{{ object.id }}" >
 <input type="hidden" name="user_id" value="{{ object.user_id }}" >
 
@@ -21,7 +21,7 @@
 	<tr><td>First Name</td><td>{{ object.first_name }}</td></tr>
 	<tr><td>Last Name</td><td>{{ object.last_name }}</td></tr>
 	<tr><td>Email</td><td>{{ object.email_address }}</td></tr>
-	<tr><td>Reason</td><td><input type="text" name="description" value="{{ object.description }}">
+	<tr><td>Reason Description</td><td><input type="text" name="description" value="{{ object.description }}">
 	<tr><td>Access End Date</td><td><input type="text" id="datepicker" class="dateinput" name="access_end_date" value="{{ object.access_end_date }}"></td>
 	</tr>
 	<tr><td>

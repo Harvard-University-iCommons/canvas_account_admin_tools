@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from qualtrics_whitelist import views
-from qualtrics_whitelist.views import QualtricsAccessListView, QualtricsAccessSearchView, QualtricsAccessEditView, QualtricsAccessConfirmDeleteView, QualtricsAccessAddView, QualtricsAccessResultsListView
+from qualtrics_whitelist.views import QualtricsAccessListView, QualtricsAccessSearchView, QualtricsAccessEditView, QualtricsAccessConfirmDeleteView, QualtricsAccessResultsListView
 
 urlpatterns = patterns('',
 
