@@ -67,6 +67,7 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         '''
         get the usergroups_set from the session
         '''
+        logger.debug("USER_GROUPS from the session: " + ','.join(self.request.session['USER_GROUPS']) )
         usergroups_set = set(self.request.session['USER_GROUPS'])
         user_admin_set = admingroup_set & usergroups_set
 
@@ -75,7 +76,7 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         if not, they must be in the admin group for the specific school.
         '''
         if not user_admin_set:
-            logger.debug('here now 1')
+            logger.debug('user is not a termtool global admin; checking the school group')
             '''
             get the allowed groups dict from the settings object
             '''
