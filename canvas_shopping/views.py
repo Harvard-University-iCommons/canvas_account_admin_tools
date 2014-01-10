@@ -112,13 +112,14 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
 
         # Get the list of courses that this user is already shopping (in Canvas)
         enrollees = get_enrollments_by_user(self.request.user.username, 'Shopper')
-        for e in enrollees:
-            canvas_course_id = e['course_id']
-            canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
-            if canvas_course:
-                if canvas_course['sis_course_id']:
-                    #shopped_course_instance_ids[ int(canvas_course['sis_course_id']) ] = canvas_course_id
-                    enrollments[int(canvas_course['sis_course_id'])] = e
+        if enrollees is not None:
+            for e in enrollees:
+                canvas_course_id = e['course_id']
+                canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+                if canvas_course:
+                    if canvas_course['sis_course_id']:
+                        #shopped_course_instance_ids[ int(canvas_course['sis_course_id']) ] = canvas_course_id
+                        enrollments[int(canvas_course['sis_course_id'])] = e
 
         # Get the Canvas courses for this school
         course_instances = CourseInstance.objects.filter(course__school__school_id=self.kwargs['school_id'], sync_to_canvas=1)
