@@ -64,6 +64,8 @@ SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'localhost'
 SESSION_REDIS_PORT = 6379
 
+SESSION_COOKIE_SECURE = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -117,15 +119,6 @@ LOGGING = {
 
     }
 }
-
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'django-cache.kc9kh3.0001.use1.cache.amazonaws.com:11211',
-    }
-}
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 
 '''
