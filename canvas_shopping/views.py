@@ -65,10 +65,12 @@ def course(request, canvas_course_id):
 
         # make sure this is a shoppable course
         is_shoppable = False
+        course_instance_id = None
         course_instances = CourseInstance.objects.filter(canvas_course_id=canvas_course_id)
         for ci in course_instances:
             if ci.term.shopping_active:
                 is_shoppable = True
+                course_instance_id = ci.course_instance_id
                 break
 
         if is_shoppable is False:
@@ -76,7 +78,8 @@ def course(request, canvas_course_id):
 
         else:
             # Enroll this user as a shopper
-            new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
+            #new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
+            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, 'Shopper', user_id)
             if new_enrollee:
                 # success
                 return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url})
