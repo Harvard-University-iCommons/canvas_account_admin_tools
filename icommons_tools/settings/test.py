@@ -41,17 +41,20 @@ CANVAS_API_BASE_URL = 'https://'+CANVAS_API_HOSTNAME+'/api/v1'
 CANVAS_BASE_URL = 'https://'+CANVAS_API_HOSTNAME
 
 INSTALLED_APPS += (
-    'debug_toolbar',
-    'gunicorn'
+    'gunicorn',
 )
 
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 # For Django Debug Toolbar:
+'''
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
+INSTALLED_APPS += ('debug_toolbar',)
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 INTERNAL_IPS = ('127.0.0.1','10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+'''
 
 CACHES = {
     'default': {
