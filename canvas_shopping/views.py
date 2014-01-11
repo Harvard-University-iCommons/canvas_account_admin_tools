@@ -49,6 +49,7 @@ def course(request, canvas_course_id):
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
+            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
@@ -119,6 +120,7 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
                 if canvas_course:
                     if canvas_course['sis_course_id']:
                         #shopped_course_instance_ids[ int(canvas_course['sis_course_id']) ] = canvas_course_id
+                        logger.debug('user %s is enrolled in canvas/harvard course %d/%s' % ( self.request.user.username, canvas_course_id, canvas_course['sis_course_id']))
                         enrollments[int(canvas_course['sis_course_id'])] = e
 
         # Get the Canvas courses for this school
