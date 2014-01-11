@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
 
@@ -32,7 +32,7 @@ DATABASES = {
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 1200,
     }
 }
 
@@ -111,6 +111,27 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'canvas_shopping': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'isites_export_tool': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'qualtrics_whitelist': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'qualtrics_taker_auth': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+
         'icommons_common': {
             'handlers': ['logfile'],
             'level': 'DEBUG',
