@@ -1,22 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views import generic
-from django.template import RequestContext
-from django.core.context_processors import csrf
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
-from django.views.generic.base import RedirectView
-from django.core.urlresolvers import reverse_lazy
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib import messages
 from icommons_common.models import *
-from itertools import chain
 from icommons_common.models import Person
 from icommons_common.auth.views import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-
-
 
 import logging
 
@@ -24,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def delete(request):
-	# logger.debug ('trying to delete now/////////')
-	# print 'trying to delete now/////////'
 	if request.method == 'POST':
 		id_delete = request.POST.get('id')
 		
@@ -33,7 +22,6 @@ def delete(request):
 			logger.warning("Now canceling and returning")
 		else:
 			logger.debug ('now deleting %s' % id_delete)
-			# print 'now deleting %s' % id_delete
 			delete_id = QualtricsAccessList.objects.get(id=id_delete).delete()
 			messages.success(request, "Whitelist delete user successful")
 	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
@@ -41,22 +29,16 @@ def delete(request):
 @login_required
 def access_update_person(request):
 	logger.debug ('trying to update now/////////')
-	# print 'In access_update_person function now'
 	id_update = request.POST.get('id')
 	if 'cancel' in request.POST:
 		logger.warning("Now canceling and returning")
-		# return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 	else:
-		# print 'now trying to update to database'
 		wlistSave = QualtricsAccessList()
 		wlistSave.id = id_update
 		logger.debug ('Trying to update id :%s:' % id_update)
-		# print 'Trying to update id :%s:' % id_update
 		user = request.POST.get('user_id')
-		# print 'My user is :%s:' % user
 		wlistSave.user_id = user
 		wlistSave.description = request.POST.get('description')
-		# print 'The description is now :%s:' % wlistSave.description
 		wlistSave.version = 0
 		# wlistSave.access_end_date = request.POST.get('access_end_date')
 		try:
@@ -64,7 +46,6 @@ def access_update_person(request):
 			messages.success(request, "Whitelist update user successful")
 		except IntegrityError, e:
 			logger.error ('Exception raised while saving to database:%s (%s)' % (e.args[0], type (e)))
-			# print 'Exception raised while saving to database:%s (%s)' % (e.args[0], type (e))
 			messages.error(request, "Whitelist update/deleted failed")
 
 	return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
@@ -124,15 +105,12 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
 	context_object_name = 'qualtrics_access_list'
 
 	def post(self, request, *args, **kwargs):
-		# print "Now in QualtricsAccessResultsListView post function///////"
 		error_message = ""
 		results_list = []
 		if request.method == 'POST':
 			if 'Search' in request.POST:
 				input_user_id = request.POST.get('search_by_huid')
-				# print input_user_id
 				input_email = request.POST.get('search_by_email')
-				# print input_email
 
 				if not len(input_user_id) <= 0:
 					alist = []
@@ -180,7 +158,7 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
 					personlist = Person.objects.filter(email_address__iexact=input_email)
 
 					if personlist:
-						# print "not empty"
+						# person found on ldap_people_plus_simple model
 						for plist in personlist:
 							input_user_id = plist.univ_id 
 
@@ -211,17 +189,14 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
 					
 					else:
 						# person not found in Person database
-	
 						logger.error ('Email not found in Person database :%s:' % input_email)
 						return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', {'user_input' : input_user_id, 'results_list' : results_list, 'error_message': "Person not found in database",})
 										
 
 			elif 'Cancel' in request.POST:
-				# print "now trying to cancel and return to home page"
 				return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 
 			elif 'Save' in request.POST:
-				# print "now in Save"
 				input_user_id =  request.POST.get('user_id')
 				input_list = request.POST.get('users_list')
 				input_check_list = request.POST.getlist('user_check_list')				
@@ -235,7 +210,6 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
 					messages.error(request, "Whitelist update/deleted failed")
 
 				else:
-					# print "Updating now and return to home page"
 					wlistSave = QualtricsAccessList()
 
 					for user in input_check_list:
@@ -274,7 +248,6 @@ class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
 
 class QualtricsAccessConfirmDeleteView(LoginRequiredMixin, generic.DetailView):
 	"""docstring for QualtricsAccessConfirmDeleteView"""
-	# print 'now in QualtricsAccessConfirmDeleteView'
 	model = QualtricsAccessList
 	template_name = 'qualtrics_whitelist/qualtrics_access_confirmdelete.html'
 	queryset = QualtricsAccessList.objects.all()

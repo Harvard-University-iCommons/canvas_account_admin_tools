@@ -8,26 +8,23 @@
 
 
 {% block content %}
-<form action="{% url 'qwl:access_resultsview' %}" method="POST">{% csrf_token %}
+<form class="form-horizontal" action="{% url 'qwl:access_resultsview' %}" method="POST">{% csrf_token %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-<table>
-	<tr>
-		<td>
-			<h4>Search By HUID: </h4></td></tr>
-	<tr>
-		<td>
-			<input type="text" name="search_by_huid"><br><br></td></tr>
-	<tr>
-		<td>
-			<h4>Search By Email Adress: </h4></td></tr>
-	<tr>
-		<td>
-			<input type="text" name="search_by_email"><br><br></td>
-	</tr>
-</table>
-<input type="submit" class="btn btn-primary" name="Search" value="Search Now" />  
-<!-- <button type="button" name="Search" class="btn btn-primary" id="search">Search Now</button>  -->
-<input type="submit" class="btn btn-primary" name="Cancel" value="Cancel" />
+	<div class="form-group">		
+		<div class="col-xs-2">
+			<label for="search_by_huid">Search by HUID</label>
+			<input type="huid" class="form-control" name="search_by_huid" placeholder="Enter HUID">
+		</div>
+	</div>
+	<p class="help-block">Or</p>
+	<div class="form-group">		
+		<div class="col-xs-4">
+			<label for="search_by_email">Search by Email Address</label>
+			<input type="huid" class="form-control" name="search_by_email" placeholder="Enter email address">
+		</div>
+	</div>
+	<button type="submit" name="Search" class="btn btn-primary" id="search">Search Now</button> 
+	<button type="submit" name="Cancel" class="btn btn-primary" >Cancel</button>
 </form>
 
 
