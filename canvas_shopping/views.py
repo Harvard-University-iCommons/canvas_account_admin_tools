@@ -41,7 +41,7 @@ enrolled in the course as a shopper.
 @login_required
 def course(request, canvas_course_id):
 
-    course_url = '%s/courses/%s' % (settings.CANVAS_BASE_URL, canvas_course_id)
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
     # is the user already in the course?
     user_id = request.user.username
@@ -56,7 +56,7 @@ def course(request, canvas_course_id):
 
     if is_enrolled is True:
         # redirect the user to the actual canvas course site
-        course_url = '%s/courses/%s' % (settings.CANVAS_BASE_URL, canvas_course_id)
+        course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
         logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
         return redirect(course_url)
 
@@ -137,7 +137,7 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
         #context['enrollments'] = enrollments
         #context['shopped_course_instance_ids'] = shopped_course_instance_ids
-        context['canvas_base_url'] = settings.CANVAS_BASE_URL
+        context['canvas_base_url'] = settings.CANVAS_SHOPPING['CANVAS_BASE_URL']
         return context
 
 # need a view for HDS students: display the list of Canvas-mapped courses for HDS + active shopping terms

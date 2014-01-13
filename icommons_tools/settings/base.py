@@ -175,7 +175,7 @@ INSTALLED_APPS = (
 )
 
 # session cookie lasts for 7 hours (in seconds)
-SESSION_COOKIE_AGE = 60*60*7
+SESSION_COOKIE_AGE = 60 * 60 * 7
 
 SESSION_COOKIE_NAME = 'djsessionid'
 
@@ -185,24 +185,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-CANVAS_API_HEADERS = {'Authorization': 'Bearer '+ SECURE_SETTINGS['CANVAS_TOKEN']}
-
-PROXIES = {}
-
-if 'http_proxy' in os.environ:
-    PROXIES['http'] = os.environ['http_proxy']
-
-if 'https_proxy' in os.environ:
-    PROXIES['https'] = os.environ['https_proxy']
-
 LOGIN_URL = reverse_lazy('pin:login')
-
-EXPORT_TOOL = {
-    'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
-    'ssh_hostname' : 'isites-qa', # name used to connect via ssh to perl script server
-    'base_script_path' : '/u02/icommons/perlapps/iSitesAPI/scripts/', # base file path for perl scripts
-    'create_site_zip_cmd' : 'export_site_files_zip.pl',
-    'remove_site_zip_cmd' : 'rm_export_file.pl',
-    'archive_cutoff_time_in_hours' : 2 * 7 * 24, # express cutoff time in hours
-}
-

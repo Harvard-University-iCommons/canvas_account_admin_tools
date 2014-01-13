@@ -61,7 +61,7 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         '''
         get the admin group from the settings object
         '''
-        admingroup_str = getattr(settings, 'ADMIN_GROUP', None)
+        admingroup_str = settings.TERM_TOOL.get('ADMIN_GROUP', None)
         admingroup_set = set([admingroup_str])
 
         '''
@@ -80,7 +80,7 @@ class TermListView(LoginRequiredMixin, generic.ListView):
             '''
             get the allowed groups dict from the settings object
             '''
-            allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
+            allowedgroups_dict = settings.TERM_TOOL.get('ALLOWED_GROUPS', None)
 
             '''
             create a new set of just the keys from the allowed groups (key are group_id's)
