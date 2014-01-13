@@ -15,7 +15,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
+        'ENGINE': 'oraclepool',
         'NAME': 'isitedev',
         'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
         'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],

@@ -16,7 +16,7 @@ APP_CONFIG = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
+        'ENGINE': 'oraclepool',
         'NAME': 'isitedev',
         'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
         'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
@@ -25,17 +25,17 @@ DATABASES = {
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': 0,
+        #'CONN_MAX_AGE': 0,
     }
 }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
+
 DATABASE_EXTRAS = {
     'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ],
     'threaded': True
 }
-'''
+
 
 CANVAS_API_HOSTNAME = 'canvas.icommons.harvard.edu'
 CANVAS_API_BASE_URL = 'https://'+CANVAS_API_HOSTNAME+'/api/v1'
