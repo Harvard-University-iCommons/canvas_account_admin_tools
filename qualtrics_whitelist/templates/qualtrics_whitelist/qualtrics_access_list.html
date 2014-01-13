@@ -9,7 +9,7 @@
 
 {% block content %}
 {% if qualtrics_access_list %}
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
         	<th>Role Type</th>
@@ -47,7 +47,7 @@
 
 {% endif %}
 
-<form action="qualtrics_access_search/" method="post">{% csrf_token %} 
+<form action="{% url 'qwl:access_searchfor' %}" method="post">{% csrf_token %} 
 	<input type="submit" class="btn btn-primary" value="Add a Person" />
 </form>
 

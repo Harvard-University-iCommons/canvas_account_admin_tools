@@ -12,23 +12,51 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form name="form1" action="{% url 'qwl:access_update' %}" method="POST">{% csrf_token %}
+<form class="form-horizontal" name="form1" action="{% url 'qwl:access_update' %}" method="POST">{% csrf_token %}
 <input type="hidden" name="id" value="{{ object.id }}" >
 <input type="hidden" name="user_id" value="{{ object.user_id }}" >
-
-<table class="table">
-	<tr><td>HUID</td><td>{{ object.user_id }}</td></tr>
-	<tr><td>First Name</td><td>{{ object.first_name }}</td></tr>
-	<tr><td>Last Name</td><td>{{ object.last_name }}</td></tr>
-	<tr><td>Email</td><td>{{ object.email_address }}</td></tr>
-	<tr><td>Reason Description</td><td><input type="text" name="description" value="{{ object.description }}">
-	<tr><td>Access End Date</td><td><input type="text" id="datepicker" class="dateinput" name="access_end_date" value="{{ object.access_end_date }}"></td>
-	</tr>
-	<tr><td>
-		<button class="btn btn-primary" type="submit" name="Update" onclick="return checkReason()" >Update</button>
-		<input type="submit" class="btn btn-primary" value="Cancel" name="cancel"/></td><tr>
-</table>
-
+<div class="form-group">
+    	<label for="inputHUID" class="col-sm-2 control-label">HUID</label>
+    	<div class="col-sm-10">
+    		<p class="form-control-static">{{ object.user_id }}</p>
+    	</div>
+    </div>
+    	<div class="form-group">
+    	<label for="inputFirstName" class="col-sm-2 control-label">First Name</label>
+    	<div class="col-sm-10">
+    		<p class="form-control-static">{{ object.first_name }}</p>
+    	</div>
+    </div>
+    <div class="form-group">
+    	<label for="inputLastName" class="col-sm-2 control-label">Last Name</label>
+    	<div class="col-sm-10">
+    		<p class="form-control-static">{{ object.last_name }}</p>
+    	</div>
+    </div>
+	<div class="form-group">
+    	<label for="inputEmail" class="col-sm-2 control-label">Email</label>
+    	<div class="col-sm-10">
+    		<p class="form-control-static">{{ object.email_address }}</p>
+    	</div>
+    </div>
+    <div class="form-group">
+    	<label for="inputDescription" class="col-sm-2 control-label">Reason Description</label>
+    	<div class="col-sm-10">
+    		<input type="text" class="form-control" name="description"   value="{{ object.description }}">
+    	</div>
+    </div>
+    <div class="form-group">
+    	<label for="inputAccessEndDate" class="col-sm-2 control-label">Access End Date</label>
+    	<div class="col-sm-10">
+    		<input type="text" class="dateinput" name="access_end_date"  value="{{ object.access_end_date }}">
+    	</div>
+    </div>
+    <div class="form-group">
+		<div class="col-sm-offset-2 col-sm-10">
+    		<button type="submit" class="btn btn-primary" name="Update" onclick="return checkReason()" >Update</button>
+    		<button type="submit" class="btn btn-primary" name="cancel">Cancel</button>
+    	</div>
+    </div>
 </form>
 
 
