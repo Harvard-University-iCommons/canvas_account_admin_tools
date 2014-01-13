@@ -42,12 +42,10 @@ DATABASES = {
 }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
 DATABASE_EXTRAS = {
     'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
     'threaded': True
 }
-'''
 
 CANVAS_API_HOSTNAME = 'canvas.harvard.edu'
 CANVAS_API_BASE_URL = 'https://'+API_HOSTNAME+'/api/v1'
