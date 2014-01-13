@@ -123,7 +123,7 @@ LOGGING = {
         },
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': APP_CONFIG['TERM_TOOL_LOG'],
+            'filename': '/logs/icommons_tools/icommons_tools.log',
             'formatter': 'verbose'
         },
         'console': {
