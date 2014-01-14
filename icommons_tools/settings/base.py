@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common.monitor',
     'icommons_ui',
     'term_tool',
     'qualtrics_taker_auth',
