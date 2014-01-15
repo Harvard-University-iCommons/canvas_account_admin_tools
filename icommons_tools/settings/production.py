@@ -3,6 +3,11 @@ from sys import path
 
 from .base import *
 
+import os
+
+os.environ['http_proxy'] = 'http://10.34.5.254:8080'
+os.environ['https_proxy'] = 'http://10.34.5.254:8080'
+
 # debug must be false for production
 DEBUG = False
 
