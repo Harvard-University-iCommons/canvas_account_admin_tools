@@ -63,18 +63,37 @@ def course(request, canvas_course_id):
     else:
         canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
-        # make sure this is a shoppable course
+        # make sure this user is eligible for shopping
+        group_ids = request.session.get('USER_GROUPS', [])
+        logger.debug("groups: " + "\n".join(group_ids))
+
+        user_can_shop = False
+
+        # make sure this is a shoppable course and that this user can shop it
         is_shoppable = False
         course_instance_id = None
-        course_instances = CourseInstance.objects.filter(canvas_course_id=canvas_course_id)
+        course_instances = CourseInstance.objects.filter(canvas_course_id=canvas_course_id)   # TODO: prefetch term and course
         for ci in course_instances:
             if ci.term.shopping_active:
                 is_shoppable = True
                 course_instance_id = ci.course_instance_id
+                # LdapGroup:FAS.student
+                student_group = 'LdapGroup:%s.student' % ci.course.school.school_id
+                school_enroll_group = 'ScaleSchoolEnroll:%s' % ci.course.school.school_id
+                if student_group in group_ids:
+                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, student_group))
+                    user_can_shop = True
+                elif school_enroll_group in group_ids:
+                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, school_enroll_group))
+                    user_can_shop = True
+
                 break
 
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
+
+        elif user_can_shop is False:
+            return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
 
         else:
             # Enroll this user as a shopper
@@ -88,20 +107,11 @@ def course(request, canvas_course_id):
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
 
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication, SessionAuthentication, ])
-@permission_classes([IsAuthenticated, ])
-def index(request):
-    authenticator = request.successful_authenticator.__class__.__name__
-    #from pudb import set_trace; set_trace()
-    return Response({'authenticator': authenticator, })
-
-
 class SchoolListView(LoginRequiredMixin, generic.ListView):
     model = School
     template_name = 'canvas_shopping/school_list.html'
     context_object_name = 'school_list'
-    queryset = School.objects.filter(active=1, courses__course_instances__sync_to_canvas=1).distinct()
+    queryset = School.objects.filter(active=1, terms__shopping_active=1).distinct()
 
 
 class CourseListView(LoginRequiredMixin, generic.ListView):
@@ -127,7 +137,7 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
                         enrollments[int(canvas_course['sis_course_id'])] = e
 
         # Get the Canvas courses for this school
-        course_instances = CourseInstance.objects.filter(course__school__school_id=self.kwargs['school_id'], sync_to_canvas=1)
+        course_instances = CourseInstance.objects.filter(course__school__school_id=self.kwargs['school_id'], sync_to_canvas=1, term__shopping_active=1)
         for ci in course_instances:
             courses[ci.course_instance_id] = {'instance': ci, 'enrollee': enrollments.get(ci.course_instance_id)}
 
@@ -142,7 +152,7 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
 
 # need a view for HDS students: display the list of Canvas-mapped courses for HDS + active shopping terms
 
-
+'''
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, ])
 @permission_classes([IsAuthenticated, ])
@@ -185,7 +195,7 @@ def add_shopper(request):
 
     else:
         return Response({'status': 'error', 'messge': 'One of the required parameters is missing.'})
-
+'''
 
 @login_required
 def add_shopper_ui(request):
@@ -231,7 +241,7 @@ def remove_shopper_ui(request):
     next_url = reverse('sh:courselist', args=[school_id])
     return redirect(next_url)
 
-
+'''
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication, ])
 @permission_classes([IsAuthenticated, ])
@@ -276,6 +286,7 @@ def remove_shopper(request):
             return Response({'status': 'success', 'message': 'Not a Canvas course.'})
     else:
         return Response({'status': 'error', 'messge': 'One of the required parameters is missing.'})
+'''
 
 
 def get_canvas_courses():
