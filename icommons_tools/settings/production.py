@@ -153,6 +153,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'course_shopping': {
+            'handlers': ['logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
     }
 }
