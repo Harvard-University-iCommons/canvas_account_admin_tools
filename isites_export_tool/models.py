@@ -3,7 +3,7 @@ from icommons_common.models import Person
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
-from crispy_forms.bootstrap import FormActions
+
 
 def validate_site_exists(keyword):
     if (Site.objects.filter(keyword=keyword).count() == 0):
@@ -21,6 +21,7 @@ class Site(models.Model):
         db_table = u'site'
         managed = False
 
+
 class ISitesExportJob(models.Model):
     # Job status values
     STATUS_NEW = 'New'
@@ -36,8 +37,12 @@ class ISitesExportJob(models.Model):
         (STATUS_COMPLETE, STATUS_COMPLETE),
         (STATUS_ARCHIVED, STATUS_ARCHIVED),
     )
+    ############
     # Fields
-    created_by = models.CharField(max_length=30, default=None) # defaulting to None to force validation to require a value (default is '' which Django thinks is fine!)
+    ############
+    # defaulting created_at to None to force validation to require a value -
+    # default is '' which Django thinks is fine!
+    created_by = models.CharField(max_length=30, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     site_keyword = models.CharField(max_length=30, validators=[validate_site_exists])
@@ -48,7 +53,7 @@ class ISitesExportJob(models.Model):
 
     class Meta:
         db_table = u'isites_export_job'
-        
+
     def __unicode__(self):
         return self.site_keyword + " | " + self.status
 
@@ -75,15 +80,13 @@ class ISitesExportJobForm(ModelForm):
 
     # Trick lifted from stack overflow to also save the created_by based on the currently logged in user...
     def save(self, *args, **kwargs):
-        kwargs['commit']=False # Don't want to save the model twice
+        kwargs['commit'] = False  # Don't want to save the model twice
         obj = super(ISitesExportJobForm, self).save(*args, **kwargs)
         if self.request:
-            obj.created_by = self.request.user.username # Username is equivalent to univ_id 
+            obj.created_by = self.request.user.username  # Username is equivalent to univ_id
         obj.save()
-        return obj #<--- Return saved object to caller.
+        return obj  # Return saved object to caller.
 
     class Meta:
         model = ISitesExportJob
         fields = ['site_keyword']
-
-

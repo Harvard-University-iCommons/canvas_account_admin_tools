@@ -1,11 +1,9 @@
 {% extends "icommons_ui/base_datatables.html" %}
 {% load crispy_forms_tags %}
 
-{% block page_title %} Job List {% endblock page_title %}
+{% block page_title %} {% block tool_title %} iSites Export Tool {% endblock tool_title %} {% endblock page_title %}
 
 {% block content %}
-
-  <h1>{% block nav_title %} {% block title %} iSites Export Tool {% endblock title %} {% endblock nav_title %}</h1>
 
   <div class="row spacer">
     {% crispy form %}
