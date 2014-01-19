@@ -1,26 +1,18 @@
 # Django settings for icommons_tools project.
 import os
 
+from .secure import SECURE_SETTINGS
+
+
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
-
-# Normally you should not import ANYTHING from Django directly
-# into your settings, but ImproperlyConfigured is an exception.
-from django.core.exceptions import ImproperlyConfigured
-
-def get_env_variable(var_name):
-    """ Get the environment variable or return exception """
-    try:
-        return os.environ[var_name]
-    except KeyError:
-        error_msg = "Set the %s environment variable" % var_name
-        raise ImproperlyConfigured(error_msg)
+from django.core.urlresolvers import reverse_lazy
 
 
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides, 
+# (this is the parent of the directory where this file resides,
 # since this file is now inside a 'settings' pacakge directory)
 DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
 
@@ -36,7 +28,6 @@ SITE_NAME = basename(SITE_ROOT)
 path.append(SITE_ROOT)
 
 ### End path stuff
-
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -85,7 +76,8 @@ MEDIA_URL = ''
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 
-# STATIC_ROOT is defined in individual environment settings
+# STATIC_ROOT can be overriden in individual environment settings
+STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -96,7 +88,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    normpath(join(SITE_ROOT, 'static')),
+    #normpath(join(SITE_ROOT, 'static')),
 )
 
 
@@ -110,7 +102,7 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 #SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = get_env_variable('DJANGO_SECRET_KEY')
+SECRET_KEY = SECURE_SETTINGS['DJANGO_SECRET_KEY']
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -124,8 +116,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'icommons_common.auth.middleware.PINAuthMiddleware',
-    'icommons_common.auth.middleware.GroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
     # Uncomment the next line for simple clickjacking protection:
@@ -135,7 +125,6 @@ MIDDLEWARE_CLASSES = (
 AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',
 )
-
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
@@ -147,7 +136,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.messages.context_processors.messages",
     "icommons_common.auth.context_processors.pin_context",
 )
-
 
 ROOT_URLCONF = 'icommons_tools.urls'
 
@@ -168,18 +156,27 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
-    'django.contrib.admin',
+    #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common.monitor',
+    'icommons_ui',
     'term_tool',
     'qualtrics_taker_auth',
+    'canvas_shopping',
+    'qualtrics_whitelist',
     #'gunicorn',
     'crispy_forms',
+    'isites_export_tool',
+    'huey.djhuey',
+    'rest_framework',
+    'djsupervisor',
 )
 
 # session cookie lasts for 7 hours (in seconds)
-SESSION_COOKIE_AGE = 60*60*7
+SESSION_COOKIE_AGE = 60 * 60 * 7
 
 SESSION_COOKIE_NAME = 'djsessionid'
 
@@ -188,3 +185,5 @@ SESSION_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+LOGIN_URL = reverse_lazy('pin:login')

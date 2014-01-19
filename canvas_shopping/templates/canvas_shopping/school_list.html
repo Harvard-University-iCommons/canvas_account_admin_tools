@@ -1,0 +1,27 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block page_title %}Choose a School{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li class="active"><a href="#">Schools</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+<h1>Choose a School</h1>
+{% if school_list %}
+<table class="table">
+    {% for school in school_list %}
+        <tr><td>{{ school.school_id|upper }}</td><td><a href="{% url 'sh:courselist' school_id=school.school_id %}"> {{ school.title_short }}</a></td></tr>
+    {% endfor %}
+</table>
+
+{% endif %}
+
+
+{% endblock %}

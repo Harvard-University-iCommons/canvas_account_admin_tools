@@ -2,9 +2,7 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-
-{% block title %}Create New {{ school.school_id|upper }} Term{% endblock %}
-{% block pagetitle %}Create New {{ school.school_id|upper }} Term{% endblock %}
+{% block page_title %}Create New {{ school.school_id|upper }} Term{% endblock %}
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
@@ -23,9 +21,10 @@
     * required
 </p>
 
-{% endblock %}
+{% endblock content %}
 
-{% block pagescripts %}
+{% block javascript %}
+{{ block.super }}
 <script>
     $(document).ready(function(){
         if ( $('#id_school').val() != 'colgsas' ) {
@@ -43,6 +42,8 @@
             $('#div_id_xreg_end_date label').html(xreg_end);
         }
 
+        $('.dateinput').datepicker({format: 'yyyy-mm-dd'})
+
     });
 </script>
-{% endblock %}
+{% endblock javascript %}

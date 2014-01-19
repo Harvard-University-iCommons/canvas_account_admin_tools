@@ -1,17 +1,10 @@
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.template import Context, loader
-from django.template.response import TemplateResponse
+from django.core.urlresolvers import reverse
 
-from django.http import HttpResponse
 from django.views import generic
-from django.shortcuts import redirect
 from django.contrib import messages
-#from django.contrib.auth import authenticate, logout, login
-#rom django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.utils.http import urlquote
 
-from icommons_common.models import *
+from icommons_common.models import School, Term
+from icommons_common.auth.views import LoginRequiredMixin
 from term_tool.forms import EditTermForm, CreateTermForm
 
 from django.conf import settings
@@ -19,7 +12,6 @@ from django.conf import settings
 import logging
 
 from util import util
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,24 +25,19 @@ class TermActionMixin(object):
         messages.success(self.request, msg)
         return super(TermActionMixin, self).form_valid(form)
 
-"""
-class PinLoginRequiredMixin(object):
-    def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
-"""
 ### /Mixins
 
 
 ### Class-based views:
 
-class SchoolListView(generic.ListView):
+class SchoolListView(LoginRequiredMixin, generic.ListView):
     model = School
     template_name = 'term_tool/school_list.html'
     context_object_name = 'school_list'
     queryset = School.objects.filter(active=1)
 
 
-class TermListView(generic.ListView):
+class TermListView(LoginRequiredMixin, generic.ListView):
     """
     This view provides a list of all of the terms for a particular school.
     The school_id appears in the URL, and is available in the 'school_id' kwarg.
@@ -60,7 +47,6 @@ class TermListView(generic.ListView):
     template_name = 'term_tool/term_list.html'
     context_object_name = 'term_list'
     paginate_by = 12
-    #login_url = reverse_lazy('tt:login')
 
     # override the get_queryset method to limit the results to a particular school
     def get_queryset(self):
@@ -75,25 +61,26 @@ class TermListView(generic.ListView):
         '''
         get the admin group from the settings object
         '''
-        admingroup_str = getattr(settings, 'ADMIN_GROUP', None)
+        admingroup_str = settings.TERM_TOOL.get('ADMIN_GROUP', None)
         admingroup_set = set([admingroup_str])
 
         '''
         get the usergroups_set from the session
         '''
+        logger.debug("USER_GROUPS from the session: " + ','.join(self.request.session['USER_GROUPS']) )
         usergroups_set = set(self.request.session['USER_GROUPS'])
         user_admin_set = admingroup_set & usergroups_set
-        
+
         '''
         if a user is in the admin group, they can edit all terms for all schools.
         if not, they must be in the admin group for the specific school.
         '''
         if not user_admin_set:
-            logger.debug('here now 1')
+            logger.debug('user is not a termtool global admin; checking the school group')
             '''
             get the allowed groups dict from the settings object
             '''
-            allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
+            allowedgroups_dict = settings.TERM_TOOL.get('ALLOWED_GROUPS', None)
 
             '''
             create a new set of just the keys from the allowed groups (key are group_id's)
@@ -120,7 +107,7 @@ class TermListView(generic.ListView):
         return context
 
 
-class TermEditView(TermActionMixin, generic.edit.UpdateView):
+class TermEditView(LoginRequiredMixin, TermActionMixin, generic.edit.UpdateView):
     form_class = EditTermForm
     template_name = 'term_tool/term_edit.html'
     action = 'updated'
@@ -148,7 +135,7 @@ class TermEditView(TermActionMixin, generic.edit.UpdateView):
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
 
-class TermCreateView(TermActionMixin, generic.edit.CreateView):
+class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateView):
     form_class = CreateTermForm
     template_name = 'term_tool/term_create.html'
     action = 'created'
@@ -176,5 +163,3 @@ class TermCreateView(TermActionMixin, generic.edit.CreateView):
     def get_success_url(self):
         logger.info('User %s created new term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
-            
-        

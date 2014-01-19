@@ -1,0 +1,57 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}List of People{% endblock %}
+{% block pagetitle %}List of People{% endblock %}
+
+
+{% block content %}
+{% if qualtrics_access_list %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+        	<th>Role Type</th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Access End Date</th>
+            <th>Reason Description</th>
+            <th colspan="2">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+		{% for person in qualtrics_access_list %}
+
+			<tr>
+				<td>{{ person.role_type }}</td>
+				<td>{{ person.user_id|upper }}</td>
+				<td>{{ person.name_first }}</td>
+				<td>{{ person.name_last }}</td>
+				<td>{{ person.email_address }}</td>
+				<td>Access End Date to be changed</td>
+				<td>{{ person.description }}</td>
+				<td>
+					<a href="{% url 'qwl:access_editview' person.id %}">Update</a>
+				</td>
+				<td>
+					<a href="{% url 'qwl:access_confirmdelete' person.id %}">Delete</a>
+				</td>
+			</tr>
+
+		{% endfor %}
+	<tbody>
+</table>
+
+{% endif %}
+
+<form action="{% url 'qwl:access_searchfor' %}" method="post">{% csrf_token %} 
+	<input type="submit" class="btn btn-primary" value="Add a Person" />
+</form>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,104 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Results List{% endblock %}
+{% block pagetitle %}Results List{% endblock %}
+
+
+{% block content %}
+<h4>Choose one or more and enter the reason and access end date, if necessary</h4>
+
+
+<form class="form-horizontal" name="form1" id="checkboxForm" action="./" method="POST">{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user_input }}" >
+<input type="hidden" name="users_list" value="{{ results_list }}" >
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<table border="2">
+	<thead>
+        <tr>
+        	<th></th>
+            <th>Role Type</th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if results_list %}
+		{% for choice in results_list %}
+			<tr>
+			{% if choice.on_list %}
+				<td>Already Added</td>
+			{% else %}	
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" class="checkbox"></td>
+			{% endif %}
+				<td>{{ choice.role_type }}</td>
+				<td>{{ choice.user_id }}</td>
+				<td>{{ choice.first_name }}</td>
+				<td>{{ choice.last_name }}</td>
+				<td>{{ choice.email }}</td>
+			</tr>
+		{% endfor %}
+	{% endif %}
+	<tbody>
+</table>
+<br>
+<div class="form-group">
+	<label class="col-sm-2 control-label">Reason Description</label>
+	<div class="col-sm-10">
+    	<input type="text" class="form-control" name="description"  placeholder="Enter reason description">
+    </div>
+</div>
+<div class="form-group">
+	<label class="col-sm-2 control-label">Access End Date</label>
+	<div class="col-sm-10">
+    	<input type="text" class="dateinput" name="access_end_date"  placeholder=" Enter access end date">
+    </div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">
+		<button id="sub" class="btn btn-primary" type="submit" onclick="return checkReason()"  name="Save" disabled="disabled" >Save</button>
+		<button class="btn btn-primary" type="submit" name="Cancel">Cancel</button>
+	</div>
+</div>
+</form>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+{{ block.super }}
+<script>
+
+$(document).ready(function() { 
+	$('.dateinput').datepicker();
+});
+
+$('.checkbox').change(function() {
+    if ($('.checkbox:checked').length) {
+        $('#sub').removeAttr('disabled');
+    } else {
+        $('#sub').attr('disabled', 'disabled');
+    }
+});
+
+
+function checkReason()
+{
+	if (!form1.description.value)
+	{
+		alert ("Please Enter a Reason description.");
+		return false;
+	}
+	return true;
+}
+	
+</script>
+
+{% endblock %}

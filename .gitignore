@@ -3,7 +3,9 @@
 sqlnet.log
 *.log
 *.pid
-http_static/*
 *.pyc
 newrelic*.ini
 .vagrant
+*.sqlite3
+secure*.py*
+!secure.py.example

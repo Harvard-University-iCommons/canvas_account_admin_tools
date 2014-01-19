@@ -1,0 +1,32 @@
+{% extends "qualtrics_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Search a Person{% endblock %}
+{% block pagetitle %}Search a Person{% endblock %}
+
+
+{% block content %}
+<form class="form-horizontal" action="{% url 'qwl:access_resultsview' %}" method="POST">{% csrf_token %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<div class="form-group">		
+		<div class="col-xs-2">
+			<label for="search_by_huid">Search by HUID</label>
+			<input type="huid" class="form-control" name="search_by_huid" placeholder="Enter HUID">
+		</div>
+	</div>
+	<p class="help-block">Or</p>
+	<div class="form-group">		
+		<div class="col-xs-4">
+			<label for="search_by_email">Search by Email Address</label>
+			<input type="huid" class="form-control" name="search_by_email" placeholder="Enter email address">
+		</div>
+	</div>
+	<button type="submit" name="Search" class="btn btn-primary" id="search">Search Now</button> 
+	<button type="submit" name="Cancel" class="btn btn-primary" >Cancel</button>
+</form>
+
+
+{% endblock %}
+

@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+
 from time import gmtime, strftime, time
 import hmac
 import base64
@@ -6,16 +8,17 @@ import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
 import bitly_api
-import os
 from django.http import HttpRequest
+from django.conf import settings
+
 
 # Create your views here.
 
-
+@login_required
 def index(request):
 
     if request.GET.get('qtarget') is not None:
-        """ 
+        """
         if the request contains a target, create the token and redirect the user to qualtrics
         """
 
@@ -36,7 +39,7 @@ def index(request):
         if not qtarget_url.startswith('https://harvard.qualtrics.com/'):
             message = "Sorry, you can only use this tool to link to Harvard Qualtrics surveys."
             return render(request, 'qualtrics_taker_auth/index.html', {'message': message})
-            
+
         target = base64.b64encode(qtarget_url)
 
         dist_url = HttpRequest.build_absolute_uri(request, '%s?qtarget=%s' % (request.path, target))
@@ -47,7 +50,7 @@ def index(request):
 
         return render(request, 'qualtrics_taker_auth/index.html', {'qtarget_url': qtarget_url, 'dist_url': dist_url, 'short_url': short_url})
 
-    else: 
+    else:
         """
         if the request doesn't contain a target and the request doesn't contain a target_url, then give the user a form to enter one
         """
@@ -65,7 +68,7 @@ def get_qualtrics_token(user):
     """
 
     userid_hash = hashlib.sha256(user.username).hexdigest()
-    
+
     # the Django User object doesn't have role_type_cd; we need to get a Person
     '''
     if user.role_type_cd == 'XIDHOLDER':
@@ -75,11 +78,16 @@ def get_qualtrics_token(user):
     else:
         id_type = 'HUID'
     '''
-    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
+    token_string = 'id=%s&timestamp=%s&expiration=%s&firstname=%s&lastname=%s&email=%s' % \
+        (userid_hash, token_timestamp, token_expiration, user.first_name, user.last_name, user.email)
 
+    '''
     if 'QUALTRICS_API_KEY' not in os.environ:
         raise ValueError("Environment variable '{}' required".format('QUALTRICS_API_KEY'))
     qualtrics_api_key = os.getenv('QUALTRICS_API_KEY')
+    '''
+
+    qualtrics_api_key = settings.QUALTRICS_TAKER_AUTH['QUALTRICS_API_KEY']
 
     mac = base64.b64encode(hmac.new(qualtrics_api_key, token_string, hashlib.md5).digest())
 
@@ -93,11 +101,14 @@ def get_qualtrics_token(user):
 
 
 def get_bitly_url(dist_url):
+    '''
     BITLY_ACCESS_TOKEN = "BITLY_ACCESS_TOKEN"
 
     if BITLY_ACCESS_TOKEN not in os.environ:
         raise ValueError("Environment variable '{}' required".format(BITLY_ACCESS_TOKEN))
     access_token = os.getenv(BITLY_ACCESS_TOKEN)
+    '''
+    access_token = settings.QUALTRICS_TAKER_AUTH['BITLY_ACCESS_TOKEN']
     bitly = bitly_api.Connection(access_token=access_token)
 
     bitly_data = bitly.shorten(dist_url)
@@ -113,5 +124,3 @@ def PKCS5Padding(string):
     else:
         appendage = chr(packingLength) * packingLength
         return string + appendage
-
-
