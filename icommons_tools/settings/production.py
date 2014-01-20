@@ -139,23 +139,43 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins', 'console'],
+            'handlers': ['mail_admins', 'logfile', ],
             'level': 'ERROR',
             'propagate': True,
         },
         'term_tool': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
             'propagate': True,
         },
         'course_shopping': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'qualtrics_taker_auth': {
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'qualtrics_whitelist': {
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'isites_export': {
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'huey': {
+            'handlers': ['mail_admins', 'logfile', ],
+            'level': 'ERROR',
             'propagate': True,
         },
 

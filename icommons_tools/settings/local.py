@@ -89,7 +89,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -146,7 +145,7 @@ LOGGING = {
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -176,7 +175,7 @@ LOGGING = {
             'propagate': True,
         },
         'canvas_shopping': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'console', 'logfile', ],
             'level': 'DEBUG',
             'propagate': True,
         },

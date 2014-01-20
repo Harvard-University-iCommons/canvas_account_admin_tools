@@ -29,11 +29,18 @@ path.append(SITE_ROOT)
 
 ### End path stuff
 
+# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ('Colin', 'colin_murtaugh@harvard.edu'),
-    ('Eric', 'eric_parker@harvard.edu'),
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
 )
+
+# This is the address that emails will be sent "from"
+SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mailhost.harvard.edu'
+EMAIL_USE_TLS = True
 
 MANAGERS = ADMINS
 
