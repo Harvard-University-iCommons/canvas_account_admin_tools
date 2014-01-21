@@ -38,7 +38,13 @@ def access_update_person(request):
 		logger.debug ('Trying to update id :%s:' % id_update)
 		user = request.POST.get('user_id')
 		wlistSave.user_id = user
-		wlistSave.description = request.POST.get('description')
+		test_description = request.POST.get('description')
+		# Verify the length and truncate to max length 255, if exceeds 255 chars
+		if len(test_description) > 255:
+			wlistSave.description = test_description[:255]
+			messages.info(request, "The Reason Description is too long, it has been shorten to 255 characters.")
+		else:
+			wlistSave.description = test_description
 		wlistSave.version = 0
 		# wlistSave.access_end_date = request.POST.get('access_end_date')
 		try:
