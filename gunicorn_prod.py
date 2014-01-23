@@ -10,8 +10,8 @@ bind = "127.0.0.1:8183"
 
 daemon = True
 
-pidfile = 'gunicorn.pid'
+pidfile = '/logs/icommons_tools/gunicorn.pid'
 
-accesslog = 'access.log'
+accesslog = '/logs/icommons_tools/gunicorn_access.log'
 
-errorlog = 'error.log'
+errorlog = '/logs/icommons_tools/gunicorn_error.log'

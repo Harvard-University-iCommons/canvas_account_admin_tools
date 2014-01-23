@@ -200,33 +200,36 @@ class EditTermForm(forms.ModelForm):
             logger.warn('setting the source')
             cleaned_data['source'] = 'termtool'
 
-        # get the start date day-of-year
-        start_day_of_year = start_date.timetuple()[7]
+        # if we've passed basic validation of the start and end date, do more sophisticated checks now
+        if start_date is not None and end_date is not None:
 
-        # get the day-of-year for august 15th
-        aug15_day_of_year = date(date.today().year, 8, 15).timetuple()[7]
+            # get the start date day-of-year
+            start_day_of_year = start_date.timetuple()[7]
 
-        logger.debug('start_day_of_year / aug15 day of year: %s / %s' % (start_day_of_year, aug15_day_of_year))
+            # get the day-of-year for august 15th
+            aug15_day_of_year = date(date.today().year, 8, 15).timetuple()[7]
 
-        # the set of schools that use proper academic_year values for spring terms (not the calendar year)
-        academic_year_schools = ['colgsas', 'ext', 'sum', 'hms', 'hsdm']
+            logger.debug('start_day_of_year / aug15 day of year: %s / %s' % (start_day_of_year, aug15_day_of_year))
 
-        # if the school is not colgsas,ext,sum,hms,hsdm then start date year must equal AY for all terms
-        if school.school_id not in academic_year_schools:
-            logger.debug('school %s is not in the list of schools that use a proper academic year' % school.school_id)
-            if academic_year != start_date.year:
-                self._errors['start_date'] = self.error_class(['']) 
-                raise forms.ValidationError("The academic year of this term is %s. The start date of the term must be in that year." % academic_year) 
+            # the set of schools that use proper academic_year values for spring terms (not the calendar year)
+            academic_year_schools = ['colgsas', 'ext', 'sum', 'hms', 'hsdm']
 
-        # else if the term start date is between aug 15 and the end of the year, AY must equal start date year
-        elif start_day_of_year >= aug15_day_of_year and academic_year != start_date.year:
-            self._errors['start_date'] = self.error_class(["The start date must be in %s." % academic_year]) 
-            raise forms.ValidationError("The academic year of this term is %s.  For terms that take place during the Fall, the start date must be in that year." % academic_year)
+            # if the school is not colgsas,ext,sum,hms,hsdm then start date year must equal AY for all terms
+            if school.school_id not in academic_year_schools:
+                logger.debug('school %s is not in the list of schools that use a proper academic year' % school.school_id)
+                if academic_year != start_date.year:
+                    self._errors['start_date'] = self.error_class(['']) 
+                    raise forms.ValidationError("The academic year of this term is %s. The start date of the term must be in that year." % academic_year) 
 
-        # else if the term start date is between the first of the year and Aug 15 start date year must equal AY+1
-        elif start_day_of_year < aug15_day_of_year and start_date.year != int(academic_year)+1:
-            self._errors['start_date'] = self.error_class(["The start date must be in %s." % str(int(academic_year)+1)])
-            raise forms.ValidationError("The academic year of this term is %s. For terms that take place during the Winter, Spring or Summer, the start date must be in %s." % (academic_year, int(academic_year)+1))
+            # else if the term start date is between aug 15 and the end of the year, AY must equal start date year
+            elif start_day_of_year >= aug15_day_of_year and academic_year != start_date.year:
+                self._errors['start_date'] = self.error_class(["The start date must be in %s." % academic_year]) 
+                raise forms.ValidationError("The academic year of this term is %s.  For terms that take place during the Fall, the start date must be in that year." % academic_year)
+
+            # else if the term start date is between the first of the year and Aug 15 start date year must equal AY+1
+            elif start_day_of_year < aug15_day_of_year and start_date.year != int(academic_year)+1:
+                self._errors['start_date'] = self.error_class(["The start date must be in %s." % str(int(academic_year)+1)])
+                raise forms.ValidationError("The academic year of this term is %s. For terms that take place during the Winter, Spring or Summer, the start date must be in %s." % (academic_year, int(academic_year)+1))
 
         # for all end dates, make sure the time portion is 11:59:59 PM
         # not sure if we should do this here or somewhere else...

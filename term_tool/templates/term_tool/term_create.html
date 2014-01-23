@@ -21,9 +21,10 @@
     * required
 </p>
 
-{% endblock %}
+{% endblock content %}
 
-{% block pagescripts %}
+{% block javascript %}
+{{ block.super }}
 <script>
     $(document).ready(function(){
         if ( $('#id_school').val() != 'colgsas' ) {
@@ -41,6 +42,8 @@
             $('#div_id_xreg_end_date label').html(xreg_end);
         }
 
+        $('.dateinput').datepicker({format: 'yyyy-mm-dd'})
+
     });
 </script>
-{% endblock %}
+{% endblock javascript %}

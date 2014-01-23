@@ -61,12 +61,13 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         '''
         get the admin group from the settings object
         '''
-        admingroup_str = getattr(settings, 'ADMIN_GROUP', None)
+        admingroup_str = settings.TERM_TOOL.get('ADMIN_GROUP', None)
         admingroup_set = set([admingroup_str])
 
         '''
         get the usergroups_set from the session
         '''
+        logger.debug("USER_GROUPS from the session: " + ','.join(self.request.session['USER_GROUPS']) )
         usergroups_set = set(self.request.session['USER_GROUPS'])
         user_admin_set = admingroup_set & usergroups_set
 
@@ -75,11 +76,11 @@ class TermListView(LoginRequiredMixin, generic.ListView):
         if not, they must be in the admin group for the specific school.
         '''
         if not user_admin_set:
-            logger.debug('here now 1')
+            logger.debug('user is not a termtool global admin; checking the school group')
             '''
             get the allowed groups dict from the settings object
             '''
-            allowedgroups_dict = getattr(settings, 'ALLOWED_GROUPS', None)
+            allowedgroups_dict = settings.TERM_TOOL.get('ALLOWED_GROUPS', None)
 
             '''
             create a new set of just the keys from the allowed groups (key are group_id's)

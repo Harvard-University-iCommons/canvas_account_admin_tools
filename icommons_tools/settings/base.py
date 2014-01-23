@@ -29,11 +29,18 @@ path.append(SITE_ROOT)
 
 ### End path stuff
 
+# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
-    ('Colin', 'colin_murtaugh@harvard.edu'),
-    ('Eric', 'eric_parker@harvard.edu'),
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
 )
+
+# This is the address that emails will be sent "from"
+SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mailhost.harvard.edu'
+EMAIL_USE_TLS = True
 
 MANAGERS = ADMINS
 
@@ -88,7 +95,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    normpath(join(SITE_ROOT, 'static')),
+    #normpath(join(SITE_ROOT, 'static')),
 )
 
 
@@ -116,7 +123,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'icommons_common.auth.middleware.GroupMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 
     # Uncomment the next line for simple clickjacking protection:
@@ -162,6 +168,7 @@ INSTALLED_APPS = (
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common.monitor',
     'icommons_ui',
     'term_tool',
     'qualtrics_taker_auth',
@@ -176,7 +183,7 @@ INSTALLED_APPS = (
 )
 
 # session cookie lasts for 7 hours (in seconds)
-SESSION_COOKIE_AGE = 60*60*7
+SESSION_COOKIE_AGE = 60 * 60 * 7
 
 SESSION_COOKIE_NAME = 'djsessionid'
 
@@ -186,24 +193,4 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-CANVAS_API_HEADERS = {'Authorization': 'Bearer '+ SECURE_SETTINGS['CANVAS_TOKEN']}
-
-PROXIES = {}
-
-if 'http_proxy' in os.environ:
-    PROXIES['http'] = os.environ['http_proxy']
-
-if 'https_proxy' in os.environ:
-    PROXIES['https'] = os.environ['https_proxy']
-
 LOGIN_URL = reverse_lazy('pin:login')
-
-EXPORT_TOOL = {
-    'base_file_download_url' : 'https://qa.isites.harvard.edu/exports/', 
-    'ssh_hostname' : 'isites-qa', # name used to connect via ssh to perl script server
-    'base_script_path' : '/u02/icommons/perlapps/iSitesAPI/scripts/', # base file path for perl scripts
-    'create_site_zip_cmd' : 'export_site_files_zip.pl',
-    'remove_site_zip_cmd' : 'rm_export_file.pl',
-    'archive_cutoff_time_in_hours' : 2 * 7 * 24, # express cutoff time in hours
-}
-

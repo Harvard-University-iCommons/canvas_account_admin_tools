@@ -87,7 +87,7 @@ def get_qualtrics_token(user):
     qualtrics_api_key = os.getenv('QUALTRICS_API_KEY')
     '''
 
-    qualtrics_api_key = settings.SECURE_SETTINGS['QUALTRICS_API_KEY']
+    qualtrics_api_key = settings.QUALTRICS_TAKER_AUTH['QUALTRICS_API_KEY']
 
     mac = base64.b64encode(hmac.new(qualtrics_api_key, token_string, hashlib.md5).digest())
 
@@ -108,7 +108,7 @@ def get_bitly_url(dist_url):
         raise ValueError("Environment variable '{}' required".format(BITLY_ACCESS_TOKEN))
     access_token = os.getenv(BITLY_ACCESS_TOKEN)
     '''
-    access_token = settings.SECURE_SETTINGS['BITLY_ACCESS_TOKEN']
+    access_token = settings.QUALTRICS_TAKER_AUTH['BITLY_ACCESS_TOKEN']
     bitly = bitly_api.Connection(access_token=access_token)
 
     bitly_data = bitly.shorten(dist_url)

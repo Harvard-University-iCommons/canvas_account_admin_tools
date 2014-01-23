@@ -25,7 +25,8 @@
 
 {% endblock %}
 
-{% block pagescripts %}
+{% block javascript %}
+{{ block.super }}
 <script>
     $(document).ready(function(){
 
@@ -49,6 +50,7 @@
             $('#div_id_xreg_end_date label').html(xreg_end);
         }
 
+        $('.dateinput').datepicker({format: 'yyyy-mm-dd'})
     });
 </script>
 {% endblock %}
