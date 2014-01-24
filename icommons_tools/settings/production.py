@@ -129,7 +129,8 @@ LOGGING = {
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': '/logs/icommons_tools/icommons_tools.log',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'level': 'DEBUG',
         },
         'console': {
             'level': 'ERROR',
@@ -150,12 +151,12 @@ LOGGING = {
         },
         'icommons_common': {
             'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'course_shopping': {
             'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'qualtrics_taker_auth': {
