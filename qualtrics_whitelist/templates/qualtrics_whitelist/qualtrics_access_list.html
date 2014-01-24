@@ -8,6 +8,7 @@
 
 
 {% block content %}
+{% if AUTHORIZEDTOEDIT %}
 {% if qualtrics_access_list %}
 <table class="table table-striped">
     <thead>
@@ -50,6 +51,8 @@
 <form action="{% url 'qwl:access_searchfor' %}" method="post">{% csrf_token %} 
 	<input type="submit" class="btn btn-primary" value="Add a Person" />
 </form>
+
+{% endif %}
 
 {% endblock %}
 
