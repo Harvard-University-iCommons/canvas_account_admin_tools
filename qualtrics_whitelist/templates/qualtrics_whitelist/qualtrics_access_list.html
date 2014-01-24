@@ -8,6 +8,7 @@
 
 
 {% block content %}
+{% if AUTHORIZEDTOEDIT %}
 {% if qualtrics_access_list %}
 <table class="table table-striped">
     <thead>
@@ -17,7 +18,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email Address</th>
-            <th>Access End Date</th>
+            <!-- <th>Access End Date</th> -->
             <th>Reason Description</th>
             <th colspan="2">Action</th>
         </tr>
@@ -27,11 +28,11 @@
 
 			<tr>
 				<td>{{ person.role_type }}</td>
-				<td>{{ person.user_id|upper }}</td>
+				<td>{{ person.user_id }}</td>
 				<td>{{ person.name_first }}</td>
 				<td>{{ person.name_last }}</td>
 				<td>{{ person.email_address }}</td>
-				<td>Access End Date to be changed</td>
+				<!-- <td>Access End Date to be changed</td> -->
 				<td>{{ person.description }}</td>
 				<td>
 					<a href="{% url 'qwl:access_editview' person.id %}">Update</a>
@@ -50,6 +51,8 @@
 <form action="{% url 'qwl:access_searchfor' %}" method="post">{% csrf_token %} 
 	<input type="submit" class="btn btn-primary" value="Add a Person" />
 </form>
+
+{% endif %}
 
 {% endblock %}
 
