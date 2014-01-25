@@ -30,10 +30,7 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
-)
+ADMINS = SECURE_SETTINGS.get('admins')
 
 # This is the address that emails will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'

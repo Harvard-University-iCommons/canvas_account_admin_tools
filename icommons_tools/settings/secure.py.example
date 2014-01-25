@@ -26,6 +26,10 @@ SECURE_SETTINGS = {
     
     'CIPHER_KEY': 'changeme',
 
+    'admins': (
+        ('Admin User', 'admin_user@example.com'),
+    )
+
 }
 
-# TODO: deprecate CIPHER_KEY
+# TODO: deprecate CIPHER_KEY; convert keys to lowercase
