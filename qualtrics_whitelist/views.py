@@ -112,8 +112,8 @@ class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
             if qw_settings_str in group_ids:
                 print 'You are part of iCommons Group'
             else:
-                print 'You are not authorize to use this tool'
-                messages.error(self.request, "You are not authorize to use this tool")
+                print 'You are not authorized to use this tool'
+                messages.error(self.request, "You are not authorized to use this tool")
                 return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
         else:
             print 'Error: QUALTRICS_WHITELIST has not been defined in settings'
