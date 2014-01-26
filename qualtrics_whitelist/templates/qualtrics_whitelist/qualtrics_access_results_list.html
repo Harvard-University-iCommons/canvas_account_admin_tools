@@ -54,12 +54,12 @@
     	<input type="text" class="form-control" name="description"  placeholder="Enter reason description">
     </div>
 </div>
-<div class="form-group">
+<!-- <div class="form-group">
 	<label class="col-sm-2 control-label">Access End Date</label>
 	<div class="col-sm-10">
     	<input type="text" class="dateinput" name="access_end_date"  placeholder=" Enter access end date">
     </div>
-</div>
+</div> -->
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">
 		<button id="sub" class="btn btn-primary" type="submit" onclick="return checkReason()"  name="Save" disabled="disabled" >Save</button>
@@ -67,7 +67,7 @@
 	</div>
 </div>
 </form>
-
+<h6>Reminder: In Qualtrics, please update User Type and Division manually for contractors/POIs with HUIDs beginning with “01” or “02” as they could be granted access with Generic user type and Other division.</h6>
 
 {% endblock %}
 

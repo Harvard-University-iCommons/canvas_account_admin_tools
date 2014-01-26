@@ -141,7 +141,6 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
         for ci in course_instances:
             courses[ci.course_instance_id] = {'instance': ci, 'enrollee': enrollments.get(ci.course_instance_id)}
 
-
         # Add in a QuerySet of all the courses
         context['course_list'] = courses
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
@@ -196,6 +195,7 @@ def add_shopper(request):
     else:
         return Response({'status': 'error', 'messge': 'One of the required parameters is missing.'})
 '''
+
 
 @login_required
 def add_shopper_ui(request):

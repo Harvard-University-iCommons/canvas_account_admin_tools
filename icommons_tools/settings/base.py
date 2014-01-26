@@ -30,10 +30,7 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
-    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
-)
+ADMINS = SECURE_SETTINGS.get('admins')
 
 # This is the address that emails will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
@@ -122,7 +119,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'cached_auth.Middleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
 
     # Uncomment the next line for simple clickjacking protection:

@@ -50,6 +50,10 @@ QUALTRICS_TAKER_AUTH = {
     'BITLY_ACCESS_TOKEN': SECURE_SETTINGS['BITLY_ACCESS_TOKEN'],
 }
 
+QUALTRICS_WHITELIST = {
+    'ICOMMONS_GROUP': 'IcGroup:358',
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
