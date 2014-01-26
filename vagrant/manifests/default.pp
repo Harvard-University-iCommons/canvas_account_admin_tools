@@ -40,6 +40,11 @@ service {'apache':
     enable => true,
 }
 
+package {'redis-server':
+    ensure => latest,
+    require => Exec['apt-get-update'],
+}
+
 package {'python-dev':
     ensure => installed,
     require => Exec['apt-get-update']
