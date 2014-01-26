@@ -171,7 +171,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'huey.consumer': {
+        'huey': {
             'handlers': ['huey_logfile'],
             'level': 'DEBUG',
             'propagate': True,

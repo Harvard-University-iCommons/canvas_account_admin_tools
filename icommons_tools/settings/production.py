@@ -140,7 +140,12 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
-        }
+        },
+        'huey_logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': 'logs/icommons_tools/huey.log',
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
         'django.request': {
@@ -179,7 +184,7 @@ LOGGING = {
             'propagate': True,
         },
         'huey': {
-            'handlers': ['mail_admins', 'logfile', ],
+            'handlers': ['mail_admins', 'huey_logfile', ],
             'level': 'ERROR',
             'propagate': True,
         },
