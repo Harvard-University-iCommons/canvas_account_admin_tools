@@ -219,9 +219,11 @@ def add_shopper_ui(request):
 
         else:
             messages.error(request, 'There was a problem with the Canvas course.')
+            logger.error('Could not get canvas section for course_instance_id %s' % course_instance_id)
 
     else:
         messages.error(request, 'No course ID was sent.')
+        logger.error('add_shopper_ui was called without a course_instance_id')
 
     next_url = reverse('sh:courselist', args=[school_id])
     return redirect(next_url)
