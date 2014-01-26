@@ -123,6 +123,11 @@ LOGGING = {
             'filename': 'logs/icommons_tools.log',
             'formatter': 'verbose'
         },
+        'huey_logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': 'logs/huey.log',
+            'formatter': 'verbose'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -165,7 +170,12 @@ LOGGING = {
             'handlers': ['logfile'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'huey.consumer': {
+            'handlers': ['huey_logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
     }
 }
