@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
-from icommons_common.auth.views import LoginRequiredMixin
+from icommons_common.auth.views import GroupMembershipRequiredMixin
 from .models import ISitesExportJob, ISitesExportJobForm
 from django.core.urlresolvers import reverse_lazy
 from .tasks import process_job
@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 # tool so we need to mark this entrypoint as exempt from the csrf requirement
 
 
-class JobListView(LoginRequiredMixin, TemplateResponseMixin, BaseCreateView):
+class JobListView(GroupMembershipRequiredMixin, TemplateResponseMixin, BaseCreateView):
+    allowed_groups = settings.EXPORT_TOOL['allowed_groups']
     template_name = "isites_export_tool/job_list.html"
     form_class = ISitesExportJobForm
     success_url = reverse_lazy('et:job_list')
