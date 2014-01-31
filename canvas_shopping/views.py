@@ -26,6 +26,9 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 
 from collections import defaultdict
 
+import re
+
+group_pattern = re.compile('LdapGroup:[a-z]+\.student')
 
 logger = logging.getLogger(__name__)
 
@@ -76,18 +79,33 @@ def course(request, canvas_course_id):
         for ci in course_instances:
             if ci.term.shopping_active:
                 is_shoppable = True
-                course_instance_id = ci.course_instance_id
-                # LdapGroup:FAS.student
-                student_group = 'LdapGroup:%s.student' % ci.course.school.school_id
-                school_enroll_group = 'ScaleSchoolEnroll:%s' % ci.course.school.school_id
-                if student_group in group_ids:
-                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, student_group))
-                    user_can_shop = True
-                elif school_enroll_group in group_ids:
-                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, school_enroll_group))
-                    user_can_shop = True
 
-                break
+                school_id = ci.course.school.school_id
+
+                if school_id == 'hds':
+                    # any student can shop
+                    for gid in group_ids:
+                        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+                            user_can_shop = True
+                            break
+
+                    if user_can_shop:
+                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
+                        break
+
+                else:
+                    course_instance_id = ci.course_instance_id
+                    # LdapGroup:FAS.student
+                    student_group = 'LdapGroup:%s.student' % ci.course.school.school_id
+                    school_enroll_group = 'ScaleSchoolEnroll:%s' % ci.course.school.school_id
+                    if student_group in group_ids:
+                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, student_group))
+                        user_can_shop = True
+                        break
+                    elif school_enroll_group in group_ids:
+                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, school_enroll_group))
+                        user_can_shop = True
+                        break
 
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
@@ -219,9 +237,11 @@ def add_shopper_ui(request):
 
         else:
             messages.error(request, 'There was a problem with the Canvas course.')
+            logger.error('Could not get canvas section for course_instance_id %s' % course_instance_id)
 
     else:
         messages.error(request, 'No course ID was sent.')
+        logger.error('add_shopper_ui was called without a course_instance_id')
 
     next_url = reverse('sh:courselist', args=[school_id])
     return redirect(next_url)

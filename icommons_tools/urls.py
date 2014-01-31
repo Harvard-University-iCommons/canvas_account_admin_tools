@@ -29,4 +29,6 @@ urlpatterns = patterns('',
 
     url(r'^icommons_ui/', include('icommons_ui.urls')),
 
+    url(r'^tools/not_authorized/', 'icommons_ui.views.not_authorized', name="not_authorized"),
+
 )
