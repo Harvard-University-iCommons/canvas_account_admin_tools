@@ -81,6 +81,7 @@ def course(request, canvas_course_id):
                 is_shoppable = True
 
                 school_id = ci.course.school.school_id
+                course_instance_id = ci.course_instance_id
 
                 if school_id == 'hds':
                     # any student can shop
@@ -94,7 +95,6 @@ def course(request, canvas_course_id):
                         break
 
                 else:
-                    course_instance_id = ci.course_instance_id
                     # LdapGroup:FAS.student
                     student_group = 'LdapGroup:%s.student' % ci.course.school.school_id
                     school_enroll_group = 'ScaleSchoolEnroll:%s' % ci.course.school.school_id
