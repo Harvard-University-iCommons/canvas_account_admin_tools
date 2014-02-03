@@ -7,6 +7,8 @@ from django.contrib import messages
 from icommons_common.models import *
 from icommons_common.models import Person
 from icommons_common.auth.views import LoginRequiredMixin
+from icommons_common.auth.views import GroupMembershipRequiredMixin
+from icommons_common.auth.decorators import group_membership_restriction
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
@@ -16,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+@group_membership_restriction(allowed_groups=settings.QUALTRICS_WHITELIST['allowed_groups'])
 def delete(request):
     if request.method == 'POST':
         id_delete = request.POST.get('id')
@@ -31,6 +34,7 @@ def delete(request):
     
 
 @login_required
+@group_membership_restriction(allowed_groups=settings.QUALTRICS_WHITELIST['allowed_groups'])
 def access_update_person(request):
     logger.debug('trying to update now/////////')
     id_update = request.POST.get('id')
@@ -65,7 +69,8 @@ def access_update_person(request):
 ### Mixins:
 ### Class-based views:
 
-class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
+class QualtricsAccessListView(GroupMembershipRequiredMixin, generic.ListView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_list.html' 
     context_object_name = 'qualtrics_access_list'
@@ -96,43 +101,21 @@ class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
                         wlist.role_type = 'HUID'
                         break
 
-        '''
-        get the admin group from the settings object
-        '''
-        try:
-            qw_settings_str = settings.QUALTRICS_WHITELIST.get('ICOMMONS_GROUP', None)
-        except:
-            logger.error('Error: QUALTRICS_WHITELIST not found in settings')
-            messages.error(self.request, "QUALTRICS_WHITELIST not setup properly in settings")
-            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-
-        group_ids = self.request.session.get('USER_GROUPS', [])
-
-        if qw_settings_str and group_ids:
-            if qw_settings_str in group_ids:
-                logger.debug('You are part of iCommons Group')
-            else:
-                logger.error('You are not authorized to use this tool')
-                messages.error(self.request, "You are not authorized to use this tool")
-                return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-        else:
-            logger.error('Error: QUALTRICS_WHITELIST has not been defined in settings')
-            messages.error(self.request, "QUALTRICS_WHITELIST is empty in settings")
-            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-
         context['qualtrics_access_list'] = all_whitelist
         context['AUTHORIZEDTOEDIT'] = True
 
         return context      
 
 
-class QualtricsAccessSearchView(LoginRequiredMixin, generic.CreateView):
+class QualtricsAccessSearchView(GroupMembershipRequiredMixin, generic.CreateView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_search.html'
     queryset = QualtricsAccessList.objects.none()
 
 
-class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
+class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_results_list.html'
     context_object_name = 'qualtrics_access_list'
@@ -263,7 +246,8 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
                       {'user_input': input_user_id, 'results_list': results_list, 'error_message': error_message})
 
 
-class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
+class QualtricsAccessEditView(GroupMembershipRequiredMixin, generic.UpdateView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_edit.html'
     context_object_name = 'qualtrics_access_edit'
@@ -281,7 +265,8 @@ class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
         return wlobject
 
 
-class QualtricsAccessConfirmDeleteView(LoginRequiredMixin, generic.DetailView):
+class QualtricsAccessConfirmDeleteView(GroupMembershipRequiredMixin, generic.DetailView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     """docstring for QualtricsAccessConfirmDeleteView"""
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_confirmdelete.html'
