@@ -25,8 +25,8 @@ CANVAS_SHOPPING = {
 
 EXPORT_TOOL = {
     'base_file_download_url': 'https://qa.isites.harvard.edu/exports/',
-    'ssh_hostname': 'icommons@qa.isites.harvard.edu',  # name used to connect via ssh to perl script server
-    'ssh_private_key': '/home/ubuntu/.ssh/id_rsa',
+    'ssh_hostname': 'icommons@tool2.isites.harvard.edu',  # name used to connect via ssh to perl script server
+    'ssh_private_key': '/home/icommons/.ssh/id_rsa',
     'create_site_zip_cmd': '/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
     'remove_site_zip_cmd': '/u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
     'archive_cutoff_time_in_hours': 2,  # express cutoff time in hours
@@ -141,7 +141,7 @@ LOGGING = {
         },
         'huey_logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': 'logs/icommons_tools/huey.log',
+            'filename': '/logs/icommons_tools/huey.log',
             'formatter': 'verbose'
         },
     },
