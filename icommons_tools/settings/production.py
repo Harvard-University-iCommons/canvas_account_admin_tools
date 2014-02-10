@@ -176,7 +176,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'isites_export': {
+        'isites_export_tool': {
             'handlers': ['mail_admins', 'logfile', ],
             'level': 'INFO',
             'propagate': True,
