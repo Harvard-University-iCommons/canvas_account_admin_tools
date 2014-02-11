@@ -24,7 +24,7 @@ CANVAS_SHOPPING = {
 }
 
 EXPORT_TOOL = {
-    'base_file_download_url': 'https://qa.isites.harvard.edu/exports/',
+    'base_file_download_url': 'http://poll.icommons.harvard.edu/exports/',
     'ssh_hostname': 'icommons@tool2.isites.harvard.edu',  # name used to connect via ssh to perl script server
     'ssh_private_key': '/home/icommons/.ssh/id_rsa',
     'create_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
