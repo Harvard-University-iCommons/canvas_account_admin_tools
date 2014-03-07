@@ -8,7 +8,7 @@ Point to local apache
 bind = "127.0.0.1:8183"
 #bind = "10.35.1.56:8183"
 
-daemon = True
+#daemon = True
 
 pidfile = '/logs/icommons_tools/gunicorn.pid'
 
