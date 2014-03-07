@@ -7,6 +7,8 @@ from django.contrib import messages
 from icommons_common.models import *
 from icommons_common.models import Person
 from icommons_common.auth.views import LoginRequiredMixin
+from icommons_common.auth.views import GroupMembershipRequiredMixin
+from icommons_common.auth.decorators import group_membership_restriction
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
@@ -16,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
+@group_membership_restriction(allowed_groups=settings.QUALTRICS_WHITELIST['allowed_groups'])
 def delete(request):
     if request.method == 'POST':
         id_delete = request.POST.get('id')
@@ -31,11 +34,12 @@ def delete(request):
     
 
 @login_required
+@group_membership_restriction(allowed_groups=settings.QUALTRICS_WHITELIST['allowed_groups'])
 def access_update_person(request):
     logger.debug('trying to update now/////////')
     id_update = request.POST.get('id')
     if 'cancel' in request.POST:
-        logger.warning("Now canceling and returning")
+        logger.warning("Now canceling")
     else:
         wlistSave = QualtricsAccessList()
         wlistSave.id = id_update
@@ -51,7 +55,16 @@ def access_update_person(request):
         else:
             wlistSave.description = test_description
         wlistSave.version = 0
-        # wlistSave.access_end_date = request.POST.get('access_end_date')
+        # Check the expiration_date date, if not "None", save to the database
+        # if "None", save None to the database
+        saveAs_expiration_date = request.POST.get('expiration_date')
+       
+        if saveAs_expiration_date == "None" or len(saveAs_expiration_date) == 0:
+            wlistSave.expiration_date = None
+        else:
+            wlistSave.expiration_date = saveAs_expiration_date
+       
+
         try:
             wlistSave.save()
             messages.success(request, "Whitelist update user successful")
@@ -65,7 +78,8 @@ def access_update_person(request):
 ### Mixins:
 ### Class-based views:
 
-class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
+class QualtricsAccessListView(GroupMembershipRequiredMixin, generic.ListView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_list.html' 
     context_object_name = 'qualtrics_access_list'
@@ -96,43 +110,21 @@ class QualtricsAccessListView(LoginRequiredMixin, generic.ListView):
                         wlist.role_type = 'HUID'
                         break
 
-        '''
-        get the admin group from the settings object
-        '''
-        try:
-            qw_settings_str = settings.QUALTRICS_WHITELIST.get('ICOMMONS_GROUP', None)
-        except:
-            logger.error('Error: QUALTRICS_WHITELIST not found in settings')
-            messages.error(self.request, "QUALTRICS_WHITELIST not setup properly in settings")
-            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-
-        group_ids = self.request.session.get('USER_GROUPS', [])
-
-        if qw_settings_str and group_ids:
-            if qw_settings_str in group_ids:
-                print 'You are part of iCommons Group'
-            else:
-                print 'You are not authorized to use this tool'
-                messages.error(self.request, "You are not authorized to use this tool")
-                return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-        else:
-            print 'Error: QUALTRICS_WHITELIST has not been defined in settings'
-            messages.error(self.request, "QUALTRICS_WHITELIST is empty in settings")
-            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
-
         context['qualtrics_access_list'] = all_whitelist
         context['AUTHORIZEDTOEDIT'] = True
 
         return context      
 
 
-class QualtricsAccessSearchView(LoginRequiredMixin, generic.CreateView):
+class QualtricsAccessSearchView(GroupMembershipRequiredMixin, generic.CreateView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_search.html'
     queryset = QualtricsAccessList.objects.none()
 
 
-class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
+class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_results_list.html'
     context_object_name = 'qualtrics_access_list'
@@ -140,22 +132,64 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
     def post(self, request, *args, **kwargs):
         error_message = ""
         results_list = []
-        if request.method == 'POST':
-            if 'Search' in request.POST:
-                input_user_id = request.POST.get('search_by_huid')
-                input_email = request.POST.get('search_by_email')
+        search_term = request.POST.get('user_search_term')
+        if 'Search' in request.POST:
+            if "@" in search_term:
+                # treat it as an email address     
+                personlist = Person.objects.filter(email_address__iexact=search_term)
 
-                if not len(input_user_id) <= 0:
+                if personlist:
+                    # person found on ldap_people_plus_simple model
+                    for plist in personlist:
+                        input_user_id = plist.univ_id 
+
+                        q = QualtricsAccessList.objects.all().filter(user_id=plist.univ_id)
+                        if q:
+                                
+                            for qlist in q:
+                                if plist.univ_id == qlist.user_id:
+                                    qlist.on_list = True
+                                else:
+                                    qlist.on_list = False
+                        else:
+                            # exist on Person object, but not on whitelist database
+                            qlist = QualtricsAccessList(user_id=plist.univ_id)
+                            qlist.on_list = False
+
+                        if plist.role_type_cd == 'XIDHOLDER':
+                            qlist.role_type = 'XID'
+                        else:
+                            qlist.role_type = 'HUID'
+
+                        qlist.user_id = plist.univ_id
+                        qlist.first_name = plist.name_first 
+                        qlist.last_name = plist.name_last
+                        qlist.email = plist.email_address
+                        results_list.append(qlist)
+                            
+                        return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
+                                      {'user_input': input_user_id, 'results_list': results_list, 'error_message': "", })
+                    
+                else:
+                    # person not found in Person database
+                    print "person not found in Person database"
+                    logger.error('Email not found in Person database :%s:' % search_term)
+                    return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
+                                  {'user_input': search_term, 'results_list': results_list, 'error_message': "Person not found in database", })
+
+
+            else:
+                # treat it as a user id
+                if not len(search_term) <= 0:
                     alist = []
-                    qlist = QualtricsAccessList.objects.all().filter(user_id=input_user_id)  # return all the objects from the WL table
+                    qlist = QualtricsAccessList.objects.all().filter(user_id=search_term)  # return all the objects from the WL table
 
                     if qlist:
-                        # print "User already exist on whitelist============="
+                        # User already exist on whitelist
                         for wlobj in qlist:
                             alist.append(wlobj.user_id)
 
-                        personlist = Person.objects.filter(univ_id__in=alist)
-                    
+                        personlist = Person.objects.filter(univ_id__in=alist)                    
                         for wlist in qlist:
                             for plist in personlist:
                                 if wlist.user_id == plist.univ_id:
@@ -169,8 +203,8 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
                                         wlist.role_type = 'HUID'
                                     results_list.append(wlist)
                     else:
-                        # print "User is not on the whitelist"
-                        personlist = Person.objects.filter(univ_id=input_user_id)
+                        # User is not on the whitelist
+                        personlist = Person.objects.filter(univ_id=search_term)
 
                         for plist in personlist:
                             plist.user_id = plist.univ_id
@@ -184,86 +218,57 @@ class QualtricsAccessResultsListView(LoginRequiredMixin, generic.ListView):
                                 plist.role_type = 'HUID'
                             results_list.append(plist)  
 
-                            return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                          {'user_input': input_user_id, 'results_list': results_list, 'error_message': "User id not on the whitelist.", })
-                
-                elif input_email:
-
-                    personlist = Person.objects.filter(email_address__iexact=input_email)
-
-                    if personlist:
-                        # person found on ldap_people_plus_simple model
-                        for plist in personlist:
-                            input_user_id = plist.univ_id 
-
-                            q = QualtricsAccessList.objects.all().filter(user_id=plist.univ_id)
-                            if q:
-                                
-                                for qlist in q:
-                                    if plist.univ_id == qlist.user_id:
-                                        qlist.on_list = True
-                                    else:
-                                        qlist.on_list = False
-                            else:
-                                # exist on Person object, but not on whitelist database
-                                qlist = QualtricsAccessList(user_id=plist.univ_id)
-                                qlist.on_list = False
-
-                            if plist.role_type_cd == 'XIDHOLDER':
-                                qlist.role_type = 'XID'
-                            else:
-                                qlist.role_type = 'HUID'
-                            qlist.user_id = plist.univ_id
-                            qlist.first_name = plist.name_first 
-                            qlist.last_name = plist.name_last
-                            qlist.email = plist.email_address
-                            results_list.append(qlist)
-                            
                         return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                      {'user_input': input_user_id, 'results_list': results_list, 'error_message': "", })
-                    
-                    else:
-                        # person not found in Person database
-                        logger.error('Email not found in Person database :%s:' % input_email)
-                        return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                      {'user_input': input_user_id, 'results_list': results_list, 'error_message': "Person not found in database", })
+                                    {'user_input': search_term, 'results_list': results_list, 'error_message': "User id not on the whitelist.", })
                                         
-            elif 'Cancel' in request.POST:
-                return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
+        elif 'Cancel' in request.POST:
+            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 
-            elif 'Save' in request.POST:
-                input_user_id = request.POST.get('user_id')
-                # input_list = request.POST.get('users_list')
-                input_check_list = request.POST.getlist('user_check_list')              
-                input_description = request.POST.get('description')
+        elif 'Save' in request.POST:
+            input_user_id = request.POST.get('user_id')
+            input_check_list = request.POST.getlist('user_check_list')  
 
-                # input_access_end_date = request.POST.get('access_end_date')
+            test_description = request.POST.get('description')
+            # Verify the length and truncate to max length 255, if exceeds 255 chars
+            # database max length for description is 255, but just need 150 for reason description
+            if len(test_description) > 150:
+                input_description = test_description[:150]
+                messages.info(request, "The Reason Description is too long, it has been shorten to 150 characters.")
+            else:
+                input_description = test_description
 
-                if not input_check_list:
-                    error_message = "At least one row must be checked"
-                    logger.error('Nothing checked to update')
-                    messages.error(request, "Whitelist update/deleted failed")
+            input_expiration_date = request.POST.get('expiration_date')
+            if input_expiration_date == "None" or len(input_expiration_date) == 0:
+                input_expiration_date = None
 
-                else:
-                    wlistSave = QualtricsAccessList()
+            if not input_check_list:
+                error_message = "At least one row must be checked"
+                logger.error('Nothing checked to update')
+                messages.error(request, "Whitelist update/deleted failed")
 
-                    for user in input_check_list:
-                        wlistSave.user_id = user
-                        wlistSave.description = input_description
-                        wlistSave.version = 0
-                        try:
-                            wlistSave.save()
-                            messages.success(request, "Whitelist add user successful")
-                        except IntegrityError, e:
-                            logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
-                            messages.error(request, "Whitelist add user failed")
-                    return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
+            else:
+                wlistSave = QualtricsAccessList()
+
+                for user in input_check_list:
+                    wlistSave.user_id = user
+                    wlistSave.description = input_description
+                    wlistSave.version = 0
+                    wlistSave.expiration_date = input_expiration_date
+                    try:
+                        wlistSave.save()
+                        messages.success(request, "Whitelist add user successful")
+                    except IntegrityError, e:
+                        logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
+                        messages.error(request, "Whitelist add user failed")
+
+            return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 
         return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                      {'user_input': input_user_id, 'results_list': results_list, 'error_message': error_message})
+                      {'user_input': search_term, 'results_list': results_list, 'error_message': error_message})
 
 
-class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
+class QualtricsAccessEditView(GroupMembershipRequiredMixin, generic.UpdateView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_edit.html'
     context_object_name = 'qualtrics_access_edit'
@@ -281,7 +286,8 @@ class QualtricsAccessEditView(LoginRequiredMixin, generic.UpdateView):
         return wlobject
 
 
-class QualtricsAccessConfirmDeleteView(LoginRequiredMixin, generic.DetailView):
+class QualtricsAccessConfirmDeleteView(GroupMembershipRequiredMixin, generic.DetailView):
+    allowed_groups = settings.QUALTRICS_WHITELIST['allowed_groups']
     """docstring for QualtricsAccessConfirmDeleteView"""
     model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_confirmdelete.html'

@@ -29,22 +29,22 @@
     <tbody>
     {% for job in jobs %}
         <tr>
-            <td><div>{{ job.site_keyword }}</div></td>
-            <td><div>{{ job.created_at }}</div></td>
-            <td><div>
+            <td><span>{{ job.site_keyword }}</span></td>
+            <td><span data-sort="{{ job.created_at|date:"U" }}">{{ job.created_at }}</span></td>
+            <td><span>
               {% with exporter=job.person %}
                   {{ exporter.name_first}} {{ exporter.name_last }}
               {% endwith %}
-            </div></td>
-            <td><div>{{ job.status }}</div></td>
+            </span></td>
+            <td><span>{{ job.status }}</span></td>
             <td>
-              <div>
+              <span>
                   {% if job.is_complete %}
                     <a href="{{ base_download_url|add:job.output_file_name }}" ><i class="fa fa-download"></i>{{ job.output_file_name }}</a>
                   {% else %}
                     {{ job.output_message }}
                   {% endif %}
-              </div>
+              </span>
             </td>
         </tr>
     {% endfor %}
@@ -63,16 +63,17 @@
 
 {% block javascript %}
     {{ block.super }}
-    <script>
-        $("document").ready(function() {
-            var oTable = $('#joblist_tbl').dataTable({
-                //"aoColumnDefs": [],
-                "aaSorting": [[ 1, 'desc' ]],
-                /*"sDom": "<'row'<'col-sm-12'<'pull-right'f><'pull-left'l>r<'clearfix'>>>t<'row'<'col-sm-12'<'pull-left col-xs-4'i><'pull-left dataTables_info status-limiter'><'pull-right'p><'clearfix'>>>",*/
-                "oLanguage": {
-                  "sSearch": "Search"
-                }
-            });
-        });
-    </script>
+    <script type="text/javascript">
+      jQuery(function($) {
+          var oTable = $('#joblist_tbl').dataTable({
+              "aoColumnDefs": [
+                  { "sType": "data-sort-numeric", "aTargets": [ 1 ] }
+              ],
+              "aaSorting": [[ 1, 'desc' ]],
+              "oLanguage": {
+                "sSearch": "Search"
+              }
+          });
+      });
+    </script>    
 {% endblock %}

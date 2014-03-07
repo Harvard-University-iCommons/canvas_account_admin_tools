@@ -3,28 +3,19 @@
 {% load static %}
 
 
-{% block title %}Search a Person{% endblock %}
-{% block pagetitle %}Search a Person{% endblock %}
-
 
 {% block content %}
-<form class="form-horizontal" action="{% url 'qwl:access_resultsview' %}" method="POST">{% csrf_token %}
+
+<h2>Add a user to the Qualtrics Whitelist</h2>
+
+<form class="form-inline" method="POST" action="{% url 'qwl:access_resultsview' %}">{% csrf_token %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-	<div class="form-group">		
-		<div class="col-xs-2">
-			<label for="search_by_huid">Search by HUID</label>
-			<input type="huid" class="form-control" name="search_by_huid" placeholder="Enter HUID">
-		</div>
+	<div class="form-group">
+		<label class="sr-only" for="user_search_term">Email Address or user ID</label>
+	<input type="search" name="user_search_term" class="form-control" id="user_search_term" placeholder="Enter email or HUID"/>
 	</div>
-	<p class="help-block">Or</p>
-	<div class="form-group">		
-		<div class="col-xs-4">
-			<label for="search_by_email">Search by Email Address</label>
-			<input type="huid" class="form-control" name="search_by_email" placeholder="Enter email address">
-		</div>
-	</div>
-	<button type="submit" name="Search" class="btn btn-primary" id="search">Search Now</button> 
-	<button type="submit" name="Cancel" class="btn btn-primary" >Cancel</button>
+	<button type="submit" name="Search" id="user_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+	<i class="fa fa-search"></i> Search</button>
 </form>
 
 

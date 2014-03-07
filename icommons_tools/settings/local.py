@@ -53,7 +53,7 @@ QUALTRICS_TAKER_AUTH = {
 }
 
 QUALTRICS_WHITELIST = {
-    'ICOMMONS_GROUP': 'IcGroup:358',
+    'allowed_groups': 'IcGroup:358',
 }
 
 DATABASES = {
