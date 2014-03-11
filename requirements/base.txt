@@ -1,4 +1,7 @@
 Django==1.6.1
+
+--allow-external cx-Oracle
+--allow-unverified cx-Oracle
 cx-Oracle==5.1.2
 
 # django-oraclepool>=1.3
