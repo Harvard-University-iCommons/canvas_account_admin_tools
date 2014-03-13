@@ -167,7 +167,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                         qlist.email = plist.email_address
                         results_list.append(qlist)
                             
-                        return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
+                    return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
                                       {'user_input': input_user_id, 'results_list': results_list, 'error_message': "", })
                     
                 else:
