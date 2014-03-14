@@ -156,6 +156,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                             qlist = QualtricsAccessList(user_id=plist.univ_id)
                             qlist.on_list = False
 
+                        # display either HUID or XID as the Role Type in UI
                         if plist.role_type_cd == 'XIDHOLDER':
                             qlist.role_type = 'XID'
                         else:
@@ -165,14 +166,22 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                         qlist.first_name = plist.name_first 
                         qlist.last_name = plist.name_last
                         qlist.email = plist.email_address
-                        results_list.append(qlist)
+
+                        # first time in, add to list
+                        if not results_list:
+                            results_list.append(qlist)
+                        else:
+                        # check to see if user id is already on the list, don't add user id if it already exist
+                            for obj in results_list:
+                                if obj.user_id != qlist.user_id:
+                                    results_list.append(qlist)
+                                    break
                             
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
                                       {'user_input': input_user_id, 'results_list': results_list, 'error_message': "", })
                     
                 else:
                     # person not found in Person database
-                    print "person not found in Person database"
                     logger.error('Email not found in Person database :%s:' % search_term)
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
                                   {'user_input': search_term, 'results_list': results_list, 'error_message': "Person not found in database", })
