@@ -132,6 +132,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
     def post(self, request, *args, **kwargs):
         error_message = ""
         results_list = []
+        results_dict = {}
         search_term = request.POST.get('user_search_term')
         if 'Search' in request.POST:
             if "@" in search_term:
@@ -167,24 +168,19 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                         qlist.last_name = plist.name_last
                         qlist.email = plist.email_address
 
-                        # first time in, add to list
-                        if not results_list:
-                            results_list.append(qlist)
-                        else:
-                        # check to see if user id is already on the list, don't add user id if it already exist
-                            for obj in results_list:
-                                if obj.user_id != qlist.user_id:
-                                    results_list.append(qlist)
-                                    break
+                        results_dict[qlist.user_id] = qlist
+                        print results_dict, "////////////"
+                        for key, val in results_dict.items():
+                            print key, " ==>", val.user_id
                             
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                      {'user_input': input_user_id, 'results_list': results_list, 'error_message': "", })
+                                      {'user_input': input_user_id, 'results_list': results_dict, 'error_message': "", })
                     
                 else:
                     # person not found in Person database
                     logger.error('Email not found in Person database :%s:' % search_term)
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                  {'user_input': search_term, 'results_list': results_list, 'error_message': "Person not found in database", })
+                                  {'user_input': search_term, 'results_list': results_dict, 'error_message': "Person not found in database", })
 
 
             else:
@@ -210,7 +206,8 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                                         wlist.role_type = 'XID'
                                     else:
                                         wlist.role_type = 'HUID'
-                                    results_list.append(wlist)
+                                    results_dict[wlist.user_id] = wlist
+                                    #results_list.append(wlist)
                     else:
                         # User is not on the whitelist
                         personlist = Person.objects.filter(univ_id=search_term)
@@ -225,10 +222,16 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                                 plist.role_type = 'XID'
                             else:
                                 plist.role_type = 'HUID'
-                            results_list.append(plist)  
+                            # results_list.append(plist)  
+                            results_dict[plist.user_id] = plist
 
+                        if len(results_dict) == 0:
+                            logger.error("This person doesn't exist in the Person database.")
+                            messages.warning(request, "Person does not exist in the Harvard Directory")
+                            return HttpResponseRedirect(reverse('qwl:access_searchfor'))
+                        
                         return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                    {'user_input': search_term, 'results_list': results_list, 'error_message': "User id not on the whitelist.", })
+                                    {'user_input': search_term, 'results_list': results_dict, 'error_message': error_message, })
                                         
         elif 'Cancel' in request.POST:
             return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
@@ -273,7 +276,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
             return HttpResponseRedirect(reverse('qwl:qualtricsaccesslist'))
 
         return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                      {'user_input': search_term, 'results_list': results_list, 'error_message': error_message})
+                      {'user_input': search_term, 'results_list': results_dict, 'error_message': error_message})
 
 
 class QualtricsAccessEditView(GroupMembershipRequiredMixin, generic.UpdateView):

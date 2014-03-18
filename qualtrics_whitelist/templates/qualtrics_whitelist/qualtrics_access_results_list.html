@@ -30,19 +30,19 @@
     </thead>
     <tbody>
     {% if results_list %}
-		{% for choice in results_list %}
-			<tr>
-			{% if choice.on_list %}
-				<td><input type="checkbox" checked disabled></td>
+		{% for key, value in results_list.items %}
+	 		<tr>
+			{% if value.on_list %}
+				<td><input type="checkbox" checked disabled></td>		
 			{% else %}	
-				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" class="checkbox"></td>
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{value.user_id}}" class="checkbox"></td>
 			{% endif %}
-				<td>{{ choice.role_type }}</td>
-				<td>{{ choice.user_id }}</td>
-				<td>{{ choice.first_name }}</td>
-				<td>{{ choice.last_name }}</td>
-				<td>{{ choice.email }}</td>
-			</tr>
+				<td>{{ value.role_type }}</td>
+				<td>{{ value.user_id }}</td>
+				<td>{{ value.first_name }}</td>
+				<td>{{ value.last_name }}</td>
+				<td>{{ value.email }}</td>
+			</tr> 
 		{% endfor %}
 	{% endif %}
 	<tbody>
