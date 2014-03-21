@@ -169,9 +169,6 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                         qlist.email = plist.email_address
 
                         results_dict[qlist.user_id] = qlist
-                        print results_dict, "////////////"
-                        for key, val in results_dict.items():
-                            print key, " ==>", val.user_id
                             
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
                                       {'user_input': input_user_id, 'results_list': results_dict, 'error_message': "", })
@@ -180,7 +177,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                     # person not found in Person database
                     logger.error('Email not found in Person database :%s:' % search_term)
                     return render(request, 'qualtrics_whitelist/qualtrics_access_results_list.html', 
-                                  {'user_input': search_term, 'results_list': results_dict, 'error_message': "Person not found in database", })
+                                  {'user_input': search_term, 'results_list': results_dict, 'error_message': "Person not found in the Harvard Directory", })
 
 
             else:
@@ -207,7 +204,6 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                                     else:
                                         wlist.role_type = 'HUID'
                                     results_dict[wlist.user_id] = wlist
-                                    #results_list.append(wlist)
                     else:
                         # User is not on the whitelist
                         personlist = Person.objects.filter(univ_id=search_term)
@@ -221,8 +217,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                             if plist.role_type_cd == 'XIDHOLDER':
                                 plist.role_type = 'XID'
                             else:
-                                plist.role_type = 'HUID'
-                            # results_list.append(plist)  
+                                plist.role_type = 'HUID' 
                             results_dict[plist.user_id] = plist
 
                         if len(results_dict) == 0:
