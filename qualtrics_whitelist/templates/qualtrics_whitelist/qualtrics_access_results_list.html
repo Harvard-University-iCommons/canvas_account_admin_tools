@@ -30,28 +30,28 @@
     </thead>
     <tbody>
     {% if results_list %}
-		{% for choice in results_list %}
-			<tr>
-			{% if choice.on_list %}
-				<td>Already Added</td>
+		{% for key, value in results_list.items %}
+	 		<tr>
+			{% if value.on_list %}
+				<td><input type="checkbox" checked disabled></td>		
 			{% else %}	
-				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{choice.user_id}}" class="checkbox"></td>
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{value.user_id}}" class="checkbox"></td>
 			{% endif %}
-				<td>{{ choice.role_type }}</td>
-				<td>{{ choice.user_id }}</td>
-				<td>{{ choice.first_name }}</td>
-				<td>{{ choice.last_name }}</td>
-				<td>{{ choice.email }}</td>
-			</tr>
+				<td>{{ value.role_type }}</td>
+				<td>{{ value.user_id }}</td>
+				<td>{{ value.first_name }}</td>
+				<td>{{ value.last_name }}</td>
+				<td>{{ value.email }}</td>
+			</tr> 
 		{% endfor %}
 	{% endif %}
 	<tbody>
 </table>
 <br>
 <div class="form-group">
-	<label class="col-sm-2 control-label">Reason Description</label>
+	<label class="col-sm-2 control-label">Reason for Access</label>
 	<div class="col-sm-10">
-    	<input type="text" class="form-control" name="description"  placeholder="Enter reason description">
+    	<input type="text" class="form-control" name="description"  placeholder="Enter reason for access">
     </div>
 </div>
 <div class="form-group">
@@ -78,7 +78,8 @@
 
 $(document).ready(function() { 
 	$('.dateinput').datepicker({
-		format: "yyyy-mm-dd"
+		format: "yyyy-mm-dd",
+		startDate: "today"
 	});
 });
 
@@ -95,7 +96,7 @@ function checkReason()
 {
 	if (!form1.description.value)
 	{
-		alert ("Please Enter a Reason description.");
+		alert ("Please Enter a reason for access.");
 		return false;
 	}
 	return true;
