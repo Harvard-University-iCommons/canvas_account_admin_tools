@@ -47,6 +47,7 @@ def access_update_person(request):
         user = request.POST.get('user_id')
         wlistSave.user_id = user
         test_description = request.POST.get('description')
+        test_description = test_description.strip()
         # Verify the length and truncate to max length 255, if exceeds 255 chars
         # database max length for description is 255, but just need 150 for reason description
         if len(test_description) > 150:
@@ -131,10 +132,12 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
 
     def post(self, request, *args, **kwargs):
         error_message = ""
+        firstname = lastname = ""
         results_list = []
         results_dict = {}
         search_term = request.POST.get('user_search_term')
         if 'Search' in request.POST:
+            search_term = search_term.strip()
             if "@" in search_term:
                 # treat it as an email address     
                 personlist = Person.objects.filter(email_address__iexact=search_term)
@@ -233,9 +236,17 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
 
         elif 'Save' in request.POST:
             input_user_id = request.POST.get('user_id')
+            # Look-up the person in the Harvard Directory
+            personlist = Person.objects.filter(univ_id=input_user_id)
+            if personlist:
+                for plist in personlist:
+                    firstname = plist.name_first 
+                    lastname = plist.name_last
+                    break
             input_check_list = request.POST.getlist('user_check_list')  
 
             test_description = request.POST.get('description')
+            test_description = test_description.strip()
             # Verify the length and truncate to max length 255, if exceeds 255 chars
             # database max length for description is 255, but just need 150 for reason description
             if len(test_description) > 150:
@@ -254,16 +265,21 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
                 messages.error(request, "Whitelist update/deleted failed")
 
             else:
-                wlistSave = QualtricsAccessList()
 
                 for user in input_check_list:
+                    # when multi-select, re-initialize to reset QUALTRICS_ACESS_LIST.ID to none, so that 
+                    # the auto-trigger will select the next number in the sequence, if not, no rows 
+                    # will be updated with the same QUALTRICS_ACESS_LIST.ID from the previous insert
+                    wlistSave = QualtricsAccessList()
                     wlistSave.user_id = user
                     wlistSave.description = input_description
                     wlistSave.version = 0
                     wlistSave.expiration_date = input_expiration_date
+
                     try:
                         wlistSave.save()
-                        messages.success(request, "Whitelist add user successful")
+                        messages.success(request, "%s %s, (%s), has been successfully added to the whitelist" % (firstname, lastname, wlistSave.user_id))
+                        
                     except IntegrityError, e:
                         logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
                         messages.error(request, "Whitelist add user failed")

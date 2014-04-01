@@ -78,7 +78,8 @@
 
 $(document).ready(function() { 
 	$('.dateinput').datepicker({
-		format: "yyyy-mm-dd"
+		format: "yyyy-mm-dd",
+		startDate: "today"
 	});
 });
 
@@ -95,7 +96,7 @@ function checkReason()
 {
 	if (!form1.description.value)
 	{
-		alert ("Please Enter a Reason description.");
+		alert ("Please Enter a reason for access.");
 		return false;
 	}
 	return true;
