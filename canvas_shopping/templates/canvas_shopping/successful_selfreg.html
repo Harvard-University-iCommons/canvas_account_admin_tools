@@ -1,0 +1,13 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Course Self Registration{% endblock %}
+
+{% block content %}
+
+<h2>{{ canvas_course.name }}</h2>
+<h3>You've been granted access to the course website.</h3>
+
+<a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Continue to the course website</a>
+{% endblock content %}
