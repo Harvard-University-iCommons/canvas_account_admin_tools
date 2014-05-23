@@ -16,13 +16,6 @@ from django.conf import settings
 
 
 import logging
-from django.views.decorators.csrf import csrf_exempt
-
-from rest_framework.authentication import TokenAuthentication, SessionAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from collections import defaultdict
 
@@ -123,6 +116,66 @@ def course(request, canvas_course_id):
 
             else:
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+
+
+'''
+The course_selfreg view allows users to be added to certain courses (specified in the settings file).  The settings also indicate what role 
+the new user should have within the course.  This view will also ensure that the user has a Canvas user account. Upon successful enrollment,
+it simply redirects the user to the Canvas course site.
+'''
+
+
+@login_required
+def course_selfreg(request, canvas_course_id):
+
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+
+    # is the user already in the course?
+    user_id = request.user.username
+    is_enrolled = False
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            if e['course_id'] == int(canvas_course_id):
+                is_enrolled = True
+                break
+
+    if is_enrolled is True:
+        # redirect the user to the actual canvas course site
+        logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
+        return redirect(course_url)
+
+    else:
+        canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+
+        # make sure this is a self-reg course
+        is_selfreg = False
+
+        # look for selfreg courses in settings:
+        selfreg_courses = settings.CANVAS_SHOPPING.get('selfreg_courses')
+        if selfreg_courses is not None:
+            selfreg_role = selfreg_courses.get(canvas_course_id)
+            is_selfreg = True
+        else:
+            logger.warn('A user is trying to self-reg for Canvas course %s, \
+                but no self-reg courses have been configured in the settings file.' % canvas_course_id)
+
+        if is_selfreg is False:
+            return render(request, 'canvas_shopping/not_selfreg.html', {'canvas_course': canvas_course})
+
+        else:
+            # Enroll this user as a shopper
+            #new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
+            new_enrollee = add_canvas_course_enrollee(canvas_course_id, selfreg_role, user_id)
+            if new_enrollee:
+                # success
+                #return render(request, 'canvas_shopping/successful_selfreg.html', {'canvas_course': canvas_course, 'course_url': course_url})
+                return redirect(course_url)
+
+            else:
+                return render(request, 'canvas_shopping/error_selfreg.html', {'canvas_course': canvas_course})
+
 
 
 class SchoolListView(LoginRequiredMixin, generic.ListView):
