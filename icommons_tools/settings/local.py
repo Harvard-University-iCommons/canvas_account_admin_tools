@@ -15,6 +15,9 @@ ICOMMONS_COMMON = {
 
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://canvas.icommons.harvard.edu',
+    'selfreg_courses': {
+        '5947': 'Guest',
+    }
 }
 
 EXPORT_TOOL = {

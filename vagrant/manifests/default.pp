@@ -12,8 +12,18 @@ Exec {
     logoutput => true,
 }
 
+package {'software-properties-common':
+    ensure => latest,
+}
+
+exec {'add-nodejs-repo':
+    command => 'add-apt-repository ppa:chris-lea/node.js',
+    require => Package['software-properties-common']
+}
+
 exec {'apt-get-update':
-    command => 'apt-get update'
+    command => 'apt-get update',
+    require => Exec['add-nodejs-repo']
 }
 
 
