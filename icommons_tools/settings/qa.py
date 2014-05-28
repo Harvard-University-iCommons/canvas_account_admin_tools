@@ -14,6 +14,9 @@ ICOMMONS_COMMON = {
 
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://harvard.test.instructure.com',
+    'selfreg_courses': {
+        '495': 'Guest',
+    }
 }
 
 EXPORT_TOOL = {
