@@ -6,5 +6,5 @@
 # below are requirements specific to the production environment
 newrelic==2.8.0.7
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.2.4#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.3#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.4#egg=django-icommons-ui
 
