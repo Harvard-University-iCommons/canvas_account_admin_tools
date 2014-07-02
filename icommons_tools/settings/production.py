@@ -23,6 +23,7 @@ CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://canvas.harvard.edu',
     'selfreg_courses': {
         '495': 'Guest',
+        '471': 'Student',
     }
 }
 
