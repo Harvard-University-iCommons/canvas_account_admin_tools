@@ -1,13 +1,8 @@
-Django==1.6.1
+Django==1.6.5
 
 --allow-external cx-Oracle
 --allow-unverified cx-Oracle
-cx-Oracle==5.1.2
-
-# django-oraclepool>=1.3
-#https://bitbucket.org/cmurtaugh/django-oraclepool/get/a790eaa64734.zip#egg=django-oraclepool
-
-#https://bitbucket.org/cmurtaugh/django-oraclepool/get/tip.zip#egg=django-oraclepool
+cx-Oracle==5.1.3
 
 django-braces==1.3.1
 django-crispy-forms==1.4.0
