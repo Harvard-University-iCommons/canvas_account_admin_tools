@@ -24,6 +24,7 @@ CANVAS_SHOPPING = {
     'selfreg_courses': {
         '495': 'Guest',
         '471': 'StudentEnrollment',
+        '879': 'StudentEnrollment',
     }
 }
 
