@@ -40,7 +40,7 @@
             <td>
               <span>
                   {% if job.is_complete %}
-                    <a href="{{ base_download_url|add:job.output_file_name }}" ><i class="fa fa-download"></i>{{ job.output_file_name }}</a>
+                    <a href="{% url 'et:download_export_file' export_filename=job.output_file_name %}"><i class="fa fa-download"></i>{{ job.output_file_name }}</a>
                   {% else %}
                     {{ job.output_message }}
                   {% endif %}
