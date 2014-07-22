@@ -6,6 +6,8 @@ from .models import ISitesExportJob, ISitesExportJobForm
 from django.core.urlresolvers import reverse_lazy
 from .tasks import process_job
 from icommons_common.monitor.views import BaseMonitorResponseView
+import requests
+
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -55,3 +57,34 @@ class JobListView(GroupMembershipRequiredMixin, TemplateResponseMixin, BaseCreat
 class MonitorResponseView(BaseMonitorResponseView):
     def healthy(self):
         return True
+
+
+@login_required
+@group_membership_restriction(allowed_groups=settings.EXPORT_TOOL.get('allowed_groups', ''))
+def download_export_file(request, export_filename):
+    # fetch the file from tool2, stream it back to the user
+
+    response = HttpResponse(content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_filename
+
+    export_file_url = "%s%s" % (settings.EXPORT_TOOL['base_file_download_url'], export_filename)
+
+    r = requests.get(export_file_url, stream=True)
+
+    for chunk in r.iter_content():
+        # print it to the user
+        response.write(chunk)
+        response.flush()
+
+    r.close()
+    return response
+
+    
+
+
+
+
+
+
+
+
