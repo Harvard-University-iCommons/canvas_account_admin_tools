@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
+from django.contrib.auth.decorators import login_required
+from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.auth.views import GroupMembershipRequiredMixin
 from .models import ISitesExportJob, ISitesExportJobForm
 from django.core.urlresolvers import reverse_lazy
@@ -79,7 +81,7 @@ def download_export_file(request, export_filename):
     r.close()
     return response
 
-    
+
 
 
 
