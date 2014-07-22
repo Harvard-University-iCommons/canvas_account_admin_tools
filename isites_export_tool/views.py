@@ -4,6 +4,8 @@ from django.views.generic.edit import BaseCreateView
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
+from django.core.servers.basehttp import FileWrapper
+
 
 from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.auth.views import GroupMembershipRequiredMixin
@@ -70,19 +72,12 @@ class MonitorResponseView(BaseMonitorResponseView):
 def download_export_file(request, export_filename):
     # fetch the file from tool2, stream it back to the user
 
-    response = HttpResponse(content_type='application/zip')
+    export_path = '%s/%s' % (settings.EXPORT_TOOL['local_archive_dir'], export_filename)
+
+    response = HttpResponse(FileWrapper(open(export_path)),content_type='application/zip')
+    response['Content-Length'] = os.path.getsize(export_path)
     response['Content-Disposition'] = 'attachment; filename="%s"' % export_filename
 
-    export_file_url = "%s%s" % (settings.EXPORT_TOOL['base_file_download_url'], export_filename)
-
-    r = requests.get(export_file_url, stream=True)
-
-    for chunk in r.iter_content():
-        # print it to the user
-        response.write(chunk)
-        response.flush()
-
-    r.close()
     return response
 
 
