@@ -1,11 +1,21 @@
 from django.conf import settings
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
-from icommons_common.auth.views import GroupMembershipRequiredMixin
-from .models import ISitesExportJob, ISitesExportJobForm
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
-from .tasks import process_job
+from django.core.servers.basehttp import FileWrapper
+
+
+from icommons_common.auth.decorators import group_membership_restriction
+from icommons_common.auth.views import GroupMembershipRequiredMixin
 from icommons_common.monitor.views import BaseMonitorResponseView
+
+from .models import ISitesExportJob, ISitesExportJobForm
+from .tasks import process_job
+
+import requests
+import os
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -55,3 +65,27 @@ class JobListView(GroupMembershipRequiredMixin, TemplateResponseMixin, BaseCreat
 class MonitorResponseView(BaseMonitorResponseView):
     def healthy(self):
         return True
+
+
+@login_required
+@group_membership_restriction(allowed_groups=settings.EXPORT_TOOL.get('allowed_groups', ''))
+def download_export_file(request, export_filename):
+    # fetch the file from tool2, stream it back to the user
+
+    export_path = '%s/%s' % (settings.EXPORT_TOOL['local_archive_dir'], export_filename)
+
+    response = HttpResponse(FileWrapper(open(export_path)),content_type='application/zip')
+    response['Content-Length'] = os.path.getsize(export_path)
+    response['Content-Disposition'] = 'attachment; filename="%s"' % export_filename
+
+    return response
+
+
+
+
+
+
+
+
+
+
