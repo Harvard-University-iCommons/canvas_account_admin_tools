@@ -25,6 +25,7 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
         '471': 'StudentEnrollment',
         '879': 'StudentEnrollment',
+        '906': 'StudentEnrollment',
     }
 }
 
