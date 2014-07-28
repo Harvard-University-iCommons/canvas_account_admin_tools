@@ -17,6 +17,8 @@ from .tasks import process_job
 import requests
 import os
 
+from sendfile import sendfile
+
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
 import logging
@@ -74,11 +76,7 @@ def download_export_file(request, export_filename):
 
     export_path = '%s/%s' % (settings.EXPORT_TOOL['local_archive_dir'], export_filename)
 
-    response = HttpResponse(FileWrapper(open(export_path)),content_type='application/zip')
-    response['Content-Length'] = os.path.getsize(export_path)
-    response['Content-Disposition'] = 'attachment; filename="%s"' % export_filename
-
-    return response
+    return sendfile(request, export_path)
 
 
 
