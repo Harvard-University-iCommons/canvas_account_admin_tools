@@ -201,3 +201,5 @@ LOGGING = {
 SESSION_COOKIE_SECURE = True
 
 GUNICORN_CONFIG = 'gunicorn_prod.py'
+
+SENDFILE_BACKEND = 'sendfile.backends.xsendfile'
