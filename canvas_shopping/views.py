@@ -81,36 +81,21 @@ def course(request, canvas_course_id):
                 school_id = ci.course.school.school_id
                 course_instance_id = ci.course_instance_id
 
-                if school_id == 'hds':
-                    # any student can shop
-                    for gid in group_ids:
-                        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
-                            user_can_shop = True
-
-                            break
-
-                    if user_can_shop:
-                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
+                # any student can shop
+                for gid in group_ids:
+                    if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+                        user_can_shop = True
                         break
 
-                else:
-                    # LdapGroup:FAS.student
-                    student_group = 'LdapGroup:%s.student' % ci.course.school.school_id
-                    school_enroll_group = 'ScaleSchoolEnroll:%s' % ci.course.school.school_id
-                    if student_group in group_ids:
-                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, student_group))
-                        user_can_shop = True
-                        shopping_role = 'Shopper'
-                        break
-                    elif school_enroll_group in group_ids:
-                        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, school_enroll_group))
-                        user_can_shop = True
-                        shopping_role = 'Shopper'
-                        break
-                    elif is_huid(user_id): 
-                        logger.debug('User %s is eligible for shopping as an HUID' % user_id)
-                        user_can_shop = True
-                        shopping_role = 'AuthenticatedGuest'
+                if user_can_shop:
+                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
+                    break
+
+                elif is_huid(user_id): 
+                    logger.debug('User %s is eligible for shopping as an HUID' % user_id)
+                    user_can_shop = True
+                    shopping_role = 'Harvard Viewer'
+                    break
 
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
@@ -124,7 +109,7 @@ def course(request, canvas_course_id):
             new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
             if new_enrollee:
                 # success
-                return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url})
+                return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role})
 
             else:
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
