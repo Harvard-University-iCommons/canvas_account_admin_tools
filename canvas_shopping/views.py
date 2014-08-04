@@ -59,11 +59,16 @@ def course(request, canvas_course_id):
     else:
         canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
+        # make sure that the course is available
+        if canvas_course['workflow_state'] == 'unpublished':
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
+
         # make sure this user is eligible for shopping
         group_ids = request.session.get('USER_GROUPS', [])
         logger.debug("groups: " + "\n".join(group_ids))
 
         user_can_shop = False
+        shopping_role = 'Shopper'
 
         # make sure this is a shoppable course and that this user can shop it
         is_shoppable = False
@@ -81,6 +86,7 @@ def course(request, canvas_course_id):
                     for gid in group_ids:
                         if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
                             user_can_shop = True
+
                             break
 
                     if user_can_shop:
@@ -94,11 +100,17 @@ def course(request, canvas_course_id):
                     if student_group in group_ids:
                         logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, student_group))
                         user_can_shop = True
+                        shopping_role = 'Shopper'
                         break
                     elif school_enroll_group in group_ids:
                         logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, school_enroll_group))
                         user_can_shop = True
+                        shopping_role = 'Shopper'
                         break
+                    elif is_huid(user_id): 
+                        logger.debug('User %s is eligible for shopping as an HUID' % user_id)
+                        user_can_shop = True
+                        shopping_role = 'AuthenticatedGuest'
 
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
@@ -109,7 +121,7 @@ def course(request, canvas_course_id):
         else:
             # Enroll this user as a shopper
             #new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
-            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, 'Shopper', user_id)
+            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
             if new_enrollee:
                 # success
                 return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url})
@@ -156,7 +168,8 @@ def course_selfreg(request, canvas_course_id):
         selfreg_courses = settings.CANVAS_SHOPPING.get('selfreg_courses')
         if selfreg_courses is not None:
             selfreg_role = selfreg_courses.get(canvas_course_id)
-            is_selfreg = True
+            if selfreg_role:
+                is_selfreg = True
         else:
             logger.warn('A user is trying to self-reg for Canvas course %s, \
                 but no self-reg courses have been configured in the settings file.' % canvas_course_id)
@@ -175,7 +188,6 @@ def course_selfreg(request, canvas_course_id):
 
             else:
                 return render(request, 'canvas_shopping/error_selfreg.html', {'canvas_course': canvas_course})
-
 
 
 class SchoolListView(LoginRequiredMixin, generic.ListView):
@@ -394,3 +406,13 @@ def get_canvas_info(course_key):
 # helper to build nested dicts:
 def tree():
     return defaultdict(tree)
+
+
+
+def is_huid(id):
+    # if this ID is an HUID, return true; otherwise return false
+    if re.match('\d{8}$', id):
+        return True
+    else:
+        return False
+

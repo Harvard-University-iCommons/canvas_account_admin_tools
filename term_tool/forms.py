@@ -319,7 +319,7 @@ class EditTermForm(forms.ModelForm):
 
 class CreateTermForm(EditTermForm):
 
-    term_code = forms.ModelChoiceField(required=True, queryset=TermCode.objects.all())
+    term_code = forms.ModelChoiceField(required=True, queryset=TermCode.objects.exclude(term_code=100))
     academic_year = forms.IntegerField(required=True)
 
     #user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
