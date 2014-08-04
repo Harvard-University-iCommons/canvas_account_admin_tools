@@ -7,7 +7,12 @@
 {% block content %}
 
 <h2>{{ canvas_course.name }}</h2>
-<h3>You've been granted access to the course website during shopping period.</h3>
+{% if shopping_role == 'Shopper' %}
+    <h3>You've been granted access to the course website during shopping period.</h3>
+{% elif shopping_role == 'Harvard Viewer' %}
+    <h3>As a member of the Harvard community, you've been granted access to view this course website during shopping period.</h3>
+{% endif %}
 
+{% endif %}
 <a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Continue to the course website</a>
 {% endblock content %}
