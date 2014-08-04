@@ -25,6 +25,7 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
         '471': 'StudentEnrollment',
         '879': 'StudentEnrollment',
+        '906': 'StudentEnrollment',
     }
 }
 
@@ -200,3 +201,5 @@ LOGGING = {
 SESSION_COOKIE_SECURE = True
 
 GUNICORN_CONFIG = 'gunicorn_prod.py'
+
+SENDFILE_BACKEND = 'sendfile.backends.xsendfile'
