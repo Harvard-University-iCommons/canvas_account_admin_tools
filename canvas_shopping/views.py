@@ -61,7 +61,7 @@ def course(request, canvas_course_id):
 
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
-            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published.'})
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
 
         # make sure this user is eligible for shopping
         group_ids = request.session.get('USER_GROUPS', [])
