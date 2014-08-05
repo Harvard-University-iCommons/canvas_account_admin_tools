@@ -8,12 +8,12 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
-    'CANVAS_API_BASE_URL': 'https://harvard.test.instructure.com/api/v1',
+    'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
     'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS['CANVAS_TOKEN']},
 }
 
 CANVAS_SHOPPING = {
-    'CANVAS_BASE_URL': 'https://harvard.test.instructure.com',
+    'CANVAS_BASE_URL': 'https://canvas.icommons.harvard.edu',
     'selfreg_courses': {
         '495': 'Guest',
     }
