@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
+from django.core.exceptions import DoesNotExist
 from django.contrib import messages
 
 #from django.views.decorators.http import require_http_methods
@@ -185,13 +186,25 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
     model = CourseInstance
     template_name = 'canvas_shopping/course_list.html'
 
+
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(CourseListView, self).get_context_data(**kwargs)
         courses = {}
         enrollments = {}
 
+        # if the school ID is wrong, bail
+        try:
+            school = School.objects.get(pk=self.kwargs['school_id'])
+
+        except:
+            logger.error("Couldn't find school record for id %s" % self.kwargs.get('school_id'))
+            raise DoesNotExist
+
+
         # Get the list of courses that this user is already shopping (in Canvas)
+        logger.debug('about to get Shopper enrollments for %s' % self.request.user.username)
         enrollees = get_enrollments_by_user(self.request.user.username, 'Shopper')
         if enrollees is not None:
             for e in enrollees:
