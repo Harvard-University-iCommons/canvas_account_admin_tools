@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
+ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu', '127.0.0.1', 'localhost']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -142,7 +142,7 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['logfile'],
             'level': 'ERROR',
             'propagate': True,
         },
