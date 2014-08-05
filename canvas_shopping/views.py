@@ -37,6 +37,9 @@ enrolled in the course as a shopper.
 @login_required
 def course(request, canvas_course_id):
 
+    if not canvas_course_id:
+        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
+
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
     # is the user already in the course?
@@ -78,7 +81,6 @@ def course(request, canvas_course_id):
             if ci.term.shopping_active:
                 is_shoppable = True
 
-                school_id = ci.course.school.school_id
                 course_instance_id = ci.course_instance_id
 
                 # any student can shop
@@ -105,7 +107,6 @@ def course(request, canvas_course_id):
 
         else:
             # Enroll this user as a shopper
-            #new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
             new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
             if new_enrollee:
                 # success
@@ -164,11 +165,9 @@ def course_selfreg(request, canvas_course_id):
 
         else:
             # Enroll this user as a shopper
-            #new_enrollee = add_canvas_course_enrollee(canvas_course_id, 'Shopper', user_id)
             new_enrollee = add_canvas_course_enrollee(canvas_course_id, selfreg_role, user_id)
             if new_enrollee:
                 # success
-                #return render(request, 'canvas_shopping/successful_selfreg.html', {'canvas_course': canvas_course, 'course_url': course_url})
                 return redirect(course_url)
 
             else:
@@ -200,8 +199,7 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
                 canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
                 if canvas_course:
                     if canvas_course['sis_course_id']:
-                        #shopped_course_instance_ids[ int(canvas_course['sis_course_id']) ] = canvas_course_id
-                        logger.debug('user %s is enrolled in canvas/harvard course %d/%s' % ( self.request.user.username, canvas_course_id, canvas_course['sis_course_id']))
+                        logger.debug('user %s is enrolled in canvas/harvard course %d/%s' % (self.request.user.username, canvas_course_id, canvas_course['sis_course_id']))
                         enrollments[int(canvas_course['sis_course_id'])] = e
 
         # Get the Canvas courses for this school
@@ -212,8 +210,6 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
         # Add in a QuerySet of all the courses
         context['course_list'] = courses
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
-        #context['enrollments'] = enrollments
-        #context['shopped_course_instance_ids'] = shopped_course_instance_ids
         context['canvas_base_url'] = settings.CANVAS_SHOPPING['CANVAS_BASE_URL']
         return context
 
@@ -274,7 +270,7 @@ def add_shopper_ui(request):
     user_id = request.user.username
     course_instance_id = request.POST.get('course_instance_id')
     school_id = request.POST.get('school_id')
-    #from pudb import set_trace; set_trace()
+    # from pudb import set_trace; set_trace()
     if course_instance_id:
         ci = CourseInstance.objects.get(pk=course_instance_id)
         section = get_canvas_course_section(ci.course_instance_id)
