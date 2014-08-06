@@ -62,6 +62,11 @@ def course(request, canvas_course_id):
     else:
         canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
+        if not canvas_course:
+            # something's wrong with the course, and we can't proceed
+            logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
+            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
             return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
@@ -98,7 +103,9 @@ def course(request, canvas_course_id):
                     user_can_shop = True
                     shopping_role = 'Harvard Viewer'
                     break
-
+            else:
+                logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+                
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
 
