@@ -1,0 +1,41 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}My Canvas Shopping List{% endblock %}
+{% block page_title %}My Canvas Shopping List{% endblock %}
+
+
+
+{% block content %}
+
+<h1>My Canvas Shopping List</h1>
+
+
+{% if courses %}
+<table class="table">
+    {% for enrollment_id, course in courses.items %}
+        <tr>
+            <td> {{ course.code }} {{ course.name }}
+            </td>
+            <td>
+                    <a href="{{ canvas_base_url }}/courses/{{ course.id }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Visit course website</a>
+            </td>
+            <td>
+                <form method="POST" action="{% url 'sh:remove_shopper_ui' %}">{% csrf_token %}
+                    <input type="hidden" name="canvas_course_id" value="{{ course.id }}"/>
+                    <input type="hidden" name="canvas_enrollee_id" value="{{ enrollment_id }}"/>
+                    <button type="submit" class="btn btn-default" data-loading-text="Removing..."><i class="fa fa-sign-out fa-fw"></i> Leave this course</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+{% else %}
+    <h3>You don't have any Canvas courses in your shopping list</h3>
+
+
+{% endif %}
+
+
+{% endblock %}

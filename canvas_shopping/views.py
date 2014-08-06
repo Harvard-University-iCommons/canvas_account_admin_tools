@@ -174,6 +174,31 @@ def course_selfreg(request, canvas_course_id):
                 return render(request, 'canvas_shopping/error_selfreg.html', {'canvas_course': canvas_course})
 
 
+@login_required
+def my_list(request):
+
+    # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
+    shopper_enrollments = get_enrollments_by_user(request.user.username, 'Shopper')
+    viewer_enrollments = get_enrollments_by_user(request.user.username, 'Harvard Viewer')
+
+    all_enrollments = []
+    if shopper_enrollments:
+        all_enrollments = shopper_enrollments
+
+    if viewer_enrollments:
+        all_enrollments = all_enrollments + viewer_enrollments
+
+    courses = {}
+    for e in all_enrollments:
+        enrollment_id = e['id']
+        canvas_course_id = e['course_id']
+        course = get_canvas_course_by_canvas_id(canvas_course_id)
+        courses[enrollment_id] = course
+
+    return render(request, 'canvas_shopping/my_list.html', {'courses': courses})
+
+
+
 class SchoolListView(LoginRequiredMixin, generic.ListView):
     model = School
     template_name = 'canvas_shopping/school_list.html'
@@ -215,6 +240,9 @@ class CourseListView(LoginRequiredMixin, generic.ListView):
         context['school'] = School.objects.get(pk=self.kwargs['school_id'])
         context['canvas_base_url'] = settings.CANVAS_SHOPPING['CANVAS_BASE_URL']
         return context
+
+
+
 
 # need a view for HDS students: display the list of Canvas-mapped courses for HDS + active shopping terms
 
@@ -307,7 +335,7 @@ def remove_shopper_ui(request):
         messages.success(request, 'Successfully updated your shopping list.')
     else:
         messages.error(request, 'Could not update your shopping list. Please try again later')
-    next_url = reverse('sh:courselist', args=[school_id])
+    next_url = reverse('sh:my_list')
     return redirect(next_url)
 
 '''

@@ -14,6 +14,8 @@ urlpatterns = patterns('',
 
     url(r'^$', views.SchoolListView.as_view(), name='schoollist'),
 
+    url(r'my_list$', 'canvas_shopping.views.my_list', name='my_list'),
+
     url(r'^(?P<school_id>\w+)$', views.CourseListView.as_view(), name='courselist'),
 
 
