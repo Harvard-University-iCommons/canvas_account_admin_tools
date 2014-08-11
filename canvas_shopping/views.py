@@ -202,7 +202,7 @@ def my_list(request):
         course = get_canvas_course_by_canvas_id(canvas_course_id)
         courses[enrollment_id] = course
 
-    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('canvas_base_url')})
+    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('CANVAS_BASE_URL')})
 
 
 class SchoolListView(LoginRequiredMixin, generic.ListView):
