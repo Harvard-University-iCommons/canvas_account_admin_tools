@@ -184,9 +184,6 @@ def course_selfreg(request, canvas_course_id):
 @login_required
 def my_list(request):
 
-    if not is_huid(request.user.username):
-        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this system may only be used by Harvard University ID holders.'})
-
     # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
     shopper_enrollments = get_enrollments_by_user(request.user.username, 'Shopper')
     viewer_enrollments = get_enrollments_by_user(request.user.username, 'Harvard Viewer')
