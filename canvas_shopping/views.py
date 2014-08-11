@@ -175,6 +175,33 @@ def course_selfreg(request, canvas_course_id):
                 return render(request, 'canvas_shopping/error_selfreg.html', {'canvas_course': canvas_course})
 
 
+@login_required
+def my_list(request):
+
+    if not is_huid(request.user.username):
+        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this system may only be used by Harvard University ID holders.'})
+
+    # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
+    shopper_enrollments = get_enrollments_by_user(request.user.username, 'Shopper')
+    viewer_enrollments = get_enrollments_by_user(request.user.username, 'Harvard Viewer')
+
+    all_enrollments = []
+    if shopper_enrollments:
+        all_enrollments = shopper_enrollments
+
+    if viewer_enrollments:
+        all_enrollments = all_enrollments + viewer_enrollments
+
+    courses = {}
+    for e in all_enrollments:
+        enrollment_id = e['id']
+        canvas_course_id = e['course_id']
+        course = get_canvas_course_by_canvas_id(canvas_course_id)
+        courses[enrollment_id] = course
+
+    return render(request, 'canvas_shopping/my_list.html', {'courses': courses})
+
+
 class SchoolListView(LoginRequiredMixin, generic.ListView):
     model = School
     template_name = 'canvas_shopping/school_list.html'
