@@ -12,10 +12,7 @@ urlpatterns = patterns('',
 
     url(r'^course_selfreg/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.course_selfreg', name='course'),
 
-    url(r'^$', views.SchoolListView.as_view(), name='schoollist'),
-
-    url(r'^(?P<school_id>\w+)$', views.CourseListView.as_view(), name='courselist'),
-
+    url(r'my_list$', 'canvas_shopping.views.my_list', name='my_list'),
 
 )
 

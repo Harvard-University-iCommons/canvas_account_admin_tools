@@ -5,6 +5,34 @@
 
 {% block content %}
 
+  <div class="panel-group spacer" id="policy-accordion">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+
+        </h4>
+        <p>
+        Before using this tool to export iSites content, review the <a data-toggle="collapse" data-parent="policy-accordion" href="#policy-collapse">special access terms</a> you have agreed to as a school partner.  Use this tool to access only the information that you need to perform your duties as a Harvard employee, and please note that your actions in this system are logged.
+        </p>
+      </div>
+      <div class="panel-collapse collapse" id="policy-collapse">
+        <div class="panel-body">
+        <h4>Confidentiality Agreement</h4>
+        <p>
+        I have been employed by Harvard University to perform duties requiring the export of iSites content. In consideration of my employment by Harvard, I agree as follows:
+        </p>
+        <ol>
+          <li>I understand that in the course of my employment access I may have access to Confidential Information belonging to Harvard. For purposes of this Agreement, "Confidential Information" means all data or information not generally known outside of my group at Harvard or outside of Harvard, whether prepared or developed by or for Harvard or received by Harvard from an outside source. Without limiting the scope of this definition, Confidential Information includes but is not limited to HUID, social security number, date of birth, name, contact data, and role-specific information, whether or not labeled or identified as "confidential."</li>
+
+          <li>Except as required by my Harvard employment activities, I shall never, either during my Harvard employment or thereafter, directly or indirectly use, publish, disseminate, or otherwise disclose any Confidential Information acquired in the course of my employment activities without the prior written consent of Harvard.</li>
+
+          <li>I agree that I will access only the Confidential Information that I need to perform my duties as a Harvard employee.</li>
+        </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row spacer">
     {% crispy form %}
     <div class="col-sm-4">
@@ -40,7 +68,7 @@
             <td>
               <span>
                   {% if job.is_complete %}
-                    <a href="{% url 'et:download_export_file' export_filename=job.output_file_name %}"><i class="fa fa-download"></i>{{ job.output_file_name }}</a>
+                    <a href="{% url 'et:download_export_file' export_filename=job.output_file_name %}"><i class="fa fa-download"></i> {{ job.output_file_name }}</a>
                   {% else %}
                     {{ job.output_message }}
                   {% endif %}

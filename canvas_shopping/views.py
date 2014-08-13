@@ -1,11 +1,7 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
-from django.core.exceptions import DoesNotExist
 from django.contrib import messages
 
-#from django.views.decorators.http import require_http_methods
-
-#from ims_lti_py.tool_provider import DjangoToolProvider
 from icommons_common.auth.views import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
@@ -63,6 +59,11 @@ def course(request, canvas_course_id):
     else:
         canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
+        if not canvas_course:
+            # something's wrong with the course, and we can't proceed
+            logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
+            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
             return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
@@ -99,7 +100,9 @@ def course(request, canvas_course_id):
                     user_can_shop = True
                     shopping_role = 'Harvard Viewer'
                     break
-
+            else:
+                logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+                
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
 
@@ -175,103 +178,28 @@ def course_selfreg(request, canvas_course_id):
                 return render(request, 'canvas_shopping/error_selfreg.html', {'canvas_course': canvas_course})
 
 
-class SchoolListView(LoginRequiredMixin, generic.ListView):
-    model = School
-    template_name = 'canvas_shopping/school_list.html'
-    context_object_name = 'school_list'
-    queryset = School.objects.filter(active=1, terms__shopping_active=1).distinct()
+@login_required
+def my_list(request):
 
+    # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
+    shopper_enrollments = get_enrollments_by_user(request.user.username, 'Shopper')
+    viewer_enrollments = get_enrollments_by_user(request.user.username, 'Harvard Viewer')
 
-class CourseListView(LoginRequiredMixin, generic.ListView):
-    model = CourseInstance
-    template_name = 'canvas_shopping/course_list.html'
+    all_enrollments = []
+    if shopper_enrollments:
+        all_enrollments = shopper_enrollments
 
+    if viewer_enrollments:
+        all_enrollments = all_enrollments + viewer_enrollments
 
+    courses = {}
+    for e in all_enrollments:
+        enrollment_id = e['id']
+        canvas_course_id = e['course_id']
+        course = get_canvas_course_by_canvas_id(canvas_course_id)
+        courses[enrollment_id] = course
 
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(CourseListView, self).get_context_data(**kwargs)
-        courses = {}
-        enrollments = {}
-
-        # if the school ID is wrong, bail
-        try:
-            school = School.objects.get(pk=self.kwargs['school_id'])
-
-        except:
-            logger.error("Couldn't find school record for id %s" % self.kwargs.get('school_id'))
-            raise DoesNotExist
-
-
-        # Get the list of courses that this user is already shopping (in Canvas)
-        logger.debug('about to get Shopper enrollments for %s' % self.request.user.username)
-        enrollees = get_enrollments_by_user(self.request.user.username, 'Shopper')
-        if enrollees is not None:
-            for e in enrollees:
-                canvas_course_id = e['course_id']
-                canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
-                if canvas_course:
-                    if canvas_course['sis_course_id']:
-                        logger.debug('user %s is enrolled in canvas/harvard course %d/%s' % (self.request.user.username, canvas_course_id, canvas_course['sis_course_id']))
-                        enrollments[int(canvas_course['sis_course_id'])] = e
-
-        # Get the Canvas courses for this school
-        course_instances = CourseInstance.objects.filter(course__school__school_id=self.kwargs['school_id'], sync_to_canvas=1, term__shopping_active=1)
-        for ci in course_instances:
-            courses[ci.course_instance_id] = {'instance': ci, 'enrollee': enrollments.get(ci.course_instance_id)}
-
-        # Add in a QuerySet of all the courses
-        context['course_list'] = courses
-        context['school'] = School.objects.get(pk=self.kwargs['school_id'])
-        context['canvas_base_url'] = settings.CANVAS_SHOPPING['CANVAS_BASE_URL']
-        return context
-
-# need a view for HDS students: display the list of Canvas-mapped courses for HDS + active shopping terms
-
-'''
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication, SessionAuthentication, ])
-@permission_classes([IsAuthenticated, ])
-@csrf_exempt
-def add_shopper(request):
-
-    # request must contain user_id, school, academic_year, term_code, course_code
-
-    # first, check the school/course_code/year/term to see if it's a canvas course - if not, return immediately
-    school_id = request.DATA['school_id']
-    course_code = request.DATA['course_code']
-    academic_year = request.DATA['academic_year']
-    term_code = request.DATA['term_code']
-
-    if school_id and course_code and academic_year and term_code:
-        # look up the course - is it using canvas?
-        course_key = '%s-%s-%s-%s' % (school_id, course_code, academic_year, term_code)
-        canvas_course_info = get_canvas_info(course_key)
-
-        if canvas_course_info is not None and canvas_course_info.get('course_instance_id') is not None:
-            # if the authentication method is SessionAuthentication, get the user_id from the authenticated user object
-            if request.successful_authenticator.__class__.__name__ == 'SessionAuthentication':
-                user_id = request.user.user_id
-            else:
-                user_id = request.DATA['shopper_id']
-
-            section = get_canvas_course_section(canvas_course_info.get('course_instance_id'))
-
-            if section is not None:
-                enrollee = add_canvas_section_enrollee(section['id'], 'Shopper', user_id)
-                if enrollee is not None:
-                    return Response({'status': 'success'})
-                else:
-                    return Response({'status': 'error', 'message': 'Could not add user to course. Please try again later.'})
-            else:
-                return Response({'status': 'error', 'message': 'Could not find the Canvas section.'})
-
-        else:
-            return Response({'status': 'success', 'message': 'Not a Canvas course.'})
-
-    else:
-        return Response({'status': 'error', 'messge': 'One of the required parameters is missing.'})
-'''
+    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('CANVAS_BASE_URL')})
 
 
 @login_required
@@ -310,91 +238,14 @@ def add_shopper_ui(request):
 def remove_shopper_ui(request):
     canvas_course_id = request.POST.get('canvas_course_id')
     canvas_enrollee_id = request.POST.get('canvas_enrollee_id')
-    school_id = request.POST.get('school_id')
 
     if canvas_course_id and canvas_enrollee_id:
         delete_canvas_enrollee_id(int(canvas_course_id), int(canvas_enrollee_id))
         messages.success(request, 'Successfully updated your shopping list.')
     else:
         messages.error(request, 'Could not update your shopping list. Please try again later')
-    next_url = reverse('sh:courselist', args=[school_id])
+    next_url = reverse('sh:my_list')
     return redirect(next_url)
-
-'''
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication, SessionAuthentication, ])
-@permission_classes([IsAuthenticated, ])
-@csrf_exempt
-def remove_shopper(request):
-
-    # request must contain user_id, school, academic_year, term_code, course_code
-
-    # first, check the school/course_code/year/term to see if it's a canvas course - if not, return immediately
-    school_id = request.DATA['school_id']
-    course_code = request.DATA['course_code']
-    academic_year = request.DATA['academic_year']
-    term_code = request.DATA['term_code']
-
-    if school_id and course_code and academic_year and term_code:
-        # look up the course - is it using canvas?
-        course_key = '%s-%s-%s-%s' % (school_id, course_code, academic_year, term_code)
-        canvas_course_info = get_canvas_info(course_key)
-
-        if canvas_course_info is not None and canvas_course_info.get('canvas_course_id') is not None:
-            # if the authentication method is SessionAuthentication, get the user_id from the authenticated user object
-            if request.successful_authenticator.__class__.__name__ == 'SessionAuthentication':
-                user_id = request.user.user_id
-            else:
-                user_id = request.DATA['shopper_id']
-
-            # fetch the canvas enrollee ID
-            canvas_enrollee_id = None
-            enrollees = get_enrollments_by_user(user_id, 'Shopper')
-            for e in enrollees:
-                if e['course_id'] == canvas_course_info.get('canvas_course_id'):
-                    canvas_enrollee_id = e['id']
-                    break
-
-            if canvas_enrollee_id is not None:
-                # remove the enrollee
-                delete_canvas_enrollee_id(canvas_course_info.get('canvas_course_id'), int(canvas_enrollee_id))
-                return Response({'status': 'success'})
-            else:
-                return Response({'status': 'error', 'message': 'Could not remove user from course. Please try again later.'})
-        else:
-            return Response({'status': 'success', 'message': 'Not a Canvas course.'})
-    else:
-        return Response({'status': 'error', 'messge': 'One of the required parameters is missing.'})
-'''
-
-
-def get_canvas_courses():
-    # get/store canvas course map from cache
-    course_map = cache.get('canvas_course_map')
-    logger.debug('canvas course cache: %s' % course_map)
-    if course_map is None:
-        logger.debug('canvas course cache was empty - will set')
-        course_map = {}
-        # fetch from the database
-        canvas_courses = CourseInstance.objects.filter(sync_to_canvas=1)
-        for c in canvas_courses:
-            course_key = '%s-%s-%d-%d' % (c.course.school.school_id, c.course.registrar_code, c.term.academic_year, c.term.term_code.term_code)
-            course_map[course_key] = {'course_instance_id': c.course_instance_id, 'canvas_course_id': c.canvas_course_id}
-            logger.debug('caching %s' % course_key)
-
-        cache.set('canvas_course_map', course_map)
-    else:
-        logger.debug('found canvas course cache')
-    return course_map
-
-
-def get_canvas_info(course_key):
-    logger.debug('looking for canvas course with key %s' % course_key)
-    course_map = get_canvas_courses()
-    if course_key in course_map:
-        return course_map[course_key]
-    else:
-        return None
 
 
 # helper to build nested dicts:
