@@ -14,6 +14,8 @@ ICOMMONS_COMMON = {
 
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://canvas.icommons.harvard.edu',
+    'SHOPPER_ROLE': 'Shopper',
+    'VIEWER_ROLE': 'Harvard Viewer',
 }
 
 EXPORT_TOOL = {

@@ -73,7 +73,7 @@ def course(request, canvas_course_id):
         logger.debug("groups: " + "\n".join(group_ids))
 
         user_can_shop = False
-        shopping_role = 'Shopper'
+        shopping_role = settings.CANVAS_SHOPPING['SHOPPER_ROLE']
 
         # make sure this is a shoppable course and that this user can shop it
         is_shoppable = False
@@ -98,7 +98,7 @@ def course(request, canvas_course_id):
                 elif is_huid(user_id): 
                     logger.debug('User %s is eligible for shopping as an HUID' % user_id)
                     user_can_shop = True
-                    shopping_role = 'Harvard Viewer'
+                    shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
                     break
             else:
                 logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
@@ -182,8 +182,8 @@ def course_selfreg(request, canvas_course_id):
 def my_list(request):
 
     # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
-    shopper_enrollments = get_enrollments_by_user(request.user.username, 'Shopper')
-    viewer_enrollments = get_enrollments_by_user(request.user.username, 'Harvard Viewer')
+    shopper_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['SHOPPER_ROLE'])
+    viewer_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
 
     all_enrollments = []
     if shopper_enrollments:
@@ -216,7 +216,7 @@ def add_shopper_ui(request):
         ci = CourseInstance.objects.get(pk=course_instance_id)
         section = get_canvas_course_section(ci.course_instance_id)
         if section is not None:
-            enrollee = add_canvas_section_enrollee(section['id'], 'Shopper', user_id)
+            enrollee = add_canvas_section_enrollee(section['id'], settings.CANVAS_SHOPPING['SHOPPER_ROLE'], user_id)
             if enrollee is not None:
                 messages.success(request, 'Successfully updated your shopping list.')
             else:

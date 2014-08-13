@@ -16,7 +16,9 @@ CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://canvas.icommons.harvard.edu',
     'selfreg_courses': {
         '495': 'Guest',
-    }
+    },
+    'SHOPPER_ROLE': 'Shopper',
+    'VIEWER_ROLE': 'Harvard Viewer',
 }
 
 EXPORT_TOOL = {

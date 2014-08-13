@@ -26,7 +26,10 @@ CANVAS_SHOPPING = {
         '471': 'StudentEnrollment',
         '879': 'StudentEnrollment',
         '906': 'StudentEnrollment',
-    }
+        '935': 'StudentEnrollment',
+    },
+    'SHOPPER_ROLE': 'Shopper',
+    'VIEWER_ROLE': 'Harvard-Viewer',
 }
 
 EXPORT_TOOL = {
