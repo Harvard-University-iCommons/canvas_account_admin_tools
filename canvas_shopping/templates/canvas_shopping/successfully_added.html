@@ -7,9 +7,9 @@
 {% block content %}
 
 <h2>{{ canvas_course.name }}</h2>
-{% if shopping_role == 'Shopper' %}
+{% if shopping_role == settings.SHOPPER_ROLE %}
     <h3>You've been granted access to the course website during shopping period.</h3>
-{% elif shopping_role == 'Harvard Viewer' %}
+{% elif shopping_role == settings.VIEWER_ROLE %}
     <h3>As a member of the Harvard community, you've been granted access to view this course website during shopping period.</h3>
 {% endif %}
 
