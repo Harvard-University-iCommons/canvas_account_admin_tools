@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
 from icommons_common.auth.views import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-from icommons_common.models import School, CourseInstance
+from icommons_common.models import CourseInstance
 from icommons_common.canvas_utils import *
 from django.core.cache import cache
-from django.views import generic
 from django.conf import settings
 
 
@@ -68,6 +68,9 @@ def course(request, canvas_course_id):
         if canvas_course['workflow_state'] == 'unpublished':
             return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
 
+        if not canvas_course.get('sis_course_id'):
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is not associated with a Harvard course ID.'})
+
         # make sure this user is eligible for shopping
         group_ids = request.session.get('USER_GROUPS', [])
         logger.debug("groups: " + "\n".join(group_ids))
@@ -78,30 +81,30 @@ def course(request, canvas_course_id):
         # make sure this is a shoppable course and that this user can shop it
         is_shoppable = False
         course_instance_id = None
-        course_instances = CourseInstance.objects.filter(canvas_course_id=canvas_course_id)   # TODO: prefetch term and course
-        for ci in course_instances:
-            if ci.term.shopping_active:
-                is_shoppable = True
+        try:
+            ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
+        except ObjectDoesNotExist:
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
 
-                course_instance_id = ci.course_instance_id
+        if ci.term.shopping_active:
+            is_shoppable = True
 
-                # any student can shop
-                for gid in group_ids:
-                    if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
-                        user_can_shop = True
-                        break
+            course_instance_id = ci.course_instance_id
 
-                if user_can_shop:
-                    logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
-                    break
-
-                elif is_huid(user_id): 
-                    logger.debug('User %s is eligible for shopping as an HUID' % user_id)
+            # any student can shop
+            for gid in group_ids:
+                if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
                     user_can_shop = True
-                    shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
-                    break
-            else:
-                logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+
+            if user_can_shop:
+                logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
+
+            elif is_huid(user_id): 
+                logger.debug('User %s is eligible for shopping as an HUID' % user_id)
+                user_can_shop = True
+                shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+        else:
+            logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
                 
         if is_shoppable is False:
             return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
