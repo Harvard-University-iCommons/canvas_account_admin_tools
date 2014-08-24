@@ -15,3 +15,5 @@ pidfile = '/logs/icommons_tools/gunicorn.pid'
 accesslog = '/logs/icommons_tools/gunicorn_access.log'
 
 errorlog = '/logs/icommons_tools/gunicorn_error.log'
+
+proc_name = 'gunicorn_icommons_tools'

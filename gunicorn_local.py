@@ -9,3 +9,5 @@ pidfile = 'gunicorn.pid'
 accesslog = 'access.log'
 
 errorlog = 'error.log'
+
+proc_name = 'gunicorn_icommons_tools'

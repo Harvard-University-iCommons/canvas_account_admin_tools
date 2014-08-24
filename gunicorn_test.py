@@ -15,3 +15,5 @@ pythonpath = '/home/ubuntu/icommons_tools'
 accesslog = 'access.log'
 
 errorlog = 'error.log'
+
+proc_name = 'gunicorn_icommons_tools'
