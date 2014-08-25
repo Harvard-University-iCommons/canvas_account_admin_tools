@@ -172,7 +172,23 @@ def course_selfreg(request, canvas_course_id):
 
         else:
             # Enroll this user as a shopper
-            new_enrollee = add_canvas_course_enrollee(canvas_course_id, selfreg_role, user_id)
+
+            # make sure the user has a Canvas account
+            canvas_user = get_canvas_user(user_id)
+            if not canvas_user:
+                return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, a Canvas user account does not exist for you.'})
+
+            # if there is a section matching the course's sis_course_id, enroll the user in that; otherwise use the default section
+            if canvas_course.get('sis_course_id'):
+                canvas_section = get_canvas_course_section(canvas_course['sis_course_id'])
+                if canvas_section:
+                    new_enrollee = add_canvas_section_enrollee(canvas_section['id'], selfreg_role, user_id)
+                else:
+                    new_enrollee = add_canvas_course_enrollee(canvas_course_id, selfreg_role, user_id)
+
+            else:
+                new_enrollee = add_canvas_course_enrollee(canvas_course_id, selfreg_role, user_id)
+
             if new_enrollee:
                 # success
                 return redirect(course_url)
