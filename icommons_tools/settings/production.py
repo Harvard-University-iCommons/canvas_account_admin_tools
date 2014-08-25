@@ -27,10 +27,16 @@ CANVAS_SHOPPING = {
         '879': 'StudentEnrollment',
         '906': 'StudentEnrollment',
         '935': 'StudentEnrollment',
+        '913': 'Shopper',
+        '741': 'Shopper',
+        '743': 'Shopper',
+        '774': 'Shopper',        
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
 }
+
+CANVAS_SHOPPING[]
 
 EXPORT_TOOL = {
     'base_file_download_url': 'http://poll.icommons.harvard.edu/exports/',
