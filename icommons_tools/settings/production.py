@@ -23,6 +23,7 @@ CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': 'https://canvas.harvard.edu',
     'selfreg_courses': {
         '495': 'Guest',
+        '541': 'Guest',
         '471': 'StudentEnrollment',
         '879': 'StudentEnrollment',
         '906': 'StudentEnrollment',
@@ -35,8 +36,6 @@ CANVAS_SHOPPING = {
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
 }
-
-CANVAS_SHOPPING[]
 
 EXPORT_TOOL = {
     'base_file_download_url': 'http://poll.icommons.harvard.edu/exports/',
