@@ -1,0 +1,24 @@
+{% extends "canvas_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+
+{% block content %}
+
+<h2>Add a user to the Canvas Whitelist</h2>
+
+<form class="form-inline" method="POST" action="{% url 'cwl:access_resultsview' %}">{% csrf_token %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<div class="form-group">
+		<label class="sr-only" for="user_search_term">Email Address or user ID</label>
+	<input type="search" name="user_search_term" class="form-control" id="user_search_term" placeholder="Enter email or HUID"/>
+	</div>
+	<button type="submit" name="Search" id="user_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+	<i class="fa fa-search"></i> Search</button>
+	<a href="{% url 'cwl:canvasaccesslist' %}">Cancel</a>
+</form>
+
+
+{% endblock %}
+
