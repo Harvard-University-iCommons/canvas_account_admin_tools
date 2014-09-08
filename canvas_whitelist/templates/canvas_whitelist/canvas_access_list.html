@@ -1,0 +1,74 @@
+{% extends "canvas_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}List of People{% endblock %}
+{% block pagetitle %}List of People{% endblock %}
+
+
+{% block content %}
+{% if AUTHORIZEDTOEDIT %}
+{% if canvas_access_list %}
+<table class="datatable table table-striped table-bordered">
+    <thead>
+        <tr>
+        	<th>Role Type</th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email Address</th>
+            <th>Access End Date</th>
+            <th>Reason for Access</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+		{% for person in canvas_access_list %}
+
+			<tr>
+				<td>{{ person.role_type }}</td>
+				<td>{{ person.user_id }}</td>
+				<td>{{ person.name_first }}</td>
+				<td>{{ person.name_last }}</td>
+				<td>{{ person.email_address }}</td>
+				<td>{{ person.expiration_date }}</td>
+				<td>{{ person.description }}</td>
+				<td>
+					<a href="{% url 'cwl:access_editview' person.id %}">Update</a>
+					<a href="{% url 'cwl:access_confirmdelete' person.id %}">Delete</a>
+				</td>
+			</tr>
+
+		{% endfor %}
+	<tbody>
+</table>
+
+{% endif %}
+
+<form action="{% url 'cwl:access_searchfor' %}" method="post">{% csrf_token %} 
+	<input type="submit" class="btn btn-primary" value="Add a Person" />
+</form>
+
+{% endif %}
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+	<script>
+		$(document).ready(function() { 
+			$('.datatable').dataTable( {
+				aaSorting: [[0, 'asc']],
+				"aoColumnDefs": [ { 
+					'bSortable': false, 
+					'aTargets': [ 6 ] } ],
+				"oLanguage": {
+                  "sSearch": "Search"
+                }
+			});
+		});
+	</script>
+
+{% endblock %}
+
