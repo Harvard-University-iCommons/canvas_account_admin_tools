@@ -62,10 +62,6 @@ QUALTRICS_WHITELIST = {
     'allowed_groups': 'IcGroup:358',
 }
 
-CANVAS_WHITELIST = {
-    'allowed_groups': 'IcGroup:358',
-}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',

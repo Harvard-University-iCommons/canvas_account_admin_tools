@@ -27,8 +27,6 @@ urlpatterns = patterns('',
 
     url(r'^tools/qualtrics_whitelist/', include('qualtrics_whitelist.urls', namespace="qwl")),
 
-    url(r'^tools/canvas_whitelist/', include('canvas_whitelist.urls', namespace="cwl")),
-
     url(r'^icommons_ui/', include('icommons_ui.urls')),
 
     url(r'^tools/not_authorized/', 'icommons_ui.views.not_authorized', name="not_authorized"),
