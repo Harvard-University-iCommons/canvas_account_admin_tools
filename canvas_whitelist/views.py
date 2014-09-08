@@ -82,7 +82,7 @@ def access_update_person(request):
 class CanvasAccessListView(GroupMembershipRequiredMixin, generic.ListView):
     allowed_groups = settings.CANVAS_WHITELIST.get('allowed_groups', '')
     model = CanvasAccessList
-    template_name = 'CANVAS_WHITELIST/canvas_access_list.html' 
+    template_name = 'canvas_whitelist/canvas_access_list.html' 
     context_object_name = 'canvas_access_list'
     input_user_id = ""
 
