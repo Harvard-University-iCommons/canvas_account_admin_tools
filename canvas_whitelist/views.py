@@ -73,7 +73,7 @@ def access_update_person(request):
             logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
             messages.error(request, "Whitelist update/deleted failed")
 
-    return HttpResponseRedirect(reverse('qwl:CanvasAccessList'))
+    return HttpResponseRedirect(reverse('cwl:canvasaccesslist'))
 
 
 ### Mixins:
@@ -226,13 +226,13 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                         if len(results_dict) == 0:
                             logger.error("This person doesn't exist in the Person database.")
                             messages.warning(request, "Person does not exist in the Harvard Directory")
-                            return HttpResponseRedirect(reverse('qwl:access_searchfor'))
+                            return HttpResponseRedirect(reverse('cwl:access_searchfor'))
                         
                         return render(request, 'canvas_whitelist/canvas_access_results_list.html', 
                                     {'user_input': search_term, 'results_list': results_dict, 'error_message': error_message, })
                                         
         elif 'Cancel' in request.POST:
-            return HttpResponseRedirect(reverse('cwl:CanvasAccessList'))
+            return HttpResponseRedirect(reverse('cwl:canvasaccesslist'))
 
         elif 'Save' in request.POST:
             input_user_id = request.POST.get('user_id')
@@ -284,7 +284,7 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                         logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
                         messages.error(request, "Whitelist add user failed")
 
-            return HttpResponseRedirect(reverse('cwl:CanvasAccessList'))
+            return HttpResponseRedirect(reverse('cwl:canvasaccesslist'))
 
         return render(request, 'canvas_whitelist/canvas_access_results_list.html', 
                       {'user_input': search_term, 'results_list': results_dict, 'error_message': error_message})
