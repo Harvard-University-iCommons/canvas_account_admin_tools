@@ -1,0 +1,107 @@
+{% extends "canvas_whitelist/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block title %}Results List{% endblock %}
+{% block pagetitle %}Results List{% endblock %}
+
+
+{% block content %}
+<h4>Choose one or more and enter the reason and access end date, if necessary</h4>
+
+
+<form class="form-horizontal" name="form1" id="checkboxForm" action="./" method="POST">{% csrf_token %}
+<input type="hidden" name="user_id" value="{{ user_input }}" >
+<input type="hidden" name="users_list" value="{{ results_list }}" >
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<table border="2">
+	<thead>
+        <tr>
+        	<th></th>
+            <th>Role Type</th>
+            <th>HUID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% if results_list %}
+		{% for key, value in results_list.items %}
+	 		<tr>
+			{% if value.on_list %}
+				<td><input type="checkbox" checked disabled></td>		
+			{% else %}	
+				<td><input type="checkbox" name="user_check_list" id="checkbox" value="{{value.user_id}}" class="checkbox"></td>
+			{% endif %}
+				<td>{{ value.role_type }}</td>
+				<td>{{ value.user_id }}</td>
+				<td>{{ value.first_name }}</td>
+				<td>{{ value.last_name }}</td>
+				<td>{{ value.email }}</td>
+			</tr> 
+		{% endfor %}
+	{% endif %}
+	<tbody>
+</table>
+<br>
+<div class="form-group">
+	<label class="col-sm-2 control-label">Reason for Access</label>
+	<div class="col-sm-10">
+    	<input type="text" class="form-control" name="description"  placeholder="Enter reason for access">
+    </div>
+</div>
+<div class="form-group">
+	<label class="col-sm-2 control-label">Access End Date</label>
+	<div class="col-sm-10">
+    	<input type="text" class="dateinput" name="expiration_date"  placeholder="Enter access end date">
+    </div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">
+		<button id="sub" class="btn btn-primary" type="submit" onclick="return checkReason()"  name="Save" disabled="disabled" >Save</button>
+		<button class="btn btn-link" type="submit" name="Cancel">Cancel</button>
+	</div>
+</div>
+</form>
+<h6>Reminder: In Qualtrics, please update User Type and Division manually for contractors/POIs with HUIDs beginning with “01” or “02” as they could be granted access with Generic user type and Other division.</h6>
+
+{% endblock %}
+
+
+{% block javascript %}
+{{ block.super }}
+<script>
+
+$(document).ready(function() { 
+	$('.dateinput').datepicker({
+		format: "yyyy-mm-dd",
+		startDate: "today"
+	});
+});
+
+$('.checkbox').change(function() {
+    if ($('.checkbox:checked').length) {
+        $('#sub').removeAttr('disabled');
+    } else {
+        $('#sub').attr('disabled', 'disabled');
+    }
+});
+
+
+function checkReason()
+{
+	if (!form1.description.value)
+	{
+		alert ("Please Enter a reason for access.");
+		return false;
+	}
+	return true;
+}
+	
+</script>
+
+{% endblock %}
