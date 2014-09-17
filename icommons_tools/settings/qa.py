@@ -62,6 +62,8 @@ QUALTRICS_WHITELIST = {
 
 CANVAS_WHITELIST = {
     'allowed_groups': 'IcGroup:358',
+    'canvas_url': 'https://canvas.icommons.harvard.edu/api',
+    'oauth_token': SECURE_SETTINGS['CANVAS_WHITELIST_OAUTH_TOKEN'],
 }
 
 DATABASES = {

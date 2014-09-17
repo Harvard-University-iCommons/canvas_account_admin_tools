@@ -4,18 +4,22 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.contrib import messages
-from icommons_common.models import *
-from icommons_common.models import Person
+from icommons_common.models import Person, CanvasAccessList
 from icommons_common.auth.views import LoginRequiredMixin
 from icommons_common.auth.views import GroupMembershipRequiredMixin
 from icommons_common.auth.decorators import group_membership_restriction
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+from canvas_sdk.methods import users
+from canvas_sdk import RequestContext
+from requests import HTTPError
+
 import logging
 
 logger = logging.getLogger(__name__)
 
+request_context = RequestContext(settings.CANVAS_WHITELIST.get('oauth_token'), settings.CANVAS_WHITELIST.get('canvas_url'))
 
 @login_required
 @group_membership_restriction(allowed_groups=settings.CANVAS_WHITELIST.get('allowed_groups', ''))
@@ -44,15 +48,15 @@ def access_update_person(request):
         wlistSave = CanvasAccessList()
         wlistSave.id = id_update
         logger.debug('Trying to update id :%s:' % id_update)
-        user = request.POST.get('user_id')
-        wlistSave.user_id = user
+        user_id = request.POST.get('user_id')
+        wlistSave.user_id = user_id
         test_description = request.POST.get('description')
         test_description = test_description.strip()
         # Verify the length and truncate to max length 255, if exceeds 255 chars
         # database max length for description is 255, but just need 150 for reason description
         if len(test_description) > 150:
             wlistSave.description = test_description[:150]
-            messages.info(request, "The Reason Description is too long, it has been shorten to 150 characters.")
+            messages.info(request, "The Reason Description is too long, it has been shortened to 150 characters.")
         else:
             wlistSave.description = test_description
         wlistSave.version = 0
@@ -65,10 +69,42 @@ def access_update_person(request):
         else:
             wlistSave.expiration_date = saveAs_expiration_date
        
-
         try:
             wlistSave.save()
             messages.success(request, "Whitelist update user successful")
+
+            # now add the user to Canvas so they'll be available immediately
+            try:
+                results = users.get_user_profile(request_context, user_id)
+                print 'results status: %d' % results.status_code
+                if results.status_code == 200:
+                    logger.info('Canvas user already exists for user_id %s' % user_id)
+
+            except HTTPError as e:
+
+                if e.response.status_code == 404:
+                    # go ahead and create the user
+                    logger.info('Canvas user does not already exist for userid %s - will create one' % user_id)
+
+                    try:
+                        personlist = Person.objects.filter(univ_id=user_id)
+                        if personlist and len(personlist) > 0:
+                            person = personlist[0]
+                            user_name = '%s %s' % (person.name_first, person.name_last)
+                            new_canvas_user = users.create_user(request_context, account_id='1', 
+                                                                user_name=user_name, 
+                                                                pseudonym_unique_id=user_id, 
+                                                                user_time_zone='America/New_York', 
+                                                                pseudonym_sis_user_id=user_id, 
+                                                                pseudonym_send_confirmation=False, 
+                                                                communication_channel_address=person.email_address,
+                                                                communication_channel_skip_confirmation=True)                     
+                    except:
+                        logger.error('Failed to create a Canvas user for user_id %s' % user_id)   
+
+            except:
+                logger.error('Some other error occurred when trying to fetch the Canvas user profile')
+
         except IntegrityError, e:
             logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
             messages.error(request, "Whitelist update/deleted failed")
@@ -76,8 +112,8 @@ def access_update_person(request):
     return HttpResponseRedirect(reverse('cwl:canvasaccesslist'))
 
 
-### Mixins:
-### Class-based views:
+# Mixins:
+# Class-based views:
 
 class CanvasAccessListView(GroupMembershipRequiredMixin, generic.ListView):
     allowed_groups = settings.CANVAS_WHITELIST.get('allowed_groups', '')
@@ -97,7 +133,7 @@ class CanvasAccessListView(GroupMembershipRequiredMixin, generic.ListView):
 
         personlist = Person.objects.filter(univ_id__in=alist)
         
-        #print personlist.query  # print out SQL query
+        # print personlist.query  # print out SQL query
 
         for wlist in all_whitelist:
             for plist in personlist:
@@ -133,7 +169,6 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
     def post(self, request, *args, **kwargs):
         error_message = ""
         firstname = lastname = ""
-        results_list = []
         results_dict = {}
         search_term = request.POST.get('user_search_term')
         if 'Search' in request.POST:
@@ -181,7 +216,6 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                     logger.error('Email not found in Person database :%s:' % search_term)
                     return render(request, 'canvas_whitelist/canvas_access_results_list.html', 
                                   {'user_input': search_term, 'results_list': results_dict, 'error_message': "Person not found in the Harvard Directory", })
-
 
             else:
                 # treat it as a user id

@@ -30,6 +30,8 @@ SECURE_SETTINGS = {
         ('Admin User', 'admin_user@example.com'),
     )
 
+    'CANVAS_WHITELIST_OAUTH_TOKEN': 'changeme',
+
 }
 
 # TODO: deprecate CIPHER_KEY; convert keys to lowercase
