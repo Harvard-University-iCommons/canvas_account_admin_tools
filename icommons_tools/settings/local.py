@@ -148,7 +148,7 @@ LOGGING = {
         },
         'django': {
             'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
         'term_tool': {
@@ -163,7 +163,7 @@ LOGGING = {
         },
         'icommons_common': {
             'handlers': ['mail_admins', 'console', 'logfile'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
         'oraclepool': {
@@ -193,6 +193,11 @@ LOGGING = {
         },
         'canvas_shopping': {
             'handlers': ['mail_admins', 'console', 'logfile', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'canvas_whitelist': {
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },

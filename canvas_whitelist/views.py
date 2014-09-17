@@ -300,12 +300,12 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
 
             else:
 
-                for user in input_check_list:
+                for user_id in input_check_list:
                     # when multi-select, re-initialize to reset QUALTRICS_ACESS_LIST.ID to none, so that 
                     # the auto-trigger will select the next number in the sequence, if not, no rows 
                     # will be updated with the same QUALTRICS_ACESS_LIST.ID from the previous insert
                     wlistSave = CanvasAccessList()
-                    wlistSave.user_id = user
+                    wlistSave.user_id = user_id
                     wlistSave.description = input_description
                     wlistSave.version = 0
                     wlistSave.expiration_date = input_expiration_date
@@ -313,6 +313,39 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                     try:
                         wlistSave.save()
                         messages.success(request, "%s %s, (%s), has been successfully added to the whitelist" % (firstname, lastname, wlistSave.user_id))
+
+                        # now add the user to Canvas so they'll be available immediately
+                        try:
+                            results = users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
+                            print 'results status: %d' % results.status_code
+                            if results.status_code == 200:
+                                logger.info('Canvas user already exists for user_id %s' % user_id)
+
+                        except HTTPError as e:
+
+                            if e.response.status_code == 404:
+                                # go ahead and create the user
+                                logger.info('Canvas user does not already exist for userid %s - will create one' % user_id)
+
+                                try:
+                                    personlist = Person.objects.filter(univ_id=user_id)
+                                    if personlist and len(personlist) > 0:
+                                        person = personlist[0]
+                                        user_name = '%s %s' % (person.name_first, person.name_last)
+                                        new_canvas_user = users.create_user(request_context, account_id='1', 
+                                                                            user_name=user_name, 
+                                                                            pseudonym_unique_id=user_id, 
+                                                                            user_time_zone='America/New_York', 
+                                                                            pseudonym_sis_user_id=user_id, 
+                                                                            pseudonym_send_confirmation=False, 
+                                                                            communication_channel_address=person.email_address,
+                                                                            communication_channel_skip_confirmation=True)                     
+                                except:
+                                    logger.error('Failed to create a Canvas user for user_id %s' % user_id)   
+
+                        except:
+                            logger.error('Some other error occurred when trying to fetch the Canvas user profile')
+
                         
                     except IntegrityError, e:
                         logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
