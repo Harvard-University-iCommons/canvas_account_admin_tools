@@ -10,7 +10,7 @@ from Crypto import Random
 import bitly_api
 from django.http import HttpRequest
 from django.conf import settings
-
+from django.contrib import messages
 
 # Create your views here.
 
@@ -36,9 +36,10 @@ def index(request):
         """
         qtarget_url = request.GET.get('qtarget_url').strip()
 
-        if not qtarget_url.startswith('https://harvard.qualtrics.com/'):
+        if not qtarget_url.startswith('https://harvard.qualtrics.com/') and not qtarget_url.startswith('https://harvard.az1.qualtrics.com/'):
             message = "Sorry, you can only use this tool to link to Harvard Qualtrics surveys."
-            return render(request, 'qualtrics_taker_auth/index.html', {'message': message})
+            messages.error(request, message)
+            return render(request, 'qualtrics_taker_auth/index.html')
 
         target = base64.b64encode(qtarget_url)
 
