@@ -174,6 +174,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'canvas_whitelist': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
 
 
     }
