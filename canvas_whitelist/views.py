@@ -75,7 +75,7 @@ def access_update_person(request):
 
             # now add the user to Canvas so they'll be available immediately
             try:
-                results = users.get_user_profile(request_context, user_id)
+                results = users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
                 print 'results status: %d' % results.status_code
                 if results.status_code == 200:
                     logger.info('Canvas user already exists for user_id %s' % user_id)
