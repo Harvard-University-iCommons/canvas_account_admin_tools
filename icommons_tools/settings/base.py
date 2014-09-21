@@ -81,8 +81,8 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT can be overriden in individual environment settings
-# STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+# STATIC_ROOT = 'staticfiles'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
