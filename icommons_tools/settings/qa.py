@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu', '127.0.0.1', 'localhost', 'qa.tlt.harvard.edu']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
