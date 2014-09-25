@@ -132,13 +132,13 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': 'logs/icommons_tools.log',
+            'filename': '/var/opt/tlt/logs/icommons_tools.log',
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
         'huey_logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': 'logs/huey.log',
+            'filename': '/var/opt/tlt/logs/huey-icommons_tools.log',
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
