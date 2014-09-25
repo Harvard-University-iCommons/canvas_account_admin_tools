@@ -91,8 +91,6 @@ DATABASE_EXTRAS = {
 }
 '''
 
-# STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
-
 INSTALLED_APPS += (
     'debug_toolbar',
     'rest_framework.authtoken',
