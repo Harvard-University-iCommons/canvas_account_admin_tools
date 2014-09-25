@@ -1,0 +1,11 @@
+[program:gunicorn-icommons_tools]
+command=/var/opt/virtualenvs/icommons_tools/bin/gunicorn -c /opt/tlt/icommons_tools/gunicorn_qa.py icommons_tools.wsgi:application
+directory=/opt/tlt/icommons_tools
+environment=DJANGO_SETTINGS_MODULE="icommons_tools.settings.qa"
+user=deploy
+
+
+[program:huey-icommons_tools]
+command=/var/opt/virtualenvs/icommons_tools/bin/python /opt/tlt/icommons_tools/manage.py run_huey
+user=deploy
+environment=DJANGO_SETTINGS_MODULE="icommons_tools.settings.qa"
