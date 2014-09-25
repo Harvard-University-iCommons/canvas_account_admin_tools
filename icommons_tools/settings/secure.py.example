@@ -28,7 +28,7 @@ SECURE_SETTINGS = {
 
     'admins': (
         ('Admin User', 'admin_user@example.com'),
-    )
+    ),
 
     'CANVAS_WHITELIST_OAUTH_TOKEN': 'changeme',
 
