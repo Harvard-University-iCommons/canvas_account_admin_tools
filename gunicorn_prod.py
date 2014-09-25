@@ -17,3 +17,9 @@ accesslog = '/logs/icommons_tools/gunicorn_access.log'
 errorlog = '/logs/icommons_tools/gunicorn_error.log'
 
 proc_name = 'gunicorn_icommons_tools'
+
+secure_scheme_headers = {
+    'X-FORWARDED-PROTOCOL': 'https', 
+    'X-FORWARDED-PROTO': 'https', 
+    'X-FORWARDED-SSL': 'on'
+}
