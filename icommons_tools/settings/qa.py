@@ -94,7 +94,7 @@ INSTALLED_APPS += ('gunicorn',)
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
+        'LOCATION': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com:6379',
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
@@ -102,7 +102,7 @@ CACHES = {
 }
 
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
 SESSION_REDIS_PORT = 6379
 
 SESSION_COOKIE_SECURE = True
