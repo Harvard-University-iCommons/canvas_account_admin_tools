@@ -1,0 +1,14 @@
+[program:gunicorn]
+command=/var/opt/virtualenvs/{{ project_name }}/bin/gunicorn -c /opt/tlt/{{ project_name }}/gunicorn.py {{ project_name }}.wsgi:application
+user=deploy
+directory=/opt/tlt/{{ project_name }}
+environment=DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.{{ deploy_env }}",ORACLE_HOME="/opt/oracle/instantclient_11_2",LD_LIBRARY_PATH="/opt/oracle/instantclient_11_2"
+
+
+[program:huey]
+command=/var/opt/virtualenvs/{{ project_name }}/bin/python /opt/tlt/{{ project_name }}/manage.py run_huey
+user=deploy
+environment=DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.{{ deploy_env }}",ORACLE_HOME="/opt/oracle/instantclient_11_2",LD_LIBRARY_PATH="/opt/oracle/instantclient_11_2"
+
+[group:{{ project_name }}]
+programs=gunicorn,huey
