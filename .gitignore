@@ -9,4 +9,6 @@ newrelic*.ini
 *.sqlite3
 secure*.py*
 !secure.py.example
+!secure.py.j2
 *.sublime-workspace
+gunicorn.py
