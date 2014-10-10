@@ -18,7 +18,7 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
     },
     'SHOPPER_ROLE': 'Shopper',
-    'VIEWER_ROLE': 'Harvard Viewer',
+    'VIEWER_ROLE': 'Harvard-Viewer',
 }
 
 EXPORT_TOOL = {
@@ -106,6 +106,12 @@ SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
 SESSION_REDIS_PORT = 6379
 
 SESSION_COOKIE_SECURE = True
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'huey-icommons_tools-qa',
+    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
+}
 
 LOGGING = {
     'version': 1,
