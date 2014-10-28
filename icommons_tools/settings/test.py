@@ -117,6 +117,11 @@ SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
 SESSION_REDIS_PORT = 6379
 
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'huey-icommons_tools-test',
+    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
+}
 
 LOGGING = {
     'version': 1,
