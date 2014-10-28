@@ -32,6 +32,7 @@ CANVAS_SHOPPING = {
         '741': 'Shopper',
         '743': 'Shopper',
         '774': 'Shopper',        
+        '1858': 'StudentEnrollment',
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
@@ -79,7 +80,7 @@ QUALTRICS_WHITELIST = {
 
 CANVAS_WHITELIST = {
     'allowed_groups': 'IcGroup:358',
-    'canvas_url': 'https://canvas.harvard.edu/api',
+    'canvas_url': 'https://harvard.instructure.com/api',
     'oauth_token': SECURE_SETTINGS['CANVAS_WHITELIST_OAUTH_TOKEN'],
 }
 
