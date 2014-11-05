@@ -27,12 +27,11 @@ logger = logging.getLogger(__name__)
 '''
 The course view checks to see if the authenticated user is already enrolled in the course.
 If not, and if shopping period is still active for the course, then the user will be
-enrolled in the course as a shopper.
+enrolled in the course as a viewer.
 '''
 
-
 @login_required
-def course(request, canvas_course_id):
+def view_course(request, canvas_course_id):
 
     if not canvas_course_id:
         return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
@@ -49,6 +48,106 @@ def course(request, canvas_course_id):
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
+
+    if is_enrolled is True:
+        # redirect the user to the actual canvas course site
+        course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+        logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
+        return redirect(course_url)
+
+    else:
+        canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+
+        if not canvas_course:
+            # something's wrong with the course, and we can't proceed
+            logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
+            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+
+        # make sure that the course is available
+        if canvas_course['workflow_state'] == 'unpublished':
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
+
+        if not canvas_course.get('sis_course_id'):
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is not associated with a Harvard course ID.'})
+
+        # TBD: check to see if the course is public; if so, just redirect
+
+        # TBD: check to see if the course has a public syllabus; if so, just redirect to the syllabus
+
+        # make sure this user is eligible for shopping        
+        group_ids = request.session.get('USER_GROUPS', [])
+        logger.debug("groups: " + "\n".join(group_ids))
+
+        user_can_shop = False
+        shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+
+        # make sure this is a shoppable course and that this user can shop it
+        is_shoppable = False
+        course_instance_id = None
+        try:
+            ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
+        except ObjectDoesNotExist:
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
+
+        if ci.term.shopping_active:
+            is_shoppable = True
+
+            course_instance_id = ci.course_instance_id
+
+            # is the user eligible to view the course?
+            if is_huid(user_id):
+                user_can_shop = True
+                shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+
+        else:
+            logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+                
+        if is_shoppable is False:
+            return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
+
+        elif user_can_shop is False:
+            return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
+
+        else:
+            # Enroll this user as a shopper
+            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
+            if new_enrollee:
+                # success
+                return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
+
+            else:
+                return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+
+'''
+The shop_course view checks to see if the authenticated user is already enrolled in the course.
+If not, and if shopping period is still active for the course, then the user will be
+enrolled in the course as a shopper.
+'''
+
+@login_required
+def shop_course(request, canvas_course_id):
+
+    if not canvas_course_id:
+        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
+
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+
+    # is the user already in the course in a non-viewer role? If so, just redirect them to the course
+    # if the user is already a viewer, store that record so we can remove it later and replace it with shopper
+    user_id = request.user.username
+    is_enrolled = False
+    is_viewer = False
+    viewer_enrollment_id = None
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            if e['course_id'] == int(canvas_course_id):
+                if e['role'] == settings.CANVAS_SHOPPING['VIEWER_ROLE']:
+                    is_viewer = True
+                    viewer_enrollment_id = e['id']
+                else:
+                    is_enrolled = True
 
     if is_enrolled is True:
         # redirect the user to the actual canvas course site
@@ -99,10 +198,12 @@ def course(request, canvas_course_id):
             if user_can_shop:
                 logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
 
+            '''        
             elif is_huid(user_id): 
                 logger.debug('User %s is eligible for shopping as an HUID' % user_id)
                 user_can_shop = True
                 shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+            '''   
         else:
             logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
                 
@@ -117,10 +218,17 @@ def course(request, canvas_course_id):
             new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
             if new_enrollee:
                 # success
+
+                # remove the viewer role, if it exists
+                if is_viewer:
+                    delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
+
                 return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
 
             else:
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+
+
 
 
 '''
@@ -128,6 +236,7 @@ The course_selfreg view allows users to be added to certain courses (specified i
 the new user should have within the course.  This view will also ensure that the user has a Canvas user account. Upon successful enrollment,
 it simply redirects the user to the Canvas course site.
 '''
+
 
 
 @login_required
