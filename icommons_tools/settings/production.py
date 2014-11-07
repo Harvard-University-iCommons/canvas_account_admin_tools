@@ -11,6 +11,17 @@ DEBUG = False
 # to prevent host header poisoning
 ALLOWED_HOSTS = ['*']
 
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',  
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('CANVAS_TOKEN', None),
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
@@ -36,6 +47,7 @@ CANVAS_SHOPPING = {
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
+    'ROOT_ACCOUNT' : '1',
 }
 
 EXPORT_TOOL = {
