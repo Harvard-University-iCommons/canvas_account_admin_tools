@@ -12,18 +12,28 @@ Exec {
     logoutput => true,
 }
 
+exec {'apt-get-update-1':
+    command => 'apt-get update',
+}
+
 package {'software-properties-common':
     ensure => latest,
+    require => Exec['apt-get-update-1'],
+}
+
+package {'python-software-properties':
+    ensure => latest,
+    require => Package['software-properties-common'],
 }
 
 exec {'add-nodejs-repo':
     command => 'add-apt-repository ppa:chris-lea/node.js',
-    require => Package['software-properties-common']
+    require => Package['python-software-properties']
 }
 
 exec {'apt-get-update':
     command => 'apt-get update',
-    require => Exec['add-nodejs-repo']
+    require => Exec['add-nodejs-repo'],
 }
 
 
