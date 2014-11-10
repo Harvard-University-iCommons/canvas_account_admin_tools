@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu', '127.0.0.1', 'localhost', 'qa.tlt.harvard.edu']
+ALLOWED_HOSTS = ['*']
 
 CANVAS_SITE_SETTINGS = {
     'base_url': 'https://canvas.icommons.harvard.edu/',  
