@@ -16,7 +16,7 @@ CANVAS_SDK_SETTINGS = {
 }
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
     'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
