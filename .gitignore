@@ -12,3 +12,4 @@ secure*.py*
 !secure.py.j2
 *.sublime-workspace
 gunicorn.py
+.idea
