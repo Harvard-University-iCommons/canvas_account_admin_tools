@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 def course(request, canvas_course_id):
 
     if not canvas_course_id:
-        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this request is invalid (missing course ID).'})
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
@@ -55,7 +55,7 @@ def course(request, canvas_course_id):
         if not canvas_course:
             # something's wrong with the course, and we can't proceed
             logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
-            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, the Canvas course you requested does not exist.'})
 
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
@@ -128,7 +128,7 @@ enrolled in the course as a viewer.
 def view_course(request, canvas_course_id):
 
     if not canvas_course_id:
-        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this request is invalid (missing course ID).'})
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
@@ -155,7 +155,7 @@ def view_course(request, canvas_course_id):
         if not canvas_course:
             # something's wrong with the course, and we can't proceed
             logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
-            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, the Canvas course you requested does not exist.'})
 
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
@@ -222,7 +222,7 @@ enrolled in the course as a shopper.
 def shop_course(request, canvas_course_id):
 
     if not canvas_course_id:
-        return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this request is invalid (missing course ID).'})
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
@@ -255,7 +255,7 @@ def shop_course(request, canvas_course_id):
         if not canvas_course:
             # something's wrong with the course, and we can't proceed
             logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
-            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, the Canvas course you requested does not exist.'})
 
         # make sure that the course is available
         if canvas_course['workflow_state'] == 'unpublished':
