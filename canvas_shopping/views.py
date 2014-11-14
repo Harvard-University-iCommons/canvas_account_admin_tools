@@ -182,6 +182,9 @@ def view_course(request, canvas_course_id):
             ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
         except ObjectDoesNotExist:
             return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
+        except Exception as e:
+            logger.exception("Exception in fetching course using sis_course_id =%s, exception=%s" % (canvas_course['sis_course_id'], e))
+            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
 
         if ci.term.shopping_active:
             is_shoppable = True
