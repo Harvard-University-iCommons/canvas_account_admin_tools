@@ -188,12 +188,19 @@ def view_course(request, canvas_course_id):
 
             course_instance_id = ci.course_instance_id
 
-            # any student can shop
-            group_ids = request.session.get('USER_GROUPS', [])
-            for gid in group_ids:
-                if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
-                    user_can_shop = True
-                    shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+            # is the user eligible to view the course?
+            if is_huid(user_id):
+                # any HUID holder can shop
+                user_can_shop = True
+                shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+
+            else: 
+                # any student can shop
+                group_ids = request.session.get('USER_GROUPS', [])
+                for gid in group_ids:
+                    if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+                        user_can_shop = True
+                        shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
 
         else:
             logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
