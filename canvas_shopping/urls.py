@@ -14,6 +14,12 @@ urlpatterns = patterns('',
 
     url(r'^shop_course/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.shop_course', name='shop_course'),
 
+    url(r'^remove_shopper_role/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.remove_shopper_role', name='remove_shopper_role'),
+
+    url(r'^add_viewer_role/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.add_viewer_role', name='add_viewer_role'),
+
+    url(r'^course_status/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.course_status', name='course_status'),
+
     url(r'^course_selfreg/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.course_selfreg', name='course_selfreg'),
 
     url(r'my_list$', 'canvas_shopping.views.my_list', name='my_list'),

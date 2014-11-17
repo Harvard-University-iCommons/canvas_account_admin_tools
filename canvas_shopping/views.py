@@ -10,12 +10,10 @@ from icommons_common.models import CourseInstance
 from icommons_common.canvas_utils import *
 from django.core.cache import cache
 from django.conf import settings
-
-
+from django.http import HttpResponse
+import json
 import logging
-
 from collections import defaultdict
-
 import re
 
 group_pattern = re.compile('LdapGroup:[a-z]+\.student')
@@ -219,6 +217,45 @@ enrolled in the course as a shopper.
 '''
 
 @login_required
+def add_viewer_role(request, canvas_course_id):
+    """
+    Add the user as a Harvard-Viewer
+    """
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    user_id = request.user.username
+    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+    try:
+        ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
+    except ObjectDoesNotExist:
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
+
+    course_instance_id = ci.course_instance_id
+
+    new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, settings.CANVAS_SHOPPING['VIEWER_ROLE'], user_id)
+
+    return redirect(course_url)
+
+@login_required
+def remove_shopper_role(request, canvas_course_id):
+    """
+    Remove the shopping enrollment of the current user for the specified course
+    """
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    user_id = request.user.username
+    viewer_enrollment_id = None
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            if e['course_id'] == int(canvas_course_id):
+                if e['role'] == settings.CANVAS_SHOPPING['SHOPPER_ROLE']:
+                    viewer_enrollment_id = e['id']
+    
+    if canvas_course_id and viewer_enrollment_id:
+        delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
+        
+    return redirect(course_url)
+
+@login_required
 def shop_course(request, canvas_course_id):
 
     if not canvas_course_id:
@@ -240,88 +277,107 @@ def shop_course(request, canvas_course_id):
                 if e['role'] == settings.CANVAS_SHOPPING['VIEWER_ROLE']:
                     is_viewer = True
                     viewer_enrollment_id = e['id']
+                    logger.info('id = %s' % viewer_enrollment_id)
                 else:
                     is_enrolled = True
 
-    if is_enrolled is True:
-        # redirect the user to the actual canvas course site
-        course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
-        logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
-        return redirect(course_url)
+    # if is_enrolled is True:
+    #     # redirect the user to the actual canvas course site
+    #     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    #     logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
+    #     return redirect(course_url)
+
+    #else:
+    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+
+    # make sure this user is eligible for shopping
+    group_ids = request.session.get('USER_GROUPS', [])
+    logger.debug("groups: " + "\n".join(group_ids))
+
+    user_can_shop = False
+    shopping_role = settings.CANVAS_SHOPPING['SHOPPER_ROLE']
+
+    # make sure this is a shoppable course and that this user can shop it
+    is_shoppable = False
+    course_instance_id = None
+    try:
+        ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
+    except ObjectDoesNotExist:
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
+
+    if ci.term.shopping_active:
+        is_shoppable = True
+
+    course_instance_id = ci.course_instance_id
+
+    # any student can shop
+    for gid in group_ids:
+        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+            user_can_shop = True
+
+    if user_can_shop:
+        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
+
+        '''        
+        elif is_huid(user_id): 
+            logger.debug('User %s is eligible for shopping as an HUID' % user_id)
+            user_can_shop = True
+            shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
+        '''   
+    else:
+        logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+            
+    if is_shoppable is False:
+        return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
+
+    elif user_can_shop is False:
+        return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
 
     else:
-        canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+        # Enroll this user as a shopper
+        new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
+        if new_enrollee:
+            # success
 
-        if not canvas_course:
-            # something's wrong with the course, and we can't proceed
-            logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
-            return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, the Canvas course you requested does not exist.'})
+            # remove the viewer role, if it exists
+            if is_viewer:
+                delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
 
-        # make sure that the course is available
-        if canvas_course['workflow_state'] == 'unpublished':
-            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this course site has not been published by the teaching staff.'})
-
-        if not canvas_course.get('sis_course_id'):
-            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is not associated with a Harvard course ID.'})
-
-        # make sure this user is eligible for shopping
-        group_ids = request.session.get('USER_GROUPS', [])
-        logger.debug("groups: " + "\n".join(group_ids))
-
-        user_can_shop = False
-        shopping_role = settings.CANVAS_SHOPPING['SHOPPER_ROLE']
-
-        # make sure this is a shoppable course and that this user can shop it
-        is_shoppable = False
-        course_instance_id = None
-        try:
-            ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
-        except ObjectDoesNotExist:
-            return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
-
-        if ci.term.shopping_active:
-            is_shoppable = True
-
-            course_instance_id = ci.course_instance_id
-
-            # any student can shop
-            for gid in group_ids:
-                if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
-                    user_can_shop = True
-
-            if user_can_shop:
-                logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
-
-            '''        
-            elif is_huid(user_id): 
-                logger.debug('User %s is eligible for shopping as an HUID' % user_id)
-                user_can_shop = True
-                shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
-            '''   
-        else:
-            logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
-                
-        if is_shoppable is False:
-            return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
-
-        elif user_can_shop is False:
-            return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
+            #return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
+            logger.info(course_url)
+            return redirect(course_url)
 
         else:
-            # Enroll this user as a shopper
-            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
-            if new_enrollee:
-                # success
+            return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
-                # remove the viewer role, if it exists
-                if is_viewer:
-                    delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
+@login_required
+def course_status(request, canvas_course_id):
+    user_can_shop = False
+    is_shoppable = False
+    course_instance_id = None
+    user_id = request.user.username
+    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+    group_ids = request.session.get('USER_GROUPS', [])
 
-                return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
+    try:
+        ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
+    except ObjectDoesNotExist:
+        pass
 
-            else:
-                return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+    if ci.term.shopping_active:
+        is_shoppable = True
 
+    #course_instance_id = ci.course_instance_id
+
+    for gid in group_ids:
+        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+            user_can_shop = True
+
+    response_data = {}
+    response_data['is_shoppable'] = is_shoppable
+    response_data['user_can_shop'] = user_can_shop
+
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 
 
