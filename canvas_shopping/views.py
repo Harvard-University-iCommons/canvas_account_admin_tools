@@ -218,16 +218,17 @@ def remove_shopper_role(request, canvas_course_id):
     """
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
     user_id = request.user.username
-    viewer_enrollment_id = None
+    shopper_enrollment_id = None
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
             if e['course_id'] == int(canvas_course_id):
                 if e['role'] == settings.CANVAS_SHOPPING['SHOPPER_ROLE']:
-                    viewer_enrollment_id = e['id']
+                    shopper_enrollment_id = e['id']
     
-    if canvas_course_id and viewer_enrollment_id:
-        delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
+    if canvas_course_id and shopper_enrollment_id:
+        delete_canvas_enrollee_id(int(canvas_course_id), int(shopper_enrollment_id))
+        logger.debug('shopper enrollment id %s for user %s in course %s removed' % (shopper_enrollment_id, user_id, canvas_course_id))
         
     return redirect(course_url)
 
@@ -242,6 +243,7 @@ enrolled in the course as a shopper.
 def shop_course(request, canvas_course_id):
 
     if not canvas_course_id:
+        logger.debug('no canvas course id provided!')
         return render(request, 'canvas_shopping/error.html', {'message': 'Sorry, this request is invalid (missing course ID).'})
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
@@ -249,28 +251,7 @@ def shop_course(request, canvas_course_id):
     # is the user already in the course in a non-viewer role? If so, just redirect them to the course
     # if the user is already a viewer, store that record so we can remove it later and replace it with shopper
     user_id = request.user.username
-    is_enrolled = False
-    is_viewer = False
-    viewer_enrollment_id = None
-    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
-    if enrollments:
-        for e in enrollments:
-            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
-            if e['course_id'] == int(canvas_course_id):
-                if e['role'] == settings.CANVAS_SHOPPING['VIEWER_ROLE']:
-                    is_viewer = True
-                    viewer_enrollment_id = e['id']
-                    logger.info('id = %s' % viewer_enrollment_id)
-                else:
-                    is_enrolled = True
 
-    # if is_enrolled is True:
-    #     # redirect the user to the actual canvas course site
-    #     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
-    #     logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
-    #     return redirect(course_url)
-
-    #else:
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
     # make sure this user is eligible for shopping
@@ -294,43 +275,31 @@ def shop_course(request, canvas_course_id):
     course_instance_id = ci.course_instance_id
 
     # any student can shop
+    group_id = None
     for gid in group_ids:
         if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+            group_id = gid
             user_can_shop = True
 
     if user_can_shop:
-        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, gid))  
-
-        '''        
-        elif is_huid(user_id): 
-            logger.debug('User %s is eligible for shopping as an HUID' % user_id)
-            user_can_shop = True
-            shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
-        '''   
-    else:
-        logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
+        logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, group_id))  
             
     if is_shoppable is False:
+        logger.debug('The course %s is not shoppable' % canvas_course_id)
         return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
-
     elif user_can_shop is False:
+        logger.debug('User %s cannot shop this course %s' % (user_id, canvas_course_id))
         return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
-
     else:
         # Enroll this user as a shopper
         new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
         if new_enrollee:
             # success
-
-            # remove the viewer role, if it exists
-            #if is_viewer:
-            #    delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
-
-            #return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
-            logger.info(course_url)
+            logger.debug('user %s successfully added to course %s' % (user_id, canvas_course_id))
             return redirect(course_url)
 
         else:
+            logger.debug('There was an error adding user %s to course %s' % (user_id, canvas_course_id))
             return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
 

@@ -8,6 +8,9 @@ if ( !un ) {
     console.log('-----> user is not logged in');
 
 } else {
+    /*
+    The shopping_tool_url needs to point to the correct environment (local, test, QA, PROD)
+    */
     var shopping_tool_url = "http://localhost.harvard.edu:8001/tools/shopping";
     console.log('-----> user is logged in - username is ' + un);
     page_url = window.location;
@@ -28,7 +31,6 @@ if ( !un ) {
         Check to see the course is in the 'available' state before showing
         the shopping button.
         */
-        
         url = "/api/v1/courses/"+course_id;
         $.getJSON(url, function( data ) {
             course_workflow = data['workflow_state'];
@@ -66,27 +68,28 @@ if ( !un ) {
                 If the user is enrolled as a Shopper, the will be shown the remove shopping button.
                 */
                 if ( user_enrolled ) {
-                    var rightbar = $('div#content');
+                    var page_content = $('div#content');
                     if ( is_shopper ) {
                         console.log('-----> Shopping! display UNshop' );
                         // add content inside of aside#right-side
-                        var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/remove_shopper_role/'+course_id+'" class="btn btn-danger">You\'re Shopping this course Stop Shopping</a></div>';
-                        rightbar.prepend(shoplink);
+                        var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/remove_shopper_role/'+course_id+'" class="btn btn-danger">Stop shopping this course</a></div>';
+                        page_content.prepend(shoplink);
                     }
                     else if ( is_viewer ) {
                         console.log('-----> Viewing! display shopping button' );
-                        var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'" class="btn btn-danger">Shop this course</a></div>';
-                        rightbar.prepend(shoplink);
+                        var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'" class="btn btn-danger">Students: shop this course</a></div>';
+                        page_content.prepend(shoplink);
                     }
-                    $("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
-
+                    if( is_shopper || is_viewer ){
+                        $("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
+                    }
                 } else {
-                    console.log('-----> display the shopping button 2');
+                    console.log('-----> display the shopping button ');
                     // add content inside of aside#right-side
-                    var rightbar = $('div#content');
-                    var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'" class="btn btn-danger">Shop this course</a></div>';
-                    rightbar.prepend(shoplink);
-                    //$("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
+                    var page_content = $('div#content');
+                    var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'" class="btn btn-danger">Students: shop this course</a></div>';
+                    page_content.prepend(shoplink);
+                    $("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
                 }
                 $('.center-button').css('text-align', 'center');
            
