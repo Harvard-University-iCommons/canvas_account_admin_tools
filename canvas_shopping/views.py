@@ -210,30 +210,6 @@ def view_course(request, canvas_course_id):
             else:
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
-'''
-The shop_course view checks to see if the authenticated user is already enrolled in the course.
-If not, and if shopping period is still active for the course, then the user will be
-enrolled in the course as a shopper.
-'''
-
-@login_required
-def add_viewer_role(request, canvas_course_id):
-    """
-    Add the user as a Harvard-Viewer
-    """
-    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
-    user_id = request.user.username
-    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
-    try:
-        ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
-    except ObjectDoesNotExist:
-        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
-
-    course_instance_id = ci.course_instance_id
-
-    new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, settings.CANVAS_SHOPPING['VIEWER_ROLE'], user_id)
-
-    return redirect(course_url)
 
 @login_required
 def remove_shopper_role(request, canvas_course_id):
@@ -254,6 +230,13 @@ def remove_shopper_role(request, canvas_course_id):
         delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
         
     return redirect(course_url)
+
+
+'''
+The shop_course view checks to see if the authenticated user is already enrolled in the course.
+If not, and if shopping period is still active for the course, then the user will be
+enrolled in the course as a shopper.
+'''
 
 @login_required
 def shop_course(request, canvas_course_id):
@@ -340,8 +323,8 @@ def shop_course(request, canvas_course_id):
             # success
 
             # remove the viewer role, if it exists
-            if is_viewer:
-                delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
+            #if is_viewer:
+            #    delete_canvas_enrollee_id(int(canvas_course_id), int(viewer_enrollment_id))
 
             #return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
             logger.info(course_url)
@@ -349,35 +332,6 @@ def shop_course(request, canvas_course_id):
 
         else:
             return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
-
-@login_required
-def course_status(request, canvas_course_id):
-    user_can_shop = False
-    is_shoppable = False
-    course_instance_id = None
-    user_id = request.user.username
-    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
-    group_ids = request.session.get('USER_GROUPS', [])
-
-    try:
-        ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
-    except ObjectDoesNotExist:
-        pass
-
-    if ci.term.shopping_active:
-        is_shoppable = True
-
-    #course_instance_id = ci.course_instance_id
-
-    for gid in group_ids:
-        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
-            user_can_shop = True
-
-    response_data = {}
-    response_data['is_shoppable'] = is_shoppable
-    response_data['user_can_shop'] = user_can_shop
-
-    return HttpResponse(json.dumps(response_data), content_type="application/json")
 
 
 
