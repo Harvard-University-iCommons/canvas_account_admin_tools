@@ -49,7 +49,7 @@ class Command(BaseCommand):
             self.printusage()
             exit()
 
-        sub_account_list = accounts.get_sub_accounts_of_account(SDK_CONTEXT, settings.CANVAS_SHOPPING['ROOT_ACCOUNT'], recursive=True).json()
+        sub_account_list = accounts.get_sub_accounts_of_account(SDK_CONTEXT, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True).json()
 
         sub_list = []
         for a in sub_account_list:
