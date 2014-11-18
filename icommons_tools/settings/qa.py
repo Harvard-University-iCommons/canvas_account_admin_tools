@@ -2,10 +2,21 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
+
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',  
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('CANVAS_TOKEN', None),
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
     'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
@@ -18,7 +29,8 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
     },
     'SHOPPER_ROLE': 'Shopper',
-    'VIEWER_ROLE': 'Harvard Viewer',
+    'VIEWER_ROLE': 'Harvard-Viewer',
+    'ROOT_ACCOUNT' : '1',
 }
 
 EXPORT_TOOL = {
@@ -94,7 +106,7 @@ INSTALLED_APPS += ('gunicorn',)
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
+        'LOCATION': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com:6379',
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
@@ -102,10 +114,16 @@ CACHES = {
 }
 
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
 SESSION_REDIS_PORT = 6379
 
 SESSION_COOKIE_SECURE = True
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'huey-icommons_tools-qa',
+    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
+}
 
 LOGGING = {
     'version': 1,
@@ -132,13 +150,13 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': 'logs/icommons_tools.log',
+            'filename': '/var/opt/tlt/logs/icommons_tools.log',
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
         'huey_logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': 'logs/huey.log',
+            'filename': '/var/opt/tlt/logs/huey-icommons_tools.log',
             'formatter': 'verbose',
             'level': 'DEBUG',
         },

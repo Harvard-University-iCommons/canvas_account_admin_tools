@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
+ALLOWED_HOSTS = ['*']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -106,7 +106,7 @@ DEBUG_TOOLBAR_CONFIG = {
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
+        'LOCATION': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com:6379',
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
@@ -114,10 +114,14 @@ CACHES = {
 }
 
 SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
 SESSION_REDIS_PORT = 6379
 
-
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'huey-icommons_tools-test',
+    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
+}
 
 LOGGING = {
     'version': 1,

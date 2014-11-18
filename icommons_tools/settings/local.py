@@ -4,6 +4,16 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',  
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('CANVAS_TOKEN', None),
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -20,6 +30,7 @@ CANVAS_SHOPPING = {
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard Viewer',
+    'ROOT_ACCOUNT' : '1',
 }
 
 EXPORT_TOOL = {
@@ -90,8 +101,6 @@ DATABASE_EXTRAS = {
     'threaded': True,
 }
 '''
-
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += (
     'debug_toolbar',

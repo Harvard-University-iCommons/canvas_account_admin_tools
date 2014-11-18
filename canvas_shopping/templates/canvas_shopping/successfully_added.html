@@ -10,8 +10,10 @@
 {% if shopping_role == settings.SHOPPER_ROLE %}
     <h3>You've been granted access to the course website during shopping period.</h3>
 {% elif shopping_role == settings.VIEWER_ROLE %}
-    <h3>As a member of the Harvard community, you've been granted access to view this course website during shopping period.</h3>
+<h3>Browse this course</h3>
+<p>You've been temporarily added to this course website for one day so that you can view the site. You will be removed from the course website overnight.</p>
+<p><strong>Please note:</strong> you might receive notifications from the course website for one day.</p>
 {% endif %}
 
-<a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Continue to the course website</a>
+<a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Ok! Take me to the site</a>
 {% endblock content %}
