@@ -45,6 +45,7 @@ CANVAS_SHOPPING = {
         '774': 'Shopper',        
         '1858': 'StudentEnrollment',
         '1972': 'StudentEnrollment',
+        '2049': 'StudentEnrollment',
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
