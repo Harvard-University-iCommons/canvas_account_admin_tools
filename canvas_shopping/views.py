@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from icommons_common.auth.views import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.views import logout
 from icommons_common.models import CourseInstance
 from icommons_common.canvas_utils import *
 from django.core.cache import cache
@@ -224,12 +224,19 @@ def view_course(request, canvas_course_id):
 
 
 @login_required
-def remove_shopper_role(request, canvas_course_id):
+def remove_shopper_role(request, canvas_course_id, sis_user_id):
     """
     Remove the shopping enrollment of the current user for the specified course
     """
-    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
     user_id = request.user.username
+    logger.debug('tool user '+ user_id)
+    logger.debug('sis_user_id '+ sis_user_id)
+
+    if str(user_id) != str(sis_user_id):
+        return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
+
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    
     shopper_enrollment_id = None
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
@@ -252,7 +259,7 @@ enrolled in the course as a shopper.
 '''
 
 @login_required
-def shop_course(request, canvas_course_id):
+def shop_course(request, canvas_course_id, sis_user_id):
 
     if not canvas_course_id:
         logger.debug('no canvas course id provided!')
@@ -263,6 +270,12 @@ def shop_course(request, canvas_course_id):
     # is the user already in the course in a non-viewer role? If so, just redirect them to the course
     # if the user is already a viewer, store that record so we can remove it later and replace it with shopper
     user_id = request.user.username
+
+    logger.debug('tool user '+ user_id)
+    logger.debug('sis_user_id '+ sis_user_id)
+
+    if str(user_id) != str(sis_user_id):
+        return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
 
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
