@@ -41,9 +41,11 @@ class Command(BaseCommand):
         file using the sis_import call. The upload_csv_data returns a progress job_id which can be checked
         to determine the state of the job.
 
+        Note: if course is associated with multiple accounts, there will be duplicate records in the CSV.
+
         Example of the canvas job url: <host>/api/v1/accounts/1/sis_imports/<job_id>
         """
-        
+
         shopping_role = options['shopping_role']
         if not verifyrole(shopping_role):
             self.printusage()
@@ -65,8 +67,11 @@ class Command(BaseCommand):
                 enrollment_list = enrollments.list_enrollments_courses(SDK_CONTEXT, course['id'], role=shopping_role).json()
                 for enrollment in enrollment_list:
                     if shopping_role in enrollment['role']:
-                        enrollment_records.append([str(course['sis_course_id']), '', str(enrollment['user']['sis_user_id']), enrollment['role'], course['sis_course_id'], 'deleted'])
-                        #logger.info('%s,, %s, %s, %s, deleted' % (course['sis_course_id'], enrollment['user']['sis_user_id'], enrollment['role'], course['sis_course_id']))
+                        # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
+                        sis_user_id = str(enrollment['user'].get('sis_user_id', ''))
+                        if sis_user_id:
+                            enrollment_records.append([str(), '', sis_user_id, enrollment['role'], course['sis_course_id'], 'deleted'])
+                            logger.debug('%s,, %s, %s, %s, deleted' % (course['sis_course_id'], sis_user_id, enrollment['role'], course['sis_course_id']))
 
         if len(enrollment_records) > 0:
             logger.info('+++ found %d records with role %s' % (len(enrollment_records), shopping_role))
