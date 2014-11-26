@@ -1,10 +1,12 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from canvas_sdk.methods import (courses, accounts, enrollments, users) 
+from canvas_sdk.utils import get_all_list_data
 from icommons_common.canvas_utils import (SessionInactivityExpirationRC, upload_csv_data, UnicodeCSVWriter)
 from collections import OrderedDict
 import logging
 import io
+import itertools
 from optparse import make_option
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -51,7 +53,7 @@ class Command(BaseCommand):
             self.printusage()
             exit()
 
-        sub_account_list = accounts.get_sub_accounts_of_account(SDK_CONTEXT, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True).json()
+        sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True)
 
         sub_list = []
         for a in sub_account_list:
@@ -62,20 +64,30 @@ class Command(BaseCommand):
         enrollment_records = []
         swriter.writerow(['course_id', 'root_account', 'user_id', 'role', 'section_id', 'status'])
         for account_id in sorted(sub_list): 
-            course_list = accounts.list_active_courses_in_account(SDK_CONTEXT, account_id, with_enrollments=True).json()
+            course_list = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account, account_id, with_enrollments=True)
             for course in course_list:
-                enrollment_list = enrollments.list_enrollments_courses(SDK_CONTEXT, course['id'], role=shopping_role).json()
-                for enrollment in enrollment_list:
-                    if shopping_role in enrollment['role']:
-                        # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
-                        sis_user_id = str(enrollment['user'].get('sis_user_id', ''))
-                        if sis_user_id:
-                            enrollment_records.append([str(), '', sis_user_id, enrollment['role'], course['sis_course_id'], 'deleted'])
-                            logger.debug('%s,, %s, %s, %s, deleted' % (course['sis_course_id'], sis_user_id, enrollment['role'], course['sis_course_id']))
+                course_id = course.get('id', None)
+                if course_id:
+                    enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=shopping_role)
+                    for enrollment in enrollment_list:
+                        enrollment_role = enrollment.get('role', None)
+                        if shopping_role in enrollment_role:
+                            # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
+                            sis_user_id = str(enrollment['user'].get('sis_user_id', ''))
+                            sis_section_id = enrollment.get('sis_section_id', None)
+                            
+                            if sis_user_id and sis_section_id:
+                                enrollment_records.append([str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
+                                logger.debug('%s,, %s, %s, %s, deleted' % (str(), sis_user_id, shopping_role, sis_section_id))
+        """
+        Remove duplicate records from the list
+        """
+        enrollment_records.sort()
+        enrollment_list = list(enrollment_records for enrollment_records,_ in itertools.groupby(enrollment_records))
 
-        if len(enrollment_records) > 0:
-            logger.info('+++ found %d records with role %s' % (len(enrollment_records), shopping_role))
-            swriter.writerows(enrollment_records)
+        if len(enrollment_list) > 0:
+            logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
+            swriter.writerows(enrollment_list)
             sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
             logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
