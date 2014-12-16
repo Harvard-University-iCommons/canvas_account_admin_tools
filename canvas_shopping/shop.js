@@ -4,7 +4,7 @@
 get the course number for the canvas course
 */
 function get_course_number() {
-	var page_url = window.location;
+	var page_url = window.location.pathname;
 	var pat = /\/courses\/(\d+)/g;
 	var match = pat.exec(page_url);
 	if (match) {
@@ -51,7 +51,6 @@ else {
 
 	} else {
 		console.log('-----> user is logged in - username is ' + un);
-		//page_url = window.location;
 		var sis_user_id = '';
 		$.getJSON(user_url, function( data ) {
 			 sis_user_id = data["login_id"].trim();
@@ -59,7 +58,6 @@ else {
 
 			course_id = get_course_number();
 			if (course_id > 0) {
-				//course_id = match[1];
 				console.log('-----> course id is ' + course_id);
 				user_enrolled = false;
 				user_can_shop = false;
@@ -94,11 +92,9 @@ else {
 
 									if ( erole == 'Shopper' ) {
 										is_shopper = true;
-										//user_enrolled = true;
 									}
 									if ( erole == 'Harvard-Viewer' ) {
 										is_viewer = true;
-										//user_enrolled = true;
 									}
 								}
 							} else {
@@ -110,7 +106,7 @@ else {
 						/*
 							If the user is on the settings page, do not show the button
 						*/
-						var isNotAdminPage = (String(page_url).indexOf('settings') == -1);
+						var isNotAdminPage = ((window.location.pathname).indexOf('settings') == -1);
 						console.log('-----> isNotAdminPage: '+isNotAdminPage);
 
 						if( isNotAdminPage ) {
@@ -128,27 +124,22 @@ else {
 								if ( is_shopper ) {
 									console.log('-----> Shopping! display UNshop' );
 									// add content inside of aside#right-side
-									var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/remove_shopper_role/'+course_id+'/'+sis_user_id+'" class="btn btn-danger">Stop shopping this course</a></div>';
+									var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/remove_shopper_role/'+course_id+'?canvas_login_id='+sis_user_id+'" class="btn btn-danger">Stop shopping this course</a></div>';
 									page_content.prepend(shoplink);
 								}
 								else if ( is_viewer ) {
 									console.log('-----> Viewing! display shopping button' );
-									var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'/'+sis_user_id+'" class="btn btn-success">Students: shop this course</a></div>';
+									var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'?canvas_login_id='+sis_user_id+'" class="btn btn-success">Students: shop this course</a></div>';
 									page_content.prepend(shoplink);
 								}
-
-								//if( is_shopper || is_viewer ){
-								//    $("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
-								//}
 
 							} else {
 								console.log('-----> display the shopping button 2');
 								// add content inside of aside#right-side
 								var page_content = $('div#content');
 								console.log(shopping_tool_url+'/shop_course/'+course_id+'/'+sis_user_id);
-								var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'/'+sis_user_id+'" class="btn btn-success">Students: shop this course</a></div>';
+								var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'?canvas_login_id='+sis_user_id+'" class="btn btn-success">Students: shop this course</a></div>';
 								page_content.prepend(shoplink);
-								//$("#menu").append('<li id="shopping_menu_item" class="menu-item"><a class="menu-item-no-drop" href="'+shopping_tool_url+'/my_list">Manage Shopping</a></li>');
 							}
 							$('.center-button').css('text-align', 'center');
 						}
