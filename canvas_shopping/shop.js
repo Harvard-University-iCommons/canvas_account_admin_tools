@@ -35,8 +35,11 @@ if (!authorized){
 	course_id = get_course_number();
 	console.log('course_id = '+course_id);
 	if (course_id > 0) {
-		url = shopping_tool_url+'/view_course/'+course_id+'?canvas_user_id='+current_user_id
-		window.location.replace(url);
+		$.getJSON(user_url, function( data ) {
+			login_id = data["login_id"].trim();
+			url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + login_id
+			window.location.replace(url);
+		});
 	}
 }
 else {
