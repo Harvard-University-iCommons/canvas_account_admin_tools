@@ -14,6 +14,15 @@ function get_course_number() {
 	return 0;
 }
 
+var shopping_tool_url = "https://qa.tlt.harvard.edu/tools/shopping";
+//var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";
+//var shopping_tool_url = "https://test.tlt.harvard.edu/tools/shopping";
+//var shopping_tool_url = "http://localhost.harvard.edu:8001/tools/shopping";
+
+var current_user_id = ENV['current_user_id'];
+console.log(current_user_id);
+user_url = "/api/v1/users/"+current_user_id+"/profile";
+
 /*
 check to see if the '#authorized_message' id exists on the page. 
 If so, redirect the user to the shopping tool.
@@ -26,7 +35,7 @@ if (!authorized){
 	course_id = get_course_number();
 	console.log('course_id = '+course_id);
 	if (course_id > 0) {
-		url = 'http://demo.tlt.harvard.edu/tools/shopping/view_course/'+course_id
+		url = shopping_tool_url+'/view_course/'+course_id+'?canvas_user_id='+current_user_id
 		window.location.replace(url);
 	}
 }
@@ -38,23 +47,11 @@ else {
 		console.log('-----> user is not logged in');
 
 	} else {
-		var shopping_tool_url = "https://qa.tlt.harvard.edu/tools/shopping";
-		//var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";
-		//var shopping_tool_url = "https://test.tlt.harvard.edu/tools/shopping";
-		//var shopping_tool_url = "http://localhost.harvard.edu:8001/tools/shopping";
-	
 		console.log('-----> user is logged in - username is ' + un);
 		//page_url = window.location;
-		var current_user_id = ENV['current_user_id'];
 		var sis_user_id = '';
-		console.log(current_user_id);
-		user_url = "/api/v1/users/"+current_user_id+"/profile";
-		//$.ajaxSetup({
-		//    async: false
-		//});
 		$.getJSON(user_url, function( data ) {
-			 temp = data["sis_login_id"].trim();
-			 sis_user_id = temp.trim();
+			 sis_user_id = data["login_id"].trim();
 			 console.log('----> '+sis_user_id);
 	
 			//var pat = /\/courses\/(\d+)/g;
