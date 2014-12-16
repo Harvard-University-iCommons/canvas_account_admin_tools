@@ -67,15 +67,20 @@ CANVAS_WHITELIST = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+        # Currently this uses QA course information as DEV database has stale data
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
         'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'PORT': '8003',
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 1200,
+        # Dev site settings
+        # 'NAME': 'isitedev',
+        # 'PORT': '8103',
+        # 'CONN_MAX_AGE': 600,
     }
 }
 
