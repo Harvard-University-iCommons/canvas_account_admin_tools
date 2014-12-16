@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
 
 from icommons_common.auth.views import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
@@ -123,6 +124,7 @@ enrolled in the course as a viewer.
 '''
 
 @login_required
+@require_http_methods(['GET'])
 def view_course(request, canvas_course_id):
 
     if not canvas_course_id:
@@ -130,8 +132,25 @@ def view_course(request, canvas_course_id):
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
-    # is the user already in the course?
+    
     user_id = request.user.username
+
+    # Check for  'canvas_login_id', which  will be passed in by shop.js on the Canvas instance.  If it's not present
+    # the code will skip this block and continue on. If it's present, verify that it matches the user_id in the tool. 
+    # If there is a mismatch, send user to pin logout (this is the current security patch, maybe modified with a better solution.)  
+    if request.GET.get('canvas_login_id'): 
+        
+        #canvas_login_id the 'login_id' attribute from teh suer profile. It is essentially the sis_user_id
+        sis_user_id = request.GET.get('canvas_login_id')
+        logger.debug('user in shopping tool == %s' %user_id)
+        logger.debug('sis_user_id  from request == %s' %sis_user_id)
+
+        if str(user_id) != str(sis_user_id):
+            logger.error('user mismatch: user in shopping tool=%s, canvas user from request=%s. Logging out the user from pin' %(user_id,sis_user_id))
+            return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
+
+
+    # is the user already in the course?
     is_enrolled = False
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
