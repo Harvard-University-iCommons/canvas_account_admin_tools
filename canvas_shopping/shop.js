@@ -57,8 +57,6 @@ else {
 			 sis_user_id = data["login_id"].trim();
 			 console.log('----> '+sis_user_id);
 
-			//var pat = /\/courses\/(\d+)/g;
-			//var match = pat.exec(page_url);
 			course_id = get_course_number();
 			if (course_id > 0) {
 				//course_id = match[1];
