@@ -133,13 +133,6 @@ else {
 									page_content.prepend(shoplink);
 								}
 
-							} else {
-								console.log('-----> display the shopping button 2');
-								// add content inside of aside#right-side
-								var page_content = $('div#content');
-								console.log(shopping_tool_url+'/shop_course/'+course_id+'/'+sis_user_id);
-								var shoplink = '<div class="center-button"><a href="'+shopping_tool_url+'/shop_course/'+course_id+'?canvas_login_id='+sis_user_id+'" class="btn btn-success">Students: shop this course</a></div>';
-								page_content.prepend(shoplink);
 							}
 							$('.center-button').css('text-align', 'center');
 						}
