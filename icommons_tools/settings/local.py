@@ -82,11 +82,11 @@ CANVAS_WHITELIST = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
         'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'PORT': '8003',
         'OPTIONS': {
             'threaded': True,
         },

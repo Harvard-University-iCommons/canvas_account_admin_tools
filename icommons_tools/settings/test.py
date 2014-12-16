@@ -147,7 +147,7 @@ LOGGING = {
         },
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(SITE_ROOT, 'logs/icommons_tools.log'),
+            'filename': '/var/opt/tlt/logs/icommons_tools.log',
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
