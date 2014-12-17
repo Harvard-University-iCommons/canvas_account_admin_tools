@@ -236,8 +236,8 @@ def view_course(request, canvas_course_id):
             new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
             if new_enrollee:
                 # success
-                return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
-
+                #return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
+                return redirect(course_url)
             else:
                 return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
@@ -279,6 +279,45 @@ def remove_shopper_role(request, canvas_course_id):
         logger.debug('shopper enrollment id %s for user %s in course %s removed' % (shopper_enrollment_id, user_id, canvas_course_id))
         
     return redirect(course_url)
+
+
+@login_required
+@require_http_methods(['GET'])
+def remove_viewer_role(request, canvas_course_id):
+    """
+    Remove the Harvard-viewer enrollment of the current user for the specified course
+    """
+    user_id = request.user.username
+
+    # Check for  'canvas_login_id', which  will be passed in by shop.js on the Canvas instance.  If it's not present
+    # the code will skip this block and continue on. If it's present, verify that it matches the user_id in the tool.
+    # If there is a mismatch, send user to pin logout (this is the current security patch, maybe modified with a better solution.)
+    if request.GET.get('canvas_login_id'):
+
+        #canvas_login_id the 'login_id' attribute from the user profile. It is essentially the sis_user_id
+        sis_user_id = request.GET.get('canvas_login_id')
+        logger.debug('user in shopping tool == %s' %user_id)
+        logger.debug('sis_user_id  from request == %s' %sis_user_id)
+
+        if str(user_id) != str(sis_user_id):
+            logger.error('user mismatch: user in shopping tool=%s, canvas user from request=%s. Logging out the user from pin' %(user_id,sis_user_id))
+            return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
+
+    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    
+    shopper_enrollment_id = None
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            if e['course_id'] == int(canvas_course_id):
+                if e['role'] == settings.CANVAS_SHOPPING['VIEWER_ROLE']:
+                    shopper_enrollment_id = e['id']
+    
+    if canvas_course_id and shopper_enrollment_id:
+        delete_canvas_enrollee_id(int(canvas_course_id), int(shopper_enrollment_id))
+        logger.debug('viewer enrollment id %s for user %s in course %s removed' % (shopper_enrollment_id, user_id, canvas_course_id))
+        
+    return render(request, 'canvas_shopping/removed_viewer_role.html', {'canvas_course': canvas_course, 'course_url': course_url})
 
 
 '''
