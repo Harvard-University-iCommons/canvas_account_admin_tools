@@ -132,7 +132,6 @@ def view_course(request, canvas_course_id):
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
-    
     user_id = request.user.username
 
     # Check for  'canvas_login_id', which  will be passed in by shop.js on the Canvas instance.  If it's not present
@@ -304,7 +303,8 @@ def remove_viewer_role(request, canvas_course_id):
             return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
 
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
-    
+    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+
     shopper_enrollment_id = None
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
