@@ -138,8 +138,8 @@ else {
 								
 								var shopping_help_doc = jQuery('<a/>', {
 									id: 'shopping-help-doc',
-									//class: 'btn btn-link',
 									href: shopping_help_doc_url,
+									target: '_blank',
 									text: 'What is this?'
 								});
 								
