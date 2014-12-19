@@ -14,7 +14,7 @@ function get_course_number() {
 	return 0;
 }
 
-var shopping_tool_url = "https://qa.tlt.harvard.edu/tools/shopping";
+var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";
 
 var current_user_id = ENV['current_user_id'];
 console.log(current_user_id);

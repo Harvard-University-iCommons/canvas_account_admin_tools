@@ -1,0 +1,27 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Course Shopping{% endblock %}
+
+{% block content %}
+
+<h2>You have been removed from course: {{ canvas_course.name }}</h2>
+ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+
+<h3> Where to go from here: </h3>
+<p>
+	<ul>
+		<li> Course Catalog</li>
+		<li> School Website</li>
+		<li> SIS</li>
+		<li> Harvard.edu</li>
+	</ul>
+
+</p>
+
+<p>If you wish to go back to the course, please click here:<br>
+	 <a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i>Get back to course</a>
+
+</p>
+{% endblock content %}
