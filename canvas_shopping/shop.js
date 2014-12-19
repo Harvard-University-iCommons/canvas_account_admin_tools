@@ -188,14 +188,15 @@ else {
 									for each role display the appropriate banner
 								*/
 								if ( is_shopper ) {
-									$("ul#menu").append(manage_shopping_li_item);
 									console.log('is_shopper: true');
+									$("ul#menu").append(manage_shopping_li_item);
 									shopping_banner.append(shopper_message_text);
 									shopping_banner.append(shopping_help_doc);
 									shopping_banner.append(remove_shopping_role);
 								}
 								else if ( is_viewer ) {
 									console.log('is_viewer: true');
+									$("ul#menu").append(manage_shopping_li_item);
 									shopping_banner.append(viewer_message_text);
 									shopping_banner.append(shopping_help_doc);
 									shopping_banner.append(add_shopping_role);
