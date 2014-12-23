@@ -4,27 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.icommons.harvard.edu/',  
-}
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('CANVAS_TOKEN', None),
-    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
-    'max_retries': 3,
-    'per_page': 1000,
-}
-
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
-    'ICOMMONS_API_PASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
-    'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
-    'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS['CANVAS_TOKEN']},
-}
-
 CANVAS_SHOPPING = {
-    'CANVAS_BASE_URL': 'https://canvas.icommons.harvard.edu',
+    'CANVAS_BASE_URL': CANVAS_URL,
     'selfreg_courses': {
         '495': 'Guest',
     },
@@ -63,27 +44,12 @@ TERM_TOOL = {
     },
 }
 
-QUALTRICS_TAKER_AUTH = {
-    'QUALTRICS_API_KEY': SECURE_SETTINGS['QUALTRICS_API_KEY'],
-    'BITLY_ACCESS_TOKEN': SECURE_SETTINGS['BITLY_ACCESS_TOKEN'],
-}
-
-QUALTRICS_WHITELIST = {
-    'allowed_groups': 'IcGroup:358',
-}
-
-CANVAS_WHITELIST = {
-    'allowed_groups': 'IcGroup:358',
-    'canvas_url': 'https://canvas.icommons.harvard.edu/api',
-    'oauth_token': SECURE_SETTINGS['CANVAS_WHITELIST_OAUTH_TOKEN'],
-}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isiteqa',
-        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
-        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8003',
         'OPTIONS': {

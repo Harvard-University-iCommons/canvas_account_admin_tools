@@ -195,3 +195,38 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
+
+# Base url for canvas, default to harvard iCommons instance
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
+
+# Used by django_icommons_common library
+ICOMMONS_COMMON = {
+    # Default to qa 
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', 'https://10.35.201.5/services/'),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
+    'CANVAS_API_BASE_URL': CANVAS_URL + '/api/v1',  # Can be overriden in environment settings file
+    'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')},
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config'),
+    'base_api_url': CANVAS_URL + '/api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
+QUALTRICS_TAKER_AUTH = {
+    'QUALTRICS_API_KEY': SECURE_SETTINGS.get('qualtrics_api_key', None),
+    'BITLY_ACCESS_TOKEN': SECURE_SETTINGS.get('bitly_access_token', None),
+}
+
+QUALTRICS_WHITELIST = {
+    'allowed_groups': 'IcGroup:358',
+}
+
+CANVAS_WHITELIST = {
+    'allowed_groups': 'IcGroup:358',
+    'canvas_url': CANVAS_URL + '/api',
+    'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
+}
