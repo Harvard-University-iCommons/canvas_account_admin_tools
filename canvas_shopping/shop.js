@@ -93,7 +93,7 @@ else {
 									if ( erole == 'Harvard-Viewer' ) {
 										is_viewer = true;
 									}
-									if (erole == 'TeacherEnrollment' ){
+									if (erole == 'TeacherEnrollment' || erole == 'TaEnrollment' || erole == 'DesignerEnrollment'){
 										is_teacher = true;
 									}
 								}
@@ -114,7 +114,7 @@ else {
 							/*
 								If the user is enrolled as a Harvard-Viewer, they will be shown the shopping button and the remove viewer button.
 								If the user is enrolled as a Shopper, the will be shown the remove shopping button.
-								If the user is a teacher or other instructor they will be shown the shopping is active message.
+								If the user is enrolled as TeacherEnrollment,  TaEnrollment, or DesignerEnrollment they will be shown the shopping is active message.
 							*/
 
 							if ( user_enrolled ) {
@@ -122,10 +122,10 @@ else {
 																/*
 									application url endpoints
 								*/
-								var course_and_query = course_id + '?canvas_login_id=' + sis_user_id;
-								var add_shopper_url    = shopping_tool_url + '/shop_course/' + course_and_query;
-								var remove_shopper_url = shopping_tool_url + '/remove_shopper_role/' + course_and_query;
-								var remove_viewer_url  = shopping_tool_url + '/remove_viewer_role/' + course_and_query;
+								var course_and_user_id_param = course_id + '?canvas_login_id=' + sis_user_id;
+								var add_shopper_url    = shopping_tool_url + '/shop_course/' + course_and_user_id_param;
+								var remove_shopper_url = shopping_tool_url + '/remove_shopper_role/' + course_and_user_id_param;
+								var remove_viewer_url  = shopping_tool_url + '/remove_viewer_role/' + course_and_user_id_param;
 								var manage_shopping_page_url = shopping_tool_url + '/my_list';
 								
 								/*
