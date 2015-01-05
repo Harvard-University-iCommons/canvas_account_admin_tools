@@ -133,6 +133,8 @@ AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',
 )
 
+CAS_LOGOUT_URL = 'http://login.icommons.harvard.edu/pinproxy/logout'
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",

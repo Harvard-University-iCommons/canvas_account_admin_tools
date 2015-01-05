@@ -1,0 +1,17 @@
+/* TLT CSS for shopping */
+
+
+#unauthorized_message { display: none; }
+
+
+#remove-viewer-role {
+	float: right;
+}
+
+#add-shopper-role {
+	float: right;
+}
+
+#remove-shopper-role {
+	float: right;
+}
