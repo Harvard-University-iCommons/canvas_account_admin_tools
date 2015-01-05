@@ -46,7 +46,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isitedev',
         'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS('django_db_pass', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8103',
         'OPTIONS': {
