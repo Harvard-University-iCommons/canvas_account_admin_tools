@@ -332,6 +332,8 @@ def course_selfreg(request, canvas_course_id):
 
 
 @login_required
+@require_http_methods(['GET'])
+@check_user_id_integrity()
 def my_list(request):
 
     # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
