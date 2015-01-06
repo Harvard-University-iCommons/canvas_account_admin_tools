@@ -191,6 +191,11 @@ def shop_course(request, canvas_course_id):
     user_id = request.user.username
 
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+    if not canvas_course:
+        # something's wrong with the course, and we can't proceed
+        logger.error('Shopping request for non-existent Canvas course id %s' % canvas_course_id)
+        return render(request, 'canvas_shopping/error.html', {'error_message': 'Sorry, the Canvas course you requested does not exist.'})
+
 
     # make sure this user is eligible for shopping
     group_ids = request.session.get('USER_GROUPS', [])
@@ -202,6 +207,9 @@ def shop_course(request, canvas_course_id):
     # make sure this is a shoppable course and that this user can shop it
     is_shoppable = False
     course_instance_id = None
+
+    # only lookup the course if we have a valid canvas course
+    
     try:
         ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])   # TODO: prefetch term and course
     except ObjectDoesNotExist:
