@@ -29,12 +29,15 @@ def check_user_id_integrity(login_id_required=True, missing_login_id_redirect_ur
             # (this is the current security patch, maybe modified with a better solution.)
 
             # check for canvas_login_id parameter; this decorator could be used
-            # for POST, GET, PUT, etc so use a generic method of accessing the parameter
-            params = QueryDict(request.body)
+            # for POST and GET 
 
             # canvas_login_id is the 'login_id' attribute from the Canvas
             # user profile. It is essentially the Canvas sis_user_id (e.g. HUID)
-            canvas_login_id = params.get('canvas_login_id')
+            canvas_login_id = request.GET.get('canvas_login_id')
+            if not canvas_login_id:
+                logger.debug('canvas_login_id not a GET parameter, trying POST')
+                canvas_login_id = request.POST.get('canvas_login_id')
+
             if canvas_login_id:
                 user_id = request.user.username
                 logger.debug('user id integrity check: user in tool=%s, '
