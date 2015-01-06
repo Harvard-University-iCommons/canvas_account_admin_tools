@@ -2,6 +2,8 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('',
 
+    url(r'^remove_shopper_ui$', 'canvas_shopping.views.remove_shopper_ui', name='remove_shopper_ui'),
+
     url(r'^course/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.view_course', name='course'),
 
     url(r'^view_course/(?P<canvas_course_id>\d+)$', 'canvas_shopping.views.view_course', name='view_course'),

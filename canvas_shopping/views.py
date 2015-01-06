@@ -1,12 +1,12 @@
-from django.http import QueryDict
-from django.shortcuts import render, redirect
-from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.http import require_http_methods
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_http_methods
 from icommons_common.canvas_utils import *
 from django.conf import settings
 from canvas_shopping.decorators import check_user_id_integrity
-from functools import wraps
 import logging
 import re
 
@@ -147,20 +147,6 @@ def remove_role(request, canvas_course_id, role):
 
     logger.debug(" In remove_role role=%s" %role)
     user_id = request.user.username
-
-    # Check for  'canvas_login_id', which  will be passed in by shop.js on the Canvas instance.  If it's not present
-    # the code will skip this block and continue on. If it's present, verify that it matches the user_id in the tool.
-    # If there is a mismatch, send user to pin logout (this is the current security patch, maybe modified with a better solution.)
-    if request.GET.get('canvas_login_id'):
-
-        #canvas_login_id is the 'login_id' attribute from the user profile. It is essentially the sis_user_id
-        sis_user_id = request.GET.get('canvas_login_id')
-        logger.debug('user in shopping tool == %s' %user_id)
-        logger.debug('sis_user_id  from request == %s' %sis_user_id)
-
-        if str(user_id) != str(sis_user_id):
-            logger.error('user mismatch: user in shopping tool=%s, canvas user from request=%s. Logging out the user from pin' %(user_id,sis_user_id))
-            return redirect("http://login.icommons.harvard.edu/pinproxy/logout")
 
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
@@ -336,16 +322,21 @@ def course_selfreg(request, canvas_course_id):
 @check_user_id_integrity()
 def my_list(request):
 
-    # fetch the Shopper and Harvard Viewer enrollments for this user, display the list
+    # fetch the just Shopper enrollments for this user, display the list
     shopper_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['SHOPPER_ROLE'])
-    viewer_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
 
     all_enrollments = []
     if shopper_enrollments:
         all_enrollments = shopper_enrollments
 
-    if viewer_enrollments:
-        all_enrollments = all_enrollments + viewer_enrollments
+    """
+    TLT-422: If we want to see Harvard-Viewer enrollments on the mylist page as well,
+    we'll need to include this code and add some further context data so the template
+    knows not to render shopping buttons for courses where user is a Harvard-Viewer
+    """
+    # viewer_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
+    # if viewer_enrollments:
+    #     all_enrollments = all_enrollments + viewer_enrollments
 
     courses = {}
     for e in all_enrollments:
@@ -355,6 +346,25 @@ def my_list(request):
         courses[enrollment_id] = course
 
     return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('CANVAS_BASE_URL')})
+
+
+@login_required
+@require_http_methods(['POST'])
+def remove_shopper_ui(request):
+    """
+    This method is called from the my_list page to remove shopper status from a specific course.
+    Does not need @check_user_id_integrity() as it should never be called from Canvas.
+    """
+    canvas_course_id = request.POST.get('canvas_course_id')
+    canvas_enrollee_id = request.POST.get('canvas_enrollee_id')
+
+    if canvas_course_id and canvas_enrollee_id:
+        delete_canvas_enrollee_id(int(canvas_course_id), int(canvas_enrollee_id))
+        messages.success(request, 'Successfully updated your shopping list.')
+    else:
+        messages.error(request, 'Could not update your shopping list. Please try again later')
+
+    return redirect(reverse('sh:my_list'))
 
 
 def is_huid(id):
