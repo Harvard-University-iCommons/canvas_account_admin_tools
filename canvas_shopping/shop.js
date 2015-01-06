@@ -14,7 +14,10 @@ function get_course_number() {
 	return 0;
 }
 
-var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";
+//var shopping_tool_url = "https://test.tlt.harvard.edu/tools/shopping";
+//var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";
+var shopping_tool_url = "http://localhost:8001/tools/shopping";
+
 
 var current_user_id = ENV['current_user_id'];
 console.log(current_user_id);
@@ -122,11 +125,12 @@ else {
 																/*
 									application url endpoints
 								*/
-								var course_and_user_id_param = course_id + '?canvas_login_id=' + sis_user_id;
+								var login_id = '?canvas_login_id=' + sis_user_id
+								var course_and_user_id_param = course_id + login_id;
 								var add_shopper_url    = shopping_tool_url + '/shop_course/' + course_and_user_id_param;
 								var remove_shopper_url = shopping_tool_url + '/remove_shopper_role/' + course_and_user_id_param;
 								var remove_viewer_url  = shopping_tool_url + '/remove_viewer_role/' + course_and_user_id_param;
-								var manage_shopping_page_url = shopping_tool_url + '/my_list';
+								var manage_shopping_page_url = shopping_tool_url + '/my_list' + login_id;
 								
 								/*
 									text messages
