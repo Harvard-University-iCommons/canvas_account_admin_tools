@@ -3,11 +3,13 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from icommons_common.canvas_utils import *
 from django.conf import settings
 from canvas_shopping.decorators import check_user_id_integrity
 from functools import wraps
 import logging
+import json
 import re
 
 group_pattern = re.compile('LdapGroup:[a-z]+\.student')
@@ -263,6 +265,29 @@ def shop_course(request, canvas_course_id):
             return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
 
 
+'''
+ This method checks if the user is eligible for shopping. It returns a boolean value based on this check
+'''
+@login_required
+@require_http_methods(['GET'])
+@check_user_id_integrity()
+def is_shoppable_user(request):
+    user_can_shop = False
+    user_id = request.user.username
+
+    # Fetch the user groups that are loaded in the session for this user and check for the presence of
+    # scale enrollment group or LDAP student group 
+    group_ids = request.session.get('USER_GROUPS', [])
+    logger.debug("groups: " + "\n".join(group_ids))
+    for gid in group_ids:
+        if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
+            user_can_shop = True
+            #break on the first occurance
+            break
+
+    data = json.dumps({'is_shoppable_user': user_can_shop ,'user': user_id})   
+    logger.debug('Returning data = %s for user=%s' % (data,user_id)) 
+    return HttpResponse(data, content_type="application/json")
 
 '''
 The course_selfreg view allows users to be added to certain courses (specified in the settings file).  The settings also indicate what role 
@@ -362,7 +387,7 @@ def my_list(request):
         course = get_canvas_course_by_canvas_id(canvas_course_id)
         courses[enrollment_id] = course
 
-    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('CANVAS_BASE_URL')})
+    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING['CANVAS_BASE_URL']})
 
 
 def is_huid(id):
