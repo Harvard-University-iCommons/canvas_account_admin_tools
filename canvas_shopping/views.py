@@ -330,21 +330,10 @@ def course_selfreg(request, canvas_course_id):
 @check_user_id_integrity()
 def my_list(request):
 
-    # fetch the just Shopper enrollments for this user, display the list
+    # fetch the Shopper enrollments for this user, display the list
     shopper_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['SHOPPER_ROLE'])
 
-    all_enrollments = []
-    if shopper_enrollments:
-        all_enrollments = shopper_enrollments
-
-    """
-    TLT-422: If we want to see Harvard-Viewer enrollments on the mylist page as well,
-    we'll need to include this code and add some further context data so the template
-    knows not to render shopping buttons for courses where user is a Harvard-Viewer
-    """
-    # viewer_enrollments = get_enrollments_by_user(request.user.username, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
-    # if viewer_enrollments:
-    #     all_enrollments = all_enrollments + viewer_enrollments
+    all_enrollments = shopper_enrollments if shopper_enrollments else []
 
     courses = {}
     for e in all_enrollments:
@@ -353,7 +342,8 @@ def my_list(request):
         course = get_canvas_course_by_canvas_id(canvas_course_id)
         courses[enrollment_id] = course
 
-    return render(request, 'canvas_shopping/my_list.html', {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING.get('CANVAS_BASE_URL')})
+    return render(request, 'canvas_shopping/my_list.html',
+                  {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING['CANVAS_BASE_URL']})
 
 
 @login_required
@@ -372,7 +362,12 @@ def remove_shopper_ui(request):
     else:
         messages.error(request, 'Could not update your shopping list. Please try again later')
 
-    return redirect(reverse('sh:my_list'))
+    response = redirect(reverse('sh:my_list'))
+    # my_list view requires the canvas login ID as it can be called from Canvas directly
+    # and needs to be sure it's operating on the correct logged-in user
+    # TODO: this may be removed if the security check is capable of distinguishing local and remote requests
+    response['Location'] += '?canvas_login_id=%s' % request.user.username
+    return response
 
 
 def is_huid(id):
