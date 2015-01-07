@@ -38,7 +38,7 @@ def view_course(request, canvas_course_id):
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
-            #logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
@@ -306,7 +306,7 @@ def course_selfreg(request, canvas_course_id):
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
-            #logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
