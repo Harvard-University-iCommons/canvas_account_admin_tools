@@ -38,7 +38,7 @@ def view_course(request, canvas_course_id):
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
-            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            #logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
@@ -151,15 +151,8 @@ def remove_role(request, canvas_course_id, role):
     user_id = request.user.username
 
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
-
     shopper_enrollment_id = None
-    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
-    if enrollments:
-        for e in enrollments:
-            if e['course_id'] == int(canvas_course_id):
-                if e['role'] == role:
-                    shopper_enrollment_id = e['id']
-    
+    shopper_enrollment_id = get_enrollment_id(user_id, canvas_course_id, role)
     if canvas_course_id and shopper_enrollment_id:
         delete_canvas_enrollee_id(int(canvas_course_id), int(shopper_enrollment_id))
         logger.debug('viewer enrollment id %s for user %s in course %s removed' % (shopper_enrollment_id, user_id, canvas_course_id))
@@ -191,7 +184,7 @@ def shop_course(request, canvas_course_id):
     course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
 
     user_id = request.user.username
-
+    
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
     if not canvas_course:
         # something's wrong with the course, and we can't proceed
@@ -228,7 +221,7 @@ def shop_course(request, canvas_course_id):
         if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
             group_id = gid
             user_can_shop = True
-
+    logger.debug('user_can_shop: %s' % user_can_shop)
     if user_can_shop:
         logger.debug('User %s is eligible for shopping as a member of %s' % (user_id, group_id))  
             
@@ -242,13 +235,32 @@ def shop_course(request, canvas_course_id):
         # Enroll this user as a shopper
         new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
         if new_enrollee:
-            # success
+            # TLT-633, if the user was added as a shopper remove the 'Harvard-Viewer' role
+            # NOTE: enrollee here is actually enrollment ID for a given user in a given role; so this 
+            #       removes a single enrollment in the course, not all enrollments for that user in the course.
+            canvas_enrollee_id = get_enrollment_id(user_id, canvas_course_id, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
+            logger.debug(' deleting Harvard-Viewer role for user=%s' %  user_id)
+            if canvas_enrollee_id:
+                delete_canvas_enrollee_id(int(canvas_course_id), int(canvas_enrollee_id))
+
             logger.debug('user %s successfully added to course %s' % (user_id, canvas_course_id))
             return redirect(course_url)
 
         else:
             logger.debug('There was an error adding user %s to course %s' % (user_id, canvas_course_id))
             return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+
+
+'''
+helper method to get the enrollemt id given a user_id, course_id, and role
+'''
+def get_enrollment_id(user_id, course_id, role):
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            if e['course_id'] == int(course_id):
+                if e['role'] == role:
+                    return e['id']
 
 
 '''
@@ -294,7 +306,7 @@ def course_selfreg(request, canvas_course_id):
     enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
     if enrollments:
         for e in enrollments:
-            logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            #logger.debug('user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
             if e['course_id'] == int(canvas_course_id):
                 is_enrolled = True
                 break
