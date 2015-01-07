@@ -379,6 +379,9 @@ def remove_shopper_ui(request):
     Does not need @check_user_id_integrity() as it should never be called from Canvas.
     """
     canvas_course_id = request.POST.get('canvas_course_id')
+
+    # NOTE: enrollee here is actually enrollment ID for a given user in a given role; so this
+    #       removes a single enrollment in the course, not all enrollments for that user in the course.
     canvas_enrollee_id = request.POST.get('canvas_enrollee_id')
 
     if canvas_course_id and canvas_enrollee_id:
