@@ -17,12 +17,16 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @require_http_methods(['GET'])
-@check_user_id_integrity()
+@check_user_id_integrity(login_id_required=False)
 def view_course(request, canvas_course_id):
     """
     The course view checks to see if the authenticated user is already enrolled in the course.
     If not, and if shopping period is still active for the course, then the user will be
     enrolled in the course as a viewer.
+
+    @check_user_id_integrity(login_id_required=False) -> if you are accessing this from the
+    course catalog, the canvas_login_id parameter will not be passed in, so make this optional
+    (if it is passed in, we should still check it for user integrity)
     """
     if not canvas_course_id:
         return render(request, 'canvas_shopping/error.html',
