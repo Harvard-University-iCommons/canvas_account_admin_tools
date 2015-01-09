@@ -20,7 +20,5 @@ urlpatterns = patterns('',
 
     url(r'my_list$', 'canvas_shopping.views.my_list', name='my_list'),
 
-    url(r'is_shoppable_user$', 'canvas_shopping.views.is_shoppable_user', name='is_shoppable_user'),
-
 )
 
