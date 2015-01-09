@@ -72,7 +72,10 @@ def view_course(request, canvas_course_id):
         # TBD: check to see if the course has a public syllabus; if so, just redirect to the syllabus
 
         # make sure this user is eligible for shopping
-        can_shop = user_can_shop(request)
+        group_ids = request.session.get('USER_GROUPS', [])
+        logger.debug("groups: " + "\n".join(group_ids))
+
+        user_can_shop = False
         shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
 
         # make sure this is a shoppable course and that this user can shop it
