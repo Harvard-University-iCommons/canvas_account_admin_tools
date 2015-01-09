@@ -41,7 +41,7 @@ def check_user_id_integrity(login_id_required=True, missing_login_id_redirect_ur
             if canvas_login_id:
                 user_id = request.user.username
                 logger.debug('user id integrity check: user in tool=%s, '
-                             'canvas_login_id from request == %s' % (user_id, canvas_login_id))
+                             'canvas_login_id from request=%s' % (user_id, canvas_login_id))
 
                 if str(user_id) != str(canvas_login_id):
                     logger.error('user integrity mismatch: user in tool=%s, canvas_login_id from request=%s. '
@@ -59,7 +59,10 @@ def check_user_id_integrity(login_id_required=True, missing_login_id_redirect_ur
                 else:
                     logger.debug('user integrity check: Logging out the user from CAS.')
                     return redirect(CAS_LOGOUT_URL)
+            else:
+                logger.debug('user integrity check: no canvas_login_id required (and none found)')
             # User integrity check passed: tool user is the same as the Canvas user, continue
+            logger.debug('user integrity check passed')
             return view_func(request, *args, **kwargs)
         return wrapper
     return decorator
