@@ -74,10 +74,10 @@ class Command(BaseCommand):
                     enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=['Harvard-Viewer', 'Shopper'])
                     for enrollment in enrollment_list:
                         enrollment_role = enrollment.get('role', None)
-                        sis_section_id = enrollment.get('sis_section_id', None)
-                        sis_user_id = str(enrollment['user'].get('sis_user_id', None))
                         if shopping_role in enrollment_role:
                             # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
+                            sis_section_id = enrollment.get('sis_section_id', None)
+                            sis_user_id = str(enrollment['user'].get('sis_user_id', None))
                             if sis_user_id and sis_section_id:
                                 created_at = enrollment.get('created_at', None)
                                 updated_at = enrollment.get('updated_at', None)
@@ -85,9 +85,7 @@ class Command(BaseCommand):
                                 sis_course_id = enrollment.get('sis_course_id', None)
                                 total_activity_time = enrollment.get('total_activity_time', None)
                                 logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at, total_activity_time, enrollment_role))
-
                                 enrollment_records.append([str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
-                                #logger.debug('%s, %s, %s, %s, deleted' % (today, sis_user_id, shopping_role, sis_section_id))
         """
         Remove duplicate records from the list
         """
