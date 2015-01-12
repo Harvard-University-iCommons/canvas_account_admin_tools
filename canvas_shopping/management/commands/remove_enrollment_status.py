@@ -75,7 +75,7 @@ class Command(BaseCommand):
             for course in course_list:
                 course_id = course.get('id', None)
                 if course_id:
-                    enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=['Harvard-Viewer', 'Shopper'])
+                    enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=shopping_role)
                     for enrollment in enrollment_list:
                         enrollment_role = enrollment.get('role', None)
                         if shopping_role in enrollment_role:
