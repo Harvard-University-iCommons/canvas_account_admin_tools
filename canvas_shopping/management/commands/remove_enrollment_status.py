@@ -7,7 +7,9 @@ from collections import OrderedDict
 import logging
 import io
 import itertools
+import time
 from optparse import make_option
+from datetime import date
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
@@ -53,11 +55,16 @@ class Command(BaseCommand):
             self.printusage()
             exit()
 
+        start_time = time.time()
+
         sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True)
 
         sub_list = []
         for a in sub_account_list:
             sub_list.append(a['id'])
+
+        today = date.today()
+        
 
         enrollments_csv = io.BytesIO()
         swriter = UnicodeCSVWriter(enrollments_csv)
@@ -73,17 +80,21 @@ class Command(BaseCommand):
                         enrollment_role = enrollment.get('role', None)
                         if shopping_role in enrollment_role:
                             # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
-                            sis_user_id = str(enrollment['user'].get('sis_user_id', ''))
                             sis_section_id = enrollment.get('sis_section_id', None)
-                            
+                            sis_user_id = str(enrollment['user'].get('sis_user_id', None))
                             if sis_user_id and sis_section_id:
+                                created_at = enrollment.get('created_at', None)
+                                updated_at = enrollment.get('updated_at', None)
+                                last_activity_at = enrollment.get('last_activity_at', None)
+                                sis_course_id = enrollment.get('sis_course_id', None)
+                                total_activity_time = enrollment.get('total_activity_time', None)
+                                logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at, total_activity_time, enrollment_role))
                                 enrollment_records.append([str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
-                                logger.debug('%s,, %s, %s, %s, deleted' % (str(), sis_user_id, shopping_role, sis_section_id))
         """
         Remove duplicate records from the list
         """
         enrollment_records.sort()
-        enrollment_list = list(enrollment_records for enrollment_records,_ in itertools.groupby(enrollment_records))
+        enrollment_list = list(enrollment_records for enrollment_records, _ in itertools.groupby(enrollment_records))
 
         if len(enrollment_list) > 0:
             logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
@@ -92,6 +103,16 @@ class Command(BaseCommand):
             logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
             logger.info('+++ no records to process at this time')
+
+        '''
+        added some timing to track how long the command took to run
+        '''
+        end_time = time.time()
+        total_time = end_time - start_time
+        m, s = divmod(total_time, 60)
+        h, m = divmod(m, 60)
+        logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
+
 
     def printusage(self):
         """
