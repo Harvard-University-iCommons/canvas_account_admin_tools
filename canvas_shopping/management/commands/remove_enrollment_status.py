@@ -98,14 +98,14 @@ class Command(BaseCommand):
 
         if len(enrollment_list) > 0:
             logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
-            #swriter.writerows(enrollment_list)
-            #sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
-            #logger.info('+++ created enrollment import job %s' % sis_import_id)
+            swriter.writerows(enrollment_list)
+            sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
+            logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
             logger.info('+++ no records to process at this time')
 
         '''
-        added soem timing to track how long the command took to run
+        added some timing to track how long the command took to run
         '''
         end_time = time.time()
         total_time = end_time - start_time
