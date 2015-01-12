@@ -1,27 +1,26 @@
 
-
 SECURE_SETTINGS = {
-    'ICOMMONS_API_USER': '{{ secure_settings.icommons_api_user }}',
-    'ICOMMONS_API_PASS': '{{ secure_settings.icommons_api_pass }}',
+    'icommons_api_host': '{{ secure_settings.icommons_api_host }}',
+    'icommons_api_user': '{{ secure_settings.icommons_api_user }}',
+    'icommons_api_pass': '{{ secure_settings.icommons_api_pass }}',
 
-    'DJANGO_DB_USER': '{{ secure_settings.django_db_user }}',
-    'DJANGO_DB_PASS': '{{ secure_settings.django_db_pass }}',
+    'django_db_user': '{{ secure_settings.django_db_user }}',
+    'django_db_pass': '{{ secure_settings.django_db_pass }}',
 
-    'BITLY_ACCESS_TOKEN': '{{ secure_settings.bitly_access_token }}',
+    'bitly_access_token': '{{ secure_settings.bitly_access_token }}',
 
-    'QUALTRICS_API_KEY': '{{ secure_settings.qualtrics_api_key }}',
+    'qualtrics_api_key': '{{ secure_settings.qualtrics_api_key }}',
 
-    'CANVAS_TOKEN': '{{ secure_settings.canvas_token }}',
+    'canvas_url': '{{ secure_settings.canvas_url }}',
+    'canvas_token': '{{ secure_settings.canvas_token }}',
 
-    'DJANGO_SECRET_KEY': '{{ secure_settings.django_secret_key }}',
+    'django_secret_key': '{{ secure_settings.django_secret_key }}',
     
-    'CIPHER_KEY': '{{ secure_settings.cipher_key }}',
+    'cipher_key': '{{ secure_settings.cipher_key }}',
 
     'admins': (
         ('Admin User', 'admin_user@example.com'),
     ),
 
-    'CANVAS_WHITELIST_OAUTH_TOKEN': '{{ secure_settings.canvas_whitelist_oauth_token }}',
-
+    'canvas_whitelist_oauth_token': '{{ secure_settings.canvas_whitelist_oauth_token }}',
 }
-
