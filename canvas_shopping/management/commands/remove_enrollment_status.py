@@ -32,12 +32,6 @@ class Command(BaseCommand):
         dest='shopping_role',
         default='Harvard-Viewer',
         help='Removes course enrollments for the specified shopping role'),
-    make_option('--dry-run',
-        action='store',
-        dest='dry_run',
-        default=False,
-        help='go through the motions but don\'t actually delete'),
-    
     )
     
     def handle(self, *args, **options):
@@ -56,7 +50,6 @@ class Command(BaseCommand):
         """
 
         shopping_role = options['shopping_role']
-        dry_run = options['dry_run']
         if not verifyrole(shopping_role):
             self.printusage()
             exit()
@@ -81,18 +74,18 @@ class Command(BaseCommand):
                     enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=['Harvard-Viewer', 'Shopper'])
                     for enrollment in enrollment_list:
                         enrollment_role = enrollment.get('role', None)
-                        created_at = enrollment.get('created_at', None)
-                        updated_at = enrollment.get('updated_at', None)
-                        last_activity_at = enrollment.get('last_activity_at', None)
-                        sis_user_id = str(enrollment['user'].get('sis_user_id', None))
-                        sis_course_id = enrollment.get('sis_course_id', None)
                         sis_section_id = enrollment.get('sis_section_id', None)
-                        total_activity_time = enrollment.get('total_activity_time', None)
-                        logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at, total_activity_time, enrollment_role))
-
+                        sis_user_id = str(enrollment['user'].get('sis_user_id', None))
                         if shopping_role in enrollment_role:
                             # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
                             if sis_user_id and sis_section_id:
+                                created_at = enrollment.get('created_at', None)
+                                updated_at = enrollment.get('updated_at', None)
+                                last_activity_at = enrollment.get('last_activity_at', None)
+                                sis_course_id = enrollment.get('sis_course_id', None)
+                                total_activity_time = enrollment.get('total_activity_time', None)
+                                logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at, total_activity_time, enrollment_role))
+
                                 enrollment_records.append([str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
                                 #logger.debug('%s, %s, %s, %s, deleted' % (today, sis_user_id, shopping_role, sis_section_id))
         """
@@ -101,13 +94,11 @@ class Command(BaseCommand):
         enrollment_records.sort()
         enrollment_list = list(enrollment_records for enrollment_records, _ in itertools.groupby(enrollment_records))
 
-        print '%s' % dry_run
-
-        if len(enrollment_list) > 0 and not dry_run:
+        if len(enrollment_list) > 0:
             logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
-            #swriter.writerows(enrollment_list)
-            #sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
-            #logger.info('+++ created enrollment import job %s' % sis_import_id)
+            swriter.writerows(enrollment_list)
+            sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
+            logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
             logger.info('+++ no records to process at this time')
 
