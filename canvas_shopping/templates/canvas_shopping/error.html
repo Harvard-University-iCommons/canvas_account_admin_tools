@@ -10,4 +10,12 @@
 
 <p>{{ error_detail }}</p>
 
+{% if error_options %}
+
+<ul>
+	<li>FAS: <a href="mailto:atg@fas.harvard.edu">atg@fas.harvard.edu</a></li>
+	<li>HDS: <a href="mailto:coursesites@hds.harvard.edu">coursesites@hds.harvard.edu</a></li>
+</ul>
+{% endif %}
+
 {% endblock %}

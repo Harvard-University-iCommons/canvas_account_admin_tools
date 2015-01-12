@@ -9,8 +9,10 @@
 
 {% block content %}
 
-<h1>My Canvas Shopping List</h1>
-
+<h1>Canvas courses I'm shopping</h1>
+<p>
+    You’ve chosen to participate in the course(s) below and may receive email notifications. Note: during shopping period you can access course site materials and tools that are normally restricted to the class list. Your contributions may be visible to other students and visitors to this course site
+</p>
 
 {% if courses %}
 <table class="table">
@@ -19,13 +21,13 @@
             <td> {{ course.code }} {{ course.name }}
             </td>
             <td>
-                    <a href="{{ canvas_base_url }}/courses/{{ course.id }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i> Visit course website</a>
+                    <a href="{{ canvas_base_url }}/courses/{{ course.id }}" class="btn btn-primary">Go to course website</a>
             </td>
             <td>
                 <form method="POST" action="{% url 'sh:remove_shopper_ui' %}">{% csrf_token %}
                     <input type="hidden" name="canvas_course_id" value="{{ course.id }}"/>
                     <input type="hidden" name="canvas_enrollee_id" value="{{ enrollment_id }}"/>
-                    <button type="submit" class="btn btn-default" data-loading-text="Removing..."><i class="fa fa-sign-out fa-fw"></i> Leave this course</button>
+                    <button type="submit" class="btn btn-default" data-loading-text="Removing...">I want to be removed</button>
                 </form>
             </td>
         </tr>
