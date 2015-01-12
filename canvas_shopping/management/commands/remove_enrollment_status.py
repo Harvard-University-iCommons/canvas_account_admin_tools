@@ -7,6 +7,7 @@ from collections import OrderedDict
 import logging
 import io
 import itertools
+import time
 from optparse import make_option
 from datetime import date
 
@@ -54,6 +55,8 @@ class Command(BaseCommand):
             self.printusage()
             exit()
 
+        start_time = time.time()
+
         sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True)
 
         sub_list = []
@@ -61,6 +64,7 @@ class Command(BaseCommand):
             sub_list.append(a['id'])
 
         today = date.today()
+        
 
         enrollments_csv = io.BytesIO()
         swriter = UnicodeCSVWriter(enrollments_csv)
@@ -94,11 +98,21 @@ class Command(BaseCommand):
 
         if len(enrollment_list) > 0:
             logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
-            swriter.writerows(enrollment_list)
-            sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
-            logger.info('+++ created enrollment import job %s' % sis_import_id)
+            #swriter.writerows(enrollment_list)
+            #sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
+            #logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
             logger.info('+++ no records to process at this time')
+
+        '''
+        added soem timing to track how long the command took to run
+        '''
+        end_time = time.time()
+        total_time = end_time - start_time
+        m, s = divmod(total_time, 60)
+        h, m = divmod(m, 60)
+        logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
+
 
     def printusage(self):
         """
