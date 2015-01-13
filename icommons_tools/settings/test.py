@@ -8,7 +8,6 @@ CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
-    'ROOT_ACCOUNT' : '1',
 }
 
 EXPORT_TOOL = {

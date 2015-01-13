@@ -28,28 +28,13 @@ def verifyrole(role):
 class Command(BaseCommand):
     
     option_list = BaseCommand.option_list + (
-        make_option('-r', '--role',
-            action='store',
-            dest='shopping_role',
-            type='choice',
-            choices=['Harvard-Viewer', 'Shopper'],
-            default='Harvard-Viewer',
-            help='the role to process'),
-        
-        make_option('-a', '--account_id',
-            action='store',
-            dest='main_account_id',
-            type='int',
-            default=settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1),
-            help='the account to process'),
-        
-        make_option('-n','--dry-run',
-            action='store_true',
-            dest='dry_run',
-            default=False,
-            help='do no harm'),
+    make_option('--role',
+        action='store',
+        dest='shopping_role',
+        default='Harvard-Viewer',
+        help='Removes course enrollments for the specified shopping role'),
     )
-
+    
     def handle(self, *args, **options):
         """
         This command get the root account defined in settings.CANVAS_SHOPPING['ROOT_ACCOUNT'] and 
@@ -66,26 +51,21 @@ class Command(BaseCommand):
         """
 
         shopping_role = options['shopping_role']
-        main_account_id = options['main_account_id']
-        dry_run = options['dry_run']
-
         if not verifyrole(shopping_role):
+            self.printusage()
             exit()
-
-        if dry_run:
-            logger.info('Performing dry-run, no enrollments will be deleted.')
-        
-        logger.info('Removing role %s from account_id %s' % (shopping_role, main_account_id))
 
         start_time = time.time()
 
-        sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, main_account_id, recursive=True)
-        
+        sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1), recursive=True)
+
         sub_list = []
         for a in sub_account_list:
             sub_list.append(a['id'])
 
         today = date.today()
+        
+
         enrollments_csv = io.BytesIO()
         swriter = UnicodeCSVWriter(enrollments_csv)
         enrollment_records = []
@@ -117,13 +97,12 @@ class Command(BaseCommand):
         enrollment_list = list(enrollment_records for enrollment_records, _ in itertools.groupby(enrollment_records))
 
         if len(enrollment_list) > 0:
-            logger.info('found %d records with role %s' % (len(enrollment_list), shopping_role))
-            if not dry_run:
-                swriter.writerows(enrollment_list)
-                sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
-                logger.info('created enrollment import job %s' % sis_import_id)
+            logger.info('+++ found %d records with role %s' % (len(enrollment_list), shopping_role))
+            swriter.writerows(enrollment_list)
+            sis_import_id = upload_csv_data('enrollments', enrollments_csv.getvalue(), False, False)
+            logger.info('+++ created enrollment import job %s' % sis_import_id)
         else:
-            logger.info('no records to process at this time')
+            logger.info('+++ no records to process at this time')
 
         '''
         added some timing to track how long the command took to run
@@ -133,4 +112,16 @@ class Command(BaseCommand):
         m, s = divmod(total_time, 60)
         h, m = divmod(m, 60)
         logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
+
+
+    def printusage(self):
+        """
+        display a usage message for this script.
+        """
+        self.stdout.write(' ')
+        self.stdout.write('Invalid argument given!')
+        self.stdout.write('Arguments must be one of the following: --role [Harvard-Viewer | Shopper]')
+        self.stdout.write('    Example: python manage.py clear_shopping_status --role Harvard-Viewer')
+        self.stdout.write('    If not argument is given it defaults to "Harvard-Viewer"')
+        self.stdout.write(' ')
 
