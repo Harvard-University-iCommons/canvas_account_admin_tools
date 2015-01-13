@@ -6,22 +6,20 @@
 
 {% block content %}
 
-<h2>You have been removed from course: {{ canvas_course.name }}</h2>
- Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+<h1>You have been removed from {{ canvas_course.name }}</h1>
+<p>You will no longer be able to participate in or receive email notifications from this course site.</p>
 
-<h3> Where to go from here: </h3>
-<p>
-	<ul>
-		<li> Course Catalog</li>
-		<li> School Website</li>
-		<li> SIS</li>
-		<li> Harvard.edu</li>
-	</ul>
+<a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i>Go back to course site</a>
 
-</p>
+<h3>Helpful links:</h3>
 
-<p>If you wish to go back to the course, please click here:<br>
-	 <a href="{{ course_url }}" class="btn btn-primary"><i class="fa fa-arrow-right"></i>Get back to course</a>
+<ul>
+	<li><a href="https://canvas.harvard.edu">Canvas dashboard</a></li>
+	<li><a href="http://my.harvard.edu">my.harvard.edu</a></li>
+	<li><a href="http://my.hds.harvard.edu">my.hds.harvard.edu</a></li>
+	<li><a href="http://hds.harvard.edu/academics/courses">HDS course catalog</a></li>
+	<li><a href="https://coursecatalog.harvard.edu/">University wide course catalog & cross-registration</a></li>
+</ul>
 
-</p>
+
 {% endblock content %}

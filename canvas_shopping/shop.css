@@ -1,17 +1,44 @@
-/* TLT CSS for shopping */
 
+/* School CSS */
+
+/* TLT CSS */
 
 #unauthorized_message { display: none; }
 
-
-#remove-viewer-role {
-	float: right;
+#course-shopping{
+    font-family: Helvetica, Arial, sans-serif;
+    text-align: center;
 }
 
-#add-shopper-role {
-	float: right;
+#course-shopping h1{
+    font-size: 24px;
+    margin: 0;
+    font-weight: normal;
+    line-height: 30px;
 }
 
-#remove-shopper-role {
-	float: right;
+#course-shopping p{
+    font-size: 13px;
+    margin: 0;
 }
+
+    #course-shopping p.participate-text{ font-size: 16px; }
+
+.tltmsg{
+    display: inline-block;
+    width: 92%;
+    background: #fdfdfd;
+    border: solid 1px #ecebeb;
+    margin: 0.5em 2%;
+    padding: 0.5em 2%;
+}
+
+.tltmsg-shop{
+    background: #f2f2f2;
+    border: solid 1px #d0d0d0;
+    font-size: 16px;
+}
+
+    .tltmsg-shop em{
+        font-size: 12px;
+    }
