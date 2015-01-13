@@ -1,0 +1,25 @@
+{% extends "canvas_shopping/base.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Course Shopping{% endblock %}
+
+{% block content %}
+
+<h1>You have been removed from {{ canvas_course.name }}</h1>
+<p>You will no longer receive email notifications from this course site.</p>
+Didn't mean to remove yourself?&nbsp;
+<a href="{{ course_url }}"></i>Go back to course site</a>
+
+<h3>Helpful links:</h3>
+
+<ul>
+	<li><a href="https://canvas.harvard.edu">Canvas dashboard</a></li>
+	<li><a href="http://my.harvard.edu">my.harvard.edu</a></li>
+	<li><a href="http://my.hds.harvard.edu">my.hds.harvard.edu</a></li>
+	<li><a href="http://hds.harvard.edu/academics/courses">HDS course catalog</a></li>
+	<li><a href="https://coursecatalog.harvard.edu/">University wide course catalog & cross-registration</a></li>
+</ul>
+
+
+{% endblock content %}

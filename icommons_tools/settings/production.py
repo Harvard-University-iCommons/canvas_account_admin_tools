@@ -11,27 +11,8 @@ DEBUG = False
 # to prevent host header poisoning
 ALLOWED_HOSTS = ['*']
 
-CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.harvard.edu/',  
-}
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('CANVAS_TOKEN', None),
-    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
-    'max_retries': 3,
-    'per_page': 1000,
-}
-
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS['ICOMMONS_API_USER'],
-    'ICOMMONS_API_PASS': SECURE_SETTINGS['ICOMMONS_API_PASS'],
-    'CANVAS_API_BASE_URL': 'https://harvard.instructure.com/api/v1',
-    'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS['CANVAS_TOKEN']},
-}
-
 CANVAS_SHOPPING = {
-    'CANVAS_BASE_URL': 'https://canvas.harvard.edu',
+    'CANVAS_BASE_URL': CANVAS_URL,
     'selfreg_courses': {
         '495': 'Guest',
         '541': 'Guest',
@@ -42,7 +23,7 @@ CANVAS_SHOPPING = {
         '913': 'Shopper',
         '741': 'Shopper',
         '743': 'Shopper',
-        '774': 'Shopper',        
+        '774': 'Shopper',
         '1858': 'StudentEnrollment',
         '1972': 'StudentEnrollment',
         '2049': 'StudentEnrollment',
@@ -69,7 +50,7 @@ CANVAS_SHOPPING = {
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
-    'ROOT_ACCOUNT' : '1',
+    'ROOT_ACCOUNT': '1',
 }
 
 EXPORT_TOOL = {
@@ -103,27 +84,14 @@ TERM_TOOL = {
     },
 }
 
-QUALTRICS_TAKER_AUTH = {
-    'QUALTRICS_API_KEY': SECURE_SETTINGS['QUALTRICS_API_KEY'],
-    'BITLY_ACCESS_TOKEN': SECURE_SETTINGS['BITLY_ACCESS_TOKEN'],
-}
-
-QUALTRICS_WHITELIST = {
-    'allowed_groups': 'IcGroup:358',
-}
-
-CANVAS_WHITELIST = {
-    'allowed_groups': 'IcGroup:358',
-    'canvas_url': 'https://harvard.instructure.com/api',
-    'oauth_token': SECURE_SETTINGS['CANVAS_WHITELIST_OAUTH_TOKEN'],
-}
+CANVAS_WHITELIST['canvas_url'] = 'https://harvard.instructure.com/api'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isitedgd',
-        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
-        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'dbnode3.isites.harvard.edu',
         'PORT': '8003',
         'OPTIONS': {
