@@ -52,7 +52,7 @@ else {
 			 //console.log('----> '+sis_user_id);
 
 			var course_id = get_course_number();
-			if (course_id > 0) {
+			if ( course_id > 0 ) {
 				//console.log('-----> course id is ' + course_id);
 				var user_enrolled = false;
 				var user_can_shop = false;
@@ -70,7 +70,7 @@ else {
 					*/
 
 					var course_workflow = data['workflow_state'];
-					if(course_workflow.localeCompare('available') == 0) {
+					if( course_workflow.localeCompare('available') == 0 ) {
 						//console.log('course '+course_id+' is active');
 							var c_id = data['id'];
 							if ( course_id == c_id ) {
@@ -79,7 +79,7 @@ else {
 								// check for shopper
 								var num_enrollments = data['enrollments'].length;
 
-								for (var n = 0; n < num_enrollments; n++) {
+								for ( var n = 0; n < num_enrollments; n++ ) {
 									var etype = data['enrollments'][n]['type'];
 									var erole = data['enrollments'][n]['role'];
 									//console.log('Type/role is ' + etype + '/' + erole);
@@ -91,7 +91,7 @@ else {
 									if ( erole == 'Harvard-Viewer' ) {
 										is_viewer = true;
 									}
-									if (erole == 'TeacherEnrollment' || erole == 'TaEnrollment' || erole == 'DesignerEnrollment'){
+									if ( erole == 'TeacherEnrollment' || erole == 'TaEnrollment' || erole == 'DesignerEnrollment' ){
 										is_teacher = true;
 									}
 								}
@@ -130,7 +130,7 @@ else {
 								/*
 									text messages
 								*/
-								var data_tooltip = 'More info. about access during shopping period';
+								var data_tooltip = 'More info about access during shopping period';
 								var shopping_help_doc_url = 'https://wiki.harvard.edu/confluence/display/canvas/Course+Shopping';
 								var tooltip_link = '<a data-tooltip title="' + data_tooltip + '" target="_blank" href="' + shopping_help_doc_url + '"><i class="icon-question"></i></a>'
 								var shopper_message_text = '<h1>You have full access to this course site ' + tooltip_link + '</h1><p><em>Note: During shopping period you can access course site materials and tools that are normally restricted to the class list. Your contributions may be visible to other students and visitors to this course site. <a href="' + remove_shopper_url + '">I want to be removed.</a></em></p>';

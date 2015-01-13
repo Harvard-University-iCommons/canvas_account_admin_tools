@@ -191,9 +191,10 @@ enrolled in the course as a shopper.
 @check_user_id_integrity()
 def shop_course(request, canvas_course_id):
     if not user_has_harvard_student_status(request):
-        error_msg = 'Not eligible for shopping'
-        error_detail = 'Only students are eligible to participate in course sites during shopping period.'
-        return render(request, 'canvas_shopping/error.html', {'error_message': error_msg,'error_detail': error_detail})
+        error_msg = 'Only students are eligible to participate in course sites during shopping period.'
+        error_detail = 'If you think you should have access, please contact your local academic support staff:'
+        error_options = True
+        return render(request, 'canvas_shopping/error.html', {'error_message': error_msg,'error_detail': error_detail, 'error_options': error_options})
 
     if not canvas_course_id:
         logger.debug('no canvas course id provided!')
