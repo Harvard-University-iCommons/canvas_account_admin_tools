@@ -1,48 +1,44 @@
 
 /* School CSS */
-#header-inner{
-    background-color: #52A0B5 !important;
-    background-image: none !important;
-}
-
-
-#header{
-    background-color: #52A0B5 !important;
-    background-image: none !important;
-}
-
-.harvardLogo{
-    display: inline-block;
-    left: 16px;
-    bottom: 0;
-    position: absolute;
-    background-image: url('images/HDSlow.png') !important;
-	background-repeat: no-repeat !important;
-    background-size: 170px 62px;
-    width: 170px;
-    height: 62px;
-}
 
 /* TLT CSS */
 
-/*#wrapper{ display: none; }
-body.settings #wrapper{ display: block; }*/
-
 #unauthorized_message { display: none; }
 
-
-#remove-viewer-role {
-	float: right;
-	margin-right: 5px;
-	padding: 2px 2px;
+#course-shopping{
+    font-family: Helvetica, Arial, sans-serif;
+    text-align: center;
 }
 
-#add-shopper-role {
-	float: right;
-	padding: 2px 2px;
+#course-shopping h1{
+    font-size: 24px;
+    margin: 0;
+    font-weight: normal;
+    line-height: 30px;
 }
 
-#remove-shopper-role {
-	float: right;
-	padding: 2px 2px;
+#course-shopping p{
+    font-size: 13px;
+    margin: 0;
 }
+
+    #course-shopping p.participate-text{ font-size: 16px; }
+
+.tltmsg{
+    display: inline-block;
+    width: 92%;
+    background: #fdfdfd;
+    border: solid 1px #ecebeb;
+    margin: 0.5em 2%;
+    padding: 0.5em 2%;
+}
+
+.tltmsg-shop{
+    background: #f2f2f2;
+    border: solid 1px #d0d0d0;
+    font-size: 16px;
+}
+
+    .tltmsg-shop em{
+        font-size: 12px;
+    }
