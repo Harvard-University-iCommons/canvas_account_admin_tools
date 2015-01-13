@@ -185,28 +185,28 @@ else {
 								manage_shopping_li_item.append(manage_shopping_link);
 
 								/*
-									for each role display the appropriate banner
+									for each role format the appropriate banner
 								*/
 								if ( is_shopper ) {
 									//console.log('is_shopper: true');
 									$("ul#menu").append(manage_shopping_li_item);
 									shopping_banner.append(shopper_message_text);
-									//shopping_banner.append(shopping_help_doc);
-									//shopping_banner.append(remove_shopping_role);
 								}
 								else if ( is_viewer ) {
 									//console.log('is_viewer: true');
 									$("ul#menu").append(manage_shopping_li_item);
 									shopping_banner.append(viewer_message_text);
 									shopping_banner.append(participate_text);
-									//shopping_banner.append(shopping_help_doc);
-									//shopping_banner.append(add_shopping_role);
-									//shopping_banner.append(remove_viewer_role);
-								} else if( is_teacher ){
+								}
+                                else if( is_teacher ){
 									//console.log('is_teacher: true');
 									shopping_banner.append(shopping_is_active_message);
 								}
-								$('#breadcrumbs').after(shopping_banner);
+
+								/* display the banner formatted above */
+                                if ( is_shopper || is_viewer || is_teacher ) {
+                                    $('#breadcrumbs').after(shopping_banner);
+                                }
 							}
 						}
 					} else {
