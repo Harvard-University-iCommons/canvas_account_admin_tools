@@ -12,23 +12,19 @@ function get_course_number() {
 	return 0;
 }
 
-var shopping_tool_url = "https://qa.tlt.harvard.edu/tools/shopping";
-
-var current_user_id = ENV['current_user_id'];
-//console.log(current_user_id);
-user_url = '/api/v1/users/' + current_user_id + '/profile';
+var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";	// the url of the shopping tool
+var allowed_terms = ['4', '2', '3', '1'];								// allowed_terms is a whitelist of term_id's where shopping is allowed
+var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
+var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
 /*
-check to see if the '#authorized_message' id exists on the page.
-If so, redirect the user to the shopping tool.
+	check to see if the '#authorized_message' id exists on the page.
+	If so, redirect the user to the shopping tool.
 */
-
 var authorized = $('#unauthorized_message').length > 0 ? false : true
-//console.log((authorized ? '' : 'un') + 'authorized!')
 
 if (!authorized){
 	course_id = get_course_number();
-	//console.log('course_id = ' + course_id);
 	if (course_id > 0) {
 		$.getJSON(user_url, function( data ) {
 			login_id = data["login_id"].trim();
@@ -45,15 +41,14 @@ else {
 		//console.log('-----> user is not logged in');
 
 	} else {
-		//console.log('-----> user is logged in - username is ' + un);
+		
 		var sis_user_id = '';
 		$.getJSON(user_url, function( data ) {
-			 var sis_user_id = data["login_id"].trim();
-			 //console.log('----> '+sis_user_id);
-
+		
+			var sis_user_id = data["login_id"].trim();
 			var course_id = get_course_number();
-			if ( course_id > 0 ) {
-				//console.log('-----> course id is ' + course_id);
+			
+			if (course_id > 0) {
 				var user_enrolled = false;
 				var user_can_shop = false;
 				var is_shopper = false;
@@ -70,42 +65,43 @@ else {
 					*/
 
 					var course_workflow = data['workflow_state'];
-					if( course_workflow.localeCompare('available') == 0 ) {
-						//console.log('course '+course_id+' is active');
-							var c_id = data['id'];
-							if ( course_id == c_id ) {
-								//console.log('MATCH! User is already enrolled in this course. Are they a shopper?');
+					if(course_workflow.localeCompare('available') == 0) {
+						
+						/*
+							TLT-668 - only allow shopping for terms that are in the whitelist.
+						*/
+						var term_id = data['enrollment_term_id'];
+						var term_allowed = jQuery.inArray( term_id, allowed_terms )
+						var c_id = data['id'];
+						
+						if ( course_id == c_id ) {
 
-								// check for shopper
-								var num_enrollments = data['enrollments'].length;
+							// check for shopper
+							var num_enrollments = data['enrollments'].length;
 
-								for ( var n = 0; n < num_enrollments; n++ ) {
-									var etype = data['enrollments'][n]['type'];
-									var erole = data['enrollments'][n]['role'];
-									//console.log('Type/role is ' + etype + '/' + erole);
-									user_enrolled = true;
+							for (var n = 0; n < num_enrollments; n++) {
+								var etype = data['enrollments'][n]['type'];
+								var erole = data['enrollments'][n]['role'];
+								//console.log('Type/role is ' + etype + '/' + erole);
+								user_enrolled = true;
 
-									if ( erole == 'Shopper' ) {
-										is_shopper = true;
-									}
-									if ( erole == 'Harvard-Viewer' ) {
-										is_viewer = true;
-									}
-									if ( erole == 'TeacherEnrollment' || erole == 'TaEnrollment' || erole == 'DesignerEnrollment' ){
-										is_teacher = true;
-									}
+								if ( erole == 'Shopper' ) {
+									is_shopper = true;
 								}
-							} else {
-								//console.log('This course ' + course_id + ' does not match ' + c_id);
+								if ( erole == 'Harvard-Viewer' ) {
+									is_viewer = true;
+								}
+								if (erole == 'TeacherEnrollment' || erole == 'TaEnrollment' || erole == 'DesignerEnrollment'){
+									is_teacher = true;
+								}
 							}
+						} 
 
-						//console.log('-----> user enrolled: ' + user_enrolled);
 
 						/*
 							If the user is on the settings page, do not show the button
 						*/
 						var isNotAdminPage = ((window.location.pathname).indexOf('settings') == -1);
-						//console.log('-----> isNotAdminPage: '+isNotAdminPage);
 
 						if( isNotAdminPage ) {
 
@@ -113,11 +109,14 @@ else {
 								If the user is enrolled as a Harvard-Viewer, they will be shown the shopping button and the remove viewer button.
 								If the user is enrolled as a Shopper, the will be shown the remove shopping button.
 								If the user is enrolled as TeacherEnrollment,  TaEnrollment, or DesignerEnrollment they will be shown the shopping is active message.
+							
+								TLT-668 - if the term_id of the course is in the allowed_terms whitelist display the shopping 
+								options to the user. Otherwise do not show the shopping options.
 							*/
 
-							if ( user_enrolled ) {
+							if ( user_enrolled  && term_allowed > -1 ) {
 
-																/*
+								/*
 									application url endpoints
 								*/
 								var login_id = '?canvas_login_id=' + sis_user_id
@@ -209,9 +208,7 @@ else {
                                 }
 							}
 						}
-					} else {
-						//console.log('course is not published!');
-					}
+					} 
 				});
 			}
 		});
