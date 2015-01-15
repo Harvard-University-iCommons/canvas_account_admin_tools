@@ -22,9 +22,9 @@ var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to 
 	If so, redirect the user to the shopping tool.
 */
 var authorized = $('#unauthorized_message').length > 0 ? false : true
+var course_id = get_course_number();
 
 if (!authorized){
-	course_id = get_course_number();
 	if (course_id > 0) {
 		$.getJSON(user_url, function( data ) {
 			login_id = data["login_id"].trim();
@@ -46,7 +46,6 @@ else {
 		$.getJSON(user_url, function( data ) {
 		
 			var sis_user_id = data["login_id"].trim();
-			var course_id = get_course_number();
 			
 			if (course_id > 0) {
 				var user_enrolled = false;
@@ -71,7 +70,7 @@ else {
 							TLT-668 - only allow shopping for terms that are in the whitelist.
 						*/
 						var term_id = data['enrollment_term_id'];
-						var term_allowed = jQuery.inArray( term_id, allowed_terms )
+						var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1;
 						var c_id = data['id'];
 						
 						if ( course_id == c_id ) {
@@ -114,7 +113,7 @@ else {
 								options to the user. Otherwise do not show the shopping options.
 							*/
 
-							if ( user_enrolled  && term_allowed > -1 ) {
+							if ( user_enrolled  && term_allowed ) {
 
 								/*
 									application url endpoints
