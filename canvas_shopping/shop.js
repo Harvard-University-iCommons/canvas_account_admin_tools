@@ -12,8 +12,10 @@ function get_course_number() {
 	return 0;
 }
 
-var shopping_tool_url = "https://demo.tlt.harvard.edu/tools/shopping";	// the url of the shopping tool
-var allowed_terms = ['4', '2', '3', '1'];								// allowed_terms is a whitelist of term_id's where shopping is allowed
+var shopping_tool_url = "https://test.tlt.harvard.edu/tools/shopping";	// the url of the shopping tool
+
+var allowed_terms = ['595', '603'];	
+							// allowed_terms is a whitelist of term_id's where shopping is allowed
 var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
 var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
@@ -70,7 +72,8 @@ else {
 							TLT-668 - only allow shopping for terms that are in the whitelist.
 						*/
 						var term_id = data['enrollment_term_id'];
-						var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1;
+						console.log('term_id: ' + term_id);
+						var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1
 						var c_id = data['id'];
 						
 						if ( course_id == c_id ) {
