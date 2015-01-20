@@ -1,9 +1,3 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-from canvas_sdk.methods import (courses, accounts, enrollments, users) 
-from canvas_sdk.utils import get_all_list_data
-from icommons_common.canvas_utils import (SessionInactivityExpirationRC, upload_csv_data, UnicodeCSVWriter)
-from collections import OrderedDict
 import logging
 import io
 import itertools
@@ -11,9 +5,17 @@ import time
 from optparse import make_option
 from datetime import date
 
+from django.core.management.base import BaseCommand
+from django.conf import settings
+from canvas_sdk.methods import (accounts, enrollments)
+from canvas_sdk.utils import get_all_list_data
+from icommons_common.canvas_utils import (SessionInactivityExpirationRC, upload_csv_data, UnicodeCSVWriter)
+
+
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
 logger = logging.getLogger(__name__)
+
 
 def verifyrole(role):
     """
@@ -26,28 +28,27 @@ def verifyrole(role):
 
 
 class Command(BaseCommand):
-    
     option_list = BaseCommand.option_list + (
         make_option('-r', '--role',
-            action='store',
-            dest='shopping_role',
-            type='choice',
-            choices=['Harvard-Viewer', 'Shopper'],
-            default='Harvard-Viewer',
-            help='the role to process'),
-        
+                    action='store',
+                    dest='shopping_role',
+                    type='choice',
+                    choices=['Harvard-Viewer', 'Shopper'],
+                    default='Harvard-Viewer',
+                    help='the role to process'),
+
         make_option('-a', '--account_id',
-            action='store',
-            dest='main_account_id',
-            type='int',
-            default=settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1),
-            help='the account to process'),
-        
-        make_option('-n','--dry-run',
-            action='store_true',
-            dest='dry_run',
-            default=False,
-            help='do no harm'),
+                    action='store',
+                    dest='main_account_id',
+                    type='int',
+                    default=settings.CANVAS_SHOPPING.get('ROOT_ACCOUNT', 1),
+                    help='the account to process'),
+
+        make_option('-n', '--dry-run',
+                    action='store_true',
+                    dest='dry_run',
+                    default=False,
+                    help='do no harm'),
     )
 
     def handle(self, *args, **options):
@@ -65,51 +66,83 @@ class Command(BaseCommand):
         Example of the canvas job url: <host>/api/v1/accounts/1/sis_imports/<job_id>
         """
 
-        shopping_role = options['shopping_role']
-        main_account_id = options['main_account_id']
-        dry_run = options['dry_run']
+        shopping_role = options.get('shopping_role')
+        main_account_id = options.get('main_account_id')
+        dry_run = options.get('dry_run')
+        verbosity = int(options.get('verbosity', 1))
 
-        if not verifyrole(shopping_role):
-            exit()
+        if verbosity > 1:
+            logger.info('Verbosity set to %s' % verbosity)
 
         if dry_run:
             logger.info('Performing dry-run, no enrollments will be deleted.')
-        
+
         logger.info('Removing role %s from account_id %s' % (shopping_role, main_account_id))
 
         start_time = time.time()
 
-        sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, main_account_id, recursive=True)
-        
-        sub_list = []
+        sub_account_list = get_all_list_data(SDK_CONTEXT, accounts.get_sub_accounts_of_account, main_account_id,
+                                             recursive=True)
+        '''
+            build a complete list of accounts including the passed in sub-account
+        '''
+        sub_list = [main_account_id]
         for a in sub_account_list:
             sub_list.append(a['id'])
+
+        if verbosity > 1:
+            logger.info('account list : %s' % set(sub_list))
+
+        '''
+            build a list of all active courses from the sub-account list above
+        '''
+        course_list = []
+        course_id_list = []
+        for account_id in set(sub_list):
+            course_list = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account, account_id)
+            '''
+            build a list of course id's from the course_list built above
+            '''
+            for course in course_list:
+                course_id_list.append(course.get('id', None))
+
+        course_id_set = set(course_id_list)
+
+        if verbosity > 0:
+            logger.info('course list : %s' % course_id_set)
 
         today = date.today()
         enrollments_csv = io.BytesIO()
         swriter = UnicodeCSVWriter(enrollments_csv)
         enrollment_records = []
         swriter.writerow(['course_id', 'root_account', 'user_id', 'role', 'section_id', 'status'])
-        for account_id in sorted(sub_list): 
-            course_list = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account, account_id, with_enrollments=True)
-            for course in course_list:
-                course_id = course.get('id', None)
-                if course_id:
-                    enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id, role=shopping_role)
-                    for enrollment in enrollment_list:
-                        enrollment_role = enrollment.get('role', None)
-                        if shopping_role in enrollment_role:
-                            # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
-                            sis_section_id = enrollment.get('sis_section_id', None)
-                            sis_user_id = str(enrollment['user'].get('sis_user_id', None))
-                            if sis_user_id and sis_section_id:
-                                created_at = enrollment.get('created_at', None)
-                                updated_at = enrollment.get('updated_at', None)
-                                last_activity_at = enrollment.get('last_activity_at', None)
-                                sis_course_id = enrollment.get('sis_course_id', None)
-                                total_activity_time = enrollment.get('total_activity_time', None)
-                                logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at, total_activity_time, enrollment_role))
-                                enrollment_records.append([str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
+        for course_id in course_id_list:
+            if verbosity > 0:
+                logger.info('course_id: %s' % course_id)
+            if course_id:
+                enrollment_list = get_all_list_data(SDK_CONTEXT, enrollments.list_enrollments_courses, course_id,
+                                                    role=shopping_role)
+                for enrollment in enrollment_list:
+                    enrollment_role = enrollment.get('role', None)
+                    if shopping_role in enrollment_role:
+                        # hotfix/TLT-487: if sis_user_id is unavailable for this user, skip
+                        sis_section_id = enrollment.get('sis_section_id', None)
+                        sis_user_id = str(enrollment['user'].get('sis_user_id', None))
+
+                        if verbosity > 1:
+                            logger.info('sis_user_id: %s, sis_section_id: %s, enrollment_role: %s' % (sis_user_id, sis_section_id, enrollment_role))
+
+                        if sis_user_id and sis_section_id:
+                            created_at = enrollment.get('created_at', None)
+                            updated_at = enrollment.get('updated_at', None)
+                            last_activity_at = enrollment.get('last_activity_at', None)
+                            sis_course_id = enrollment.get('sis_course_id', None)
+                            total_activity_time = enrollment.get('total_activity_time', None)
+                            logger.info('date=%s, canvas_course_id=%s, sis_course_id=%s, sis_user_id=%s, created_at=%s, updated_at=%s, last_activity_at=%s, total_activity_time=%s, enrollment_role=%s' % (
+                                today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at,
+                                total_activity_time, enrollment_role))
+                            enrollment_records.append(
+                                [str(), '', sis_user_id, shopping_role, sis_section_id, 'deleted'])
         """
         Remove duplicate records from the list
         """
