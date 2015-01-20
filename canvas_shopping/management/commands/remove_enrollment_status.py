@@ -138,7 +138,7 @@ class Command(BaseCommand):
                             last_activity_at = enrollment.get('last_activity_at', None)
                             sis_course_id = enrollment.get('sis_course_id', None)
                             total_activity_time = enrollment.get('total_activity_time', None)
-                            logger.info('%s, %s, %s, %s, %s, %s, %s %s, %s' % (
+                            logger.info('date=%s, canvas_course_id=%s, sis_course_id=%s, sis_user_id=%s, created_at=%s, updated_at=%s, last_activity_at=%s, total_activity_time=%s, enrollment_role=%s' % (
                                 today, course_id, sis_course_id, sis_user_id, created_at, updated_at, last_activity_at,
                                 total_activity_time, enrollment_role))
                             enrollment_records.append(
