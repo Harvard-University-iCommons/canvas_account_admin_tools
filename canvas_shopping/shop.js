@@ -1,7 +1,6 @@
 
-// allowed_terms is a whitelist of term_id's where shopping is allowed
-
-var allowed_terms = ['179', '595', '596', '603', '487', '569', '1'];
+// allowed_terms is a whitelist of Canvas enrollment_term_ids where shopping is allowed
+var allowed_terms = ['46'];
 
 /*
 get the course number for the canvas course
@@ -27,7 +26,7 @@ var course_url = '/api/v1/courses/' + course_id;
 var data_tooltip = 'More info about access during shopping period';
 var shopping_help_doc_url = 'https://wiki.harvard.edu/confluence/display/canvas/Course+Shopping';
 var tooltip_link = '<a data-tooltip title="' + data_tooltip + '" target="_blank" href="' + shopping_help_doc_url + '"><i class="icon-question"></i></a>';
-var login_url = "https://canvas.icommons.harvard.edu/login";
+var login_url = window.location.origin+"/login";
 var no_user_canvas_login = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Students: <a href=\""+login_url+"\">login</a> to get more access during shopping period." + tooltip_link + "</p></div>";
 
 var is_not_admin_page = ((window.location.pathname).indexOf('settings') == -1);
@@ -71,27 +70,27 @@ else {
 			*/
 
 			var course_workflow = data['workflow_state'];
-			
+
 			if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
 				/*
 					TLT-668 - only allow shopping for terms that are in the whitelist.
 				*/
 				var term_id = data['enrollment_term_id'];
 				var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1;
-			
+
 				if (term_allowed) {
-					
+
         			shopping_banner.append(no_user_canvas_login);
         			$('#breadcrumbs').after(shopping_banner);
         		}
         	}
         });
-	} 
+	}
 	else {
 		var sis_user_id = '';
 		$.getJSON(user_url, function( data ) {
 			sis_user_id = data["login_id"].trim();
-			
+
 			if (course_id > 0) {
 
 				$.getJSON(course_url, function( data ) {
@@ -101,9 +100,9 @@ else {
 					*/
 
 					var course_workflow = data['workflow_state'];
-                    
+
 					if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
-						
+
 						/*
 							TLT-668 - only allow shopping for terms that are in the whitelist.
 						*/
@@ -114,9 +113,9 @@ else {
                             var c_id = data['id'];
 
                             if (course_id == c_id) {
-                            
+
                                 var num_enrollments = data['enrollments'].length;
-                                
+
                                 /*
                                 	if this is a public site and the user has no enrollments, send
                                 	them to the view_course url to add them as a Harvard-Viewer.
@@ -209,8 +208,8 @@ else {
                                     text: "Courses I'm Shopping"
                                 });
 
-                                /* 	
-                                	build the Manage Shopping menu item 
+                                /*
+                                	build the Manage Shopping menu item
                                 */
                                 manage_shopping_li_item.append(manage_shopping_link);
 
@@ -230,15 +229,15 @@ else {
                                     shopping_banner.append(shopping_is_active_message);
                                 }
 
-                                /* 
-                                	display the banner formatted above 
+                                /*
+                                	display the banner formatted above
                                 */
                                 if (is_shopper || is_viewer || is_teacher) {
                                     $('#breadcrumbs').after(shopping_banner);
                                 }
                             }
                         }
-					} 
+					}
 				});
 			}
 		});
