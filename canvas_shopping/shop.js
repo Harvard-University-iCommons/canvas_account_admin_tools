@@ -26,7 +26,7 @@ var course_url = '/api/v1/courses/' + course_id;
 var data_tooltip = 'More info about access during shopping period';
 var shopping_help_doc_url = 'https://wiki.harvard.edu/confluence/display/canvas/Course+Shopping';
 var tooltip_link = '<a data-tooltip title="' + data_tooltip + '" target="_blank" href="' + shopping_help_doc_url + '"><i class="icon-question"></i></a>';
-var login_url = "https://canvas.icommons.harvard.edu/login";
+var login_url = window.location.origin+"/login";
 var no_user_canvas_login = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Students: <a href=\""+login_url+"\">login</a> to get more access during shopping period." + tooltip_link + "</p></div>";
 
 var is_not_admin_page = ((window.location.pathname).indexOf('settings') == -1);
