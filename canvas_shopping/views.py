@@ -10,7 +10,7 @@ from canvas_shopping.decorators import check_user_id_integrity
 import logging
 import re
 
-group_pattern = re.compile('LdapGroup:[a-z]+\.student')
+group_pattern = re.compile('LdapGroup:[a-z]|[A-Z]+\.student')
 
 logger = logging.getLogger(__name__)
 
