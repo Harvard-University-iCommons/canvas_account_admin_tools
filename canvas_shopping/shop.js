@@ -16,7 +16,20 @@ function get_course_number() {
 	return 0;
 }
 
-var shopping_tool_url = "https://test.tlt.harvard.edu/tools/shopping";	// the url of the shopping tool
+function get_sis_user_id(canvas_user_api_data) {
+	var user_id = null;
+    if (canvas_user_api_data) {
+        if (canvas_user_api_data['sis_user_id'] && canvas_user_api_data['sis_user_id'].trim()) {
+            user_id = canvas_user_api_data['sis_user_id'].trim();
+        } else if (canvas_user_api_data['login_id'] && canvas_user_api_data['login_id'].trim()) {
+            user_id = canvas_user_api_data['login_id'].trim();
+        }
+    }
+    return user_id;
+}
+
+
+var shopping_tool_url = "https://icommons.harvard.edu/tools/shopping";	// the url of the shopping tool
 var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
 var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
@@ -49,8 +62,8 @@ var authorized = $('#unauthorized_message').length > 0 ? false : true;
 if (!authorized){
 	if (course_id > 0) {
 		$.getJSON(user_url, function( data ) {
-			login_id = data["login_id"].trim();
-			url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + login_id
+			var login_id = get_sis_user_id(data);
+			var url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + login_id;
 			window.location.replace(url);
 		});
 	}
@@ -89,7 +102,7 @@ else {
 	else {
 		var sis_user_id = '';
 		$.getJSON(user_url, function( data ) {
-			sis_user_id = data["login_id"].trim();
+			sis_user_id = get_sis_user_id(data);
 
 			if (course_id > 0) {
 
