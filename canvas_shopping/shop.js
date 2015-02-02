@@ -43,6 +43,9 @@ var login_url = window.location.origin+"/login";
 var no_user_canvas_login = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Students: <a href=\""+login_url+"\">login</a> to get more access during shopping period." + tooltip_link + "</p></div>";
 
 var is_not_admin_page = ((window.location.pathname).indexOf('settings') == -1);
+var is_not_speed_grader_page = ((window.location.pathname).indexOf('speed_grader') == -1);
+var is_not_submissions_page = ((window.location.pathname).indexOf('submissions') == -1);
+
 var user_enrolled = false;
 var is_shopper = false;
 var is_viewer = false;
@@ -84,7 +87,7 @@ else {
 
 			var course_workflow = data['workflow_state'];
 
-			if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
+			if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
 				/*
 					TLT-668 - only allow shopping for terms that are in the whitelist.
 				*/
@@ -114,7 +117,7 @@ else {
 
 					var course_workflow = data['workflow_state'];
 
-					if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
+					if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
 
 						/*
 							TLT-668 - only allow shopping for terms that are in the whitelist.
