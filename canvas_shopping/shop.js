@@ -31,10 +31,11 @@ function get_sis_user_id(canvas_user_api_data) {
 
 var shopping_tool_url = "https://icommons.harvard.edu/tools/shopping";	// the url of the shopping tool
 var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
+var current_user_is_admin = 'current_user_roles' in ENV && jQuery.inArray('admin', ENV['current_user_roles']) >= 0;
 var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
 var course_id = get_course_number();
-var course_url = '/api/v1/courses/' + course_id;
+var course_url = '/api/v1/courses/' + course_id + '?include[]=is_public';
 
 var data_tooltip = 'More info about access during shopping period';
 var shopping_help_doc_url = 'https://wiki.harvard.edu/confluence/display/canvas/Course+Shopping';
@@ -43,6 +44,9 @@ var login_url = window.location.origin+"/login";
 var no_user_canvas_login = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Students: <a href=\""+login_url+"\">login</a> to get more access during shopping period." + tooltip_link + "</p></div>";
 
 var is_not_admin_page = ((window.location.pathname).indexOf('settings') == -1);
+var is_not_speed_grader_page = ((window.location.pathname).indexOf('speed_grader') == -1);
+var is_not_submissions_page = ((window.location.pathname).indexOf('submissions') == -1);
+
 var user_enrolled = false;
 var is_shopper = false;
 var is_viewer = false;
@@ -84,7 +88,7 @@ else {
 
 			var course_workflow = data['workflow_state'];
 
-			if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
+			if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
 				/*
 					TLT-668 - only allow shopping for terms that are in the whitelist.
 				*/
@@ -114,7 +118,7 @@ else {
 
 					var course_workflow = data['workflow_state'];
 
-					if(course_workflow.localeCompare('available') == 0 && is_not_admin_page) {
+					if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
 
 						/*
 							TLT-668 - only allow shopping for terms that are in the whitelist.
@@ -128,14 +132,15 @@ else {
                             if (course_id == c_id) {
 
                                 var num_enrollments = data['enrollments'].length;
+                                var course_is_public = data['is_public'];
 
                                 /*
                                 	if this is a public site and the user has no enrollments, send
                                 	them to the view_course url to add them as a Harvard-Viewer.
                                 */
-                                if(num_enrollments == 0){
-									url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + sis_user_id
-									window.location.replace(url);
+                                if (!current_user_is_admin && course_is_public && num_enrollments == 0) {
+                                    var url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + sis_user_id;
+                                    window.location.replace(url);
                                 }
 
                                 for (var n = 0; n < num_enrollments; n++) {

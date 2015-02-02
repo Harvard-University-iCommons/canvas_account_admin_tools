@@ -1,8 +1,5 @@
 # Django settings for icommons_tools project.
-import os
-
 from .secure import SECURE_SETTINGS
-
 
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
@@ -30,7 +27,12 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = SECURE_SETTINGS.get('admins')
+# NOTE: this was being set to a sample email address in non-prod
+# environments before this change.  This represents the address used
+# for prod.
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+),
 
 # This is the address that emails will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
@@ -101,18 +103,17 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
-#SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', None)
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    #'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -120,7 +121,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'cached_auth.Middleware',
 
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -162,12 +163,12 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    # 'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.webdesign',
+    # 'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
-    #'django.contrib.admin',
+    # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'icommons_common.monitor',
@@ -177,7 +178,7 @@ INSTALLED_APPS = (
     'canvas_shopping',
     'qualtrics_whitelist',
     'canvas_whitelist',
-    #'gunicorn',
+    # 'gunicorn',
     'crispy_forms',
     'isites_export_tool',
     'huey.djhuey',
@@ -203,7 +204,7 @@ CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.
 
 # Used by django_icommons_common library
 ICOMMONS_COMMON = {
-    # Default to qa 
+    # Default to qa
     'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', 'https://10.35.201.5/services/'),
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
