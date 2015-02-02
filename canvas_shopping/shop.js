@@ -31,10 +31,11 @@ function get_sis_user_id(canvas_user_api_data) {
 
 var shopping_tool_url = "https://icommons.harvard.edu/tools/shopping";	// the url of the shopping tool
 var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
+var current_user_is_admin = 'current_user_roles' in ENV && jQuery.inArray('admin', ENV['current_user_roles']) >= 0;
 var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
 var course_id = get_course_number();
-var course_url = '/api/v1/courses/' + course_id;
+var course_url = '/api/v1/courses/' + course_id + '?include[]=is_public';
 
 var data_tooltip = 'More info about access during shopping period';
 var shopping_help_doc_url = 'https://wiki.harvard.edu/confluence/display/canvas/Course+Shopping';
@@ -136,9 +137,9 @@ else {
                                 	if this is a public site and the user has no enrollments, send
                                 	them to the view_course url to add them as a Harvard-Viewer.
                                 */
-                                if(num_enrollments == 0){
-									url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + sis_user_id
-									window.location.replace(url);
+                                if (!current_user_is_admin && course_is_public && num_enrollments == 0) {
+                                    var url = shopping_tool_url + '/view_course/' + course_id + '?canvas_login_id=' + sis_user_id;
+                                    window.location.replace(url);
                                 }
 
                                 for (var n = 0; n < num_enrollments; n++) {
