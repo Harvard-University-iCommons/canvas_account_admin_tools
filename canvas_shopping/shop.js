@@ -132,6 +132,7 @@ else {
                             if (course_id == c_id) {
 
                                 var num_enrollments = data['enrollments'].length;
+                                var course_is_public = data['is_public'];
 
                                 /*
                                 	if this is a public site and the user has no enrollments, send
