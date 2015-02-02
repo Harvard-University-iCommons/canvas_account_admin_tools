@@ -27,6 +27,9 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
+# NOTE: this was being set to a sample email address in non-prod
+# environments before this change.  This represents the address used
+# for prod.
 ADMINS = (
     ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
 ),
