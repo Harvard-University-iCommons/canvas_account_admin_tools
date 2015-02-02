@@ -27,7 +27,7 @@ EXPORT_TOOL = {
 }
 
 TERM_TOOL = {
-    'ADMIN_GROUP': 'IcGroup:25292',
+    'ADMIN_GROUP': 'IcGroup:358',
     'ALLOWED_GROUPS': {
         'IcGroup:25096': 'gse',
         'IcGroup:25095': 'colgsas',
