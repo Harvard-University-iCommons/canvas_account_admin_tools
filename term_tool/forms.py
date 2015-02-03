@@ -43,15 +43,16 @@ class EditTermForm(forms.ModelForm):
     xreg_end_date = forms.DateField(required=False, label='Cross-reg end date', help_text='Cross-registration ends at the <b>end</b> of the day specified.')
 
     active = forms.BooleanField(required=False, label='Active for Course iSites')
-    shopping_active = forms.BooleanField(required=False)
+    shopping_active = forms.BooleanField(required=False, help_text='If your school does not have a shopping period, you can ignore this setting.')
     include_in_catalog = forms.BooleanField(required=False, label='Include this term in the <b>production</b> Course Catalog')
     include_in_preview = forms.BooleanField(required=False, label='Include this term in the <b>preview</b> Course Catalog')
     enrollment_end_date = forms.DateField(required=False, help_text='The last day students can enroll in courses in this term')
     drop_date = forms.DateField(required=False, help_text='Last day students can drop the course')
     withdrawal_date = forms.DateField(required=False, help_text='The last day students can withdraw from courses in this term')
-    shopping_end_date = forms.DateField(required=False)
+    shopping_end_date = forms.DateField(required=False, help_text='If your school does not have a shopping period, you can ignore this setting.')
     exam_start_date = forms.DateField(required=False)
     exam_end_date = forms.DateField(required=False)
+    conclude_date = forms.DateField(required=False, help_text='If set, courses and enrollments will be marked as "concluded" in Canvas after this date. The course content will be available in read-only mode.')
     catalog_note = forms.CharField(required=False, widget=forms.Textarea, label='notes')
 
     def __init__(self, *args, **kwargs):
@@ -82,6 +83,7 @@ class EditTermForm(forms.ModelForm):
             ),
             Fieldset(
                 'Other Dates',
+                'conclude_date',
                 'shopping_end_date',
                 'enrollment_end_date',
                 'drop_date',
@@ -352,6 +354,7 @@ class CreateTermForm(EditTermForm):
             ),
             Fieldset(
                 'Other Dates',
+                'conclude_date',
                 'shopping_end_date',
                 'enrollment_end_date',
                 'drop_date',
