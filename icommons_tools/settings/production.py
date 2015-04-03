@@ -33,7 +33,8 @@ CANVAS_SHOPPING = {
         '2325': 'Shopper',
         '2490': 'Shopper',
         '2816': 'StudentEnrollment',
-        '2821': 'StudentEnrollment'
+        '2821': 'StudentEnrollment',
+        '2878': 'StudentEnrollment'
     },
     'SHOPPER_ROLE': 'Shopper',
     'VIEWER_ROLE': 'Harvard-Viewer',
