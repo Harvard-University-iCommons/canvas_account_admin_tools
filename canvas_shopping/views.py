@@ -131,14 +131,6 @@ def remove_shopper_role(request, canvas_course_id):
 @login_required
 @require_http_methods(['GET'])
 @check_user_id_integrity()
-def remove_viewer_role(request, canvas_course_id):
-    logger.debug(" In remove viewer role ")
-    return remove_role(request, canvas_course_id, settings.CANVAS_SHOPPING['VIEWER_ROLE'])
-
-
-@login_required
-@require_http_methods(['GET'])
-@check_user_id_integrity()
 def remove_role(request, canvas_course_id, role):
     """
     Helper method to remove the  current users's enrollment for teh specified course 
