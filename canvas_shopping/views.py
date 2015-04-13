@@ -21,8 +21,7 @@ logger = logging.getLogger(__name__)
 def view_course(request, canvas_course_id):
     """
     The course view checks to see if the authenticated user is already enrolled in the course.
-    If not, and if shopping period is still active for the course, then the user will be
-    enrolled in the course as a viewer.
+
 
     @check_user_id_integrity(login_id_required=False) -> if you are accessing this from the
     course catalog, the canvas_login_id parameter will not be passed in, so make this optional
@@ -80,11 +79,9 @@ def view_course(request, canvas_course_id):
         logger.debug("groups: " + "\n".join(group_ids))
 
         user_can_shop = False
-        shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
 
         # make sure this is a shoppable course and that this user can shop it
         is_shoppable = False
-        course_instance_id = None
         try:
             ci = CourseInstance.objects.get(pk=canvas_course['sis_course_id'])  # TODO: prefetch term and course
         except ObjectDoesNotExist:
@@ -99,21 +96,16 @@ def view_course(request, canvas_course_id):
         if ci.term.shopping_active:
             is_shoppable = True
 
-            course_instance_id = ci.course_instance_id
-
             # is the user eligible to view the course?
             if is_huid(user_id):
                 # any HUID holder can shop
                 user_can_shop = True
-                shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
-
             else:
                 # any student can shop
                 group_ids = request.session.get('USER_GROUPS', [])
                 for gid in group_ids:
                     if gid.startswith('ScaleSchoolEnroll:') or group_pattern.match(gid):
                         user_can_shop = True
-                        shopping_role = settings.CANVAS_SHOPPING['VIEWER_ROLE']
 
         else:
             logger.debug('course instance term is not active for shopping: term id %d' % ci.term.term_id)
@@ -124,15 +116,8 @@ def view_course(request, canvas_course_id):
         elif user_can_shop is False:
             return render(request, 'canvas_shopping/not_eligible.html', {'canvas_course': canvas_course})
 
-        else:
-            # Enroll this user as a shopper
-            new_enrollee = add_canvas_section_enrollee('sis_section_id:%d' % course_instance_id, shopping_role, user_id)
-            if new_enrollee:
-                # success
-                # return render(request, 'canvas_shopping/successfully_added.html', {'canvas_course': canvas_course, 'course_url': course_url, 'shopping_role': shopping_role, 'settings': settings.CANVAS_SHOPPING})
-                return redirect(course_url)
-            else:
-                return render(request, 'canvas_shopping/error_adding.html', {'canvas_course': canvas_course})
+        # redirect eligible users to canvas course site
+        return redirect(course_url)
 
 
 @login_required
@@ -219,7 +204,6 @@ def shop_course(request, canvas_course_id):
 
     # make sure this is a shoppable course and that this user can shop it
     is_shoppable = False
-    course_instance_id = None
 
     # only lookup the course if we have a valid canvas course
 
