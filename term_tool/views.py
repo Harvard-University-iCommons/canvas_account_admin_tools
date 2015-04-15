@@ -194,15 +194,16 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
 
 
     def post(self, request, *args, **kwargs):
+        user_id = self.request.user.username
         state = self.request.POST.get('state')
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
-        if state == 'false':
-            exclude_from_shopping = False
-        else:
-            exclude_from_shopping = True
 
-        logger.debug('state: %s' % state)
+        if state == 'true':
+            exclude_from_shopping = True
+        else:
+            exclude_from_shopping = False
+
         if state and school_id and course_instance_id:
             account_id = 'sis_account_id:'+school_id
             course_id = 'sis_course_id:'+course_instance_id
@@ -213,11 +214,15 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
                 course = CourseInstance.objects.get(course_instance_id=course_instance_id)
                 course.exclude_from_shopping = exclude_from_shopping
                 course.save()
+                logger.info('user %s set course_is_public_to_auth_users on course %s to %s' %(user_id, course_instance_id, exclude_from_shopping))
             except ObectDoesNotExist as e:
-                logger.exception(e)
-                return HttpResponse(json.dumps({ 'Error': 'database error'}), content_type="application/json")
+                logger.exception('Error getting course_instnace_id %s' % course_instance_id)
+                return HttpResponse(json.dumps({ 'Error': 'database exception occured'}), content_type="application/json")
 
             try:
+                """
+                update the Canvas using the Canvas SDK
+                """
                 resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=state).json()
                 logger.debug('id: %s, is_public_to_auth_users: %s' % (resp.get('id'), resp.get('is_public_to_auth_users')))
 
@@ -228,6 +233,6 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
         else:
             return HttpResponse(json.dumps({ 'Error': 'missing parameters'}), content_type="application/json")
 
-        json_data = json.dumps({ 'success': 'Course %s updated!' % course_instance_id})
+        json_data = json.dumps({ 'success': 'Course %s has been updated!' % course_instance_id})
         logger.debug(json_data)
         return HttpResponse(json_data, content_type="application/json")
