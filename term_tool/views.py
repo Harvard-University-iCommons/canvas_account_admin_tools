@@ -13,7 +13,7 @@ from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import Term
 
-from term_tool.forms import (EditTermForm, CreateTermForm,) # EditCourseInstanceForm)
+from term_tool.forms import (EditTermForm, CreateTermForm,)
 from util import util
 
 
