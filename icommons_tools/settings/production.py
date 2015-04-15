@@ -34,6 +34,7 @@ CANVAS_SHOPPING = {
         '2490': 'Shopper',
         '2816': 'StudentEnrollment',
         '2821': 'StudentEnrollment',
+        '2874': 'StudentEnrollment',
         '2878': 'StudentEnrollment'
     },
     'SHOPPER_ROLE': 'Shopper',
