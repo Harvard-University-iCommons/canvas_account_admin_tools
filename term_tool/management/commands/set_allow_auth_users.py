@@ -1,12 +1,10 @@
 import logging
-import re
 import time
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from canvas_sdk.methods import (accounts, courses)
-from canvas_sdk.utils import get_all_list_data
+from canvas_sdk.methods import (courses)
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import (Term, CourseInstance)
@@ -49,7 +47,6 @@ class Command(BaseCommand):
 
         if dry_run:
             logger.info('Performing dry-run, no access will be set.')
-
 
         start_time = time.time()
 

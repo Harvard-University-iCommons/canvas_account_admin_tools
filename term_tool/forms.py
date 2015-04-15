@@ -1,23 +1,16 @@
 from datetime import datetime, time, date
 import logging
-import re
+
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button
 from crispy_forms.bootstrap import FormActions
-from icommons_common.models import Term, TermCode, School, CourseInstance
+from icommons_common.models import Term, TermCode, School
 
 from util import util
 
-from django.forms.models import inlineformset_factory
 
 logger = logging.getLogger(__name__)
-
-class EditCourseInstanceForm(forms.ModelForm):
-    class Meta:
-        model = CourseInstance
-        fields = ('short_title', 'title', 'exclude_from_shopping')
-
 
 
 class EditTermForm(forms.ModelForm):

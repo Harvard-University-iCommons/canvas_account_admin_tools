@@ -1,28 +1,25 @@
-from django.core.urlresolvers import reverse
-from django.views import generic
-from django.contrib import messages
-from django.forms.models import inlineformset_factory
-from icommons_common.models import (School, Term, CourseInstance)
-from icommons_common.auth.views import LoginRequiredMixin
-from term_tool.forms import (EditTermForm, CreateTermForm, EditCourseInstanceForm)
-from django.http import HttpResponse
-from django.conf import settings
 import json
 import logging
 
-from canvas_sdk.methods import (accounts, courses)
-from canvas_sdk.utils import get_all_list_data
+from django.core.urlresolvers import reverse
+from django.views import generic
+from django.contrib import messages
+from icommons_common.models import (School, CourseInstance)
+from icommons_common.auth.views import LoginRequiredMixin
+from django.http import HttpResponse
+from django.conf import settings
+from canvas_sdk.methods import (courses)
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import Term
-from django.core.exceptions import ObjectDoesNotExist
 
+from term_tool.forms import (EditTermForm, CreateTermForm,) # EditCourseInstanceForm)
 from util import util
+
 
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
-
 
 ### Mixins:
 
@@ -175,7 +172,6 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
 
 class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.ListView):
 
-    form_class = EditCourseInstanceForm
     template_name = 'term_tool/exclude_courses.html'
     model = CourseInstance
 
@@ -196,24 +192,17 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
 
         return context
 
-    def form_valid(self, form):
-        """
-        If the request is ajax, save the form and return a json response.
-        Otherwise return super as expected.
-        """
-        if self.request.is_ajax():
-            logger.debug('-------> AJAX')
-            self.object = form.save()
-            return HttpResponse(json.dumps("success"),
-                mimetype="application/json")
-        return super(EditCourseInstanceForm, self).form_valid(form)
-
 
     def post(self, request, *args, **kwargs):
         state = self.request.POST.get('state')
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
+        if state == 'false':
+            exclude_from_shopping = False
+        else:
+            exclude_from_shopping = True
 
+        logger.debug('state: %s' % state)
         if state and school_id and course_instance_id:
             account_id = 'sis_account_id:'+school_id
             course_id = 'sis_course_id:'+course_instance_id
@@ -222,7 +211,7 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
             """
             try:
                 course = CourseInstance.objects.get(course_instance_id=course_instance_id)
-                course.exclude_from_shopping = state
+                course.exclude_from_shopping = exclude_from_shopping
                 course.save()
             except ObectDoesNotExist as e:
                 logger.exception(e)

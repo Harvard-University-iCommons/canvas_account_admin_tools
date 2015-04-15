@@ -28,7 +28,7 @@
         <tr>
             <th>Display Name</th>
             <th>Academic Year</th>
-            <th>Courses to Exclude<br />from Shopping</th>
+            <th>Disable Auth User Param</th>
             <th>Start Date</th>
             <th>End Date</th> 
             <th>Xreg Start Date</th>
@@ -69,7 +69,7 @@
             </td>
             <td>
                 {% if term.shopping_active %}
-                    <a href="{% url "tt:excludecourses" term_id=term.term_id school_id=school.school_id %}">edit course list</a>
+                    <a href="{% url "tt:excludecourses" term_id=term.term_id school_id=school.school_id %}">update courses</a>
                 {% endif %}
             </td>
             <td>
