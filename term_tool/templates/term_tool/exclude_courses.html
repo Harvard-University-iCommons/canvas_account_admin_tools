@@ -1,0 +1,98 @@
+{% extends "term_tool/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block stylesheet %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="//cdn.datatables.net/1.10.6/css/jquery.dataTables.css">
+{% endblock %}
+
+{% block page_title %}Choose a School{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url "tt:schoollist" %}">Schools</a></li>
+    <li><a href="{% url "tt:termlist" school_id %}">{{ school_id|upper }} Terms</a></li>
+    <li class="active"><a href="#">Edit Term {{ term_id }}</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="messages" class="alert alert-success hidden"></div>
+    <div id="errors" class="alert alert-success hidden"></div>
+
+    <form class="form-horizontal"  method="POST" action="">
+        {% csrf_token %}
+        {{ formset.management_form }}
+
+        <table id="course-list-table" class="display" cellspacing="0" width="100%">
+            <thead>
+                <th>Course Instance ID</th>
+                <th>Short Title</th>
+                <th>Title</th>
+                <th>Disable auth user access</th>
+            </thead>
+            <tbody>
+            {% for course in object_list %}
+                <tr>
+                <td>{{ course.course_instance_id }}</td>
+                <td>{{ course.short_title }}</td>
+                <td>{{ course.title }}</td>
+                <td>
+                    {% if course.exclude_from_shopping %}
+                        <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox" checked="checked">
+                    {% else %}
+                        <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox">
+                    {% endif %}
+
+                </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <div class="form_block">
+            <input type="submit" value="Save"/>
+        </div>
+    </form>
+
+{% endblock content %}
+
+    {% block javascript %}
+{{ block.super }}
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+        $('#course-list-table').DataTable();
+
+        $('.checkbox').change(function(){
+
+            var state = this.checked ? 'true' : 'false';
+            var value = $(this).attr('value');
+            var url = "{% url 'tt:excludecourses' term_id school_id %}";
+            ajax_req = $.ajax({
+                url: url,
+                type: "POST",
+                dataType: "json",
+                data: {
+                    'state' : state,
+                    'school_id' : '{{ school_id }}',
+                    'course_instance_id' : value,
+                    'csrfmiddlewaretoken' : '{{ csrf_token }}',
+                },
+            }).done(function(  ) {
+                $("#messages").text('Course '+value+' has been updated!');
+                $("#messages").removeClass('hidden');
+            }).fail(function() {
+                $("#errors").text('There was a problem updating course '+value+'!');
+                $("#errors").removeClass('hidden');
+            });
+
+        });
+    })
+    </script>
+{% endblock %}

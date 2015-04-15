@@ -28,6 +28,7 @@
         <tr>
             <th>Display Name</th>
             <th>Academic Year</th>
+            <th>Courses to Exclude<br />from Shopping</th>
             <th>Start Date</th>
             <th>End Date</th> 
             <th>Xreg Start Date</th>
@@ -65,6 +66,11 @@
         
             <td>
                 {{ term.academic_year }}
+            </td>
+            <td>
+                {% if term.shopping_active %}
+                    <a href="{% url "tt:excludecourses" term_id=term.term_id school_id=school.school_id %}">edit course list</a>
+                {% endif %}
             </td>
             <td>
                 {% if term.start_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
