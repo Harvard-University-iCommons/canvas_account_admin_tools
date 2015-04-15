@@ -84,10 +84,10 @@
                     'course_instance_id' : value,
                     'csrfmiddlewaretoken' : '{{ csrf_token }}',
                 },
-            }).done(function(  ) {
+            }).done(function(json) {
                 $("#messages").text('Course '+value+' has been updated!');
                 $("#messages").removeClass('hidden');
-            }).fail(function() {
+            }).fail(function(json) {
                 $("#errors").text('There was a problem updating course '+value+'!');
                 $("#errors").removeClass('hidden');
             });

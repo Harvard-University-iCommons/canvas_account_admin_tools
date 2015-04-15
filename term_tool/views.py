@@ -194,21 +194,30 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.Lis
 
 
     def post(self, request, *args, **kwargs):
+        """
+        Process AJAX requests from the exclude_courses.html template.
+        We get params from the template then attempt to update the CourseInstance model
+        and call the Canvas SDK to update the Canvas Course
+        """
         user_id = self.request.user.username
         state = self.request.POST.get('state')
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
+
 
         if state == 'true':
             exclude_from_shopping = True
         else:
             exclude_from_shopping = False
 
+        """
+        make sure we have all the params
+        """
         if state and school_id and course_instance_id:
             account_id = 'sis_account_id:'+school_id
             course_id = 'sis_course_id:'+course_instance_id
             """
-            save the value to the database
+            save the value to the database and log the transaction, if an error occurs log it and return an error response
             """
             try:
                 course = CourseInstance.objects.get(course_instance_id=course_instance_id)
