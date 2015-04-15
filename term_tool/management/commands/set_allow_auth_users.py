@@ -9,7 +9,7 @@ from canvas_sdk.methods import (accounts, courses)
 from canvas_sdk.utils import get_all_list_data
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import Term
+from icommons_common.models import (Term, CourseInstance)
 
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -53,26 +53,28 @@ class Command(BaseCommand):
 
         start_time = time.time()
 
-        terms = Term.objects.filter(courses_public_to_auth_users=True)
+        terms = Term.objects.filter(shopping_active=True)
 
         for term in terms:
-            courses_to_exclude = term.courses_to_exclude.strip()
-            course_list = re.findall(r"[\w']+", courses_to_exclude)
-            course_set = set(map(int, course_list))
-            account_id = 'sis_account_id:'+term.school_id
-            courses_to_process = self.get_course_list(account_id, course_set)
-            print 'courses_to_process: %s' % courses_to_process
+            logger.debug('term: %s' % term.display_name)
+            account_id = 'sis_account_id:%s' % term.school_id
 
-            for course_id in courses_to_process:
-                try:
-                    '''
-                    note that this is using the updated 'update_course' SDK method
-                    '''
-                    resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
-                    print 'id: %s, is_public_to_auth_users: %s' % (resp.get('id'), resp.get('is_public_to_auth_users'))
-                except CanvasAPIError as api_error:
-                    logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
-                         % (course_id, account_id, api_error))
+            courses_to_process = CourseInstance.objects.filter(term=term.term_id, exclude_from_shopping=False).values('course_instance_id', 'sync_to_canvas')
+
+            for course in courses_to_process:
+                sync_to_canvas = course.get('sync_to_canvas')
+                if sync_to_canvas:
+                    try:
+                        '''
+                        note that this is using the updated 'update_course' SDK method
+                        '''
+                        course_id = 'sis_course_id:%s' % course.get('course_instance_id')
+
+                        resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
+                        print 'id: %s, is_public_to_auth_users: %s' % (resp.get('id'), resp.get('is_public_to_auth_users'))
+                    except CanvasAPIError as api_error:
+                        logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
+                             % (course_id, account_id, api_error))
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -81,30 +83,3 @@ class Command(BaseCommand):
         logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
 
 
-    def get_course_list(self, account_id, courses_to_exclude=None):
-        '''
-        given an account id, and a list of courses to exclude.
-        get the list of courses to include.
-        '''
-        if not account_id:
-            return None
-
-        if not courses_to_exclude:
-            courses_to_exclude = set()
-
-        if isinstance(courses_to_exclude, list):
-            courses_to_exclude = set(courses_to_exclude)
-
-        if type(courses_to_exclude) is not set:
-            raise TypeError('courses_to_exclude parameter must be of set or list type')
-
-        course_ids_in_sub_account = set()
-        courses_in_account = get_all_list_data(SDK_CONTEXT, accounts.list_active_courses_in_account, account_id, with_enrollments=True)
-        for course in courses_in_account:
-            canvas_course_id = course.get('id')
-            if canvas_course_id:
-                course_ids_in_sub_account.add(canvas_course_id)
-
-        courses_to_update = course_ids_in_sub_account - courses_to_exclude
-
-        return courses_to_update
