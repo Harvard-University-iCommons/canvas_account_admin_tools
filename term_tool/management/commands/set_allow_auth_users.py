@@ -41,13 +41,15 @@ class Command(BaseCommand):
             account_id = 'sis_account_id:%s' % term.school_id
             courses_to_process = CourseInstance.objects.filter(term=term.term_id, exclude_from_shopping=False, sync_to_canvas=True).values('course_instance_id')
             for course in courses_to_process:
-                try:
-                    course_id = 'sis_course_id:%s' % course.get('course_instance_id')
-                    resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
-                    print 'id: %s, is_public_to_auth_users: %s' % (resp.get('id'), resp.get('is_public_to_auth_users'))
-                except CanvasAPIError as api_error:
-                    logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
-                         % (course_id, account_id, api_error))
+                course_instance_id = course.get('course_instance_id')
+                if course_instance_id:
+                    course_id = 'sis_course_id:%s' % course_instance_id
+                    try:
+                        resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
+                        print 'response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (resp.get('id'), course_id,resp.get('is_public_to_auth_users'))
+                    except CanvasAPIError as api_error:
+                        logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
+                             % (course_id, account_id, api_error))
 
         end_time = time.time()
         total_time = end_time - start_time
