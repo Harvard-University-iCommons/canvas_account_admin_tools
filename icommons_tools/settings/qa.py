@@ -10,7 +10,6 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
     },
     'SHOPPER_ROLE': 'Shopper',
-    'VIEWER_ROLE': 'Harvard-Viewer',
     'ROOT_ACCOUNT' : '1',
 }
 
