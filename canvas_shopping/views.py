@@ -129,6 +129,7 @@ def get_enrollment_id(user_id, course_id, role):
             if e['course_id'] == int(course_id):
                 if e['role'] == role:
                     return e['id']
+    return None
 
 
 '''
