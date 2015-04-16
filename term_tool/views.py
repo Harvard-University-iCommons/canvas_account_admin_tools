@@ -181,17 +181,9 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ExcludeCoursesFromViewing, self).get_context_data(**kwargs)
-        """
-        encrypt user_id to place in hidden field on form
-        """
-        user_id = self.request.user.username
-        encrypted_user = util.encrypt_string(user_id)
         context['term_id'] = self.kwargs['term_id']
         context['school_id'] = self.kwargs['school_id']
-        context['USERID'] = encrypted_user
-
         return context
-
 
     def post(self, request, *args, **kwargs):
         """
@@ -203,7 +195,6 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
         state = self.request.POST.get('state')
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
-
 
         if state == 'true':
             exclude_from_shopping = True
