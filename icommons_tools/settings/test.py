@@ -7,7 +7,6 @@ ALLOWED_HOSTS = ['*']
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'SHOPPER_ROLE': 'Shopper',
-    'VIEWER_ROLE': 'Harvard-Viewer',
 }
 
 EXPORT_TOOL = {

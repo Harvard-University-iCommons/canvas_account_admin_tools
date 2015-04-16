@@ -38,7 +38,6 @@ CANVAS_SHOPPING = {
         '2878': 'StudentEnrollment'
     },
     'SHOPPER_ROLE': 'Shopper',
-    'VIEWER_ROLE': 'Harvard-Viewer',
     'ROOT_ACCOUNT': '1',
 }
 
