@@ -46,7 +46,7 @@ class Command(BaseCommand):
                     course_id = 'sis_course_id:%s' % course_instance_id
                     try:
                         resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
-                        print 'response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (resp.get('id'), course_id,resp.get('is_public_to_auth_users'))
+                        logger.info('response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (resp.get('id'), course_id,resp.get('is_public_to_auth_users')))
                     except CanvasAPIError as api_error:
                         logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
                              % (course_id, account_id, api_error))
