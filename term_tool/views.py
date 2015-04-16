@@ -1,22 +1,27 @@
-from django.core.urlresolvers import reverse
-
-from django.views import generic
-from django.contrib import messages
-
-from icommons_common.models import School, Term
-from icommons_common.auth.views import LoginRequiredMixin
-from term_tool.forms import EditTermForm, CreateTermForm
-
-from django.conf import settings
-
+import json
 import logging
 
+from django.core.urlresolvers import reverse
+from django.views import generic
+from django.contrib import messages
+from icommons_common.models import (School, CourseInstance)
+from icommons_common.auth.views import LoginRequiredMixin
+from django.http import HttpResponse
+from django.conf import settings
+from canvas_sdk.methods import (courses)
+from canvas_sdk.exceptions import CanvasAPIError
+from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.models import Term
+
+from term_tool.forms import (EditTermForm, CreateTermForm,)
 from util import util
+
 
 logger = logging.getLogger(__name__)
 
-### Mixins:
+SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
+### Mixins:
 
 class TermActionMixin(object):
     def form_valid(self, form):
@@ -118,7 +123,7 @@ class TermEditView(LoginRequiredMixin, TermActionMixin, generic.edit.UpdateView)
         context = super(TermEditView, self).get_context_data(**kwargs)
 
         '''
-        encrypt user_id to placein hidden field on form
+        encrypt user_id to place in hidden field on form
         '''
         user_id = self.request.user.username
         encrypted_user = util.encrypt_string(user_id)
@@ -131,7 +136,6 @@ class TermEditView(LoginRequiredMixin, TermActionMixin, generic.edit.UpdateView)
     def get_success_url(self):
         logger.debug(self)
         logger.info('User %s edited term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
-        #logger.info(self)
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
 
@@ -163,3 +167,71 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
     def get_success_url(self):
         logger.info('User %s created new term %s (%s %s)' % (self.request.user, self.object.term_id, self.object.school_id, self.object.display_name))
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
+
+
+class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
+
+    template_name = 'term_tool/exclude_courses.html'
+    model = CourseInstance
+
+    def get_queryset(self):
+        term_id = self.kwargs['term_id']
+        return CourseInstance.objects.filter(term=term_id, sync_to_canvas=True)
+
+    def get_context_data(self, **kwargs):
+        context = super(ExcludeCoursesFromViewing, self).get_context_data(**kwargs)
+        context['term_id'] = self.kwargs['term_id']
+        context['school_id'] = self.kwargs['school_id']
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """
+        Process AJAX requests from the exclude_courses.html template.
+        We get params from the template then attempt to update the CourseInstance model
+        and call the Canvas SDK to update the Canvas Course
+        """
+        user_id = self.request.user.username
+        state = self.request.POST.get('state')
+        school_id = self.request.POST.get('school_id')
+        course_instance_id = self.request.POST.get('course_instance_id')
+
+        if state == 'true':
+            exclude_from_shopping = True
+        else:
+            exclude_from_shopping = False
+
+        """
+        make sure we have all the params
+        """
+        if state and school_id and course_instance_id:
+            account_id = 'sis_account_id:'+school_id
+            course_id = 'sis_course_id:'+course_instance_id
+            """
+            save the value to the database and log the transaction, if an error occurs log it and return an error response
+            """
+            try:
+                course = CourseInstance.objects.get(course_instance_id=course_instance_id)
+                course.exclude_from_shopping = exclude_from_shopping
+                course.save()
+                logger.info('user %s set course_is_public_to_auth_users on course %s to %s' % user_id, course_instance_id, exclude_from_shopping)
+            except ObectDoesNotExist as e:
+                logger.exception('Error getting course_instnace_id %s' % course_instance_id)
+                return HttpResponse(json.dumps({ 'error': 'database exception occured'}), content_type="application/json")
+
+            try:
+                """
+                update the Canvas using the Canvas SDK
+                """
+                resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=state).json()
+                logger.debug('id: %s, is_public_to_auth_users: %s' % resp.get('id'), resp.get('is_public_to_auth_users'))
+
+            except CanvasAPIError as api_error:
+                logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s wityh state=%s. Exception=%s:"
+                     % course_id, account_id, state, api_error)
+                return HttpResponse(json.dumps({ 'error': 'canvas api error'}), content_type="application/json")
+        else:
+            return HttpResponse(json.dumps({ 'error': 'missing parameters'}), content_type="application/json")
+
+        json_data = json.dumps({ 'success': 'Course %s has been updated!' % course_instance_id})
+        logger.debug(json_data)
+        return HttpResponse(json_data, content_type="application/json")

@@ -120,6 +120,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handers': ['console'],
+        },
         'django': {
             'handlers': ['console', 'logfile'],
             'level': 'ERROR',

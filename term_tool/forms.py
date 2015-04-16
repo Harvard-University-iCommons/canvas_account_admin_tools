@@ -1,14 +1,14 @@
 from datetime import datetime, time, date
+import logging
+
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Button
 from crispy_forms.bootstrap import FormActions
-
 from icommons_common.models import Term, TermCode, School
 
 from util import util
 
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ class EditTermForm(forms.ModelForm):
     class Meta:
         model = Term
         exclude = ('user_id',)
+
     # make the school, term_code and academic_year fields hidden; they should not be changed once the term is created
     school = forms.ModelChoiceField(queryset=School.objects.all(), widget=forms.widgets.HiddenInput())
     term_code = forms.ModelChoiceField(queryset=TermCode.objects.all(), widget=forms.widgets.HiddenInput())
@@ -32,7 +33,6 @@ class EditTermForm(forms.ModelForm):
     # hide user_id and modified_on fields, they should not be directlty editable
 
     user_id = forms.CharField(required=False, widget=forms.widgets.HiddenInput())
-    #modified_on = forms.DateField(required=False, widget=forms.widgets.HiddenInput())
 
     # make some additional fields required; they're not strictly required in the database, but we want them to be required here
     start_date = forms.DateField(required=True)
@@ -99,7 +99,6 @@ class EditTermForm(forms.ModelForm):
             ),
         )
 
-#                HTML('<a href="{% url "tt:termlist" school_id=object.school_id %}" class="btn btn-link">cancel</a>')
     """
     override the clean method so that we can perform custom validation; this is done at the form level because some validation
     rules depend on the values of multiple fields.
@@ -291,9 +290,7 @@ class EditTermForm(forms.ModelForm):
             del cleaned_data['calendar_year']
         """
         t = time(23, 59, 59)
-        #logger.info(type(end_date).__name__)
-        #cleaned_data['end_date'] = datetime.combine(end_date, t)
-        #logger.info(cleaned_data['end_date'])
+
         if end_date:
             cleaned_data['end_date'] = datetime.combine(end_date, t)
         if xreg_end_date:
@@ -311,9 +308,9 @@ class EditTermForm(forms.ModelForm):
 
         logger.debug("clean complete")
 
-        #logger.info(cleaned_data)
-        #from pudb import set_trace; set_trace()
         return cleaned_data
+
+
 
 
 # the Create form is just like the edit form except that the academic year and term code are not hidden,
