@@ -226,7 +226,7 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
                 logger.info('user %s set course_is_public_to_auth_users on course %s to %s' %(user_id, course_instance_id, exclude_from_shopping))
             except ObectDoesNotExist as e:
                 logger.exception('Error getting course_instnace_id %s' % course_instance_id)
-                return HttpResponse(json.dumps({ 'Error': 'database exception occured'}), content_type="application/json")
+                return HttpResponse(json.dumps({ 'error': 'database exception occured'}), content_type="application/json")
 
             try:
                 """
@@ -238,9 +238,9 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
             except CanvasAPIError as api_error:
                 logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s wityh state=%s. Exception=%s:"
                      % (course_id, account_id, state, api_error))
-                return HttpResponse(json.dumps({ 'Error': 'canvas api error'}), content_type="application/json")
+                return HttpResponse(json.dumps({ 'error': 'canvas api error'}), content_type="application/json")
         else:
-            return HttpResponse(json.dumps({ 'Error': 'missing parameters'}), content_type="application/json")
+            return HttpResponse(json.dumps({ 'error': 'missing parameters'}), content_type="application/json")
 
         json_data = json.dumps({ 'success': 'Course %s has been updated!' % course_instance_id})
         logger.debug(json_data)

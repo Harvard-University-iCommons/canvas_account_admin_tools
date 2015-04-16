@@ -8,7 +8,7 @@
 <link type="text/css" rel="stylesheet" href="//cdn.datatables.net/1.10.6/css/jquery.dataTables.css">
 {% endblock %}
 
-{% block page_title %}Choose a School{% endblock %}
+{% block page_title %}Disable the all authorized parameter for a course{% endblock %}
 
 {% block breadcrumb %}
 <ul class="breadcrumb">
@@ -24,39 +24,30 @@
     <div id="messages" class="alert alert-success hidden"></div>
     <div id="errors" class="alert alert-success hidden"></div>
 
-    <form class="form-horizontal"  method="POST" action="">
-        {% csrf_token %}
-        {{ formset.management_form }}
+    <table id="course-list-table" class="display" cellspacing="0" width="100%">
+        <thead>
+            <th>Course Instance ID</th>
+            <th>Short Title</th>
+            <th>Title</th>
+            <th>Disable auth user access</th>
+        </thead>
+        <tbody>
+        {% for course in object_list %}
+            <tr>
+            <td>{{ course.course_instance_id }}</td>
+            <td>{{ course.short_title }}</td>
+            <td>{{ course.title }}</td>
+            <td>
+                {% if course.exclude_from_shopping %}
+                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox" checked="checked">
+                {% else %}
+                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox">
+                {% endif %}
+            </td>
+            </tr>
+        {% endfor %}
+    </table>
 
-        <table id="course-list-table" class="display" cellspacing="0" width="100%">
-            <thead>
-                <th>Course Instance ID</th>
-                <th>Short Title</th>
-                <th>Title</th>
-                <th>Disable auth user access</th>
-            </thead>
-            <tbody>
-            {% for course in object_list %}
-                <tr>
-                <td>{{ course.course_instance_id }}</td>
-                <td>{{ course.short_title }}</td>
-                <td>{{ course.title }}</td>
-                <td>
-                    {% if course.exclude_from_shopping %}
-                        <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox" checked="checked">
-                    {% else %}
-                        <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox">
-                    {% endif %}
-
-                </td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <div class="form_block">
-            <input type="submit" value="Save"/>
-        </div>
-    </form>
 
 {% endblock content %}
 
@@ -85,10 +76,19 @@
                     'csrfmiddlewaretoken' : '{{ csrf_token }}',
                 },
             }).done(function(json) {
-                $("#messages").text('Course '+value+' has been updated!');
-                $("#messages").removeClass('hidden');
+                $.each(json, function(key, value){
+                    if(key == 'success') {
+                        $("#messages").text(value);
+                        $("#messages").removeClass('hidden');
+                    }
+                    else {
+                        $("#errors").text(json.error);
+                        $("#errors").removeClass('hidden');
+                    }
+                })
+
             }).fail(function(json) {
-                $("#errors").text('There was a problem updating course '+value+'!');
+                $("#errors").text(json.error);
                 $("#errors").removeClass('hidden');
             });
 
