@@ -170,7 +170,7 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
 
-class ExcludeCoursesFromViewing(LoginRequiredMixin, TermActionMixin, generic.ListView):
+class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
 
     template_name = 'term_tool/exclude_courses.html'
     model = CourseInstance
