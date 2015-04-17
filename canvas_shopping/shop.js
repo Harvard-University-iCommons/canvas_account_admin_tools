@@ -51,6 +51,7 @@ var is_not_submissions_page = ((window.location.pathname).indexOf('submissions')
 var user_enrolled = false;
 var is_shopper = false;
 var is_teacher = false;
+var is_student = false;
 
 var shopping_banner = jQuery('<div/>', {
 						id: 'course-shopping',
@@ -58,13 +59,12 @@ var shopping_banner = jQuery('<div/>', {
 						});
 
 /*
-	check to see if the '#authorized_message' id exists on the page.
-	If so, redirect the user to the shopping tool.
+	check to see if the '#unauthorized_message' is being rendered  and only proceed
+	with additional checks to show shopping messages if authorized
 */
 var authorized = $('#unauthorized_message').length > 0 ? false : true;
 
 if (authorized){
-
 
 	var un = $('ul#identity > li.user_name > a').text();
 
@@ -124,81 +124,67 @@ if (authorized){
                             if (course_id == c_id) {
 
                                 var num_enrollments = data['enrollments'].length;
-                                var course_is_public = data['is_public'];
-
-                                /*
-                                	if this is a public site and the user has no enrollments, send
-                                	them to the view_course url to add them as a Harvard-Viewer.
-                                */
 
                                 for (var n = 0; n < num_enrollments; n++) {
                                     var erole = data['enrollments'][n]['role'];
-                                    var type=  data['enrollments'][n]['type'];
+                                    var type =  data['enrollments'][n]['type'];
                                     user_enrolled = true;
 
-                                    if (erole == 'Shopper') {
-                                        is_shopper = true;
-                                    }
-                                    if (erole == 'StudentEnrollment-Viewer') {
-                                        is_student = true;
-                                    }
-                                    /* Base the teacher check on 'type' instead of 'role' to capture all teacher roles. Student/Shopper
+                                    is_shopper = (erole == 'Shopper');
+                                    is_student = (erole == 'StudentEnrollment-Viewer');
+                                     /* Base the teacher check on 'type' instead of 'role' to capture all teacher roles. Student/Shopper
                                         check would still use role as they are both of type 'student'
                                     */
-                                    if (type == 'teacher') {
-                                        is_teacher = true;
-                                    }
-
+                                    is_teacher =  (type == 'teacher');
                                 }
                             }
 
                             /*
-                             	If the user is enrolled as a Shopper, the will be shown the remove shopping button.
-                             	If the user is enrolled as TeacherEnrollment,  TaEnrollment, or DesignerEnrollment they will be shown the shopping is active message.
+                             	If the user is enrolled as a Shopper, they will be shown the remove shopping button.
+                             	If the user is enrolled as  Teacher (Teacher, Ta, Designer, etc), they will be shown the shopping is active message.
 
                              	TLT-668 - if the term_id of the course is in the allowed_terms whitelist display the shopping
                              	options to the user. Otherwise do not show the shopping options.
                              */
 
-                                /*
-                                 	application url endpoints
-                                 */
-                                var login_id = '?canvas_login_id=' + sis_user_id;
-                                var course_and_user_id_param = course_id + login_id;
-                                var add_shopper_url = shopping_tool_url + '/shop_course/' + course_and_user_id_param;
-                                var remove_shopper_url = shopping_tool_url + '/remove_shopper_role/' + course_and_user_id_param;
-                                var manage_shopping_page_url = shopping_tool_url + '/my_list' + login_id;
+                            /*
+                                application url endpoints
+                             */
+                            var login_id = '?canvas_login_id=' + sis_user_id;
+                            var course_and_user_id_param = course_id + login_id;
+                            var add_shopper_url = shopping_tool_url + '/shop_course/' + course_and_user_id_param;
+                            var remove_shopper_url = shopping_tool_url + '/remove_shopper_role/' + course_and_user_id_param;
+                            var manage_shopping_page_url = shopping_tool_url + '/my_list' + login_id;
 
-                                /*
-                                 	text messages
-                                 */
-                                var shopper_message_text = '<h1>You have full access to this course site ' + tooltip_link + '</h1><p><em>Note: During shopping period you can access course site materials and tools that are normally restricted to the class list. Your contributions may be visible to other students and visitors to this course site. <a href="' + remove_shopper_url + '">I want to be removed.</a></em></p>';
-                                var viewer_message_text = '<h1>You have limited access during shopping period ' + tooltip_link + '</h1><p>You can view the site but not receive email notifications.</p>';
-                                var participate_text = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Want to participate and continue to receive email notifications?<em>(students only)</em> <a class='btn btn-small btn-primary' href='" + add_shopper_url + "'>Get full access</a></p></div>";
-                                var shopping_is_active_message = '<h1>All Harvard ID holders can view this course site during shopping period ' + tooltip_link + '</h1>In addition, all students can access course site materials and tools that are normally restricted to the class list. Student contributions may be visible to other students and visitors to this course site.';
+                            /*
+                                text messages
+                             */
+                            var shopper_message_text = '<h1>You have full access to this course site ' + tooltip_link + '</h1><p><em>Note: During shopping period you can access course site materials and tools that are normally restricted to the class list. Your contributions may be visible to other students and visitors to this course site. <a href="' + remove_shopper_url + '">I want to be removed.</a></em></p>';
+                            var viewer_message_text = '<h1>You have limited access during shopping period ' + tooltip_link + '</h1><p>You can view the site but not receive email notifications.</p>';
+                            var participate_text = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Want to participate and continue to receive email notifications?<em>(students only)</em> <a class='btn btn-small btn-primary' href='" + add_shopper_url + "'>Get full access</a></p></div>";
+                            var shopping_is_active_message = '<h1>All Harvard ID holders can view this course site during shopping period ' + tooltip_link + '</h1>In addition, all students can access course site materials and tools that are normally restricted to the class list. Student contributions may be visible to other students and visitors to this course site.';
 
-                                var manage_shopping_li_item = jQuery('<li/>', {
-                                    id: 'manage-shopping',
-                                    class: 'menu-item'
-                                });
+                            var manage_shopping_li_item = jQuery('<li/>', {
+                                id: 'manage-shopping',
+                                class: 'menu-item'
+                            });
 
-                                var manage_shopping_link = jQuery('<a/>', {
-                                    id: 'manage-shopping-page-link',
-                                    class: 'menu-item-no-drop',
-                                    href: manage_shopping_page_url,
-                                    text: "Courses I'm Shopping"
-                                });
+                            var manage_shopping_link = jQuery('<a/>', {
+                                id: 'manage-shopping-page-link',
+                                class: 'menu-item-no-drop',
+                                href: manage_shopping_page_url,
+                                text: "Courses I'm Shopping"
+                            });
 
-                                /*
-                                	build the Manage Shopping menu item
-                                */
+                            /*
+                                build the Manage Shopping menu item
+                            */
                             if (user_enrolled) {
                                 manage_shopping_li_item.append(manage_shopping_link);
 
                                 /*
                                  	for each role format the appropriate banner
                                  */
-                                //alert(" check role!");
                                 if (is_shopper) {
                                     $("ul#menu").append(manage_shopping_li_item);
                                     shopping_banner.append(shopper_message_text);
@@ -213,11 +199,13 @@ if (authorized){
                                     $('#breadcrumbs').after(shopping_banner);
                                 }
                             }else{
-                                    /* If logged in user is not enrolled, display generic Shopping message to authorized user */
-                                    $("ul#menu").append(manage_shopping_li_item);
-                                    shopping_banner.append(viewer_message_text);
-                                    shopping_banner.append(participate_text);
-                            	$('#breadcrumbs').after(shopping_banner);
+                                /*
+                                If logged in user is not enrolled, then display generic shopping message to authorized user
+                                */
+                                $("ul#menu").append(manage_shopping_li_item);
+                                shopping_banner.append(viewer_message_text);
+                                shopping_banner.append(participate_text);
+                                $('#breadcrumbs').after(shopping_banner);
                             }
                         }
 					}
