@@ -1,6 +1,6 @@
 
 // allowed_terms is a whitelist of Canvas enrollment_term_ids where shopping is allowed
-var allowed_terms = ['46'];
+var allowed_terms = [];
 var shopping_tool_url = "https://icommons.harvard.edu/tools/shopping";    // the url of the shopping tool
 
 
