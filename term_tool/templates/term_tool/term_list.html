@@ -68,8 +68,10 @@
                 {{ term.academic_year }}
             </td>
             <td>
-                {% if term.shopping_active %}
+                {% if term.shopping_active and AUTHORIZEDTOEDIT %}
                     <a href="{% url "tt:excludecourses" term_id=term.term_id school_id=school.school_id %}">update courses</a>
+                {% else %}
+                    update courses
                 {% endif %}
             </td>
             <td>
