@@ -28,6 +28,14 @@ function get_sis_user_id(canvas_user_api_data) {
   return user_id;
 }
 
+function is_course_available(course_workflow) {
+  return course_workflow.localeCompare('available') == 0;
+}
+
+function term_allowed(term_id) {
+  return jQuery.inArray(term_id, allowed_terms) > -1;
+}
+
 var current_user_id = ENV['current_user_id'];							// the canvas id if the current user
 var user_url = '/api/v1/users/' + current_user_id + '/profile';			// the url to the user profile api call
 
@@ -40,9 +48,10 @@ var tooltip_link = '<a data-tooltip title="' + data_tooltip + '" target="_blank"
 var login_url = window.location.origin+"/login";
 var no_user_canvas_login = "<div class='tltmsg tltmsg-shop'><p class='participate-text'>Students: <a href=\""+login_url+"\">login</a> to get more access during shopping period." + tooltip_link + "</p></div>";
 
-var is_not_admin_page = ((window.location.pathname).indexOf('settings') == -1);
-var is_not_speed_grader_page = ((window.location.pathname).indexOf('speed_grader') == -1);
-var is_not_submissions_page = ((window.location.pathname).indexOf('submissions') == -1);
+var on_admin_page = ((window.location.pathname).indexOf('settings') != -1);
+var on_speed_grader_page = ((window.location.pathname).indexOf('speed_grader') != -1);
+var on_submissions_page = ((window.location.pathname).indexOf('submissions') != -1);
+var on_special_page = on_admin_page || on_speed_grader_page || on_submissions_page;
 
 var user_enrolled = false;
 var is_shopper = false;
@@ -74,17 +83,11 @@ if (authorized){
        the shopping button.
        */
 
-      var course_workflow = data['workflow_state'];
-
-      if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
+      if(is_course_available(data['workflow_state']) && !on_special_page) {
         /*
          TLT-668 - only allow shopping for terms that are in the whitelist.
          */
-        var term_id = data['enrollment_term_id'];
-        var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1;
-
-        if (term_allowed) {
-
+        if (term_allowed(data['enrollment_term_id'])) {
           shopping_banner.append(no_user_canvas_login);
           $('#breadcrumbs').after(shopping_banner);
         }
@@ -104,16 +107,12 @@ if (authorized){
            the shopping button.
            */
 
-          var course_workflow = data['workflow_state'];
-
-          if(course_workflow.localeCompare('available') == 0 && is_not_admin_page && is_not_speed_grader_page && is_not_submissions_page) {
+          if(is_course_available(data['workflow_state']) && !on_special_page) {
 
             /*
              TLT-668 - only allow shopping for terms that are in the whitelist.
              */
-            var term_id = data['enrollment_term_id'];
-            var term_allowed = jQuery.inArray( term_id, allowed_terms ) > -1;
-            if (term_allowed) {
+            if (term_allowed(data['enrollment_term_id'])) {
 
               var c_id = data['id'];
 
@@ -204,6 +203,12 @@ if (authorized){
                 $('#breadcrumbs').after(shopping_banner);
               }
             }
+          } else if (on_admin_page && term_allowed(data['enrollment_term_id'])) {
+            // on course admin page for course in a whitelisted term --> disable is_public_to_auth_users
+            var $iptau_checkbox = $('#course_is_public_to_auth_users');
+            $iptau_checkbox.closest("div").addClass("selection-disabled");
+            $iptau_checkbox.closest("span").after('<span> <em>(this option is disabled during shopping)</em></span>');
+            $iptau_checkbox.attr("disabled", true);
           }
         });
       }
