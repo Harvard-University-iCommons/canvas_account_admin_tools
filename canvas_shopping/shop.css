@@ -40,3 +40,7 @@
     .tltmsg-shop em{
         font-size: 12px;
     }
+
+.selection-disabled{
+    color: #D8D8D8;
+}
