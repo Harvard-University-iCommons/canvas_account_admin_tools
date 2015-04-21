@@ -195,10 +195,13 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
 
+        """
+        TLT-1298 If the 'Disable auth user access' checkbox is checked, then set the exclude_from_shopping flag being sent to Canvas to false
+        """
         if state == 'true':
-            exclude_from_shopping = True
-        else:
             exclude_from_shopping = False
+        else:
+            exclude_from_shopping = True
 
         """
         make sure we have all the params
