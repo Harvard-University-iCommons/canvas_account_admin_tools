@@ -11,7 +11,7 @@ urlpatterns = patterns('',
 
     url(r'^term/new/(?P<school_id>\w+)$', TermCreateView.as_view(), name='termcreate'),
 
-    url(r'^term/(?P<term_id>\d+)/(?P<school_id>\w+)/exlude_courses$', ExcludeCoursesFromViewing.as_view(), name='excludecourses')
+    url(r'^term/(?P<term_id>\d+)/(?P<school_id>\w+)/exclude_courses$', ExcludeCoursesFromViewing.as_view(), name='excludecourses')
 
 )
 
