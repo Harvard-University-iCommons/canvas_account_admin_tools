@@ -127,10 +127,11 @@ if (authorized){
 
                   is_shopper = (erole == 'Shopper');
                   is_student = (erole == 'StudentEnrollment-Viewer');
-                  /* Base the teacher check on 'type' instead of 'role' to capture all teacher roles. Student/Shopper
+                  /* Base the teacher check on 'type' instead of 'role' to capture most teacher roles. Since Designer and
+                  	TA have their own special type, they are checked separately. Student/Shopper
                    check would still use role as they are both of type 'student'
-                   */
-                  is_teacher =  (type == 'teacher');
+                  */
+                  is_teacher =  (type == 'teacher' || type == 'ta' ||type == 'designer' );
                 }
               }
 
