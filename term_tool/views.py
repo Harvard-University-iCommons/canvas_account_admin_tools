@@ -195,10 +195,16 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
         school_id = self.request.POST.get('school_id')
         course_instance_id = self.request.POST.get('course_instance_id')
 
+        """
+        TLT-1298:  Set the 'course_is_public_to_auth_users' to be the converse of 'state'. If the 'Disable auth user access'
+        checkbox is checked, then set the course_is_public_to_auth_users flag being sent to Canvas to false and vice versa.
+        """
         if state == 'true':
             exclude_from_shopping = True
+            course_is_public_to_auth_users = 'false'
         else:
             exclude_from_shopping = False
+            course_is_public_to_auth_users = 'true'
 
         """
         make sure we have all the params
@@ -222,7 +228,7 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
                 """
                 update the Canvas using the Canvas SDK
                 """
-                resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=state).json()
+                resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=course_is_public_to_auth_users).json()
                 logger.debug('id: %s, is_public_to_auth_users: %s' % (resp.get('id'), resp.get('is_public_to_auth_users')))
 
             except CanvasAPIError as api_error:
