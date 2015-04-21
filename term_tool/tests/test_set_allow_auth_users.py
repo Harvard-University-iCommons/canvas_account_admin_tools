@@ -44,9 +44,6 @@ class CommandsTestSyncCanvasSections(TestCase):
     these are unit tests for the helper methods in the command. The command itself
     really needs to be integration tested with the database.
     """
-    # def setUp(self):
-    #
-    # self.course_instance = CourseInstanceStub(123456)
 
     @patch('term_tool.management.commands.set_allow_auth_users.logger.info')
     @patch('term_tool.management.commands.set_allow_auth_users.Term.objects.filter')
