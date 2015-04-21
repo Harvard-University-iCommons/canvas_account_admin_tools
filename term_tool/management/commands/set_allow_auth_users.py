@@ -13,21 +13,22 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('-a', '--allow_access',
-            action='store',
-            dest='allow_access',
-            type='choice',
-            choices=['true', 'false'],
-            default='false',
-            help='allow access true or false'),
+                    action='store',
+                    dest='allow_access',
+                    type='choice',
+                    choices=['true', 'false'],
+                    default='false',
+                    help='allow access true or false'),
         make_option('-t', '--term_id',
-            action='store',
-            dest='term_id',
-            type='int',
-            default=None,
-            help='the account to process'),
+                    action='store',
+                    dest='term_id',
+                    type='int',
+                    default=None,
+                    help='the account to process'),
     )
 
     def handle(self, *args, **options):
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         term_id = options.get('term_id')
         start_time = time.time()
 
-        process_terms(allow_access, term_id=term_id )
+        process_terms(allow_access, term_id=term_id)
 
         end_time = time.time()
         total_time = end_time - start_time
@@ -52,7 +53,7 @@ class Command(BaseCommand):
         logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
 
 
-def process_terms(allow_access, term_id=None ):
+def process_terms(allow_access, term_id=None):
     if term_id:
         terms = Term.objects.filter(term_id=term_id, shopping_active=True)
         if not terms:
@@ -66,17 +67,22 @@ def process_terms(allow_access, term_id=None ):
 
         account_id = 'sis_account_id:%s' % term.school_id
         """
-        find all courses in the term with term_id where the exclude_from_shopping flag is False and the sync_to_canvas flag is True
+        find all courses in the term with term_id where the exclude_from_shopping flag is False
+        and the sync_to_canvas flag is True
         """
-        courses_to_process = CourseInstance.objects.filter(term=term.term_id, exclude_from_shopping=False, sync_to_canvas=True).values('course_instance_id')
+        courses_to_process = CourseInstance.objects.filter(term=term.term_id, exclude_from_shopping=False,
+                                                           sync_to_canvas=True).values('course_instance_id')
         for course in courses_to_process:
             course_instance_id = course.get('course_instance_id')
             if course_instance_id:
                 course_id = 'sis_course_id:%s' % course_instance_id
                 try:
                     # update the courses in Canvas making Canvas the same as the settings in the course manager
-                    resp = courses.update_course(SDK_CONTEXT, course_id, account_id, course_is_public_to_auth_users=allow_access).json()
-                    logger.info('response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (resp.get('id'), course_id,resp.get('is_public_to_auth_users')))
+                    resp = courses.update_course(SDK_CONTEXT, course_id, account_id,
+                                                 course_is_public_to_auth_users=allow_access).json()
+                    logger.info('response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (
+                        resp.get('id'), course_id, resp.get('is_public_to_auth_users')))
                 except CanvasAPIError as api_error:
-                    logger.error("CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
-                         % (course_id, account_id, api_error))
+                    logger.error(
+                        "CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
+                        % (course_id, account_id, api_error))
