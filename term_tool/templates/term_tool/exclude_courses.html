@@ -21,8 +21,14 @@
 
 {% block content %}
 
-    <div id="messages" class="alert alert-success hidden"></div>
-    <div id="errors" class="alert alert-success hidden"></div>
+    <div id="messages" class="alert alert-success alert-dismissible hidden fade in" role="alert">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="messages-text" class="alert-text"></div>
+    </div>
+    <div id="errors" class="alert alert-danger alert-dismissible hidden fade in" role="alert">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="errors-text" class="alert-text"></div>
+    </div>
 
     <table id="course-list-table" class="display" cellspacing="0" width="100%">
         <thead>
@@ -58,6 +64,19 @@
     <script type="text/javascript">
     $(document).ready(function(){
 
+        function updateAlertsWithJsonResponse(json) {
+            $.each(json, function(key, value){
+                var $alertDiv = (key == 'success') ? $("#messages") : $("#errors");
+                $alertDiv.find('.alert-text').append('<p>' + value + '</p>');
+                $alertDiv.removeClass('hidden');
+            });
+        }
+
+        $('.close').on('click', function() {
+            $(this).parent().addClass('hidden');
+            $(this).siblings('.alert-text').empty()
+        });
+
         $('#course-list-table').DataTable();
 
         $('.checkbox').change(function(){
@@ -65,31 +84,19 @@
             var state = this.checked ? 'true' : 'false';
             var value = $(this).attr('value');
             var url = "{% url 'tt:excludecourses' term_id school_id %}";
-            ajax_req = $.ajax({
+            var ajax_req = $.ajax({
                 url: url,
                 type: "POST",
                 dataType: "json",
                 data: {
                     'state' : state,
-                    'school_id' : '{{ school_id }}',
                     'course_instance_id' : value,
-                    'csrfmiddlewaretoken' : '{{ csrf_token }}',
-                },
+                    'csrfmiddlewaretoken' : '{{ csrf_token }}'
+                }
             }).done(function(json) {
-                $.each(json, function(key, value){
-                    if(key == 'success') {
-                        $("#messages").text(value);
-                        $("#messages").removeClass('hidden');
-                    }
-                    else {
-                        $("#errors").text(json.error);
-                        $("#errors").removeClass('hidden');
-                    }
-                })
-
-            }).fail(function(json) {
-                $("#errors").text(json.error);
-                $("#errors").removeClass('hidden');
+                updateAlertsWithJsonResponse(json);
+            }).fail(function(jqXHR) {
+                updateAlertsWithJsonResponse(jqXHR.responseJSON);
             });
 
         });
