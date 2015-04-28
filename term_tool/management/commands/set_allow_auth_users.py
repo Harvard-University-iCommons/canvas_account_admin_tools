@@ -1,10 +1,11 @@
 import logging
 import time
+import json
 from optparse import make_option
-
-from django.core.management.base import BaseCommand
+from datetime import datetime, timedelta
+from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from canvas_sdk.methods import (courses)
+from canvas_sdk.methods.courses import update_course
 from canvas_sdk.exceptions import CanvasAPIError
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import (Term, CourseInstance)
@@ -16,73 +17,131 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
-        make_option('-a', '--allow_access',
+        make_option('-a', '--allow-access',
                     action='store',
-                    dest='allow_access',
+                    dest='allow-access',
                     type='choice',
                     choices=['true', 'false'],
-                    default='false',
-                    help='allow access true or false'),
-        make_option('-t', '--term_id',
+                    help='Required (true or false): whether or not to allow access to Canvas courses. '
+                         'If true, sets is_public_to_auth_users flag in Canvas to true for courses in '
+                         'shoppable terms (or the term specified in the sis-term-id parameter)'),
+        make_option('-t', '--sis-term-id',
                     action='store',
-                    dest='term_id',
+                    dest='sis-term-id',
                     type='int',
                     default=None,
-                    help='the account to process'),
+                    help='The SIS term ID to process (if you don\'t provide this parameter the process '
+                         'will search through all shoppable terms for courses to update in Canvas)'),
+        make_option('-d', '--dry-run',
+                    action='store_true',
+                    dest='dry-run',
+                    default=False,
+                    help='Use this setting if you want to see what courses would be affected without '
+                         'actually updating them in Canvas'),
+        make_option('-i', '--increment-in-minutes',
+                    action='store',
+                    dest='increment-in-minutes',
+                    type='int',
+                    default=None,
+                    help='If provided, only course instances that have been updated in this time window '
+                         '(in the past number of minutes designated by -i) will be updated (you can use '
+                         'verbosity level 2 or higher to verify the window start time)'),
     )
 
     def handle(self, *args, **options):
         """
         Get all the terms where shopping is active
-        Then get all the courses in each term where exclude_from_shopping is False and sync_to_canvas is True
+        Then get all the courses in each term where exclude_from_shopping is False
+        and sync_to_canvas is True (and optionally only those changed within a certain time window)
         These are the courses we want to set is_public_to_auth_users to True
         Cal the Canvas SDK to update each course
         Print out how long it took to run the command
         """
 
-        allow_access = options.get('allow_access')
-        term_id = options.get('term_id')
-        start_time = time.time()
+        allow_access = options.get('allow-access')
+        if not allow_access:
+            raise CommandError('You must specify a value for the -a (--allow-access) parameter.')
 
-        process_terms(allow_access, term_id=term_id)
+        sis_term_id = options.get('sis-term-id')
+        dry_run = options.get('dry-run')
+        verbosity = int(options.get('verbosity', 1))
+        increment_in_minutes = options.get('increment-in-minutes')
 
-        end_time = time.time()
-        total_time = end_time - start_time
-        m, s = divmod(total_time, 60)
-        h, m = divmod(m, 60)
-        logger.info('command took %d:%02d:%02d seconds to run' % (h, m, s))
+        start_time = datetime.now()
+
+        process_terms(allow_access=allow_access, sis_term_id=sis_term_id, increment_in_minutes=increment_in_minutes,
+                      dry_run=dry_run, verbosity=verbosity)
+
+        logger.info('command took %s seconds to run' % str(datetime.now() - start_time)[:-7])
 
 
-def process_terms(allow_access, term_id=None):
-    if term_id:
-        terms = Term.objects.filter(term_id=term_id, shopping_active=True)
+def process_terms(allow_access=False, sis_term_id=None, increment_in_minutes=None, dry_run=False, verbosity=1):
+
+    courses_to_process = set()
+    metrics = {}
+    incremental_kwargs = {}
+
+    if sis_term_id:
+        terms = set(Term.objects.filter(term_id=sis_term_id, shopping_active=True).values_list('term_id', flat=True))
         if not terms:
-            logger.info('Term %s not found or term does not have shopping enabled', term_id)
+            logger.info('Term %s not found or term does not have shopping enabled', sis_term_id)
+            return
     else:
-        terms = Term.objects.filter(shopping_active=True)
+        terms = set(Term.objects.filter(shopping_active=True).values_list('term_id', flat=True))
         if not terms:
             logger.info('No terms have shopping enabled')
+            return
+
+    if increment_in_minutes:
+        start_of_window = datetime.now() - timedelta(minutes=increment_in_minutes)
+        logger.info('Performing incremental update based on last %s minutes (for courses updated since %s)'
+                    % (increment_in_minutes, start_of_window.strftime('%c (%Y-%m-%d %H:%M:%S)')))
+        # Note: incremental_kwargs may need to include other updated fields. We want to update Canvas if
+        # CourseInstance's sync_to_canvas has changed to 1 or term ID has changed to a shoppable term.
+        # If enrollment is updated along with term, it's not clear that COURSE_INST_LAST_UPDATED trigger
+        # will actually change the value of LAST_UPDATED in COURSE_INSTANCE table. A naive possibility:
+        #   Q(staff_last_updated__gte=start_of_window)
+        #       | Q(guests_last_updated__gte=start_of_window)
+        #       | Q(enrollment_last_updated__gte=start_of_window)
+        #       | Q(last_updated__gte=start_of_window)
+        incremental_kwargs['last_updated__gte'] = start_of_window
 
     for term in terms:
+        start_time = time.time()
+        courses_in_term = set(CourseInstance.objects
+                              .filter(term=term, exclude_from_shopping=False, sync_to_canvas=True, **incremental_kwargs)
+                              .values_list('course_instance_id', flat=True))
+        courses_to_process |= courses_in_term
+        if verbosity > 1:
+            logger.debug('%s shoppable courses in CM term %s' % (len(courses_in_term), term))
+            if verbosity > 2:
+                logger.debug('(Courses: %s)' % courses_in_term)
+        metrics.setdefault('get courses in SIS terms', []).append(time.time() - start_time)
 
-        account_id = 'sis_account_id:%s' % term.school_id
-        """
-        find all courses in the term with term_id where the exclude_from_shopping flag is False
-        and the sync_to_canvas flag is True
-        """
-        courses_to_process = CourseInstance.objects.filter(term=term.term_id, exclude_from_shopping=False,
-                                                           sync_to_canvas=True).values('course_instance_id')
-        for course in courses_to_process:
-            course_instance_id = course.get('course_instance_id')
-            if course_instance_id:
-                course_id = 'sis_course_id:%s' % course_instance_id
-                try:
-                    # update the courses in Canvas making Canvas the same as the settings in the course manager
-                    resp = courses.update_course(SDK_CONTEXT, course_id, account_id,
-                                                 course_is_public_to_auth_users=allow_access).json()
-                    logger.info('response_id: %s, course_id: %s, is_public_to_auth_users: %s' % (
-                        resp.get('id'), course_id, resp.get('is_public_to_auth_users')))
-                except CanvasAPIError as api_error:
-                    logger.error(
-                        "CanvasAPIError in update_course call for course_id=%s in sub_account=%s. Exception=%s:"
-                        % (course_id, account_id, api_error))
+    logger.info('%s shoppable Canvas courses in %s SIS terms' % (len(courses_to_process), len(terms)))
+    if verbosity > 1:
+        logger.debug('(Terms: %s)' % terms)
+        if len(courses_to_process) > 0:
+            logger.debug('(Courses: %s)' % courses_to_process)
+
+    if not dry_run:
+        for course_instance_id in courses_to_process:
+            start_time = time.time()
+            course_id = 'sis_course_id:%s' % course_instance_id
+            try:
+                resp = update_course(SDK_CONTEXT, course_id, course_is_public_to_auth_users=allow_access).json()
+                if verbosity > 2:
+                    logger.debug('update_course() response: %s' % json.dumps(resp, indent=2, sort_keys=True))
+            except CanvasAPIError as api_error:
+                logger.error("CanvasAPIError in update_course call for course_id=%s. Exception=%s"
+                             % (course_id, api_error))
+            metrics.setdefault('update courses', []).append(time.time() - start_time)
+
+    if verbosity > 1:
+        report_metrics(metrics)
+
+
+def report_metrics(time_dict):
+    for m_type, m_vals in sorted(time_dict.iteritems()):
+        logger.info('Timer {}: average {:.2f} (high {:.2f} / low {:.2f}) for {:.0f} values (total {:.2f} seconds)'
+                    .format(m_type, sum(m_vals)/len(m_vals), max(m_vals), min(m_vals), len(m_vals), sum(m_vals)))
