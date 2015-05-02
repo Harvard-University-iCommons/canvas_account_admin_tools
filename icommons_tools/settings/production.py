@@ -70,7 +70,7 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
-    'ICOMMONS_EXT_TOOLS_URL_BASE' : 'http://isites.harvard.edu/ext_tools/canvas-course-site-wizard',
+    'ICOMMONS_EXT_TOOLS_URL_BASE' : 'https://isites.harvard.edu',
 }
 
 CANVAS_WHITELIST['canvas_url'] = 'https://harvard.instructure.com/api'
