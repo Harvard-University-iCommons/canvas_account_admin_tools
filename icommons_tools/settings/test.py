@@ -44,15 +44,15 @@ TERM_TOOL = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS.get('django_db_user', None),
         'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'PORT': '8003',
         'OPTIONS': {
             'threaded': True,
         },
-        'CONN_MAX_AGE': 600,
+        'CONN_MAX_AGE': 1200,
     }
 }
 
