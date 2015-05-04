@@ -38,14 +38,15 @@ class Command(BaseCommand):
                     default=False,
                     help='Use this setting if you want to see what courses would be affected without '
                          'actually updating them in Canvas'),
-        make_option('-i', '--increment-in-minutes',
+        make_option('-i', '--interval-in-minutes',
                     action='store',
-                    dest='increment-in-minutes',
+                    dest='interval-in-minutes',
                     type='int',
                     default=None,
                     help='If provided, only course instances that have been updated in this time window '
-                         '(in the past number of minutes designated by -i) will be updated (you can use '
-                         'verbosity level 2 or higher to verify the window start time)'),
+                         'will be processed. INTERVAL-IN-MINUTES should be an integer. '
+                         '(e.g. -i 15 will only process course instances updated in the last 15 minutes.) '
+                         'You can use verbosity level 2 or higher to verify the exact window start time.'),
     )
 
     def handle(self, *args, **options):
@@ -65,17 +66,17 @@ class Command(BaseCommand):
         sis_term_id = options.get('sis-term-id')
         dry_run = options.get('dry-run')
         verbosity = int(options.get('verbosity', 1))
-        increment_in_minutes = options.get('increment-in-minutes')
+        interval_in_minutes = options.get('interval-in-minutes')
 
         start_time = datetime.now()
 
-        process_terms(allow_access=allow_access, sis_term_id=sis_term_id, increment_in_minutes=increment_in_minutes,
+        process_terms(allow_access=allow_access, sis_term_id=sis_term_id, interval_in_minutes=interval_in_minutes,
                       dry_run=dry_run, verbosity=verbosity)
 
         logger.info('command took %s seconds to run' % str(datetime.now() - start_time)[:-7])
 
 
-def process_terms(allow_access=False, sis_term_id=None, increment_in_minutes=None, dry_run=False, verbosity=1):
+def process_terms(allow_access=False, sis_term_id=None, interval_in_minutes=None, dry_run=False, verbosity=1):
 
     courses_to_process = set()
     metrics = {}
@@ -92,10 +93,10 @@ def process_terms(allow_access=False, sis_term_id=None, increment_in_minutes=Non
             logger.info('No terms have shopping enabled')
             return
 
-    if increment_in_minutes:
-        start_of_window = datetime.now() - timedelta(minutes=increment_in_minutes)
+    if interval_in_minutes:
+        start_of_window = datetime.now() - timedelta(minutes=interval_in_minutes)
         logger.info('Performing incremental update based on last %s minutes (for courses updated since %s)'
-                    % (increment_in_minutes, start_of_window.strftime('%c (%Y-%m-%d %H:%M:%S)')))
+                    % (interval_in_minutes, start_of_window.strftime('%c (%Y-%m-%d %H:%M:%S)')))
         # Note: incremental_kwargs may need to include other updated fields. We want to update Canvas if
         # CourseInstance's sync_to_canvas has changed to 1 or term ID has changed to a shoppable term.
         # If enrollment is updated along with term, it's not clear that COURSE_INST_LAST_UPDATED trigger
