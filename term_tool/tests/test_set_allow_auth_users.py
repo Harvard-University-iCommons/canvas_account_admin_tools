@@ -104,7 +104,7 @@ class CommandsTestSyncCanvasSections(TestCase):
         """ SDK should be called if courses are found within the expected interval """
         m_term.return_value.values_list.return_value = [1]
         m_ci.return_value.values_list.return_value = [12345]
-        process_terms(allow_access=False, sis_term_id=1, increment_in_minutes=5)
+        process_terms(allow_access=False, sis_term_id=1, interval_in_minutes=5)
         m_ci.assert_called_once_with(term=1, exclude_from_shopping=False, sync_to_canvas=True, last_updated__gte=ANY)
         self.assertEqual(m_sdk.call_count, 1)
 
@@ -112,7 +112,7 @@ class CommandsTestSyncCanvasSections(TestCase):
         """ SDK should not be called if no courses are found within the expected interval """
         m_term.return_value.values_list.return_value = [1]
         m_ci.return_value.values_list.return_value = []
-        process_terms(allow_access=False, sis_term_id=1, increment_in_minutes=5)
+        process_terms(allow_access=False, sis_term_id=1, interval_in_minutes=5)
         m_ci.assert_called_once_with(term=1, exclude_from_shopping=False, sync_to_canvas=True, last_updated__gte=ANY)
         self.assertEqual(m_sdk.call_count, 0)
 
