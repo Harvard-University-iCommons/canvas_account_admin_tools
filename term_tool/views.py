@@ -125,7 +125,7 @@ class TermEditView(LoginRequiredMixin, TermActionMixin, generic.edit.UpdateView)
         '''
         encrypt user_id to place in hidden field on form
         '''
-        bulk_create_url = '%s/ext_tools/canvas-course-site-wizard/term/%s/bulk_create' % (settings.TERM_TOOL.get('ICOMMONS_EXT_TOOLS_BASE_URL'), self.object.term_id)
+        bulk_create_url = '%s/ext_tools/canvas-course-site-wizard/term/%s/bulk_create' % (settings.TERM_TOOL.get('ICOMMONS_EXT_TOOLS_BASE_URL', ''), self.object.term_id)
         user_id = self.request.user.username
         encrypted_user = util.encrypt_string(user_id)
         context['USERID'] = encrypted_user
