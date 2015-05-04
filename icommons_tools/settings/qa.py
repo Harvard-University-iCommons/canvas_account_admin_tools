@@ -41,6 +41,7 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
+    'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://qa.tlt.harvard.edu',
 }
 
 DATABASES = {
