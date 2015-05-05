@@ -41,21 +41,6 @@ TERM_TOOL = {
     'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://test.tlt.harvard.edu',
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('django_db_name', None),
-        'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
-        'HOST': SECURE_SETTINGS.get('django_db_host', None),
-        'PORT': SECURE_SETTINGS.get('django_db_port', None),
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 1200,
-    }
-}
-
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
 DATABASE_EXTRAS = {
