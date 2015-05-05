@@ -213,7 +213,7 @@ DATABASES = {
         'USER': SECURE_SETTINGS.get('django_db_user', None),
         'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': SECURE_SETTINGS.get('django_db_host', None),
-        'PORT': SECURE_SETTINGS.get('django_db_port', None),
+        'PORT': str(SECURE_SETTINGS.get('django_db_port', None)),
         'OPTIONS': {
             'threaded': True,
         },
