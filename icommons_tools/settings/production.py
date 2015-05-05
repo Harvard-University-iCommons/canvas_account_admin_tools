@@ -75,21 +75,6 @@ TERM_TOOL = {
 
 CANVAS_WHITELIST['canvas_url'] = 'https://harvard.instructure.com/api'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedgd',
-        'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
-        'HOST': 'dbnode3.isites.harvard.edu',
-        'PORT': '8003',
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 600,
-    }
-}
-
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
 DATABASE_EXTRAS = {

@@ -41,21 +41,6 @@ TERM_TOOL = {
     'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://test.tlt.harvard.edu',
 }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
-        'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 600,
-    }
-}
-
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
 DATABASE_EXTRAS = {

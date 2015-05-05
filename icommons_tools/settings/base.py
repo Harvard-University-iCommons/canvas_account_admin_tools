@@ -202,6 +202,29 @@ LOGIN_URL = reverse_lazy('pin:login')
 # Base url for canvas, default to harvard iCommons instance
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
 
+"""
+database settings
+"""
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': SECURE_SETTINGS.get('django_db', None),
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
+        'HOST': SECURE_SETTINGS.get('django_db_host', None),
+        'PORT': SECURE_SETTINGS.get('django_db_port', None),
+        'OPTIONS': {
+            'threaded': True,
+        },
+        'CONN_MAX_AGE': 1200,
+    }
+}
+
+"""
+Tool specific settinsg below
+"""
+
 # Used by django_icommons_common library
 ICOMMONS_COMMON = {
     # Default to qa
@@ -233,3 +256,4 @@ CANVAS_WHITELIST = {
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
 }
+
