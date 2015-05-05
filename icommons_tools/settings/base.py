@@ -209,7 +209,7 @@ database settings
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('django_db_name', None),
+        'NAME': SECURE_SETTINGS.get('django_db', None),
         'USER': SECURE_SETTINGS.get('django_db_user', None),
         'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': SECURE_SETTINGS.get('django_db_host', None),
