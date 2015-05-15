@@ -46,6 +46,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # uncomment the libe below to allow local editing of the icommons_common project
   # config.vm.synced_folder "../django-icommons-common", "/home/vagrant/django-icommons-common", create: true, owner: "vagrant", group: "vagrant", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+  # config.vm.synced_folder "../canvas_python_sdk", "/canvas_python_sdk", create: true
+  # config.vm.synced_folder "../django-icommons-ui", "/django-icommons-ui", create: true
+
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
