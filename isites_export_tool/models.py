@@ -14,7 +14,7 @@ class Site(models.Model):
     site_id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=150, null=False)
     keyword = models.CharField(max_length=30, null=False, unique=True)
-    site_type = models.IntegerField(max_length=10)
+    site_type = models.IntegerField()
     enabled = models.CharField(max_length=1, null=False)
 
     class Meta:
