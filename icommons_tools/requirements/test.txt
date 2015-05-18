@@ -7,7 +7,7 @@
 
 django-debug-toolbar==1.0.1
 git+https://github.com/inducer/pudb.git#egg=pudb
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.9.3#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.9.5#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
 
 newrelic==2.8.0.7
