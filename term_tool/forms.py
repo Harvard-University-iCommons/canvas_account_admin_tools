@@ -388,6 +388,7 @@ class xCreateTermForm(forms.ModelForm):
     # this is a model form that's mostly automatically generated; here we specify that it should be based on the Term model:
     class Meta:
         model = Term
+        fields = '__all__'
 
     # make the school field hidden; it's set based on the school ID that appears in the URL and shoudn't be changed by the user
     school = forms.ModelChoiceField(queryset=School.objects.all(), widget=forms.widgets.HiddenInput())

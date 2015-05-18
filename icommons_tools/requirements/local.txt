@@ -5,7 +5,7 @@
  
 # below are requirements specific to the local environment
 
-django-debug-toolbar==1.0.1
+django-debug-toolbar
 
 git+https://github.com/inducer/pudb.git#egg=pudb
 
