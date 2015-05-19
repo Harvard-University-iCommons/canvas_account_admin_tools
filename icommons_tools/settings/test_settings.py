@@ -13,6 +13,15 @@ DATABASES = {
         'NAME': 'icommons_tools.db.sqlite3',
     },
 }
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_whitelist': 'default',
+    'isites_export_tool': 'default',
+    'qualtrics_whitelist': 'default',
+    'term_tool': 'default',
+}
+DATABASE_MIGRATION_WHITELIST = ['default']
+
 
 EXPORT_TOOL = {
     'base_file_download_url': 'https://qa.isites.harvard.edu/exports/',
