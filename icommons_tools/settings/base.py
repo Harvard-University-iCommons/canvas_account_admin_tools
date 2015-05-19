@@ -220,6 +220,16 @@ DATABASES = {
         'CONN_MAX_AGE': 1200,
     }
 }
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_whitelist': 'default',
+    'icommons_common': 'default',
+    'icommons_ui': 'default',
+    'isites_export_tool': 'default',
+    'qualtrics_whitelist': 'default',
+    'term_tool': 'default',
+}
+DATABASE_MIGRATION_WHITELIST = []
 
 """
 Tool specific settinsg below
