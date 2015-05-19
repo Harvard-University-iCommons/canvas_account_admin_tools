@@ -27,6 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network :private_network, ip: "192.168.33.10"
+  # config.vm.network :private_network, type: "dhcp"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -44,10 +45,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
-  # uncomment the libe below to allow local editing of the icommons_common project
-  # config.vm.synced_folder "../django-icommons-common", "/home/vagrant/django-icommons-common", create: true, owner: "vagrant", group: "vagrant", type: "rsync", rsync__args: ["--verbose", "--archive", "--delete", "-z"]
+  # uncomment the lines below to allow local editing of projects icommons_tools depends on
   # config.vm.synced_folder "../canvas_python_sdk", "/canvas_python_sdk", create: true
   # config.vm.synced_folder "../django-icommons-ui", "/django-icommons-ui", create: true
+  # config.vm.synced_folder "../django-icommons-common", "/django-icommons-common", create: true, type: "nfs"
 
 
   # Provider-specific configuration so you can fine-tune various
