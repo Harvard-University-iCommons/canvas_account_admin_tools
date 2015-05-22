@@ -171,6 +171,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
     'term_tool',
@@ -216,19 +217,11 @@ DATABASES = {
         'CONN_MAX_AGE': 1200,
     }
 }
-# Implement once we are using multiple DBs and icommons_common is added
-# to INSTALLED_APPS list
-#
-# DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
-# DATABASE_APPS_MAPPING = {
-#     'canvas_whitelist': 'default',
-#     'icommons_common': 'default',
-#     'icommons_ui': 'default',
-#     'isites_export_tool': 'default',
-#     'qualtrics_whitelist': 'default',
-#     'term_tool': 'default',
-# }
-# DATABASE_MIGRATION_WHITELIST = []
+
+# Prevent migration of icommons_common models
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
+
+COURSE_SCHEMA_DB_NAME = 'default'
 
 # CACHE
 
