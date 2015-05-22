@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'huey.djhuey',
     'rest_framework',
     'djsupervisor',
+    'course_conclusion',
 )
 
 # session cookie lasts for 7 hours (in seconds)
