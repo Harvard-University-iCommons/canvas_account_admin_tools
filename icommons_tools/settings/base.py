@@ -218,10 +218,17 @@ DATABASES = {
     }
 }
 
-# Prevent migration of icommons_common models
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
-
-COURSE_SCHEMA_DB_NAME = 'default'
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_whitelist': 'default',
+    'icommons_common': 'default',
+    'icommons_ui': 'default',
+    'isites_export_tool': 'default',
+    'qualtrics_whitelist': 'default',
+    'term_tool': 'default',
+}
+#  Prevent all migrations by making this list empty
+DATABASE_MIGRATION_WHITELIST = []
 
 # CACHE
 

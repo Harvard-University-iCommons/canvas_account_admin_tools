@@ -6,7 +6,7 @@ environment=DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.{{ django_settin
 
 
 [program:huey-{{ project_name }}]
-command=/var/opt/virtualenvs/{{ project_name }}/bin/python /opt/tlt/{{ project_name }}/manage.py run_huey
+command=/var/opt/virtualenvs/{{ project_name }}/bin/python /opt/tlt/{{ project_name }}/manage.py run_huey {{ '--periodic' if run_periodic_tasks|bool else '--no-periodic' }}
 user=deploy
 environment=DJANGO_SETTINGS_MODULE="{{ project_name }}.settings.{{ django_settings }}",ORACLE_HOME="/opt/oracle/instantclient_11_2",LD_LIBRARY_PATH="/opt/oracle/instantclient_11_2"
 
