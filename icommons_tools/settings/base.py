@@ -87,7 +87,7 @@ STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/tools/static/'
+STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -199,12 +199,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
 
-# Base url for canvas, default to harvard iCommons instance
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
 
-"""
-database settings
-"""
+# DATABASE
 
 DATABASES = {
     'default': {
@@ -220,20 +216,58 @@ DATABASES = {
         'CONN_MAX_AGE': 1200,
     }
 }
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
-DATABASE_APPS_MAPPING = {
-    'canvas_whitelist': 'default',
-    'icommons_common': 'default',
-    'icommons_ui': 'default',
-    'isites_export_tool': 'default',
-    'qualtrics_whitelist': 'default',
-    'term_tool': 'default',
+# Implement once we are using multiple DBs and icommons_common is added
+# to INSTALLED_APPS list
+#
+# DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+# DATABASE_APPS_MAPPING = {
+#     'canvas_whitelist': 'default',
+#     'icommons_common': 'default',
+#     'icommons_ui': 'default',
+#     'isites_export_tool': 'default',
+#     'qualtrics_whitelist': 'default',
+#     'term_tool': 'default',
+# }
+# DATABASE_MIGRATION_WHITELIST = []
+
+# CACHE
+
+REDIS_HOST = SECURE_SETTINGS.get('redis_host', '127.0.0.1')
+REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': "%s:%s" % (REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+        'TIMEOUT': 60 * 20  # 20 minutes
+    },
 }
-DATABASE_MIGRATION_WHITELIST = []
+
+# Provide a unique value for sharing cache among Django projects
+KEY_PREFIX = 'icommons_tools'
+
+
+# SESSIONS (store in cache)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 """
-Tool specific settinsg below
+Tool specific settings below
 """
+
+# Base url for canvas, default to harvard iCommons instance
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
+
+HUEY = {
+    'backend': 'huey.backends.redis_backend',
+    'connection': {'host': REDIS_HOST, 'port': REDIS_PORT},
+    'always_eager': False,  # Defaults to False when running via manage.py run_huey
+    'consumer_options': {'workers': 4},  # probably needs tweaking
+    'name': 'huey-icommons-tools-queue',
+}
 
 # Used by django_icommons_common library
 ICOMMONS_COMMON = {
@@ -266,4 +300,3 @@ CANVAS_WHITELIST = {
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
 }
-
