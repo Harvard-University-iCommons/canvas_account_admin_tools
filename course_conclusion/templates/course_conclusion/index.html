@@ -1,0 +1,67 @@
+{% extends "course_conclusion/base.html" %}
+{% load static %}
+
+{% block page_title %}Course Conclusion Dates{% endblock page_title %}
+
+{% block bodytag %}
+<body class="with-navbar" ng-app="courseConclusionApp">
+{% endblock bodytag %}
+
+{% block content %}
+{% verbatim form %}
+<form class="form-horizontal" ng-controller="CourseConclusionController as conclusion">
+  <div class="form-group">
+    <label for="school" class="col-sm-2 control-label">School</label>
+    <div class="col-sm-10">
+      <select class="form-control" id="school" ng-model="conclusion.schoolProp"
+          ng-change="conclusion.fillTerms()">
+        <option ng-repeat="school in conclusion.schools"
+          label="{{ school }}" value="{{ school }}">
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="term" class="col-sm-2 control-label">Term</label>
+    <div class="col-sm-10">
+      <select class="form-control" id="term" ng-model="conclusion.termProp"
+          ng-change="conclusion.fillCourses()">
+        <option ng-repeat="term in conclusion.terms"
+          label="{{ term }}" value="{{ term }}">
+      </select>
+    </div>
+    <div class="col-sm-10 col-sm-offset-2 text-muted" id="term-end-date">Term ends MM/DD/YYYY</div>
+  </div>
+  <div class="form-group">
+    <label for="course" class="col-sm-2 control-label">Course</label>
+    <div class="col-sm-10">
+      <select class="form-control" id="course" ng-model="conclusion.courseProp">
+        <option ng-repeat="course in conclusion.courses"
+          label="{{ course }}" value="{{ course }}">
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="course-conclusion-date" class="col-sm-2 control-label">Course Conclusion Date</label>
+    <div class="col-sm-10">
+      <input type="date" class="form-control" id="course-conclusion-date">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button type="submit" class="btn btn-default">Submit</button>
+      <button type="reset" class="btn btn-default">Reset</button>
+    </div>
+  </div>
+</form>
+{% endverbatim form %}
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super }}
+{% if debug %}
+<script src="{% static "angular-1.3.15/angular.js" %}"></script>
+{% else %}
+<script src="{% static "angular-1.3.15/angular.min.js" %}"></script>
+{% endif %}
+<script src="{% static "course_conclusion/index.js" %}"></script>
+{% endblock javascript %}
