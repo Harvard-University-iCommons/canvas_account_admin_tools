@@ -9,23 +9,23 @@
 
 {% block content %}
 {% verbatim form %}
-<form class="form-horizontal" ng-controller="CourseConclusionController as conclusion">
+<form class="form-horizontal" ng-controller="CourseConclusionController">
   <div class="form-group">
     <label for="school" class="col-sm-2 control-label">School</label>
     <div class="col-sm-10">
-      <select class="form-control" id="school" ng-model="conclusion.schoolProp"
-          ng-change="conclusion.fillTerms()">
-        <option ng-repeat="school in conclusion.schools"
-          label="{{ school }}" value="{{ school }}">
+      <select class="form-control" id="school" ng-model="schoolProp"
+          ng-change="fillTerms()">
+        <option ng-repeat="school in schools" label="{{ school.label }}"
+          value="{{ school.value }}">
       </select>
     </div>
   </div>
   <div class="form-group">
     <label for="term" class="col-sm-2 control-label">Term</label>
     <div class="col-sm-10">
-      <select class="form-control" id="term" ng-model="conclusion.termProp"
-          ng-change="conclusion.fillCourses()">
-        <option ng-repeat="term in conclusion.terms"
+      <select class="form-control" id="term" ng-model="termProp"
+          ng-change="fillCourses()">
+        <option ng-repeat="term in terms"
           label="{{ term }}" value="{{ term }}">
       </select>
     </div>
@@ -34,8 +34,8 @@
   <div class="form-group">
     <label for="course" class="col-sm-2 control-label">Course</label>
     <div class="col-sm-10">
-      <select class="form-control" id="course" ng-model="conclusion.courseProp">
-        <option ng-repeat="course in conclusion.courses"
+      <select class="form-control" id="course" ng-model="courseProp">
+        <option ng-repeat="course in courses"
           label="{{ course }}" value="{{ course }}">
       </select>
     </div>

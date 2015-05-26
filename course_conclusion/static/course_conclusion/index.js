@@ -1,29 +1,35 @@
 var courseConclusionApp = angular.module('courseConclusionApp', []);
 
-courseConclusionApp.controller('CourseConclusionController', function() {
-    var cc = this;
+courseConclusionApp.controller('CourseConclusionController', function($scope, $http) {
+    $scope.schools = [];
+    $http.get('/tools/course_conclusion/api/schools').success(function(data) {
+        var schools = [{'label': 'Select a School', 'value': ''}];
+        $scope.schools = schools.concat(data.map(function(school) {
+            return {'value': school.school_id,
+                    'label': school.title_short + ' (' 
+                             + school.school_id.toUpperCase() + ')'};
+        }));
+    });
+    $scope.schoolProp = '';
 
-    cc.schools = ['FAS', 'GSE', 'DCE'];
-    cc.schoolProp = ""
+    $scope.term_temps = ['Spring 2015', 'Summer 2015', 'Fall 2015'];
+    $scope.terms = [];
+    $scope.termProp = '';
 
-    cc.term_temps = ['Spring 2015', 'Summer 2015', 'Fall 2015'];
-    cc.terms = [];
-    cc.termProp = "";
+    $scope.course_temps = ['Bio 101', 'Chem 100', 'Phys 102'];
+    $scope.courses = [];
+    $scope.courseProp = '';
 
-    cc.course_temps = ['Bio 101', 'Chem 100', 'Phys 102'];
-    cc.courses = [];
-    cc.courseProp = "";
-
-    cc.fillTerms = function() {
-        cc.terms = cc.term_temps.map(function(tt) {
-                       return cc.schoolProp + " " + tt;
-                   });
+    $scope.fillTerms = function() {
+        $scope.terms = [''].concat($scope.term_temps.map(function(tt) {
+                       return $scope.schoolProp + ' ' + tt;
+                   }));
     };
 
-    cc.fillCourses = function() {
-        cc.courses = cc.course_temps.map(function(ct) {
-                         return cc.termProp + " " + ct;
-                     });
+    $scope.fillCourses = function() {
+        $scope.courses = [''].concat($scope.course_temps.map(function(ct) {
+                         return $scope.termProp + ' ' + ct;
+                     }));
     }
 
 });
