@@ -242,13 +242,11 @@ CACHES = {
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
-        'TIMEOUT': 60 * 20  # 20 minutes
+        'TIMEOUT': SESSION_COOKIE_AGE,  # Tie default timeout to session cookie age
+        # Provide a unique value for sharing cache among Django projects
+        'KEY_PREFIX': 'icommons_tools',
     },
 }
-
-# Provide a unique value for sharing cache among Django projects
-KEY_PREFIX = 'icommons_tools'
-
 
 # SESSIONS (store in cache)
 
