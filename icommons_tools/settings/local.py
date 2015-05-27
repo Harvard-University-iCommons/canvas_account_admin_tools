@@ -10,7 +10,7 @@ CANVAS_SHOPPING = {
         '5947': 'Guest',
     },
     'SHOPPER_ROLE': 'Shopper',
-    'ROOT_ACCOUNT' : '1',
+    'ROOT_ACCOUNT': '1',
 }
 
 EXPORT_TOOL = {
@@ -42,16 +42,8 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
-    'ICOMMONS_EXT_TOOLS_BASE_URL' : 'http://localhost:8000',
+    'ICOMMONS_EXT_TOOLS_BASE_URL': 'http://localhost:8000',
 }
-
-# need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
-DATABASE_EXTRAS = {
-    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ],
-    'threaded': True,
-}
-'''
 
 INSTALLED_APPS += (
     'debug_toolbar',
@@ -176,23 +168,11 @@ CACHES = {
     }
 }
 
-HUEY = {
-    'backend': 'huey.backends.redis_backend',  # required.
-    'name': 'hueytest',
-    'connection': {'host': 'localhost', 'port': 6379},
-    'always_eager': False,  # Defaults to False when running via manage.py run_huey
-    # Options to pass into the consumer when running ``manage.py run_huey``
-    'consumer_options': {'workers': 1, },
-}
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-
 '''
-The dictionary below contains group id's and school names. 
+The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
 
 
 GUNICORN_CONFIG = 'gunicorn_local.py'
-

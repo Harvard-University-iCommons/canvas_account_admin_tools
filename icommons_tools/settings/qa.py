@@ -10,7 +10,7 @@ CANVAS_SHOPPING = {
         '495': 'Guest',
     },
     'SHOPPER_ROLE': 'Shopper',
-    'ROOT_ACCOUNT' : '1',
+    'ROOT_ACCOUNT': '1',
 }
 
 EXPORT_TOOL = {
@@ -41,40 +41,10 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
-    'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://qa.tlt.harvard.edu',
+    'ICOMMONS_EXT_TOOLS_BASE_URL': 'https://icommons-ext-tools.qa.tlt.harvard.edu',
 }
-
-# need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
-DATABASE_EXTRAS = {
-    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ],
-    'threaded': True
-}
-'''
-
-INSTALLED_APPS += ('gunicorn',)
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
-}
-
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
-SESSION_REDIS_PORT = 6379
 
 SESSION_COOKIE_SECURE = True
-
-HUEY = {
-    'backend': 'huey.backends.redis_backend',  # required.
-    'name': 'huey-icommons_tools-qa',
-    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
-}
 
 LOGGING = {
     'version': 1,

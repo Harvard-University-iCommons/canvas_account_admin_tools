@@ -49,7 +49,7 @@ EXPORT_TOOL = {
     'remove_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
     'archive_cutoff_time_in_hours': 24 * 7,  # express cutoff time in hours
     'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
-    'allowed_groups': ['IcGroup:358','IcGroup:29819'],
+    'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
     'local_archive_dir': '/appdata/icommons_tools/isites_export',
 }
 
@@ -70,34 +70,10 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
-    'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://isites.harvard.edu',
+    'ICOMMONS_EXT_TOOLS_BASE_URL': 'https://isites.harvard.edu',
 }
 
 CANVAS_WHITELIST['canvas_url'] = 'https://harvard.instructure.com/api'
-
-# need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
-DATABASE_EXTRAS = {
-    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ], 
-    'threaded': True
-}
-'''
-
-INSTALLED_APPS += ('gunicorn',)
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
-}
-
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6379
 
 '''
 Added verbose formatter and logfile handlers

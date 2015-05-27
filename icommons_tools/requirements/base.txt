@@ -8,7 +8,7 @@ wsgiref==0.1.2
 python-gnupg==0.3.5
 pycrypto==2.6.1
 bitly_api==0.3
-huey==0.4.1
+huey==0.4.8
 # ims_lti_py==0.6
 djangorestframework==2.3.9
 django-supervisor==0.3.2
@@ -18,7 +18,6 @@ gunicorn==18.0
 redis==2.9.0
 django-redis-cache==0.10.2
 hiredis==0.1.2
-django-redis-sessions==0.4.0
 
 django-cached-authentication-middleware>=0.2.0
 

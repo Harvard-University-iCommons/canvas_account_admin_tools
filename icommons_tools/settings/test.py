@@ -38,51 +38,7 @@ TERM_TOOL = {
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum'
     },
-    'ICOMMONS_EXT_TOOLS_BASE_URL' : 'https://test.tlt.harvard.edu',
-}
-
-# need to override the NLS_DATE_FORMAT that is set by oraclepool
-'''
-DATABASE_EXTRAS = {
-    'session': ["ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS' NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'", ],
-    'threaded': True
-}
-'''
-
-INSTALLED_APPS += (
-    'gunicorn',
-)
-
-
-# For Django Debug Toolbar:
-'''
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-INSTALLED_APPS += ('debug_toolbar',)
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-INTERNAL_IPS = ('127.0.0.1','10.0.2.2',)
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
-'''
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
-}
-
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com'
-SESSION_REDIS_PORT = 6379
-
-HUEY = {
-    'backend': 'huey.backends.redis_backend',  # required.
-    'name': 'huey-icommons_tools-test',
-    'connection': {'host': 'django-qa-cache.kc9kh3.0001.use1.cache.amazonaws.com', 'port': 6379},
+    'ICOMMONS_EXT_TOOLS_BASE_URL': 'https://icommons-ext-tools.test.tlt.harvard.edu',
 }
 
 LOGGING = {
@@ -149,16 +105,6 @@ LOGGING = {
 
     }
 }
-
-'''
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'django-cache.kc9kh3.0001.use1.cache.amazonaws.com:11211',
-    }
-}
-'''
-
 
 # When starting gunicorn, this setting will tell the script which config to pull
 GUNICORN_CONFIG = 'gunicorn_test.py'
