@@ -48,7 +48,7 @@ EXPORT_TOOL = {
     'ssh_private_key': '/home/icommons/.ssh/id_rsa',
     'create_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
     'remove_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
-    'archive_cutoff_time_in_hours': 24 * 7,  # express cutoff time in hours
+    'archive_cutoff_time_in_hours': 24 * 2,  # express cutoff time in hours
     'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
     'allowed_groups': ['IcGroup:358','IcGroup:29819'],
     'local_archive_dir': '/appdata/icommons_tools/isites_export',
