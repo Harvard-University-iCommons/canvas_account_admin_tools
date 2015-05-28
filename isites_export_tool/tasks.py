@@ -50,8 +50,8 @@ def process_job(site_keyword):
 def archive_jobs():
     # Set up time difference
     days_ago_threshold = datetime.now() - timedelta(hours=settings.EXPORT_TOOL['archive_cutoff_time_in_hours'])
-    # Pick jobs that are older than the interval defined in settings
-    archivable_jobs = ISitesExportJob.objects.filter(created_at__lt=days_ago_threshold)
+    # Pick jobs that are older than the interval defined in settings and are not already archived
+    archivable_jobs = ISitesExportJob.objects.filter(created_at__lt=days_ago_threshold).exclude(status=ISitesExportJob.STATUS_ARCHIVED)
     # Iterate over these jobs and set their status to archived
     for job in archivable_jobs:
         # For jobs that have been completed and have file output, we will delete the remote file
