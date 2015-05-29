@@ -69,6 +69,12 @@ LOGGING = {
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
+        'huey_logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': '/var/opt/tlt/logs/huey-icommons_tools.log',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -101,8 +107,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-
-
+        'huey': {
+            'handlers': ['huey_logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     }
 }
 
