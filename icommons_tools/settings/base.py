@@ -261,7 +261,7 @@ CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.
 
 HUEY = {
     'backend': 'huey.backends.redis_backend',
-    'connection': {'host': REDIS_HOST, 'port': REDIS_PORT},
+    'connection': {'host': REDIS_HOST, 'port': int(REDIS_PORT)},  # huey needs redis port to be an int
     'always_eager': False,  # Defaults to False when running via manage.py run_huey
     'consumer_options': {'workers': 4},  # probably needs tweaking
     'name': 'huey-icommons-tools-queue',
