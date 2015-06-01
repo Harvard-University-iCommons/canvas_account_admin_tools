@@ -162,12 +162,6 @@ LOGGING = {
 }
 
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-    }
-}
-
 '''
 The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
