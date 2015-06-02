@@ -298,3 +298,17 @@ CANVAS_WHITELIST = {
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
 }
+
+# Default to AWS settings here - override as necessary for local and non-AWS envs
+EXPORT_TOOL = {
+    'base_file_download_url': SECURE_SETTINGS.get('isites_export_base_file_download_url', 'http://poll.icommons.harvard.edu/exports/'),
+    'ssh_user': 'icommons',
+    'ssh_hostname': SECURE_SETTINGS.get('isites_export_ssh_hostname', 'localhost'),
+    'ssh_private_key': '/home/deploy/.ssh/id_rsa',
+    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
+    'remove_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
+    'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),  # express cutoff time in hours
+    'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
+    'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
+    'local_archive_dir': SECURE_SETTINGS.get('isites_export_local_archive_dir', '/tmp'),
+}

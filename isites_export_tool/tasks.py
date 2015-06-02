@@ -22,7 +22,7 @@ def process_job(site_keyword):
     try:
         result = subprocess.check_output(
             ["/usr/bin/ssh",
-                settings.EXPORT_TOOL['ssh_hostname'],
+                '%s@%s' % (settings.EXPORT_TOOL['ssh_user'], settings.EXPORT_TOOL['ssh_hostname']),
                 "-i",
                 settings.EXPORT_TOOL['ssh_private_key'],
                 settings.EXPORT_TOOL['create_site_zip_cmd'],
@@ -59,7 +59,7 @@ def archive_jobs():
             try:
                 subprocess.check_output(
                     ["/usr/bin/ssh",
-                        settings.EXPORT_TOOL['ssh_hostname'],
+                        '%s@%s' % (settings.EXPORT_TOOL['ssh_user'], settings.EXPORT_TOOL['ssh_hostname']),
                         "-i", settings.EXPORT_TOOL['ssh_private_key'],
                         settings.EXPORT_TOOL['remove_site_zip_cmd'],
                         "--filename %s" % job.output_file_name],
