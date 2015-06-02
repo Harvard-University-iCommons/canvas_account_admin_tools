@@ -16,7 +16,7 @@
       <select class="form-control" id="school" ng-model="schoolProp"
           ng-change="fillTerms()">
         <option ng-repeat="school in schools" label="{{ school.label }}"
-          value="{{ school.value }}">
+                                              value="{{ school.value }}">
       </select>
     </div>
   </div>
@@ -25,8 +25,8 @@
     <div class="col-sm-10">
       <select class="form-control" id="term" ng-model="termProp"
           ng-change="fillCourses()">
-        <option ng-repeat="term in terms"
-          label="{{ term }}" value="{{ term }}">
+        <option ng-repeat="term in terms" label="{{ term.label }}"
+                                          value="{{ term.value }}">
       </select>
     </div>
     <div class="col-sm-10 col-sm-offset-2 text-muted" id="term-end-date">Term ends MM/DD/YYYY</div>
@@ -35,8 +35,8 @@
     <label for="course" class="col-sm-2 control-label">Course</label>
     <div class="col-sm-10">
       <select class="form-control" id="course" ng-model="courseProp">
-        <option ng-repeat="course in courses"
-          label="{{ course }}" value="{{ course }}">
+        <option ng-repeat="course in courses" label="{{ course.label }}"
+                                              value="{{ course.value }}">
       </select>
     </div>
   </div>

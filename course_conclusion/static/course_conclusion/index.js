@@ -1,8 +1,10 @@
 var courseConclusionApp = angular.module('courseConclusionApp', []);
 
 courseConclusionApp.controller('CourseConclusionController', function($scope, $http) {
+    var base_url = '/tools/course_conclusion/api/';
+
     $scope.schools = [];
-    $http.get('/tools/course_conclusion/api/schools').success(function(data) {
+    $http.get(base_url + 'schools').success(function(data) {
         var schools = [{'label': 'Select a School', 'value': ''}];
         $scope.schools = schools.concat(data.map(function(school) {
             return {'value': school.school_id,
@@ -12,24 +14,39 @@ courseConclusionApp.controller('CourseConclusionController', function($scope, $h
     });
     $scope.schoolProp = '';
 
-    $scope.term_temps = ['Spring 2015', 'Summer 2015', 'Fall 2015'];
     $scope.terms = [];
     $scope.termProp = '';
 
-    $scope.course_temps = ['Bio 101', 'Chem 100', 'Phys 102'];
     $scope.courses = [];
     $scope.courseProp = '';
 
     $scope.fillTerms = function() {
-        $scope.terms = [''].concat($scope.term_temps.map(function(tt) {
-                       return $scope.schoolProp + ' ' + tt;
-                   }));
+        $scope.terms = [];
+        $scope.termProp = '';
+        $scope.courses = [];
+        $scope.courseProp = '';
+
+        var url = base_url + 'terms?school_id=' + $scope.schoolProp;
+        $http.get(url).success(function(data) {
+            var terms = [{'label': 'Select a Term', 'value': ''}];
+            $scope.terms = terms.concat(data.map(function(term) {
+                return {'value': term.term_id,
+                        'label': term.display_name};
+            }));
+        });
     };
 
     $scope.fillCourses = function() {
-        $scope.courses = [''].concat($scope.course_temps.map(function(ct) {
-                         return $scope.termProp + ' ' + ct;
-                     }));
+        $scope.courses = [];
+        $scope.courseProp = '';
+        var url = base_url + 'courses?school_id=' + $scope.schoolProp
+                           + '&term_id=' + $scope.termProp;
+        $http.get(url).success(function(data) {
+            var courses = [{'label': 'Select a Course', 'value': ''}];
+            $scope.courses = courses.concat(data.map(function(course) {
+                return {'value': course.course_instance_id,
+                        'label': course.short_title};
+            }));
+        });
     }
-
 });
