@@ -1,9 +1,5 @@
 from .base import *
 
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'SHOPPER_ROLE': 'Shopper',
@@ -27,80 +23,6 @@ TERM_TOOL = {
         'IcGroup:25178': 'sum'
     },
     'ICOMMONS_EXT_TOOLS_BASE_URL': 'https://icommons-ext-tools.test.tlt.harvard.edu',
-}
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/opt/tlt/logs/icommons_tools.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
-        'huey_logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/opt/tlt/logs/huey-icommons_tools.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'term_tool': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'icommons_common': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_shopping': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_whitelist': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'huey': {
-            'handlers': ['huey_logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    }
 }
 
 # When starting gunicorn, this setting will tell the script which config to pull

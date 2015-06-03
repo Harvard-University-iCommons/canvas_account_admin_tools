@@ -8,9 +8,6 @@ os.environ['https_proxy'] = 'http://10.34.5.254:8080'
 # debug must be false for production
 DEBUG = False
 
-# to prevent host header poisoning
-ALLOWED_HOSTS = ['*']
-
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'selfreg_courses': {
@@ -74,96 +71,6 @@ TERM_TOOL = {
 }
 
 CANVAS_WHITELIST['canvas_url'] = 'https://harvard.instructure.com/api'
-
-'''
-Added verbose formatter and logfile handlers
-'''
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/logs/icommons_tools/icommons_tools.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
-        'console': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-        'huey_logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/logs/icommons_tools/huey.log',
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'term_tool': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'icommons_common': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_shopping': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'qualtrics_taker_auth': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'qualtrics_whitelist': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'isites_export_tool': {
-            'handlers': ['mail_admins', 'logfile', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'huey': {
-            'handlers': ['mail_admins', 'huey_logfile', ],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-
-    }
-}
-
-
-SESSION_COOKIE_SECURE = True
 
 GUNICORN_CONFIG = 'gunicorn_prod.py'
 

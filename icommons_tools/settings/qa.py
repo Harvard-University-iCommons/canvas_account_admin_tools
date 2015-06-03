@@ -1,9 +1,5 @@
 from .base import *
 
-DEBUG = False
-
-ALLOWED_HOSTS = ['*']
-
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'selfreg_courses': {
@@ -32,94 +28,5 @@ TERM_TOOL = {
     },
     'ICOMMONS_EXT_TOOLS_BASE_URL': 'https://icommons-ext-tools.qa.tlt.harvard.edu',
 }
-
-SESSION_COOKIE_SECURE = True
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        # Log to a text file that can be rotated by logrotate
-        'logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/opt/tlt/logs/icommons_tools.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
-        'huey_logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/opt/tlt/logs/huey-icommons_tools.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['logfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'term_tool': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_shopping': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'isites_export_tool': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'qualtrics_whitelist': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'qualtrics_taker_auth': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'icommons_common': {
-            'handlers': ['logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'huey': {
-            'handlers': ['huey_logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-
-    }
-}
-
 
 GUNICORN_CONFIG = 'gunicorn_qa.py'

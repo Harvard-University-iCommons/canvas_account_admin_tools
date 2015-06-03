@@ -1,30 +1,24 @@
 # Django settings for icommons_tools project.
 from .secure import SECURE_SETTINGS
+import os
 
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from django.core.urlresolvers import reverse_lazy
 
 
-### Path stuff as recommended by Two Scoops / with local mods
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides,
-# since this file is now inside a 'settings' pacakge directory)
-DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
-# Absolute filesystem path to the top-level project folder:
-# (this is one directory up from the project config directory)
-SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
-# Site name:
-SITE_NAME = basename(SITE_ROOT)
+TEMPLATE_DEBUG = DEBUG
 
-# Add our project to our pythonpath, this way we don't need to type our project
-# name in our dotted import paths:
-path.append(SITE_ROOT)
-
-### End path stuff
+ALLOWED_HOSTS = ['*']
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # NOTE: this was being set to a sample email address in non-prod
@@ -83,7 +77,7 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT can be overriden in individual environment settings
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -105,9 +99,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -198,6 +189,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+CRISPY_FAIL_SILENTLY = not DEBUG
+
 LOGIN_URL = reverse_lazy('pin:login')
 
 
@@ -251,6 +244,9 @@ CACHES = {
 # SESSIONS (store in cache)
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+# Django defaults to False (as of 1.7)
+SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
 
 """
 Tool specific settings below
@@ -312,3 +308,96 @@ EXPORT_TOOL = {
     'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
     'local_archive_dir': SECURE_SETTINGS.get('isites_export_local_archive_dir', '/tmp'),
 }
+
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        # Log to a text file that can be rotated by logrotate
+        'logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'django-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'huey_logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'huey-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'term_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'isites_export_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_whitelist': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_taker_auth': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'icommons_common': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'huey': {
+            'handlers': ['console', 'huey_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+
+    }
+}
+
