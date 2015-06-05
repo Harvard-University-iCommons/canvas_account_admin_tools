@@ -1,11 +1,7 @@
 # Django settings for icommons_tools project.
-from .secure import SECURE_SETTINGS
 import os
-
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
+from .secure import SECURE_SETTINGS
 from django.core.urlresolvers import reverse_lazy
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
