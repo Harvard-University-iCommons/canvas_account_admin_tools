@@ -12,7 +12,7 @@ CANVAS_SHOPPING = {
 EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
 TERM_TOOL = {
-    'ADMIN_GROUP': 'IcGroup:358',
+    'ADMIN_GROUP': 'IcGroup:25292',
     'ALLOWED_GROUPS': {
         'IcGroup:25096': 'gse',
         'IcGroup:25095': 'colgsas',
