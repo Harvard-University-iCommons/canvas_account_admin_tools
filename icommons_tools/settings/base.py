@@ -1,30 +1,20 @@
 # Django settings for icommons_tools project.
+import os
 from .secure import SECURE_SETTINGS
-
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
 from django.core.urlresolvers import reverse_lazy
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-### Path stuff as recommended by Two Scoops / with local mods
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
-# Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides,
-# since this file is now inside a 'settings' pacakge directory)
-DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
-# Absolute filesystem path to the top-level project folder:
-# (this is one directory up from the project config directory)
-SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
+TEMPLATE_DEBUG = DEBUG
 
-# Site name:
-SITE_NAME = basename(SITE_ROOT)
-
-# Add our project to our pythonpath, this way we don't need to type our project
-# name in our dotted import paths:
-path.append(SITE_ROOT)
-
-### End path stuff
+ALLOWED_HOSTS = ['*']
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # NOTE: this was being set to a sample email address in non-prod
@@ -83,7 +73,7 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT can be overriden in individual environment settings
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -105,9 +95,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -198,6 +185,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+CRISPY_FAIL_SILENTLY = not DEBUG
+
 LOGIN_URL = reverse_lazy('pin:login')
 
 
@@ -252,6 +241,9 @@ CACHES = {
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
+# Django defaults to False (as of 1.7)
+SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
+
 """
 Tool specific settings below
 """
@@ -298,3 +290,110 @@ CANVAS_WHITELIST = {
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
 }
+
+# Default secure/env settings to production
+EXPORT_TOOL = {
+    'base_file_download_url': SECURE_SETTINGS.get('isites_export_base_file_download_url', 'http://poll.icommons.harvard.edu/exports/'),
+    'ssh_user': 'icommons',
+    'ssh_hostname': SECURE_SETTINGS.get('isites_export_ssh_hostname', 'tool2.isites.harvard.edu'),
+    'ssh_private_key': '/home/deploy/.ssh/id_rsa',  # AWS user, so override for non-AWS envs
+    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
+    'remove_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
+    'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),  # express cutoff time in hours
+    'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
+    'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
+    'local_archive_dir': SECURE_SETTINGS.get('isites_export_local_archive_dir', '/appdata/icommons_tools/isites_export'),
+}
+
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        # Log to a text file that can be rotated by logrotate
+        'logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'django-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'huey_logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'huey-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'term_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'isites_export_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_whitelist': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_taker_auth': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'icommons_common': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'huey': {
+            'handlers': ['console', 'huey_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+
+    }
+}
+

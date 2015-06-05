@@ -1,9 +1,5 @@
 from .base import *
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-CRISPY_FAIL_SILENTLY = not DEBUG
-
 CANVAS_SHOPPING = {
     'CANVAS_BASE_URL': CANVAS_URL,
     'selfreg_courses': {
@@ -13,17 +9,7 @@ CANVAS_SHOPPING = {
     'ROOT_ACCOUNT': '1',
 }
 
-EXPORT_TOOL = {
-    'base_file_download_url': 'https://qa.isites.harvard.edu/exports/',
-    'ssh_hostname': 'icommons@qa.isites.harvard.edu',  # name used to connect via ssh to perl script server
-    'ssh_private_key': '/home/vagrant/.ssh/id_rsa',
-    'create_site_zip_cmd': '/u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
-    'remove_site_zip_cmd': '/u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
-    'archive_cutoff_time_in_hours': 2,  # express cutoff time in hours
-    'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
-    'allowed_groups': 'IcGroup:358',
-    'local_archive_dir': 'logs'
-}
+EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
 TERM_TOOL = {
     'ADMIN_GROUP': 'IcGroup:358',
@@ -57,110 +43,6 @@ INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        # Log to a text file that can be rotated by logrotate
-        'logfile': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(SITE_ROOT, 'logs/icommons_tools.log'),
-            'formatter': 'verbose'
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['console', 'logfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handers': ['console'],
-        },
-        'django': {
-            'handlers': ['console', 'logfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'term_tool': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'isites_export_tool': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'icommons_common': {
-            'handlers': ['mail_admins', 'console', 'logfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'oraclepool': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'huey.consumer': {
-            'handlers': ['logfile'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'rest_framework': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django.db.backends.oracle': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_shopping': {
-            'handlers': ['mail_admins', 'console', 'logfile', ],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'canvas_whitelist': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-
-    }
-}
-
 
 '''
 The dictionary below contains group id's and school names.
