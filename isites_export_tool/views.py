@@ -77,13 +77,3 @@ def download_export_file(request, export_filename):
     export_path = '%s/%s' % (settings.EXPORT_TOOL['local_archive_dir'], export_filename)
 
     return sendfile(request, export_path)
-
-
-
-
-
-
-
-
-
-

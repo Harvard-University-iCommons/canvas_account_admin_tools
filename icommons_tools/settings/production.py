@@ -38,17 +38,10 @@ CANVAS_SHOPPING = {
     'ROOT_ACCOUNT': '1',
 }
 
-EXPORT_TOOL = {
-    'base_file_download_url': 'http://poll.icommons.harvard.edu/exports/',
-    'ssh_hostname': 'icommons@tool2.isites.harvard.edu',  # name used to connect via ssh to perl script server
-    'ssh_private_key': '/home/icommons/.ssh/id_rsa',
-    'create_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
-    'remove_site_zip_cmd': 'ORACLE_HOME=/u01/app/oracle/product/11.1.0 LD_LIBRARY_PATH=/u01/app/oracle/product/11.1.0/lib32 /u02/icommons/perl-5.12.0/bin/perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
-    'archive_cutoff_time_in_hours': 24 * 2,  # express cutoff time in hours
-    'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
-    'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
-    'local_archive_dir': '/appdata/icommons_tools/isites_export',
-}
+# NOTE: ORACLE environment variables have already been established for
+# ssh user in production, so the create and remove commands can be called
+# in the same way across all environments.
+EXPORT_TOOL['ssh_private_key'] = '/home/icommons/.ssh/id_rsa'
 
 TERM_TOOL = {
     'ADMIN_GROUP': 'IcGroup:25292',

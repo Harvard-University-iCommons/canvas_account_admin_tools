@@ -8,5 +8,3 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = []
-
-EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
