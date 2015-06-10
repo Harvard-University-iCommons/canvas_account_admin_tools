@@ -11,10 +11,10 @@
         ctrl.courses = [];
 
         // models matching the current selections on the page
-        ctrl.currentSchool = '';
-        ctrl.currentTerm = '';
-        ctrl.currentCourse = '';
-        ctrl.currentConclusionDate = '';
+        ctrl.currentSchool = {};
+        ctrl.currentTerm = {};
+        ctrl.currentCourse = {};
+        ctrl.conclusionDate = '';
 
         // get the list of schools
         $http.get(base_url + 'schools').success(function(data) {
@@ -23,33 +23,27 @@
 
         // get the list of terms for a school
         ctrl.getTerms = function() {
-            ctrl.terms = {};
-            ctrl.courses = {};
-            ctrl.currentTerm = '';
-            ctrl.currentCourse = '';
+            ctrl.terms = [];
+            ctrl.courses = [];
+            ctrl.currentTerm = {};
+            ctrl.currentCourse = {};
 
-            var url = base_url + 'terms?school_id=' + ctrl.currentSchool;
+            var url = base_url + 'terms?school_id=' + ctrl.currentSchool.school_id;
             $http.get(url).success(function(data) {
-                ctrl.terms = data.reduce(function(map, term) {
-                    map[term.term_id] = term;
-                    return map;
-                }, {});
+                ctrl.terms = data;
             });
         };
 
         // get the list of courses for a school and term
         ctrl.getCourses = function() {
-            ctrl.courses = {};
-            ctrl.currentCourse = '';
+            ctrl.courses = [];
+            ctrl.currentCourse = {};
 
             var url = base_url + 'courses'
-                      + '?school_id=' + ctrl.currentSchool
-                      + '&term_id=' + ctrl.currentTerm;
+                      + '?school_id=' + ctrl.currentSchool.school_id
+                      + '&term_id=' + ctrl.currentTerm.term_id;
             $http.get(url).success(function(data) {
-                ctrl.courses = data.reduce(function(map, course) {
-                    map[course.course_instance_id] = course;
-                    return map;
-                }, {});
+                ctrl.courses = data;
             });
         };
     });
