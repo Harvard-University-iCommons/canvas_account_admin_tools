@@ -19,6 +19,7 @@ def schools(request):
     if not user_is_admin(request):
         query = query.filter(school_id__in=user_allowed_schools(request))
 
+    query = query.order_by('title_short')
     school_data = [{'school_id': school.school_id,
                     'title_short': school.title_short} for school in query]
     return HttpResponse(json.dumps(school_data),
@@ -37,9 +38,12 @@ def terms(request):
             school_id not in user_allowed_schools(request)):
         raise PermissionDenied()
 
-    query = Term.objects.filter(school_id=school_id) # TODO - order_by()
+    query = Term.objects.filter(school_id=school_id).order_by('-academic_year',
+                                                              'term_code')
     term_data = [{'term_id': term.term_id,
-                  'display_name': term.display_name} for term in query]
+                  'display_name': term.display_name,
+                  'conclude_date': term.conclude_date.strftime('%m/%d/%Y') if term.conclude_date else ''}
+                      for term in query]
     return HttpResponse(json.dumps(term_data),
                         content_type='application/json',
                         status=200)
@@ -60,9 +64,11 @@ def courses(request):
     term_id = request.GET['term_id']
     get_object_or_404(Term, pk=term_id) # TODO - include school filter?
 
-    query = CourseInstance.objects.filter(term_id=term_id)
+    query = CourseInstance.objects.filter(term_id=term_id).order_by('title',
+                                                                    'course_id')
     course_data = [{'course_instance_id': course.course_instance_id,
-                    'short_title': course.short_title} for course in query]
+                    'title': course.title,
+                    'course_id': course.course_id} for course in query]
     return HttpResponse(json.dumps(course_data),
                         content_type='application/json',
                         status=200)
