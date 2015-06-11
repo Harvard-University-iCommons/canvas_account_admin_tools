@@ -42,7 +42,7 @@ def terms(request):
                                                               'term_code')
     term_data = [{'term_id': term.term_id,
                   'display_name': term.display_name,
-                  'conclude_date': term.conclude_date.strftime('%m/%d/%Y') if term.conclude_date else ''}
+                  'conclude_date': term.conclude_date.isoformat() if term.conclude_date else None}
                       for term in query]
     return HttpResponse(json.dumps(term_data),
                         content_type='application/json',
