@@ -2,10 +2,8 @@ from django.conf import settings
 from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.edit import BaseCreateView
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.core.urlresolvers import reverse_lazy
-from django.core.servers.basehttp import FileWrapper
-
+from django.shortcuts import redirect
 
 from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.auth.views import GroupMembershipRequiredMixin
@@ -14,10 +12,7 @@ from icommons_common.monitor.views import BaseMonitorResponseView
 from .models import ISitesExportJob, ISitesExportJobForm
 from .tasks import process_job
 
-import requests
-import os
-
-from sendfile import sendfile
+import boto
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -55,7 +50,6 @@ class JobListView(GroupMembershipRequiredMixin, TemplateResponseMixin, BaseCreat
 
         context['jobs'] = job_list
         context['showing_archive'] = self.archive
-        context['base_download_url'] = settings.EXPORT_TOOL['base_file_download_url']
         return context
 
     def get_success_url(self):
@@ -72,8 +66,24 @@ class MonitorResponseView(BaseMonitorResponseView):
 @login_required
 @group_membership_restriction(allowed_groups=settings.EXPORT_TOOL.get('allowed_groups', ''))
 def download_export_file(request, export_filename):
-    # fetch the file from tool2, stream it back to the user
+    # Per http://boto.readthedocs.org/en/latest/boto_config_tut.html there are number of ways to
+    # for boto to retrieve credentials (AWS access key and seceret).  For our AWS servers with IAM
+    # roles that grant access to s3 buckets, we use the metadata service.  For local environments,
+    # you can create a .boto file with credentials or set environment variables.
+    try:
+        s3 = boto.connect_s3()
+    except boto.exception.NoAuthHandlerFound:
+        logger.exception('Error while trying to connect to s3 service')
 
-    export_path = '%s/%s' % (settings.EXPORT_TOOL['local_archive_dir'], export_filename)
+    # From http://boto.readthedocs.org/en/latest/ref/s3.html#boto.s3.connection.S3Connection.generate_url
+    # Once the connection is established above, this method will happily create a link using whatever
+    # options given.  If the link is bad (e.g. credentials are bad, bucket doesn't exist, etc.) the end
+    # user will see a corresponding error page from AWS.
+    file_download_url = s3.generate_url(
+        settings.EXPORT_TOOL['s3_download_url_expiration_in_secs'],  # How long url is good for
+        'GET',
+        settings.EXPORT_TOOL['s3_bucket'],
+        export_filename
+    )
 
-    return sendfile(request, export_path)
+    return redirect(file_download_url)

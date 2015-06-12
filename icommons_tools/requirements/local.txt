@@ -14,4 +14,4 @@ git+https://github.com/inducer/pudb.git#egg=pudb
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
 
-
+mock
