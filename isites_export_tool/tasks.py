@@ -39,7 +39,8 @@ def process_job(site_keyword):
             job.status = ISitesExportJob.STATUS_COMPLETE
             job.output_file_name = result.split("|")[1]
         else:
-            # Some kind of error happened, let's store it in the message column
+            # Some kind of error happened, let's log it and store it in the message column
+            logger.error("export failed with: %s" % result)
             job.status = ISitesExportJob.STATUS_ERROR
             job.output_message = result[:250]
         # Update job after completion
