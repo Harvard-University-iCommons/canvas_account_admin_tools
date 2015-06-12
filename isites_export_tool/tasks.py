@@ -41,7 +41,7 @@ def process_job(site_keyword):
         else:
             # Some kind of error happened, let's store it in the message column
             job.status = ISitesExportJob.STATUS_ERROR
-            job.output_message = result
+            job.output_message = result[:250]
         # Update job after completion
         job.save()
 
