@@ -42,8 +42,10 @@ def terms(request):
             school_id not in user_allowed_schools(request)):
         raise PermissionDenied()
 
-    query = Term.objects.filter(school_id=school_id).order_by('-academic_year',
-                                                              'term_code')
+    query = Term.objects.filter(school_id=school_id,
+                                active=1,
+                                calendar_year__gt=(datetime.date.today().year-5))
+    query = query.order_by('-academic_year', 'term_code')
     term_data = [{
         'conclude_date': term.conclude_date,
         'display_name': term.display_name,
@@ -69,12 +71,8 @@ def courses(request):
 
     query = CourseInstance.objects.filter(term_id=term_id).order_by('title',
                                                                     'course_id')
-    course_data = [{
-        'conclude_date': course.conclude_date,
-        'course_id': course.course_id,
-        'course_instance_id': course.course_instance_id,
-        'title': course.title,
-    } for course in query]
+    course_data = list(query.values('conclude_date', 'course_id',
+                                    'course_instance_id', 'title'))
     return JsonResponse(course_data, safe=False)
 
 
