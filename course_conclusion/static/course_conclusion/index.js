@@ -5,7 +5,7 @@
 
     app.controller('CourseConclusionController',
                    ['$scope', '$http', '$filter', function($scope, $http, $filter) {
-        var baseUrl = '/tools/course_conclusion/api/'; // TODO - don't harcode
+        var baseUrl = COURSE_CONCLUSION_API_URL;
         var ctrl = this;
 
         // objects backing the selects on the page
@@ -71,22 +71,27 @@
                 course_instance_id: ctrl.currentCourse.course_instance_id,
                 conclude_date: conclude_date,
             };
-            $http.patch(url, data).success(function(data) {
-                console.log('success');
-                var msg = 'Course "' + data.title + '" conclude date ';
-                if (data.conclude_date) {
-                    // should be the same as conclude_date, but just in case
-                    var response_conclude_date = $filter('date')(
-                                                     data.conclude_date,
-                                                     'yyyy-MM-dd');
-                    msg += 'set to ' + conclude_date;
-                }
-                else {
-                    msg += 'removed';
-                }
-                ctrl.addAlert({type: 'success', msg: msg});
-                ctrl.getCourses();
-            });
+            $http.patch(url, data)
+                .success(function(data) {
+                    console.log('success');
+                    var msg = 'Course "' + data.title + '" conclude date ';
+                    if (data.conclude_date) {
+                        // should be the same as conclude_date, but just in case
+                        var response_conclude_date = $filter('date')(
+                                                         data.conclude_date,
+                                                         'yyyy-MM-dd');
+                        msg += 'set to ' + conclude_date;
+                    }
+                    else {
+                        msg += 'removed';
+                    }
+                    ctrl.addAlert({type: 'success', msg: msg});
+                    ctrl.getCourses();
+                })
+                .error(function(data) {
+                    ctrl.addAlert({type: 'error', msg: data.error});
+                    // TODO - reset courses?
+                });
         };
 
         ctrl.addAlert = function (alert) {

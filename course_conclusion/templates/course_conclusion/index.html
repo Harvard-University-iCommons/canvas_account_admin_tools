@@ -9,7 +9,6 @@
 
 {% block content %}
 {% verbatim form %}
-<!-- TODO - form validation before submit --!>
 <form novalidate class="form-horizontal" name="courseConcludeForm"
       ng-controller="CourseConclusionController as courseCtrl"
       ng-submit="courseCtrl.submit(courseConcludeForm)">
@@ -96,5 +95,8 @@
 <script src="{% static "angular-1.4.0/angular.min.js" %}"></script>
 <script src="{% static "js/ui-bootstrap-tpls-0.13.0.min.js" %}"></script>
 {% endif %}
+<script>
+COURSE_CONCLUSION_API_URL = "{% url 'cc:index' %}api/"
+</script>
 <script src="{% static "course_conclusion/index.js" %}"></script>
 {% endblock javascript %}
