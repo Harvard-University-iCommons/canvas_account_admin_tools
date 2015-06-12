@@ -31,7 +31,7 @@ def process_job(site_keyword):
     except subprocess.CalledProcessError as cpe:
         logger.error("SSH Process Error({0}: {1}".format(cpe.returncode, cpe.output))
         job.status = ISitesExportJob.STATUS_ERROR
-        job.output_message = cpe.output
+        job.output_message = cpe.output[:250]
         job.save()
     else:
         if (result.startswith("Success")):
