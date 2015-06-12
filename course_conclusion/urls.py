@@ -11,4 +11,4 @@ urlpatterns = [
         name='api_course'),
     url(r'^api/schools$', api.schools, name='api_schools'),
     url(r'^api/terms$', api.terms, name='api_terms'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
