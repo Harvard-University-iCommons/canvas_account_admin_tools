@@ -311,6 +311,10 @@ TERM_TOOL = {
     },
 }
 
+COURSE_CONCLUDE_TOOL = {
+    'years_back': 5,
+}
+
 # Default secure/env settings to production
 EXPORT_TOOL = {
     'base_file_download_url': SECURE_SETTINGS.get('isites_export_base_file_download_url', 'http://poll.icommons.harvard.edu/exports/'),

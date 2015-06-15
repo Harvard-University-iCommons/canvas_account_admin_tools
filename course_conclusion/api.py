@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
@@ -26,8 +26,7 @@ def schools(request):
         query = query.filter(school_id__in=user_allowed_schools(request))
 
     query = query.order_by('title_short')
-    school_data = [{'school_id': school.school_id,
-                    'title_short': school.title_short} for school in query]
+    school_data = list(query.values('school_id', 'title_short'))
     return JsonResponse(school_data, safe=False)
 
 
@@ -35,22 +34,24 @@ def schools(request):
 @require_http_methods(['GET'])
 def terms(request):
     school_id = request.GET['school_id']
-    get_object_or_404(School, school_id=school_id)
+    try:
+        school = get_object_or_404_json(School, school_id=school_id)
+    except JsonResponseException as r:
+        return r
 
     # throw an exception if the user isn't allowed to admin this school
     if (not user_is_admin(request) and 
             school_id not in user_allowed_schools(request)):
-        raise PermissionDenied()
+        msg = 'Not allowed to administer {}'.format(school.name)
+        return json_error_response(msg, 403)
 
+    years_back = settings.COURSE_CONCLUDE_TOOL.get('years_back', 5)
     query = Term.objects.filter(school_id=school_id,
                                 active=1,
-                                calendar_year__gt=(datetime.date.today().year-5))
+                                calendar_year__gt=(
+                                    datetime.date.today().year - years_back))
     query = query.order_by('-academic_year', 'term_code')
-    term_data = [{
-        'conclude_date': term.conclude_date,
-        'display_name': term.display_name,
-        'term_id': term.term_id,
-    } for term in query]
+    term_data = list(query.values('conclude_date', 'display_name', 'term_id'))
     return JsonResponse(term_data, safe=False)
 
 
@@ -58,16 +59,23 @@ def terms(request):
 @require_http_methods(['GET'])
 def courses(request):
     school_id = request.GET['school_id']
-    get_object_or_404(School, school_id=school_id)
+    try:
+        school = get_object_or_404_json(School, school_id=school_id)
+    except JsonResponseException as r:
+        return r
 
     # throw an exception if the user isn't allowed to admin this school
     if (not user_is_admin(request) and 
             school_id not in user_allowed_schools(request)):
-        raise PermissionDenied()
+        msg = 'Not allowed to administer {}'.format(school.name)
+        return json_error_response(msg, 403)
 
     # throw an exception if that's not a term
     term_id = request.GET['term_id']
-    get_object_or_404(Term, term_id=term_id)
+    try:
+        get_object_or_404_json(Term, term_id=term_id)
+    except JsonResponseException as r:
+        return r
 
     query = CourseInstance.objects.filter(term_id=term_id).order_by('title',
                                                                     'course_id')
@@ -82,35 +90,44 @@ def course(request, course_instance_id):
     # because why would i want django to convert it for me?
     try:
         course_instance_id = int(course_instance_id)
-    except ValueError as e:
+    except ValueError:
         msg = ('Unable to save conclude date, course instance {} is not a number'
                    .format(course_instance_id))
-        logger.exception(msg)
-        return JsonResponse({'error': msg}, status=400)
+        return json_error_response(msg, 400)
 
-    # make sure the body contains the same course instance
+    # parse the body
     try:
         update = json.loads(request.body)
-        if update['course_instance_id'] != course_instance_id:
-            msg = 'Course instance {} in url doesn\'t match {} from body'.format(
-                      course_instance_id, update['course_instance_id'])
-            logger.error(msg)
-            return JsonResponse({'error': msg}, status=400)
-    except Exception as e:
-        msg = 'Unable to read conclude date from request body'
-        logger.exception(msg)
-        return JsonResponse({'error': msg}, status=400)
+    except ValueError:
+        msg = 'Unable to save conclude date, request body is not json'
+        return json_error_response(msg, 400)
+
+    # check for required fields in the body
+    required = {'course_instance_id', 'conclude_date'}
+    missing = required.difference(update.keys())
+    if missing:
+        msg = 'Required fields {} missing from request body'.format(
+                  ', '.join(missing))
+        return json_error_response(msg, 400)
+
+    # make sure the body contains the same course instance
+    if update['course_instance_id'] != course_instance_id:
+        msg = ("Course instance '{}' in url doesn't match '{}' from body"
+                   .format(course_instance_id, update['course_instance_id']))
+        return json_error_response(msg, 400)
 
     # now make sure the course exists
-    course = get_object_or_404(CourseInstance,
-                               course_instance_id=course_instance_id)
+    try:
+        course = get_object_or_404_json(CourseInstance,
+                                        course_instance_id=course_instance_id)
+    except JsonResponseException as r:
+        return r
 
     # make sure the user has admin rights to this school
     if (not user_is_admin(request) and 
             course.school_id not in user_allowed_schools(request)):
-        return JsonResponse({'error': 'Not allowed to administer {}'.format(
-                                          course.course.school.name)},
-                            status=403)
+        msg = 'Not allowed to administer {}'.format(course.course.school.name)
+        return json_error_response(msg, 403)
 
     # parse it into a date object
     if update['conclude_date']:
@@ -131,7 +148,7 @@ def course(request, course_instance_id):
             msg = 'Unable to remove the conclude date from '
         msg += ' course "{}"'.format(course.title)
         logger.exception(msg)
-        return JsonResponse({'error': msg}, status=500)
+        return json_error_response(msg, 500)
 
 
     # return the same structure we do from courses()
@@ -142,6 +159,25 @@ def course(request, course_instance_id):
         'conclude_date': course.conclude_date,
     }
     return JsonResponse(course_data)
+
+
+class JsonResponseException(JsonResponse, RuntimeError):
+    '''
+    Mix in an exception with JsonResponse so we can raise a json-formatted
+    response from methods, then simply catch and return from views.
+    '''
+    pass
+
+json_error_response = lambda m,s: JsonResponseException({'error': m}, status=s)
+
+
+def get_object_or_404_json(*args, **kwargs):
+    ''' Throws a JsonResponse object if the object cannot be found. '''
+    try:
+        obj = get_object_or_404(*args, **kwargs)
+    except Http404 as e:
+        raise json_error_response(unicode(e), 404)
+    return obj
 
 
 def user_is_admin(request):

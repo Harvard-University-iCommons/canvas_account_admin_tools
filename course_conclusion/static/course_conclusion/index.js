@@ -82,7 +82,6 @@
             };
             $http.patch(url, data)
                 .success(function(data) {
-                    console.log('success');
                     var msg = 'Conclude date for course "' + data.title + '" ';
                     if (data.conclude_date) {
                         // should be the same as conclude_date, but just in case
