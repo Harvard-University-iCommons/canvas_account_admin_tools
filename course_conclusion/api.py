@@ -2,6 +2,7 @@ import datetime
 import json
 import logging
 
+import pytz
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -12,6 +13,7 @@ from django.views.decorators.http import require_http_methods
 from icommons_common.models import CourseInstance, School, Term
 
 
+EASTERN_TZ = pytz.timezone('US/Eastern')
 ISO_FORMAT = '%Y-%m-%d'
 logger = logging.getLogger(__name__)
 
@@ -81,6 +83,10 @@ def courses(request):
                                                                     'course_id')
     course_data = list(query.values('conclude_date', 'course_id',
                                     'course_instance_id', 'title'))
+    # make sure we're returning the date in ET
+    for course in course_data:
+        if course['conclude_date']:
+            course['conclude_date'] = EASTERN_TZ.localize(course['conclude_date'])
     return JsonResponse(course_data, safe=False)
 
 
