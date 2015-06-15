@@ -84,7 +84,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    #normpath(join(SITE_ROOT, 'static')),
+    os.path.normpath(os.path.join(BASE_DIR, 'static')),
 )
 
 
@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'huey.djhuey',
     'rest_framework',
     'djsupervisor',
+    'course_conclusion',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -289,6 +290,29 @@ CANVAS_WHITELIST = {
     'allowed_groups': 'IcGroup:358',
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
+}
+
+TERM_TOOL = {
+    'ADMIN_GROUP': 'IcGroup:25292',
+    'ALLOWED_GROUPS': {
+        'IcGroup:25096': 'gse',
+        'IcGroup:25095': 'colgsas',
+        'IcGroup:25097': 'hls',
+        'IcGroup:25098': 'hsph',
+        'IcGroup:25099': 'hds',
+        'IcGroup:25100': 'gsd',
+        'IcGroup:25101': 'ext',
+        'IcGroup:25102': 'hks',
+        'IcGroup:25103': 'hms',
+        'IcGroup:25104': 'hsdm',
+        'IcGroup:25105': 'hbsmba',
+        'IcGroup:25106': 'hbsdoc',
+        'IcGroup:25178': 'sum'
+    },
+}
+
+COURSE_CONCLUDE_TOOL = {
+    'years_back': 5,
 }
 
 # Default secure/env settings to production

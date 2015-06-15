@@ -239,13 +239,27 @@ file {'/etc/profile.d/oracle.sh':
     require => Exec['instantclient-basiclite'],
 }
 
-#exec {'install-local-cx-oracle':
-#   command => '/usr/bin/pip install /tmp/cx_Oracle-5.1.2.tar.gz',
-#   require => [ Download['/tmp/cx_Oracle-5.1.2.tar.gz'], Package['python-pip'], File['/etc/profile.d/oracle.sh'] ],
-#   creates => '/usr/local/lib/python2.7/dist-packages/cx_Oracle.so',
-#   environment => [ 'ORACLE_HOME=/opt/oracle/instantclient_11_2', 'LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2' ],
-#}
+# Ensure github.com ssh public key is in the .ssh/known_hosts file so
+# pip won't try to prompt on the terminal to accept it
+file {'/home/vagrant/.ssh':
+    ensure => directory,
+    mode => 0700,
+}
 
+exec {'known_hosts':
+    provider => 'shell',
+    user => 'vagrant',
+    group => 'vagrant',
+    command => 'ssh-keyscan github.com >> /home/vagrant/.ssh/known_hosts',
+    unless => 'grep -sq github.com /home/vagrant/.ssh/known_hosts',
+    require => [ File['/home/vagrant/.ssh'], ],
+}
+
+file {'/home/vagrant/.ssh/known_hosts':
+    ensure => file,
+    mode => 0744,
+    require => [ Exec['known_hosts'], ],
+}
 
 # install virtualenv and virtualenvwrapper - depends on pip
 
@@ -279,8 +293,10 @@ exec {'create-virtualenv':
     provider => 'shell',
     user => 'vagrant',
     group => 'vagrant',
-    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_tools'], File['/etc/profile.d/oracle.sh'] ],
-    environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_tools'], File['/etc/profile.d/oracle.sh'],
+		 Exec['known_hosts'], ],
+    environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2","LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2",
+		    "HOME=/home/vagrant", "WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/venv_bootstrap.sh',
     creates => '/home/vagrant/.virtualenvs/icommons_tools',
 }
@@ -288,7 +304,15 @@ exec {'create-virtualenv':
 # Active this virtualenv upon login
 file {'/home/vagrant/.bash_profile':
     owner => 'vagrant',
-    content => 'echo "Activating python virtual environment \"icommons_tools\""; workon icommons_tools',
+    content => '
+# Show git repo branch at bash prompt
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e \'/^[^*]/d\' -e \'s/* \(.*\)/(\1)/\'
+}
+PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w\$(parse_git_branch) $ "
+
+echo "Activating python virtual environment \"icommons_tools\""
+workon icommons_tools
+    ',
     require => Exec['create-virtualenv'],
 }
-
