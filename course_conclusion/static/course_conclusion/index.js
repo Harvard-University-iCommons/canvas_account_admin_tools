@@ -84,22 +84,22 @@
             $http.patch(url, data)
                 .success(function(data) {
                     var msg = 'Conclude date for course "' + data.title + '" ';
-                    var conclude_date;
+                    var conclude_date = null;
                     if (data.conclude_date) {
                         // should be the same as conclude_date, but just in case
                         var response_conclude_date = $filter('date')(
                                                          data.conclude_date,
                                                          'yyyy-MM-dd');
                         msg += 'set to ' + conclude_date_str;
-                        conclude_date = new Date(data.conclude_date);
+
                         // server tz is eastern, but javascript tz support is
                         // worse than python's.  just add 5 hours.
+                        conclude_date = new Date(data.conclude_date);
                         conclude_date.setTime(conclude_date.getTime()
                                               + ctrl.FIVE_HOURS_IN_MSEC);
                     }
                     else {
                         msg += 'removed';
-                        conclude_date = null;
                     }
                     ctrl.addAlert({type: 'success', msg: msg});
                     var course = ctrl.courses[data.course_instance_id];
