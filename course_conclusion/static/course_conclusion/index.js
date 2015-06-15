@@ -93,7 +93,9 @@
                         msg += 'set to ' + conclude_date_str;
 
                         // server tz is eastern, but javascript tz support is
-                        // worse than python's.  just add 5 hours.
+                        // worse than python's.  we want to add enough time to
+                        // the parsed date to cover the ET offset, which in the
+                        // worse case is 5 hours.
                         conclude_date = new Date(data.conclude_date);
                         conclude_date.setTime(conclude_date.getTime()
                                               + ctrl.FIVE_HOURS_IN_MSEC);
