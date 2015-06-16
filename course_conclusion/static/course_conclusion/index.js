@@ -57,9 +57,6 @@
                       + '&term_id=' + ctrl.currentTerm.term_id;
             $http.get(url).success(function(data) {
                 var courses = data.reduce(function(map, course) {
-                    if (course.conclude_date) {
-                        course.conclude_date = new Date(course.conclude_date);
-                    }
                     map[course.course_instance_id] = course;
                     return map;
                 }, {});
@@ -75,37 +72,23 @@
         // submits the current course's conclude_date to the server
         ctrl.submit = function(form) {
             var url = baseUrl + 'courses/' + ctrl.currentCourse.course_instance_id;
-            var conclude_date_str = $filter('date')(ctrl.currentConcludeDate,
-                                                    'yyyy-MM-dd');
             var data = {
                 course_instance_id: ctrl.currentCourse.course_instance_id,
-                conclude_date: conclude_date_str,
+                conclude_date: ctrl.currentConcludeDate,
             };
             $http.patch(url, data)
                 .success(function(data) {
                     var msg = 'Conclude date for course "' + data.title + '" ';
-                    var conclude_date = null;
                     if (data.conclude_date) {
                         // should be the same as conclude_date, but just in case
-                        var response_conclude_date = $filter('date')(
-                                                         data.conclude_date,
-                                                         'yyyy-MM-dd');
-                        msg += 'set to ' + conclude_date_str;
-
-                        // server tz is eastern, but javascript tz support is
-                        // worse than python's.  we want to add enough time to
-                        // the parsed date to cover the ET offset, which in the
-                        // worse case is 5 hours.
-                        conclude_date = new Date(data.conclude_date);
-                        conclude_date.setTime(conclude_date.getTime()
-                                              + ctrl.FIVE_HOURS_IN_MSEC);
+                        msg += 'set to ' + ctrl.currentConcludeDate;
                     }
                     else {
                         msg += 'removed';
                     }
                     ctrl.addAlert({type: 'success', msg: msg});
-                    var course = ctrl.courses[data.course_instance_id];
-                    course.conclude_date = conclude_date;
+                    ctrl.courses[data.course_instance_id].conclude_date
+                        = data.conclude_date;
                 })
                 .error(function(data) {
                     ctrl.addAlert({type: 'error', msg: data.error});

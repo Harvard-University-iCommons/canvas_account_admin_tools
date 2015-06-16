@@ -46,7 +46,7 @@
     </div>
     <div class="col-sm-10 col-sm-offset-2 text-muted"
          ng-show="courseCtrl.currentTerm.conclude_date">
-      Term conclude date is {{ courseCtrl.currentTerm.conclude_date | date }}
+      Term conclude date is {{ courseCtrl.currentTerm.conclude_date }}
     </div>
   </div>
 
@@ -68,9 +68,12 @@
       Course Conclude Date
     </label>
     <div class="col-sm-10">
-      <input type="date" class="form-control" name="courseConcludeDate"
+      <input type="text" class="dateinput form-control"
+             name="courseConcludeDate" placeholder="YYYY-MM-DD"
+             data-provide="datepicker" data-date-format="yyyy-mm-dd"
              ng-model="courseCtrl.currentConcludeDate"
-             ng-disabled="!courseCtrl.currentCourse">
+             ng-disabled="!courseCtrl.currentCourse"
+             ng-required="false" pattern="^\d{4}-\d{2}-\d{2}$">
     </div>
   </div>
 
