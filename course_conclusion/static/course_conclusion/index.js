@@ -12,7 +12,7 @@
         // objects backing the selects on the page
         ctrl.schools = [];
         ctrl.terms = [];
-        ctrl.courses = {};
+        ctrl.courses = [];
 
         // models matching the current selections on the page
         ctrl.currentSchool = null;
@@ -35,7 +35,7 @@
         // gets the list of terms for a school
         ctrl.getTerms = function() {
             ctrl.terms = [];
-            ctrl.courses = {};
+            ctrl.courses = [];
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
@@ -48,7 +48,7 @@
 
         // gets the list of courses for a school and term
         ctrl.getCourses = function() {
-            ctrl.courses = {};
+            ctrl.courses = [];
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
 
@@ -56,18 +56,9 @@
                       + '?school_id=' + ctrl.currentSchool.school_id
                       + '&term_id=' + ctrl.currentTerm.term_id;
             $http.get(url).success(function(data) {
-                var courses = data.reduce(function(map, course) {
-                    map[course.course_instance_id] = course;
-                    return map;
-                }, {});
-                ctrl.courses = courses;
+                ctrl.courses = data;
             });
         };
-
-        // for some reason this didn't work as an expression for ng-disabled
-        ctrl.hasCourses = function() {
-            return Object.keys(ctrl.courses).length > 0;
-        }
 
         // submits the current course's conclude_date to the server
         ctrl.submit = function(form) {
@@ -86,9 +77,8 @@
                     else {
                         msg += 'removed';
                     }
+                    ctrl.currentCourse.conclude_date = data.conclude_date;
                     ctrl.addAlert({type: 'success', msg: msg});
-                    ctrl.courses[data.course_instance_id].conclude_date
-                        = data.conclude_date;
                 })
                 .error(function(data) {
                     ctrl.addAlert({type: 'error', msg: data.error});
@@ -98,7 +88,7 @@
 
         ctrl.reset = function(form) {
             ctrl.terms = [];
-            ctrl.courses = {};
+            ctrl.courses = [];
             ctrl.currentSchool = null;
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
