@@ -54,6 +54,10 @@ def terms(request):
                                     datetime.date.today().year - years_back))
     query = query.order_by('-academic_year', 'term_code')
     term_data = list(query.values('conclude_date', 'display_name', 'term_id'))
+    # make sure we're returning just the date
+    for term in term_data:
+        if term['conclude_date']:
+            term['conclude_date'] = term['conclude_date'].date()
     return JsonResponse(term_data, safe=False)
 
 
@@ -83,10 +87,10 @@ def courses(request):
                                                                     'course_id')
     course_data = list(query.values('conclude_date', 'course_id',
                                     'course_instance_id', 'title'))
-    # make sure we're returning the date in ET
+    # make sure we're returning just the date
     for course in course_data:
         if course['conclude_date']:
-            course['conclude_date'] = EASTERN_TZ.localize(course['conclude_date'])
+            course['conclude_date'] = course['conclude_date'].date()
     return JsonResponse(course_data, safe=False)
 
 
@@ -162,7 +166,7 @@ def course(request, course_instance_id):
         'course_instance_id': course.course_instance_id,
         'title': course.title,
         'course_id': course.course_id,
-        'conclude_date': course.conclude_date,
+        'conclude_date': conclude_date,
     }
     return JsonResponse(course_data)
 
