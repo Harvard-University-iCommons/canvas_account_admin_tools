@@ -1,0 +1,12 @@
+[
+    {
+        "model": "icommons_common.School",
+        "pk": 1,
+        "fields": {
+            "school_id": 1,
+            "title_short": "Harvard Test",
+            "active": 1
+        }
+    }
+]
+
