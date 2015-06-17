@@ -1,0 +1,29 @@
+[
+    {
+        "model": "icommons_common.TermCode",
+        "pk": 1,
+        "fields": {
+            "term_code": 1,
+            "term_name": "Something 2015",
+            "sort_order": 1
+        }
+    },
+    {
+        "model": "icommons_common.Term",
+        "pk": 1,
+        "fields": {
+            "term_id": 1,
+            "term_code": 1,
+            "academic_year": 2015,
+            "calendar_year": 2015,
+            "school_id": "foo",
+            "active": 1,
+            "display_name": "Foo Something 2015",
+            "conclude_date": null,
+            "xreg_available": false,
+            "include_in_catalog": false,
+            "include_in_preview": false,
+            "shopping_active": false
+        }
+    }
+]
