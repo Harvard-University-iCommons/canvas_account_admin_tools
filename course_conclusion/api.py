@@ -35,18 +35,26 @@ def schools(request):
 @login_required
 @require_http_methods(['GET'])
 def terms(request):
+    # check for required fields in the url
+    try:
+        assert_required_args_in_or_400({'school_id'}, request.GET)
+    except JsonResponseException as r:
+        return r
+
+    # make sure the school exists
     school_id = request.GET['school_id']
     try:
         school = get_object_or_404_json(School, school_id=school_id)
     except JsonResponseException as r:
         return r
 
-    # throw an exception if the user isn't allowed to admin this school
+    # make sure the user is allowed to admin this school
     if (not user_is_admin(request) and 
             school_id not in user_allowed_schools(request)):
-        msg = 'Not allowed to administer {}'.format(school.name)
+        msg = 'Not allowed to administer {}'.format(school.title_short)
         return json_error_response(msg, 403)
 
+    # look up the terms
     years_back = settings.COURSE_CONCLUDE_TOOL.get('years_back', 5)
     query = Term.objects.filter(school_id=school_id,
                                 active=1,
@@ -54,43 +62,59 @@ def terms(request):
                                     datetime.date.today().year - years_back))
     query = query.order_by('-academic_year', 'term_code')
     term_data = list(query.values('conclude_date', 'display_name', 'term_id'))
+
     # make sure we're returning just the date
     for term in term_data:
         if term['conclude_date']:
             term['conclude_date'] = term['conclude_date'].date()
+
     return JsonResponse(term_data, safe=False)
 
 
 @login_required
 @require_http_methods(['GET'])
 def courses(request):
+    # check for required fields in the url
+    try:
+        assert_required_args_in_or_400({'school_id', 'term_id'}, request.GET)
+    except JsonResponseException as r:
+        return r
+
+    # make sure the school exists
     school_id = request.GET['school_id']
     try:
         school = get_object_or_404_json(School, school_id=school_id)
     except JsonResponseException as r:
         return r
 
-    # throw an exception if the user isn't allowed to admin this school
+    # make sure the user is allowed to admin this school
     if (not user_is_admin(request) and 
             school_id not in user_allowed_schools(request)):
-        msg = 'Not allowed to administer {}'.format(school.name)
+        msg = 'Not allowed to administer {}'.format(school.title_short)
         return json_error_response(msg, 403)
 
-    # throw an exception if that's not a term
+    # make sure the term exists and belongs to the school
     term_id = request.GET['term_id']
     try:
-        get_object_or_404_json(Term, term_id=term_id)
+        term = get_object_or_404_json(Term, term_id=term_id)
     except JsonResponseException as r:
         return r
+    if not term.school == school:
+        msg = 'Term {} is not associated with school {}'.format(
+                  term_id, school_id)
+        return json_error_response(msg, 400)
 
+    # look up the courses
     query = CourseInstance.objects.filter(term_id=term_id).order_by('title',
                                                                     'course_id')
     course_data = list(query.values('conclude_date', 'course_id',
                                     'course_instance_id', 'title'))
+
     # make sure we're returning just the date
     for course in course_data:
         if course['conclude_date']:
             course['conclude_date'] = course['conclude_date'].date()
+
     return JsonResponse(course_data, safe=False)
 
 
@@ -114,19 +138,19 @@ def course(request, course_instance_id):
 
     # check for required fields in the body
     required = {'course_instance_id', 'conclude_date'}
-    missing = required.difference(update.keys())
-    if missing:
-        msg = 'Required fields {} missing from request body'.format(
-                  ', '.join(missing))
-        return json_error_response(msg, 400)
+    try:
+        assert_required_args_in_or_400({'course_instance_id', 'conclude_date'},
+                                       update)
+    except JsonResponseException as r:
+        return r
 
     # make sure the body contains the same course instance
     if update['course_instance_id'] != course_instance_id:
-        msg = ("Course instance '{}' in url doesn't match '{}' from body"
-                   .format(course_instance_id, update['course_instance_id']))
+        msg = "Course instance {} in url doesn't match {} from body".format(
+                   course_instance_id, update['course_instance_id'])
         return json_error_response(msg, 400)
 
-    # now make sure the course exists
+    # make sure the course exists
     try:
         course = get_object_or_404_json(CourseInstance,
                                         course_instance_id=course_instance_id)
@@ -136,7 +160,8 @@ def course(request, course_instance_id):
     # make sure the user has admin rights to this school
     if (not user_is_admin(request) and 
             course.school_id not in user_allowed_schools(request)):
-        msg = 'Not allowed to administer {}'.format(course.course.school.name)
+        msg = 'Not allowed to administer {}'.format(
+                  course.course.school.title_short)
         return json_error_response(msg, 403)
 
     # parse it into a date object
@@ -155,18 +180,17 @@ def course(request, course_instance_id):
             msg = 'Unable to save the new conclude date {} to'.format(
                       conclude_date)
         else:
-            msg = 'Unable to remove the conclude date from '
+            msg = 'Unable to remove the conclude date from'
         msg += ' course "{}"'.format(course.title)
         logger.exception(msg)
         return json_error_response(msg, 500)
 
-
     # return the same structure we do from courses()
     course_data = {
+        'conclude_date': conclude_date,
+        'course_id': course.course_id,
         'course_instance_id': course.course_instance_id,
         'title': course.title,
-        'course_id': course.course_id,
-        'conclude_date': conclude_date,
     }
     return JsonResponse(course_data)
 
@@ -181,8 +205,18 @@ class JsonResponseException(JsonResponse, RuntimeError):
 json_error_response = lambda m,s: JsonResponseException({'error': m}, status=s)
 
 
+def assert_required_args_in_or_400(required, entity):
+    ''' Throws a JsonResponseException if any required args are missing from
+    entity. '''
+    missing = required.difference(entity.keys())
+    if missing:
+        msg = 'Required fields {} missing from request'.format(
+                  ', '.join(missing))
+        raise json_error_response(msg, 400)
+
+
 def get_object_or_404_json(*args, **kwargs):
-    ''' Throws a JsonResponse object if the object cannot be found. '''
+    ''' Throws a JsonResponseException if the object cannot be found. '''
     try:
         obj = get_object_or_404(*args, **kwargs)
     except Http404 as e:

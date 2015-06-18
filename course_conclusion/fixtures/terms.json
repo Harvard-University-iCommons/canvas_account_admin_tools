@@ -19,6 +19,33 @@
             "school_id": "foo",
             "active": 1,
             "display_name": "Foo Something 2015",
+            "conclude_date": "2015-03-15T00:00:00.00000",
+            "xreg_available": false,
+            "include_in_catalog": false,
+            "include_in_preview": false,
+            "shopping_active": false
+        }
+    },
+    {
+        "model": "icommons_common.TermCode",
+        "pk": 2,
+        "fields": {
+            "term_code": 2,
+            "term_name": "Something Else 2015",
+            "sort_order": 2
+        }
+    },
+    {
+        "model": "icommons_common.Term",
+        "pk": 2,
+        "fields": {
+            "term_id": 2,
+            "term_code": 2,
+            "academic_year": 2015,
+            "calendar_year": 2015,
+            "school_id": "foo",
+            "active": 0,
+            "display_name": "Foo Something Else 2015 Inactive",
             "conclude_date": null,
             "xreg_available": false,
             "include_in_catalog": false,
@@ -26,4 +53,5 @@
             "shopping_active": false
         }
     }
+
 ]
