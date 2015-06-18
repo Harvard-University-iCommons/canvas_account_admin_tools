@@ -34,10 +34,10 @@ def process_job(site_keyword):
         job.output_message = cpe.output[:250]
         job.save()
     else:
-        if (result.startswith("Success")):
+        if "Success" in result:
             # Output is in format: Success|filename
             job.status = ISitesExportJob.STATUS_COMPLETE
-            job.output_file_name = result.split("|")[1]
+            job.output_file_name = result.split("|")[1].rstrip('\n\r')
         else:
             # Some kind of error happened, let's log it and store it in the message column
             logger.error("export failed with: %s" % result)

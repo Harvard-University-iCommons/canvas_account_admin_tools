@@ -74,6 +74,7 @@ def download_export_file(request, export_filename):
         s3 = boto.connect_s3()
     except boto.exception.NoAuthHandlerFound:
         logger.exception('Error while trying to connect to s3 service')
+        raise
 
     # From http://boto.readthedocs.org/en/latest/ref/s3.html#boto.s3.connection.S3Connection.generate_url
     # Once the connection is established above, this method will happily create a link using whatever
