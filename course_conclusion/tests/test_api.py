@@ -1,3 +1,4 @@
+import copy
 import json
 
 from django.contrib.auth.models import User
@@ -179,5 +180,88 @@ class CoursesTestCase(PinAuthWorkaroundTestCase):
     @patch('course_conclusion.api.user_is_admin', return_value=True)
     def test_get_term_doesnt_belong_to_school(self, *args, **kwargs):
         response = self.client.get('/api/courses?school_id=bar&term_id=1')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+
+class CourseTestCase(PinAuthWorkaroundTestCase):
+    fixtures = (PinAuthWorkaroundTestCase.fixtures
+                + ('course_conclusion/fixtures/schools.json',
+                   'course_conclusion/fixtures/terms.json',
+                   'course_conclusion/fixtures/courses.json'))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_user_is_admin(self, *args, **kwargs):
+        data = {'course_instance_id': 1, 'conclude_date': '2020-01-01'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+        expected = copy.deepcopy(COURSES['foo'][1][1])
+        expected.update(data)
+        self.assertEqual(expected, json.loads(response.content))
+
+    @patch('course_conclusion.api.user_allowed_schools',
+           return_value=['foo']) 
+    @patch('course_conclusion.api.user_is_admin', return_value=False)
+    def test_patch_user_not_admin(self, *args, **kwargs):
+        data = {'course_instance_id': 1, 'conclude_date': '2020-01-01'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+        expected = copy.deepcopy(COURSES['foo'][1][1])
+        expected.update(data)
+        self.assertEqual(expected, json.loads(response.content))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_no_body(self, *args, **kwargs):
+        response = self.client.patch('/api/courses/1')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_body_not_json(self, *args, **kwargs):
+        response = self.client.patch('/api/courses/1', data='deadbeef')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_body_fields_missing(self, *args, **kwargs):
+        data = {'course_instance_id': 1}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+        data = {'conclude_date': '2001-01-01'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_course_instance_id_mismatch(self, *args, **kwargs):
+        data = {'course_instance_id': 2, 'conclude_date': '2001-01-01'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', json.loads(response.content))
+
+    @patch('course_conclusion.api.user_allowed_schools',
+           return_value=['bar']) 
+    @patch('course_conclusion.api.user_is_admin', return_value=False)
+    def test_patch_course_not_allowed(self, *args, **kwargs):
+        data = {'course_instance_id': 1, 'conclude_date': '2020-01-01'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, 403)
+        self.assertIn('error', json.loads(response.content))
+
+    @patch('course_conclusion.api.user_is_admin', return_value=True)
+    def test_patch_malformed_date(self, *args, **kwargs):
+        data = {'course_instance_id': 1, 'conclude_date': 'deadbeef'}
+        response = self.client.patch('/api/courses/1', data=json.dumps(data),
+                                     content_type='application/json')
         self.assertEqual(response.status_code, 400)
         self.assertIn('error', json.loads(response.content))

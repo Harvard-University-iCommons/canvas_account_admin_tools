@@ -159,15 +159,19 @@ def course(request, course_instance_id):
 
     # make sure the user has admin rights to this school
     if (not user_is_admin(request) and 
-            course.school_id not in user_allowed_schools(request)):
+            course.term.school_id not in user_allowed_schools(request)):
         msg = 'Not allowed to administer {}'.format(
                   course.course.school.title_short)
         return json_error_response(msg, 403)
 
     # parse it into a date object
     if update['conclude_date']:
-        conclude_date = datetime.datetime.strptime(
-                            update['conclude_date'], ISO_FORMAT).date()
+        try:
+            conclude_date = datetime.datetime.strptime(
+                                update['conclude_date'], ISO_FORMAT).date()
+        except ValueError:
+            msg = '{conclude_date} is not a valid date'.format(**update)
+            return json_error_response(msg, 400)
     else:
         conclude_date = None
 
