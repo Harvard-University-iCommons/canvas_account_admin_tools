@@ -99,7 +99,7 @@ def courses(request):
         term = get_object_or_404_json(Term, term_id=term_id)
     except JsonResponseException as r:
         return r
-    if not term.school == school:
+    if term.school != school:
         msg = 'Term {} is not associated with school {}'.format(
                   term_id, school_id)
         return json_error_response(msg, 400)

@@ -8,16 +8,22 @@ from mock import patch
 from course_conclusion import api
 
 
-# TODO - implement test auth backend that sets request.session['USER_GROUPS']
-#        the way pinauth does.  for now, just patch user_is_admin.
 
-# NOTE - some fixtures are flagged as inactive, and should not show up in any
-#        api results.
-# TODO - autogen some of this, so we're not putting it in the fixures and here?
+'''
+The following structures match what we're expecting to get back from the
+api.  Any updates made to the test fixtures should be mirrored here.
+
+NOTE - Some fixtures are flagged as inactive, and serve as a silent test
+       verifying that inactive entities won't be returned from the api.
+'''
+
+# SCHOOLS = { school_id: { SCHOOL }, ... }
 SCHOOLS = {
     'bar': {'title_short': 'Harvard Bar', 'school_id': 'bar'},
     'foo': {'title_short': 'Harvard Foo', 'school_id': 'foo'},
 }
+
+# TERMS = { school_id: { term_id: { TERM }, ... }, ... }
 TERMS = {
     'bar': {},
     'foo': {
@@ -28,6 +34,8 @@ TERMS = {
         },
     },
 }
+
+# COURSES = { school_id: { term_id: { course_instance_id: { COURSE }, ... }, ... }, ...}
 COURSES = {
     'bar': {},
     'foo': {
@@ -46,6 +54,18 @@ COURSES = {
 @override_settings(AUTHENTICATION_BACKENDS=('django.contrib.auth.backends.ModelBackend',))
 @override_settings(LOGIN_URL='/accounts/login/')
 class PinAuthWorkaroundTestCase(TestCase):
+    '''
+    In order to test the endpoints in course_conclusion.api, we need to have
+    requests associated with a logged in user.  We can't just mock the
+    login_required decorator, since we'd have to do it before the module
+    is read in.  Instead, we override AUTHENTICATION_BACKENDS to use the stock
+    ModelBackend, set up a "test1" user via fixtures, and log in as that user
+    before every test.
+
+    We defer patching of the two authorization checks, user_is_admin() and
+    user_allowed_schools(), to individual tests, since those may need to be
+    changed on a test by test basis to get full coverage.
+    '''
     fixtures = ('course_conclusion/fixtures/users.json',)
     longMessage = True
     urls = 'course_conclusion.test_urls'
