@@ -1,0 +1,29 @@
+[
+    {
+        "model": "icommons_common.School",
+        "pk": "bar",
+        "fields": {
+            "school_id": "bar",
+            "title_short": "Harvard Bar",
+            "active": 1
+        }
+    },
+    {
+        "model": "icommons_common.School",
+        "pk": "foo",
+        "fields": {
+            "school_id": "foo",
+            "title_short": "Harvard Foo",
+            "active": 1
+        }
+    },
+    {
+        "model": "icommons_common.School",
+        "pk": "inactive",
+        "fields": {
+            "school_id": "inactive",
+            "title_short": "Harvard Inactive",
+            "active": 0
+        }
+    }
+]
