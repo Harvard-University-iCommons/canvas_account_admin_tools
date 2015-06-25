@@ -317,16 +317,15 @@ COURSE_CONCLUDE_TOOL = {
 
 # Default secure/env settings to production
 EXPORT_TOOL = {
-    'base_file_download_url': SECURE_SETTINGS.get('isites_export_base_file_download_url', 'http://poll.icommons.harvard.edu/exports/'),
     'ssh_user': 'icommons',
     'ssh_hostname': SECURE_SETTINGS.get('isites_export_ssh_hostname', 'tool2.isites.harvard.edu'),
     'ssh_private_key': '/home/deploy/.ssh/id_rsa',  # AWS user, so override for non-AWS envs
-    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_zip.pl',
-    'remove_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/rm_export_file.pl',
-    'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),  # express cutoff time in hours
+    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_s3.pl',
+    'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),
     'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
     'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
-    'local_archive_dir': SECURE_SETTINGS.get('isites_export_local_archive_dir', '/appdata/icommons_tools/isites_export'),
+    's3_bucket': SECURE_SETTINGS.get('isites_export_s3_bucket', ''),
+    's3_download_url_expiration_in_secs': SECURE_SETTINGS.get('isites_export_s3_download_url_expiration_in_secs', 60),
 }
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')

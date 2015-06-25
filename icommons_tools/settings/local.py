@@ -9,6 +9,9 @@ CANVAS_SHOPPING = {
     'ROOT_ACCOUNT': '1',
 }
 
+# NOTE: to run locally, you'll need to copy over your personal id_rsa token
+# so vagrant can connect to the server.  Also, you'll need to copy over your
+# .boto file in order to be able to download the exports
 EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
 TERM_TOOL['ICOMMONS_EXT_TOOLS_BASE_URL'] = 'http://localhost:8000'
