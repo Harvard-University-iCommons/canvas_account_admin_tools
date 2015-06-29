@@ -1,0 +1,4 @@
+# stage environment requirements
+
+# stage environment mimics production
+-r production.txt
