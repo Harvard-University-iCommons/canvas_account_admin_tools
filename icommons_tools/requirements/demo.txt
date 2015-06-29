@@ -1,4 +1,4 @@
 # demo environment requirements
 
-# demo environment mimics qa
--r qa.txt
+# demo environment is really stage and mimics prod 
+-r production.txt

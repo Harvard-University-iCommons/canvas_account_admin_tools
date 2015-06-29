@@ -2,9 +2,6 @@ from .base import *
 
 import os
 
-os.environ['http_proxy'] = 'http://10.34.5.254:8080'
-os.environ['https_proxy'] = 'http://10.34.5.254:8080'
-
 # debug must be false for production
 DEBUG = False
 
@@ -41,7 +38,6 @@ CANVAS_SHOPPING = {
 # NOTE: ORACLE environment variables have already been established for
 # ssh user in production, so the create and remove commands can be called
 # in the same way across all environments.
-EXPORT_TOOL['ssh_private_key'] = '/home/icommons/.ssh/id_rsa'
 
 TERM_TOOL['ICOMMONS_EXT_TOOLS_BASE_URL'] = 'https://isites.harvard.edu'
 
