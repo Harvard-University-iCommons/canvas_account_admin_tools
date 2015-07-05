@@ -72,17 +72,10 @@
             });
         }
 
-        $('.close').on('click', function() {
-            $(this).parent().addClass('hidden');
-            $(this).siblings('.alert-text').empty()
-        });
-
-        $('#course-list-table').DataTable();
-
-        $('.checkbox').change(function(){
-
-            var state = this.checked ? 'true' : 'false';
-            var value = $(this).attr('value');
+        function handleExcludeCourse(event) {
+            var $checkbox = $(event.target);
+            var state = $checkbox.prop('checked') ? 'true' : 'false';
+            var value = $checkbox.attr('value');
             var url = "{% url 'tt:excludecourses' term_id school_id %}";
             var ajax_req = $.ajax({
                 url: url,
@@ -98,7 +91,20 @@
             }).fail(function(jqXHR) {
                 updateAlertsWithJsonResponse(jqXHR.responseJSON);
             });
+        }
 
+        $('.close').on('click', function() {
+            $(this).parent().addClass('hidden');
+            $(this).siblings('.alert-text').empty()
+        });
+
+        $('#course-list-table').DataTable({
+            preDrawCallback: function(){
+                $('#course-list-table .checkbox').off('click', handleExcludeCourse);
+            },
+            drawCallback: function(){
+                $('#course-list-table .checkbox').on('click', handleExcludeCourse);
+            }
         });
     })
     </script>
