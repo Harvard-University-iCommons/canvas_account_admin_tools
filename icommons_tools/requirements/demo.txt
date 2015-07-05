@@ -1,4 +1,4 @@
 # demo environment requirements
 
-# demo environment mimics qa 
+# demo environment mimics qa
 -r qa.txt
