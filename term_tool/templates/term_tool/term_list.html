@@ -28,7 +28,9 @@
         <tr>
             <th>Display Name</th>
             <th>Academic Year</th>
+            {% comment "Temporarily hiding this feature" %}
             <th>Disable Auth User Param</th>
+            {% endcomment %}
             <th>Start Date</th>
             <th>End Date</th> 
             <th>Xreg Start Date</th>
@@ -67,6 +69,8 @@
             <td>
                 {{ term.academic_year }}
             </td>
+
+            {% comment "Temporarily hiding this feature" %}
             <td>
                 {% if term.shopping_active and AUTHORIZEDTOEDIT %}
                     <a href="{% url "tt:excludecourses" term_id=term.term_id school_id=school.school_id %}">update courses</a>
@@ -74,6 +78,8 @@
                     update courses
                 {% endif %}
             </td>
+            {% endcomment %}
+
             <td>
                 {% if term.start_date == None %}<span class="label label-danger"><i class="fa fa-exclamation-triangle"></i></span>{% endif %}
                 {{ term.start_date|date }}
