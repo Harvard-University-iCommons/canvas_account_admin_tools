@@ -5,11 +5,13 @@
  
 # below are requirements specific to the local environment
 
-django-debug-toolbar==1.0.1
+django-debug-toolbar
 
 git+https://github.com/inducer/pudb.git#egg=pudb
 
 # -e ../django-icommons-ui
-# ../django-icommons-common
+# -e ../django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
+
+mock

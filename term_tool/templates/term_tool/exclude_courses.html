@@ -1,0 +1,111 @@
+{% extends "term_tool/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block stylesheet %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="//cdn.datatables.net/1.10.6/css/jquery.dataTables.css">
+{% endblock %}
+
+{% block page_title %}Disable the all authorized parameter for a course{% endblock %}
+
+{% block breadcrumb %}
+<ul class="breadcrumb">
+    <li><a href="{% url "tt:schoollist" %}">Schools</a></li>
+    <li><a href="{% url "tt:termlist" school_id %}">{{ school_id|upper }} Terms</a></li>
+    <li class="active"><a href="#">Edit Term {{ term_id }}</a></li>
+</ul>
+{% endblock %}
+
+
+{% block content %}
+
+    <div id="messages" class="alert alert-success alert-dismissible hidden fade in" role="alert">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="messages-text" class="alert-text"></div>
+    </div>
+    <div id="errors" class="alert alert-danger alert-dismissible hidden fade in" role="alert">
+        <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <div id="errors-text" class="alert-text"></div>
+    </div>
+
+    <table id="course-list-table" class="display" cellspacing="0" width="100%">
+        <thead>
+            <th>Course Instance ID</th>
+            <th>Short Title</th>
+            <th>Title</th>
+            <th>Disable auth user access</th>
+        </thead>
+        <tbody>
+        {% for course in object_list %}
+            <tr>
+            <td>{{ course.course_instance_id }}</td>
+            <td>{{ course.short_title }}</td>
+            <td>{{ course.title }}</td>
+            <td>
+                {% if course.exclude_from_shopping %}
+                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox" checked="checked">
+                {% else %}
+                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox">
+                {% endif %}
+            </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+{% endblock content %}
+
+    {% block javascript %}
+{{ block.super }}
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="//cdn.datatables.net/1.10.6/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+        function updateAlertsWithJsonResponse(json) {
+            $.each(json, function(key, value){
+                var $alertDiv = (key == 'success') ? $("#messages") : $("#errors");
+                $alertDiv.find('.alert-text').append('<p>' + value + '</p>');
+                $alertDiv.removeClass('hidden');
+            });
+        }
+
+        function handleExcludeCourse(event) {
+            var $checkbox = $(event.target);
+            var state = $checkbox.prop('checked') ? 'true' : 'false';
+            var value = $checkbox.attr('value');
+            var url = "{% url 'tt:excludecourses' term_id school_id %}";
+            var ajax_req = $.ajax({
+                url: url,
+                type: "POST",
+                dataType: "json",
+                data: {
+                    'state' : state,
+                    'course_instance_id' : value,
+                    'csrfmiddlewaretoken' : '{{ csrf_token }}'
+                }
+            }).done(function(json) {
+                updateAlertsWithJsonResponse(json);
+            }).fail(function(jqXHR) {
+                updateAlertsWithJsonResponse(jqXHR.responseJSON);
+            });
+        }
+
+        $('.close').on('click', function() {
+            $(this).parent().addClass('hidden');
+            $(this).siblings('.alert-text').empty()
+        });
+
+        $('#course-list-table').DataTable({
+            preDrawCallback: function(){
+                $('#course-list-table .checkbox').off('click', handleExcludeCourse);
+            },
+            drawCallback: function(){
+                $('#course-list-table .checkbox').on('click', handleExcludeCourse);
+            }
+        });
+    })
+    </script>
+{% endblock %}

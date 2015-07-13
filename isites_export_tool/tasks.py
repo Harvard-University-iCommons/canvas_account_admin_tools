@@ -1,4 +1,4 @@
-from huey.djhuey import crontab, periodic_task, task
+from huey.djhuey import crontab, db_periodic_task, db_task
 from .models import ISitesExportJob
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@task()
+@db_task()
 def process_job(site_keyword):
     # Pick the first untouched job matching the given keyword, by date
     job = ISitesExportJob.objects.filter(site_keyword=site_keyword,
@@ -22,7 +22,7 @@ def process_job(site_keyword):
     try:
         result = subprocess.check_output(
             ["/usr/bin/ssh",
-                settings.EXPORT_TOOL['ssh_hostname'],
+                '%s@%s' % (settings.EXPORT_TOOL['ssh_user'], settings.EXPORT_TOOL['ssh_hostname']),
                 "-i",
                 settings.EXPORT_TOOL['ssh_private_key'],
                 settings.EXPORT_TOOL['create_site_zip_cmd'],
@@ -31,22 +31,23 @@ def process_job(site_keyword):
     except subprocess.CalledProcessError as cpe:
         logger.error("SSH Process Error({0}: {1}".format(cpe.returncode, cpe.output))
         job.status = ISitesExportJob.STATUS_ERROR
-        job.output_message = cpe.output
+        job.output_message = cpe.output[:250]
         job.save()
     else:
-        if (result.startswith("Success")):
+        if "Success" in result:
             # Output is in format: Success|filename
             job.status = ISitesExportJob.STATUS_COMPLETE
-            job.output_file_name = result.split("|")[1]
+            job.output_file_name = result.split("|")[1].rstrip('\n\r')
         else:
-            # Some kind of error happened, let's store it in the message column
+            # Some kind of error happened, let's log it and store it in the message column
+            logger.error("export failed with: %s" % result)
             job.status = ISitesExportJob.STATUS_ERROR
-            job.output_message = result
+            job.output_message = result[:250]
         # Update job after completion
         job.save()
 
 
-@periodic_task(crontab(hour=settings.EXPORT_TOOL['archive_task_crontab_hours']))
+@db_periodic_task(crontab(hour=settings.EXPORT_TOOL['archive_task_crontab_hours']))
 def archive_jobs():
     # Set up time difference
     days_ago_threshold = datetime.now() - timedelta(hours=settings.EXPORT_TOOL['archive_cutoff_time_in_hours'])
@@ -54,20 +55,8 @@ def archive_jobs():
     archivable_jobs = ISitesExportJob.objects.filter(created_at__lt=days_ago_threshold).exclude(status=ISitesExportJob.STATUS_ARCHIVED)
     # Iterate over these jobs and set their status to archived
     for job in archivable_jobs:
-        # For jobs that have been completed and have file output, we will delete the remote file
-        if (job.status == ISitesExportJob.STATUS_COMPLETE and job.output_file_name):
-            try:
-                subprocess.check_output(
-                    ["/usr/bin/ssh",
-                        settings.EXPORT_TOOL['ssh_hostname'],
-                        "-i", settings.EXPORT_TOOL['ssh_private_key'],
-                        settings.EXPORT_TOOL['remove_site_zip_cmd'],
-                        "--filename %s" % job.output_file_name],
-                    stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError as cpe:
-                logger.error("SSH Process Error({0}: {1}".format(cpe.returncode, cpe.output))
-                raise
-
+        # NOTE: the perl script called during processing stores files in s3 (deleting the local version after
+        # upload) so we no longer have to call the remove command
         job.status = ISitesExportJob.STATUS_ARCHIVED
         job.archived_on = datetime.now()
         job.save()

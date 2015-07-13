@@ -3,8 +3,6 @@
 
 /* TLT CSS */
 
-#unauthorized_message { display: none; }
-
 #course-shopping{
     font-family: Helvetica, Arial, sans-serif;
     text-align: center;
@@ -42,3 +40,7 @@
     .tltmsg-shop em{
         font-size: 12px;
     }
+
+.selection-disabled{
+    color: #D8D8D8;
+}

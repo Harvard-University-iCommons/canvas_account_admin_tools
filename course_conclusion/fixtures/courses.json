@@ -1,0 +1,27 @@
+[
+    {
+        "model": "icommons_common.Course",
+        "pk": 1,
+        "fields": {
+            "course_id": 1,
+            "school_id": "foo",
+            "registrar_code": "deadbeef1",
+            "source": "deadbeef"
+        }
+    },
+    {
+        "model": "icommons_common.CourseInstance",
+        "pk": 1,
+        "fields": {
+            "course_instance_id": 1,
+            "course_id": 1,
+            "term_id": 1,
+            "title": "Basket Weaving 101",
+            "exclude_from_catalog": 0,
+            "exclude_from_isites": 0,
+            "xreg_instructor_sig_reqd": 0,
+            "canvas_course_id": -1,
+            "last_updated": "2000-01-01T00:00:00"
+        }
+    }
+]

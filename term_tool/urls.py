@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-from term_tool.views import SchoolListView, TermListView, TermEditView, TermCreateView
-
+from term_tool.views import (SchoolListView, TermListView, TermEditView, TermCreateView, ExcludeCoursesFromViewing)
 urlpatterns = patterns('',
 
     url(r'^$', SchoolListView.as_view(), name='schoollist'),
@@ -11,6 +10,8 @@ urlpatterns = patterns('',
     url(r'^term/(?P<pk>\d+)/edit$', TermEditView.as_view(), name='termedit'),
 
     url(r'^term/new/(?P<school_id>\w+)$', TermCreateView.as_view(), name='termcreate'),
+
+    url(r'^term/(?P<term_id>\d+)/(?P<school_id>\w+)/exclude_courses$', ExcludeCoursesFromViewing.as_view(), name='excludecourses')
 
 )
 

@@ -1,36 +1,28 @@
 # Django settings for icommons_tools project.
 import os
-
 from .secure import SECURE_SETTINGS
-
-
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
 from django.core.urlresolvers import reverse_lazy
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-### Path stuff as recommended by Two Scoops / with local mods
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
-# Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides,
-# since this file is now inside a 'settings' pacakge directory)
-DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
-# Absolute filesystem path to the top-level project folder:
-# (this is one directory up from the project config directory)
-SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
+TEMPLATE_DEBUG = DEBUG
 
-# Site name:
-SITE_NAME = basename(SITE_ROOT)
-
-# Add our project to our pythonpath, this way we don't need to type our project
-# name in our dotted import paths:
-path.append(SITE_ROOT)
-
-### End path stuff
+ALLOWED_HOSTS = ['*']
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = SECURE_SETTINGS.get('admins')
+# NOTE: this was being set to a sample email address in non-prod
+# environments before this change.  This represents the address used
+# for prod.
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+),
 
 # This is the address that emails will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
@@ -81,18 +73,18 @@ MEDIA_URL = ''
 # Example: "/home/media/media.lawrence.com/static/"
 
 # STATIC_ROOT can be overriden in individual environment settings
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/tools/static/'
+STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    #normpath(join(SITE_ROOT, 'static')),
+    os.path.normpath(os.path.join(BASE_DIR, 'static')),
 )
 
 
@@ -101,18 +93,14 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-#SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', None)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    #'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -120,7 +108,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
 
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'cached_auth.Middleware',
 
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -162,14 +150,15 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    # 'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.webdesign',
+    # 'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
-    #'django.contrib.admin',
+    # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
     'term_tool',
@@ -177,12 +166,13 @@ INSTALLED_APPS = (
     'canvas_shopping',
     'qualtrics_whitelist',
     'canvas_whitelist',
-    #'gunicorn',
+    # 'gunicorn',
     'crispy_forms',
     'isites_export_tool',
     'huey.djhuey',
     'rest_framework',
     'djsupervisor',
+    'course_conclusion',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -196,14 +186,83 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+CRISPY_FAIL_SILENTLY = not DEBUG
+
 LOGIN_URL = reverse_lazy('pin:login')
+
+
+# DATABASE
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': SECURE_SETTINGS.get('django_db', None),
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
+        'HOST': SECURE_SETTINGS.get('django_db_host', None),
+        'PORT': str(SECURE_SETTINGS.get('django_db_port', None)),
+        'OPTIONS': {
+            'threaded': True,
+        },
+        'CONN_MAX_AGE': 1200,
+    }
+}
+
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_whitelist': 'default',
+    'icommons_common': 'default',
+    'icommons_ui': 'default',
+    'isites_export_tool': 'default',
+    'qualtrics_whitelist': 'default',
+    'term_tool': 'default',
+}
+#  Prevent all migrations by making this list empty
+DATABASE_MIGRATION_WHITELIST = []
+
+# CACHE
+
+REDIS_HOST = SECURE_SETTINGS.get('redis_host', '127.0.0.1')
+REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': "%s:%s" % (REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+        'TIMEOUT': SESSION_COOKIE_AGE,  # Tie default timeout to session cookie age
+        # Provide a unique value for sharing cache among Django projects
+        'KEY_PREFIX': 'icommons_tools',
+    },
+}
+
+# SESSIONS (store in cache)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+# Django defaults to False (as of 1.7)
+SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
+
+"""
+Tool specific settings below
+"""
 
 # Base url for canvas, default to harvard iCommons instance
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
 
+HUEY = {
+    'backend': 'huey.backends.redis_backend',
+    'connection': {'host': REDIS_HOST, 'port': int(REDIS_PORT)},  # huey needs redis port to be an int
+    'always_eager': False,  # Defaults to False when running via manage.py run_huey
+    'consumer_options': {'workers': 4},  # probably needs tweaking
+    'name': 'huey-icommons-tools-queue',
+}
+
 # Used by django_icommons_common library
 ICOMMONS_COMMON = {
-    # Default to qa 
+    # Default to qa
     'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', 'https://10.35.201.5/services/'),
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
@@ -232,3 +291,133 @@ CANVAS_WHITELIST = {
     'canvas_url': CANVAS_URL + '/api',
     'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
 }
+
+TERM_TOOL = {
+    'ADMIN_GROUP': 'IcGroup:25292',
+    'ALLOWED_GROUPS': {
+        'IcGroup:25096': 'gse',
+        'IcGroup:25095': 'colgsas',
+        'IcGroup:25097': 'hls',
+        'IcGroup:25098': 'hsph',
+        'IcGroup:25099': 'hds',
+        'IcGroup:25100': 'gsd',
+        'IcGroup:25101': 'ext',
+        'IcGroup:25102': 'hks',
+        'IcGroup:25103': 'hms',
+        'IcGroup:25104': 'hsdm',
+        'IcGroup:25105': 'hbsmba',
+        'IcGroup:25106': 'hbsdoc',
+        'IcGroup:25178': 'sum',
+        'IcGroup:32222': 'ksg'
+    },
+}
+
+COURSE_CONCLUDE_TOOL = {
+    'years_back': 5,
+}
+
+# Default secure/env settings to production
+EXPORT_TOOL = {
+    'ssh_user': 'icommons',
+    'ssh_hostname': SECURE_SETTINGS.get('isites_export_ssh_hostname', 'tool2.isites.harvard.edu'),
+    'ssh_private_key': '/home/deploy/.ssh/id_rsa',  # AWS user, so override for non-AWS envs
+    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_s3.pl',
+    'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),
+    'archive_task_crontab_hours': "*/1",  # hourly frequency that periodic task executes in crontab format
+    'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
+    's3_bucket': SECURE_SETTINGS.get('isites_export_s3_bucket', ''),
+    's3_download_url_expiration_in_secs': SECURE_SETTINGS.get('isites_export_s3_download_url_expiration_in_secs', 60),
+}
+
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        # Log to a text file that can be rotated by logrotate
+        'logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'django-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'huey_logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'huey-icommons_tools.log')),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        }
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'term_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'canvas_shopping': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'isites_export_tool': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_whitelist': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'qualtrics_taker_auth': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'icommons_common': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+        'huey': {
+            'handlers': ['console', 'huey_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': True,
+        },
+
+    }
+}
+

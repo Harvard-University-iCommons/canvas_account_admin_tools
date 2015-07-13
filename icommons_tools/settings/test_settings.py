@@ -1,12 +1,16 @@
-from .local import *
+from .base import *
 
-# make tests faster
-SOUTH_TESTS_MIGRATE = False
-DATABASES = {
+CACHES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
-        'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
 }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'icommons_tools.db.sqlite3',
+    },
+}
+
+DATABASE_ROUTERS = []
