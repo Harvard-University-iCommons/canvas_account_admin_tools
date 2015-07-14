@@ -54,7 +54,7 @@
     <label for="course" class="col-sm-2 control-label">Course</label>
     <div class="col-sm-10">
       <select class="form-control" name="course" required
-              ng-options="course.course_id + ' - ' + (course.title || 'No title') for (course_instance_id, course) in courseCtrl.courses"
+              ng-options="course.course_instance_id + ' - ' + (course.title || 'No title') for (course_instance_id, course) in courseCtrl.courses"
               ng-model="courseCtrl.currentCourse"
               ng-disabled="courseCtrl.courses.length === 0"
               ng-change="courseCtrl.currentConcludeDate = courseCtrl.currentCourse.conclude_date">
