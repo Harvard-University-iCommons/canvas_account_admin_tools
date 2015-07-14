@@ -41,10 +41,9 @@ COURSES = {
     'foo': {
         1: {
             1: {
-                'conclude_date': None,
-                'course_id': 1,
-                'course_instance_id': 1,
-                'title': 'Basket Weaving 101',
+                u'conclude_date': None,
+                u'course_instance_id': 1,
+                u'title': u'Basket Weaving 101',
             },
         },
     },
@@ -225,7 +224,7 @@ class CourseTestCase(PinAuthWorkaroundTestCase):
            return_value=['foo']) 
     @patch('course_conclusion.api.user_is_admin', return_value=False)
     def test_patch_user_not_admin(self, *args, **kwargs):
-        data = {'course_instance_id': 1, 'conclude_date': '2020-01-01'}
+        data = {u'course_instance_id': 1, u'conclude_date': u'2020-01-01'}
         response = self.client.patch('/api/courses/1', data=json.dumps(data),
                                      content_type='application/json')
         self.assertEqual(response.status_code, 200)

@@ -105,10 +105,10 @@ def courses(request):
         return json_error_response(msg, 400)
 
     # look up the courses
-    query = CourseInstance.objects.filter(term_id=term_id).order_by('title',
-                                                                    'course_id')
-    course_data = list(query.values('conclude_date', 'course_id',
-                                    'course_instance_id', 'title'))
+    query = CourseInstance.objects.filter(term_id=term_id).order_by(
+                'title', 'course_instance_id')
+    course_data = list(query.values('conclude_date', 'course_instance_id',
+                                    'title'))
 
     # make sure we're returning just the date
     for course in course_data:
@@ -192,7 +192,6 @@ def course(request, course_instance_id):
     # return the same structure we do from courses()
     course_data = {
         'conclude_date': conclude_date,
-        'course_id': course.course_id,
         'course_instance_id': course.course_instance_id,
         'title': course.title,
     }
