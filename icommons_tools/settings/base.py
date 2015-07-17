@@ -2,6 +2,8 @@
 import os
 from .secure import SECURE_SETTINGS
 from django.core.urlresolvers import reverse_lazy
+import logging
+import time
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -330,6 +332,9 @@ EXPORT_TOOL = {
 }
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
 
 LOGGING = {
     'version': 1,

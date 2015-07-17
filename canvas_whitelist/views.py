@@ -358,6 +358,7 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
 class CanvasAccessEditView(GroupMembershipRequiredMixin, generic.UpdateView):
     allowed_groups = settings.CANVAS_WHITELIST.get('allowed_groups', '')
     model = CanvasAccessList
+    fields = []
     template_name = 'canvas_whitelist/canvas_access_edit.html'
     context_object_name = 'canvas_access_edit'
 
