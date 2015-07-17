@@ -46,9 +46,7 @@
 
 {% endif %}
 
-<form action="{% url 'qwl:access_searchfor' %}" method="post">{% csrf_token %} 
-	<input type="submit" class="btn btn-primary" value="Add a Person" />
-</form>
+<a href="{% url 'qwl:access_searchfor' %}" class="btn btn-primary">Add a Person</a>
 
 {% endif %}
 
