@@ -291,6 +291,7 @@ class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListV
 class QualtricsAccessEditView(GroupMembershipRequiredMixin, generic.UpdateView):
     allowed_groups = settings.QUALTRICS_WHITELIST.get('allowed_groups', '')
     model = QualtricsAccessList
+    fields = []
     template_name = 'qualtrics_whitelist/qualtrics_access_edit.html'
     context_object_name = 'qualtrics_access_edit'
 
