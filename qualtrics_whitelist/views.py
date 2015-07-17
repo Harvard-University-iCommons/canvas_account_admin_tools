@@ -117,11 +117,9 @@ class QualtricsAccessListView(GroupMembershipRequiredMixin, generic.ListView):
         return context      
 
 
-class QualtricsAccessSearchView(GroupMembershipRequiredMixin, generic.CreateView):
+class QualtricsAccessSearchView(GroupMembershipRequiredMixin, generic.TemplateView):
     allowed_groups = settings.QUALTRICS_WHITELIST.get('allowed_groups', '')
-    model = QualtricsAccessList
     template_name = 'qualtrics_whitelist/qualtrics_access_search.html'
-    queryset = QualtricsAccessList.objects.none()
 
 
 class QualtricsAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView):
