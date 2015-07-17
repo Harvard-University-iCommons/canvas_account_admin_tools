@@ -153,11 +153,9 @@ class CanvasAccessListView(GroupMembershipRequiredMixin, generic.ListView):
         return context      
 
 
-class CanvasAccessSearchView(GroupMembershipRequiredMixin, generic.CreateView):
+class CanvasAccessSearchView(GroupMembershipRequiredMixin, generic.TemplateView):
     allowed_groups = settings.CANVAS_WHITELIST.get('allowed_groups', '')
-    model = CanvasAccessList
     template_name = 'canvas_whitelist/canvas_access_search.html'
-    queryset = CanvasAccessList.objects.none()
 
 
 class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView):
