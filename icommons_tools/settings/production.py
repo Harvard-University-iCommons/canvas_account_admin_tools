@@ -29,7 +29,8 @@ CANVAS_SHOPPING = {
         '2816': 'StudentEnrollment',
         '2821': 'StudentEnrollment',
         '2874': 'StudentEnrollment',
-        '2878': 'StudentEnrollment'
+        '2878': 'StudentEnrollment',
+        '5100': 'StudentEnrollment',
     },
     'SHOPPER_ROLE': 'Shopper',
     'ROOT_ACCOUNT': '1',
