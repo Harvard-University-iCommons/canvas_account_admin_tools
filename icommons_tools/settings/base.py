@@ -27,11 +27,8 @@ ADMINS = (
 ),
 
 # This is the address that emails will be sent "from"
+# See other specific email settings in AWS or local.py files
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = True
 
 MANAGERS = ADMINS
 
@@ -184,8 +181,6 @@ SESSION_COOKIE_NAME = 'djsessionid'
 
 SESSION_COOKIE_HTTPONLY = True
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 CRISPY_FAIL_SILENTLY = not DEBUG
@@ -245,7 +240,7 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 # Django defaults to False (as of 1.7)
-SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
+# SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
 
 """
 Tool specific settings below
@@ -312,6 +307,15 @@ TERM_TOOL = {
         'IcGroup:25178': 'sum',
         'IcGroup:32222': 'ksg'
     },
+}
+
+CANVAS_SHOPPING = {
+    'CANVAS_BASE_URL': CANVAS_URL,
+    # Dictionary of course_id: role key-value pairs, i.e. 
+    # '495': 'Guest'
+    'selfreg_courses': SECURE_SETTINGS.get('canvas_shopping_selfreg_courses'),
+    'SHOPPER_ROLE': 'Shopper',
+    'ROOT_ACCOUNT': '1',
 }
 
 COURSE_CONCLUDE_TOOL = {
@@ -425,4 +429,3 @@ LOGGING = {
 
     }
 }
-

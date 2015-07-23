@@ -1,0 +1,3 @@
+# Deployments to AWS
+-r base.txt
+newrelic==2.8.0.7
