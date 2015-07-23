@@ -1,13 +1,2 @@
-# test (integ) environment requirements
-
 # includes the base.txt requirements needed in all environments
 -r base.txt   
- 
-# below are requirements specific to the test/integ environment
-
-django-debug-toolbar==1.0.1
-git+https://github.com/inducer/pudb.git#egg=pudb
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.9.6#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
-
-newrelic==2.8.0.7

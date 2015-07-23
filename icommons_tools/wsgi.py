@@ -19,6 +19,6 @@ import os
 # setting points here.
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "icommons_tools.settings.production")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "icommons_tools.settings.aws")
 
 application = get_wsgi_application()
