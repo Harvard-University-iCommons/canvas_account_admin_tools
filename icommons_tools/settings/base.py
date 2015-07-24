@@ -332,10 +332,10 @@ EXPORT_TOOL = {
 }
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
-LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 LOGGING = {
     'version': 1,
@@ -362,13 +362,13 @@ LOGGING = {
         'logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.normpath(os.path.join(LOG_ROOT, 'django-icommons_tools.log')),
+            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_tools.log')),
             'formatter': 'verbose',
         },
         'huey_logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.normpath(os.path.join(LOG_ROOT, 'huey-icommons_tools.log')),
+            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'huey-icommons_tools.log')),
             'formatter': 'verbose',
         },
         'console': {
@@ -376,7 +376,7 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
             'filters': ['require_debug_true'],
-        }
+        },
     },
     'loggers': {
         'django.request': {
