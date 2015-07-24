@@ -335,16 +335,18 @@ _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
 
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
+LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S'
         },
         'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
+            'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
     'filters': {
@@ -356,22 +358,17 @@ LOGGING = {
         },
     },
     'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'django-icommons_tools.log')),
+            'filename': os.path.normpath(os.path.join(LOG_ROOT, 'django-icommons_tools.log')),
             'formatter': 'verbose',
         },
         'huey_logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.normpath(os.path.join(SECURE_SETTINGS.get('log_root', ''), 'huey-icommons_tools.log')),
+            'filename': os.path.normpath(os.path.join(LOG_ROOT, 'huey-icommons_tools.log')),
             'formatter': 'verbose',
         },
         'console': {
