@@ -170,7 +170,6 @@ INSTALLED_APPS = (
     'isites_export_tool',
     'huey.djhuey',
     'rest_framework',
-    'djsupervisor',
     'course_conclusion',
 )
 
