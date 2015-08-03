@@ -1,5 +1,7 @@
 from .base import *
 
+ALLOWED_HOSTS = ['*']
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 if not CANVAS_SHOPPING.get('selfreg_courses'):

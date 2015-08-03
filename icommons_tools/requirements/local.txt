@@ -6,4 +6,4 @@
 # below are requirements specific to the local environment and unit testing
 django-debug-toolbar==1.3.2
 git+https://github.com/inducer/pudb.git#egg=pudb
-mock
+mock==1.3.0

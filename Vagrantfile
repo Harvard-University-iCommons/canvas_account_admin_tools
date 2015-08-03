@@ -89,6 +89,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   puppet.manifest_file  = "site.pp"
   # end
 
+  # Add stdlib so we can use file_line module
+  config.vm.provision :shell do |shell|
+    shell.inline = "mkdir -p /etc/puppet/modules;
+                    puppet module install puppetlabs-stdlib --force;"
+  end
+
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "vagrant/manifests"
   end

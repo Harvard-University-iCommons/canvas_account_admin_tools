@@ -1,1 +1,1 @@
-from .qa import *
+from .aws import *
