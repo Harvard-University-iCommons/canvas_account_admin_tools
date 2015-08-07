@@ -383,9 +383,9 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['logfile'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'handlers': ['console', 'app_logfile'],
+            'level': 'ERROR',
+            'propagate': False,
         },
         'term_tool': {
             'handlers': ['console', 'logfile'],
