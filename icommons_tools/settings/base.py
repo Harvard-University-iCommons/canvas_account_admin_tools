@@ -362,7 +362,7 @@ LOGGING = {
     },
     'handlers': {
         # Log to a text file that can be rotated by logrotate
-        'logfile': {
+        'app_logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_tools.log')),
@@ -388,32 +388,32 @@ LOGGING = {
             'propagate': False,
         },
         'term_tool': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'canvas_shopping': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'isites_export_tool': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'qualtrics_whitelist': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'qualtrics_taker_auth': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
