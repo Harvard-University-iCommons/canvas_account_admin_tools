@@ -301,6 +301,21 @@ exec {'create-virtualenv':
     creates => '/home/vagrant/.virtualenvs/icommons_tools',
 }
 
+# set the DJANGO_SETTINGS_MODULE environment variable
+file_line {'add DJANGO_SETTINGS_MODULE env to postactivate':
+    ensure => present,
+    line => 'export DJANGO_SETTINGS_MODULE=icommons_tools.settings.local',
+    path => '/home/vagrant/.virtualenvs/icommons_tools/bin/postactivate',
+    require => Exec['create-virtualenv'],
+}
+
+file_line {'add DJANGO_SETTINGS_MODULE env to postdeactivate':
+    ensure => present,
+    line => 'unset DJANGO_SETTINGS_MODULE',
+    path => '/home/vagrant/.virtualenvs/icommons_tools/bin/postdeactivate',
+    require => Exec['create-virtualenv'],
+}
+
 # Active this virtualenv upon login
 file {'/home/vagrant/.bash_profile':
     owner => 'vagrant',

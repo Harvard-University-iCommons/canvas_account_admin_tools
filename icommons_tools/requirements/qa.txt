@@ -1,2 +1,2 @@
 # includes the base.txt requirements needed in all environments
--r base.txt   
+-r aws.txt   

@@ -16,8 +16,6 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['*']
-
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # NOTE: this was being set to a sample email address in non-prod
 # environments before this change.  This represents the address used

@@ -1,5 +1,7 @@
 from .base import *
 
+ALLOWED_HOSTS = ['.tlt.harvard.edu']
+
 # AWS Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
