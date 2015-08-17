@@ -16,8 +16,6 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['*']
-
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # NOTE: this was being set to a sample email address in non-prod
 # environments before this change.  This represents the address used
@@ -27,11 +25,8 @@ ADMINS = (
 ),
 
 # This is the address that emails will be sent "from"
+# See other specific email settings in AWS or local.py files
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = True
 
 MANAGERS = ADMINS
 
@@ -173,7 +168,6 @@ INSTALLED_APPS = (
     'isites_export_tool',
     'huey.djhuey',
     'rest_framework',
-    'djsupervisor',
     'course_conclusion',
 )
 
@@ -183,8 +177,6 @@ SESSION_COOKIE_AGE = 60 * 60 * 7
 SESSION_COOKIE_NAME = 'djsessionid'
 
 SESSION_COOKIE_HTTPONLY = True
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -245,7 +237,7 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 # Django defaults to False (as of 1.7)
-SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
+# SESSION_COOKIE_SECURE = SECURE_SETTINGS.get('use_secure_cookies', False)
 
 """
 Tool specific settings below
@@ -314,6 +306,15 @@ TERM_TOOL = {
     },
 }
 
+CANVAS_SHOPPING = {
+    'CANVAS_BASE_URL': CANVAS_URL,
+    # Dictionary of course_id: role key-value pairs, i.e. 
+    # '495': 'Guest'
+    'selfreg_courses': SECURE_SETTINGS.get('canvas_shopping_selfreg_courses'),
+    'SHOPPER_ROLE': 'Shopper',
+    'ROOT_ACCOUNT': '1',
+}
+
 COURSE_CONCLUDE_TOOL = {
     'years_back': 5,
 }
@@ -359,7 +360,7 @@ LOGGING = {
     },
     'handlers': {
         # Log to a text file that can be rotated by logrotate
-        'logfile': {
+        'app_logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_tools.log')),
@@ -380,37 +381,37 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['logfile'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'handlers': ['console', 'app_logfile'],
+            'level': 'ERROR',
+            'propagate': False,
         },
         'term_tool': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'canvas_shopping': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'isites_export_tool': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'qualtrics_whitelist': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'qualtrics_taker_auth': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': True,
         },
@@ -422,4 +423,3 @@ LOGGING = {
 
     }
 }
-

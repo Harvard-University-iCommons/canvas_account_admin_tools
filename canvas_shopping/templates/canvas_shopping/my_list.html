@@ -7,13 +7,11 @@
 
 {% block content %}
 
-<h1>Canvas Courses I'm Shopping</h1>
+<h1>Courses I'm Shopping</h1>
 <p>
-    You’ve chosen to “Get full access” to the following course(s).
-    This means you can participate in the course(s) and may receive email notifications. <br />
-    Note: during shopping period you can access course site materials and tools
-    that are normally restricted to the class list.
-    Your contributions may be visible to other students and visitors to course sites.
+    You have added the following course(s) to your shopping list. This means that you can receive notifications,
+    join discussions, and upload assignments during shopping period. Your contributions may be visible to other
+    students who are also shopping this course. Enrollment is not final until confirmation from the Registrar.
 </p>
 
 {% if courses %}
@@ -29,14 +27,15 @@
                 <form method="POST" action="{% url 'sh:remove_shopper_ui' %}">{% csrf_token %}
                     <input type="hidden" name="canvas_course_id" value="{{ course.id }}"/>
                     <input type="hidden" name="canvas_enrollee_id" value="{{ enrollment_id }}"/>
-                    <button type="submit" class="btn btn-default" data-loading-text="Removing...">I want to be removed</button>
+                    <button type="submit" class="btn btn-default" data-loading-text="Removing...">Remove Course</button>
                 </form>
             </td>
         </tr>
     {% endfor %}
 </table>
 {% else %}
-    <h3>You don't have any Canvas courses in your shopping list. Go back to your <a href="http://canvas.harvard.edu/">Canvas dashboard</a></h3>
+    <h3>You don’t have any courses in your shopping list.<br>
+        To find a course, search the course catalog and follow the links to the course website. Go back to your <a href="http://canvas.harvard.edu/">Canvas dashboard</a></h3>
 
 
 {% endif %}

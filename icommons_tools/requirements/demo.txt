@@ -1,4 +1,2 @@
-# demo environment requirements
-
-# demo environment mimics qa
--r qa.txt
+# includes the base.txt requirements needed in all environments
+-r aws.txt

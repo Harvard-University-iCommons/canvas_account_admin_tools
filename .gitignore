@@ -7,9 +7,7 @@ sqlnet.log
 newrelic*.ini
 .vagrant
 *.sqlite3
-secure*.py*
-!secure.py.example
-!secure.py.j2
+secure.py
 *.sublime-workspace
 gunicorn.py
 .idea
