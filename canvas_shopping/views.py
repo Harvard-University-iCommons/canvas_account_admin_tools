@@ -98,7 +98,7 @@ def shop_course(request, canvas_course_id):
 
     # check if shopping is active for the term and  that the course is not explicitly excluded from shopping before
     #  allowing to shop.
-    if ci.exclude_from_shopping and not ci.term.shopping_active:
+    if ci.exclude_from_shopping or not ci.term.shopping_active:
         logger.debug('The course %s is not shoppable' % canvas_course_id)
         return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
     else:
