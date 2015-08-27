@@ -97,7 +97,8 @@ def shop_course(request, canvas_course_id):
         return render(request, 'canvas_shopping/error.html',
                       {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
 
-    if ci.term.shopping_active:
+    #check if shopping is active for teh term and  the course is not explicitly excluded from shopping.
+    if ci.term.shopping_active and not ci.exclude_from_shopping:
         is_shoppable = True
 
     course_instance_id = ci.course_instance_id
