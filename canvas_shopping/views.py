@@ -86,9 +86,6 @@ def shop_course(request, canvas_course_id):
 
     shopping_role = settings.CANVAS_SHOPPING['SHOPPER_ROLE']
 
-    # make sure this is a shoppable course and that this user can shop it
-    is_shoppable = False
-
     # only lookup the course if we have a valid canvas course
 
     try:
@@ -97,12 +94,11 @@ def shop_course(request, canvas_course_id):
         return render(request, 'canvas_shopping/error.html',
                       {'error_message': 'Sorry, this Canvas course is associated with an invalid Harvard course ID.'})
 
-    if ci.term.shopping_active:
-        is_shoppable = True
-
     course_instance_id = ci.course_instance_id
 
-    if is_shoppable is False:
+    # check if shopping is active for the term and  that the course is not explicitly excluded from shopping before
+    #  allowing to shop.
+    if ci.exclude_from_shopping or not ci.term.shopping_active:
         logger.debug('The course %s is not shoppable' % canvas_course_id)
         return render(request, 'canvas_shopping/not_shoppable.html', {'canvas_course': canvas_course})
     else:
