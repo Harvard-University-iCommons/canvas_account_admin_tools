@@ -178,6 +178,9 @@ LOGIN_URL = reverse_lazy('pin:login')
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'contenttypes': 'default',
+    'sessions': 'default',
     'canvas_shopping': 'default',
     'canvas_whitelist': 'default',
     'icommons_common': 'termtool',
