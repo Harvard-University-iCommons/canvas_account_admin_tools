@@ -332,11 +332,15 @@ EXPORT_TOOL = {
     's3_download_url_expiration_in_secs': SECURE_SETTINGS.get('isites_export_s3_download_url_expiration_in_secs', 60),
 }
 
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')  # Default to current directory
 
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
+
+# Turn off default Django logging
+# https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
+LOGGING_CONFIG = None
 
 LOGGING = {
     'version': 1,
@@ -351,9 +355,6 @@ LOGGING = {
         }
     },
     'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
@@ -379,46 +380,51 @@ LOGGING = {
             'filters': ['require_debug_true'],
         },
     },
+    # This is the default logger for any apps or libraries that use the logger
+    # package, but are not represented in the `loggers` dict below.  A level
+    # must be set and handlers defined.  Setting this logger is equivalent to
+    # setting and empty string logger in the loggers dict below, but the separation
+    # here is a bit more explicit.  See link for more details:
+    # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
+    'root': {
+        'level': logging.WARNING,
+        'handlers': ['console', 'app_logfile'],
+    },
     'loggers': {
-        'django.request': {
+        'canvas_whitelist': {
             'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
+            'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
         'term_tool': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         'canvas_shopping': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         'isites_export_tool': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         'qualtrics_whitelist': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         'qualtrics_taker_auth': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
-        },
-        'icommons_common': {
-            'handlers': ['console', 'app_logfile'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
         'huey': {
             'handlers': ['console', 'huey_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-            'propagate': True,
+            'propagate': False,
         },
 
     }
