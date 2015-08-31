@@ -13,7 +13,7 @@ from django.conf import settings
 
 from canvas_sdk.methods import users
 from canvas_sdk import RequestContext
-from requests import HTTPError
+from canvas_sdk.exceptions import CanvasAPIError
 
 import logging
 
@@ -75,14 +75,11 @@ def access_update_person(request):
 
             # now add the user to Canvas so they'll be available immediately
             try:
-                results = users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
-                print 'results status: %d' % results.status_code
-                if results.status_code == 200:
-                    logger.info('Canvas user already exists for user_id %s' % user_id)
+                users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
+                logger.info('Canvas user already exists for user_id %s' % user_id)
 
-            except HTTPError as e:
-
-                if e.response.status_code == 404:
+            except CanvasAPIError as e:
+                if e.status_code == 404:
                     # go ahead and create the user
                     logger.info('Canvas user does not already exist for userid %s - will create one' % user_id)
 
@@ -91,19 +88,19 @@ def access_update_person(request):
                         if personlist and len(personlist) > 0:
                             person = personlist[0]
                             user_name = '%s %s' % (person.name_first, person.name_last)
-                            new_canvas_user = users.create_user(request_context, account_id='1', 
-                                                                user_name=user_name, 
-                                                                pseudonym_unique_id=user_id, 
-                                                                user_time_zone='America/New_York', 
-                                                                pseudonym_sis_user_id=user_id, 
-                                                                pseudonym_send_confirmation=False, 
-                                                                communication_channel_address=person.email_address,
-                                                                communication_channel_skip_confirmation=True)                     
-                    except:
-                        logger.error('Failed to create a Canvas user for user_id %s' % user_id)   
-
-            except:
-                logger.error('Some other error occurred when trying to fetch the Canvas user profile')
+                            users.create_user(request_context,
+                                              account_id='1',
+                                              user_name=user_name,
+                                              pseudonym_unique_id=user_id,
+                                              user_time_zone='America/New_York',
+                                              pseudonym_sis_user_id=user_id,
+                                              pseudonym_send_confirmation=False,
+                                              communication_channel_address=person.email_address,
+                                              communication_channel_skip_confirmation=True)
+                    except CanvasAPIError:
+                        logger.exception('Failed to create a Canvas user for user_id %s' % user_id)
+                else:
+                    logger.exception('Some other error occurred when trying to fetch the Canvas profile for %s' % user_id)
 
         except IntegrityError, e:
             logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
@@ -311,17 +308,13 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                     try:
                         wlistSave.save()
                         messages.success(request, "%s %s, (%s), has been successfully added to the whitelist" % (firstname, lastname, wlistSave.user_id))
-
                         # now add the user to Canvas so they'll be available immediately
                         try:
-                            results = users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
-                            print 'results status: %d' % results.status_code
-                            if results.status_code == 200:
-                                logger.info('Canvas user already exists for user_id %s' % user_id)
+                            users.get_user_profile(request_context, 'sis_user_id:%s' % user_id)
+                            logger.info('Canvas user already exists for user_id %s' % user_id)
 
-                        except HTTPError as e:
-
-                            if e.response.status_code == 404:
+                        except CanvasAPIError as e:
+                            if e.status_code == 404:
                                 # go ahead and create the user
                                 logger.info('Canvas user does not already exist for userid %s - will create one' % user_id)
 
@@ -330,21 +323,19 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                                     if personlist and len(personlist) > 0:
                                         person = personlist[0]
                                         user_name = '%s %s' % (person.name_first, person.name_last)
-                                        new_canvas_user = users.create_user(request_context, account_id='1', 
-                                                                            user_name=user_name, 
-                                                                            pseudonym_unique_id=user_id, 
-                                                                            user_time_zone='America/New_York', 
-                                                                            pseudonym_sis_user_id=user_id, 
-                                                                            pseudonym_send_confirmation=False, 
-                                                                            communication_channel_address=person.email_address,
-                                                                            communication_channel_skip_confirmation=True)                     
-                                except:
-                                    logger.error('Failed to create a Canvas user for user_id %s' % user_id)   
-
-                        except:
-                            logger.error('Some other error occurred when trying to fetch the Canvas user profile')
-
-                        
+                                        users.create_user(request_context,
+                                                          account_id='1',
+                                                          user_name=user_name,
+                                                          pseudonym_unique_id=user_id,
+                                                          user_time_zone='America/New_York',
+                                                          pseudonym_sis_user_id=user_id,
+                                                          pseudonym_send_confirmation=False,
+                                                          communication_channel_address=person.email_address,
+                                                          communication_channel_skip_confirmation=True)
+                                except CanvasAPIError:
+                                    logger.exception('Failed to create a Canvas user for user_id %s' % user_id)
+                            else:
+                                logger.exception('Some other error occurred when trying to fetch the Canvas profile for %s' % user_id)
                     except IntegrityError, e:
                         logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
                         messages.error(request, "Whitelist add user failed")

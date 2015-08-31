@@ -85,6 +85,11 @@ package {'libaio-dev':
     require => Exec['apt-get-update']
 }
 
+# For python cryptography requirements
+package {'libffi-dev':
+    ensure => installed,
+    require => Exec['apt-get-update']
+}
 
 #package {'python-django':
 #    ensure => installed,
