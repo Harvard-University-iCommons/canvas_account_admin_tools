@@ -175,13 +175,13 @@ def course_selfreg(request, canvas_course_id):
             )
             return render(request, 'canvas_shopping/not_selfreg.html', {'canvas_course': canvas_course})
         else:
-            # Enroll this user as a shopper
             # make sure the user has a Canvas account
             canvas_user = get_canvas_user(user_id)
             if not canvas_user:
                 return render(request, 'canvas_shopping/error.html',
                               {'error_message': 'Sorry, a Canvas user account does not exist for you.'})
 
+            # Enroll this user with the mapped role
             # if there is a section matching the course's sis_course_id,
             # enroll the user in that; otherwise use the default section
             selfreg_role = selfreg_course.canvas_role_name
