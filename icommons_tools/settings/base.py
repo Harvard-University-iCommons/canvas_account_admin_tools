@@ -286,7 +286,7 @@ QUALTRICS_WHITELIST = {
 CANVAS_WHITELIST = {
     'allowed_groups': 'IcGroup:358',
     'canvas_url': CANVAS_URL + '/api',
-    'oauth_token': SECURE_SETTINGS.get('canvas_whitelist_oauth_token', None),
+    'oauth_token': SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config'),
 }
 
 TERM_TOOL = {
