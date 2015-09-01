@@ -205,11 +205,11 @@ DATABASES = {
     },
     'termtool': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('db_termtool_name'),
-        'USER': SECURE_SETTINGS.get('db_termtool_user'),
-        'PASSWORD': SECURE_SETTINGS.get('db_termtool_password'),
-        'HOST': SECURE_SETTINGS.get('db_termtool_host'),
-        'PORT': str(SECURE_SETTINGS.get('db_termtool_port')),
+        'NAME': SECURE_SETTINGS.get('django_db'),
+        'USER': SECURE_SETTINGS.get('django_db_user'),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass'),
+        'HOST': SECURE_SETTINGS.get('django_db_host'),
+        'PORT': str(SECURE_SETTINGS.get('django_db_port')),
         'OPTIONS': {
             'threaded': True,
         },
