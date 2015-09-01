@@ -100,7 +100,7 @@ def access_update_person(request):
                     except CanvasAPIError:
                         logger.exception('Failed to create a Canvas user for user_id %s' % user_id)
                 else:
-                    logger.exception('Some other error occurred when trying to fetch the Canvas profile for %s' % user_id)
+                    logger.exception('An error occurred when trying to fetch the Canvas profile for %s' % user_id)
 
         except IntegrityError, e:
             logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
@@ -335,7 +335,7 @@ class CanvasAccessResultsListView(GroupMembershipRequiredMixin, generic.ListView
                                 except CanvasAPIError:
                                     logger.exception('Failed to create a Canvas user for user_id %s' % user_id)
                             else:
-                                logger.exception('Some other error occurred when trying to fetch the Canvas profile for %s' % user_id)
+                                logger.exception('An error occurred when trying to fetch the Canvas profile for %s' % user_id)
                     except IntegrityError, e:
                         logger.error('Exception raised while saving to database:%s (%s)' % (e.args[0], type(e)))
                         messages.error(request, "Whitelist add user failed")
