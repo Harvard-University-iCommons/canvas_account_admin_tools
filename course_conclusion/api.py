@@ -119,6 +119,54 @@ def courses(request):
 
 
 @login_required
+@require_http_methods(['GET'])
+def concluded_courses_by_school(request):
+    # check for required fields in the url
+    try:
+        assert_required_args_in_or_400({'school_id'}, request.GET)
+    except JsonResponseException as r:
+        return r
+
+    school_id = request.GET['school_id']
+    filters = {}
+    filters['course__school'] = school_id
+    query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
+        'title', 'course_id')
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'last_updated'))
+
+    for course in course_data:
+        if course['conclude_date']:
+            course['conclude_date'] = course['conclude_date'].date()
+            course['last_updated'] = course['last_updated'].date()
+    return JsonResponse(course_data, safe=False)
+
+@login_required
+@require_http_methods(['GET'])
+def concluded_courses_by_school_term(request):
+   # check for required fields in the url
+    try:
+        assert_required_args_in_or_400({'school_id', 'term_id'}, request.GET)
+    except JsonResponseException as r:
+        return r
+
+    school_id = request.GET['school_id']
+    term_id = request.GET['term_id']
+
+    # look up the concluded courses by school id and term
+    filters = {'term_id': term_id}
+    filters['course__school'] = school_id
+    query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
+        'title', 'course_id')
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'last_updated'))
+    print(len(course_data))
+
+    for course in course_data:
+        if course['conclude_date']:
+            course['conclude_date'] = course['conclude_date'].date()
+            course['last_updated'] = course['last_updated'].date()
+    return JsonResponse(course_data, safe=False)
+
+@login_required
 @require_http_methods(['PATCH'])
 def course(request, course_instance_id):
     # because why would i want django to convert it for me?
@@ -179,6 +227,9 @@ def course(request, course_instance_id):
     course.conclude_date = conclude_date
     try:
         course.save(update_fields=['conclude_date'])
+        # Log when this was updated, so that it is easily searchable by splunk if needed
+        logger.info("Course conclusion date set to %s for course instance Id=%d by user %s on %s"
+                    %(str(conclude_date), course_instance_id, request.user, str(datetime.datetime.now())))
     except Exception as e:
         if conclude_date:
             msg = 'Unable to save the new conclude date {} to'.format(

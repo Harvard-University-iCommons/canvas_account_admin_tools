@@ -13,6 +13,8 @@
         ctrl.schools = [];
         ctrl.terms = [];
         ctrl.courses = [];
+        ctrl.concluded_courses = [];
+
 
         // models matching the current selections on the page
         ctrl.currentSchool = null;
@@ -30,8 +32,31 @@
         // go get the list of schools once
         $http.get(baseUrl + 'schools').success(function(data) {
             ctrl.schools = data;
+            //If there is only one school, pre-select it and render the concluded courses
+            if (ctrl.schools.length==1) {
+                ctrl.currentSchool =  ctrl.schools[0];
+                ctrl.getConcludedCourses();
+            }
         });
 
+        // gets the list of concluded courses for a school
+        ctrl.getConcludedCourses = function() {
+            ctrl.concluded_courses = [];
+            var url = baseUrl + 'concluded_courses_by_school?school_id=' + ctrl.currentSchool.school_id;
+            $http.get(url).success(function(data) {
+                 ctrl.concluded_courses = data;
+            });
+        };
+
+        ctrl.getConcludedCoursesBySchoolTerm= function() {
+            ctrl.concluded_courses = [];
+            var url = baseUrl + 'concluded_courses_by_school_term'
+                    + '?school_id=' + ctrl.currentSchool.school_id
+                    + '&term_id=' + ctrl.currentTerm.term_id;
+            $http.get(url).success(function(data) {
+                 ctrl.concluded_courses = data;
+            });
+        };
         // gets the list of terms for a school
         ctrl.getTerms = function() {
             ctrl.terms = [];
@@ -84,6 +109,13 @@
                     ctrl.addAlert({type: 'error', msg: data.error});
                 });
         };
+
+        ctrl.hasMultipleSchools = function(){
+            if (ctrl.schools.length>1) {
+                return true;
+            }
+            return false;
+        }
 
 
         ctrl.reset = function(form) {
