@@ -405,6 +405,11 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
+        'course_conclusion': {
+            'handlers': ['console', 'app_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
         'isites_export_tool': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
