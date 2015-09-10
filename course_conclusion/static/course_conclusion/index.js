@@ -32,14 +32,14 @@
         // go get the list of schools once
         $http.get(baseUrl + 'schools').success(function(data) {
             ctrl.schools = data;
-            //If there is only one school, pre-select it and render the concluded courses
+            //If there is only one school, pre-select it and render the concluded courses for that school
             if (ctrl.schools.length==1) {
                 ctrl.currentSchool =  ctrl.schools[0];
                 ctrl.getConcludedCourses();
             }
         });
 
-        // gets the list of concluded courses for a school
+        //gets the list of concluded courses for a school
         ctrl.getConcludedCourses = function() {
             ctrl.concluded_courses = [];
             var url = baseUrl + 'concluded_courses_by_school?school_id=' + ctrl.currentSchool.school_id;
@@ -48,6 +48,7 @@
             });
         };
 
+        //gets the list of concluded courses for a school and a term
         ctrl.getConcludedCoursesBySchoolTerm= function() {
             ctrl.concluded_courses = [];
             var url = baseUrl + 'concluded_courses_by_school_term'
@@ -110,6 +111,7 @@
                 });
         };
 
+        //checks if there are multiple schools in the schools list
         ctrl.hasMultipleSchools = function(){
             if (ctrl.schools.length>1) {
                 return true;

@@ -227,7 +227,7 @@ def course(request, course_instance_id):
     course.conclude_date = conclude_date
     try:
         course.save(update_fields=['conclude_date'])
-        # Log when this was updated, so that it is easily searchable by splunk if needed
+        # Log when course conclusion date was updated, so that it is easily searchable by splunk if needed
         logger.info("Course conclusion date set to %s for course instance Id=%d by user %s on %s"
                     %(str(conclude_date), course_instance_id, request.user, str(datetime.datetime.now())))
     except Exception as e:
