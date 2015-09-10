@@ -157,7 +157,6 @@ def concluded_courses_by_school_term(request):
     query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
         'title', 'course_id')
     course_data = list(query.values('course_instance_id', 'title', 'conclude_date'))
-    print(len(course_data))
 
     for course in course_data:
         if course['conclude_date']:
