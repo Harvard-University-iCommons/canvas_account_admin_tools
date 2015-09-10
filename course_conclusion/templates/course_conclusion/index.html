@@ -97,6 +97,15 @@
             ng-show="courseCtrl.hasMultipleSchools() && !courseCtrl.currentSchool">
             Please select a school from the list above to view the concluded courses for the selected school.
         </div>
+        <div align="right" ng-show="courseCtrl.hasMultipleSchools() && courseCtrl.currentSchool">
+            <label for="course-conclusion-date">
+                Search
+            </label>
+            <input type="text" align="right"
+             name="courseConcludeDate" placeholder="Search Course"
+             ng-disabled="!courseCtrl.concluded_courses"
+             ng-required="false" ng-model="searchCourse">
+        </div>
         <table class="table table-bordered table-condensed table-striped table-responsive" width="100%">
             <tr>
                 <th class="thead">Course Conclusion Date Set On</th>
@@ -104,7 +113,7 @@
                 <th class="thead">Course</th>
                 <th class="thead">Course Conclusion Date</th>
             </tr>
-            <tr ng-repeat="c in courseCtrl.concluded_courses">
+            <tr ng-repeat="c in courseCtrl.concluded_courses|filter:searchCourse">
                 <td class="tbody">{{c.last_updated }}</td>
                 <td class="tbody">{{c.course_instance_id }}</td>
                 <td class="tbody">{{c.title }}</td>
