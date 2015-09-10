@@ -132,12 +132,11 @@ def concluded_courses_by_school(request):
     filters['course__school'] = school_id
     query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
         'title', 'course_id')
-    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'last_updated'))
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date'))
 
     for course in course_data:
         if course['conclude_date']:
             course['conclude_date'] = course['conclude_date'].date()
-            course['last_updated'] = course['last_updated'].date()
     return JsonResponse(course_data, safe=False)
 
 @login_required
@@ -157,13 +156,12 @@ def concluded_courses_by_school_term(request):
     filters['course__school'] = school_id
     query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
         'title', 'course_id')
-    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'last_updated'))
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date'))
     print(len(course_data))
 
     for course in course_data:
         if course['conclude_date']:
             course['conclude_date'] = course['conclude_date'].date()
-            course['last_updated'] = course['last_updated'].date()
     return JsonResponse(course_data, safe=False)
 
 @login_required

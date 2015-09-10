@@ -108,13 +108,11 @@
         </div>
         <table class="table table-bordered table-condensed table-striped table-responsive" width="100%">
             <tr>
-                <th class="thead">Course Conclusion Date Set On</th>
                 <th class="thead">SIS ID</th>
                 <th class="thead">Course</th>
                 <th class="thead">Course Conclusion Date</th>
             </tr>
             <tr ng-repeat="c in courseCtrl.concluded_courses|filter:searchCourse">
-                <td class="tbody">{{c.last_updated }}</td>
                 <td class="tbody">{{c.course_instance_id }}</td>
                 <td class="tbody">{{c.title }}</td>
                 <td class="tbody">{{c.conclude_date }}</td>
