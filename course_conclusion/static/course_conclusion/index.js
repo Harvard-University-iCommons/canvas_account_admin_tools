@@ -42,21 +42,25 @@
         //gets the list of concluded courses for a school
         ctrl.getConcludedCourses = function() {
             ctrl.concluded_courses = [];
-            var url = baseUrl + 'concluded_courses_by_school?school_id=' + ctrl.currentSchool.school_id;
-            $http.get(url).success(function(data) {
-                 ctrl.concluded_courses = data;
-            });
+            if (ctrl.currentSchool) {
+                var url = baseUrl + 'concluded_courses_by_school?school_id=' + ctrl.currentSchool.school_id;
+                $http.get(url).success(function (data) {
+                    ctrl.concluded_courses = data;
+                });
+            }
         };
 
         //gets the list of concluded courses for a school and a term
         ctrl.getConcludedCoursesBySchoolTerm= function() {
             ctrl.concluded_courses = [];
-            var url = baseUrl + 'concluded_courses_by_school_term'
+            if (ctrl.currentSchool && ctrl.currentTerm) {
+                var url = baseUrl + 'concluded_courses_by_school_term'
                     + '?school_id=' + ctrl.currentSchool.school_id
                     + '&term_id=' + ctrl.currentTerm.term_id;
-            $http.get(url).success(function(data) {
-                 ctrl.concluded_courses = data;
-            });
+                $http.get(url).success(function (data) {
+                    ctrl.concluded_courses = data;
+                });
+            }
         };
         // gets the list of terms for a school
         ctrl.getTerms = function() {
@@ -65,11 +69,12 @@
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
-
-            var url = baseUrl + 'terms?school_id=' + ctrl.currentSchool.school_id;
-            $http.get(url).success(function(data) {
-                ctrl.terms = data;
-            });
+            if (ctrl.currentSchool) {
+                var url = baseUrl + 'terms?school_id=' + ctrl.currentSchool.school_id;
+                $http.get(url).success(function (data) {
+                    ctrl.terms = data;
+                });
+            }
         };
 
         // gets the list of courses for a school and term
@@ -78,12 +83,14 @@
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
 
-            var url = baseUrl + 'courses'
-                      + '?school_id=' + ctrl.currentSchool.school_id
-                      + '&term_id=' + ctrl.currentTerm.term_id;
-            $http.get(url).success(function(data) {
-                ctrl.courses = data;
-            });
+            if (ctrl.currentSchool && ctrl.currentTerm){
+                var url = baseUrl + 'courses'
+                    + '?school_id=' + ctrl.currentSchool.school_id
+                    + '&term_id=' + ctrl.currentTerm.term_id;
+                $http.get(url).success(function (data) {
+                    ctrl.courses = data;
+                });
+            }
         };
 
         // submits the current course's conclude_date to the server
@@ -105,6 +112,7 @@
                     }
                     ctrl.currentCourse.conclude_date = data.conclude_date;
                     ctrl.addAlert({type: 'success', msg: msg});
+                    ctrl.concluded_courses = ctrl.getConcludedCoursesBySchoolTerm();
                 })
                 .error(function(data) {
                     ctrl.addAlert({type: 'error', msg: data.error});

@@ -26,7 +26,7 @@
       <select class="form-control" name="school" required
               ng-options="school.title_short for school in courseCtrl.schools"
               ng-model="courseCtrl.currentSchool"
-              ng-change="courseCtrl.getTerms();courseCtrl.getConcludedCourses()"
+              ng-change="courseCtrl.getTerms()"
               ng-disabled="courseCtrl.schools.length === 0">
         <option ng-show="courseCtrl.hasMultipleSchools()" value="">-- Choose A School --</option>
       </select>
@@ -80,7 +80,7 @@
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
       <input type="submit" class="btn btn-default" value="Save"
-             ng-disabled="courseConcludeForm.$invalid" ng-click="courseCtrl.getConcludedCoursesBySchoolTerm()"/>
+             ng-disabled="courseConcludeForm.$invalid"/>
       <input type="button" class="btn btn-default" value="Reset"
              ng-click="courseCtrl.reset(courseConcludeForm)" />
     </div>
