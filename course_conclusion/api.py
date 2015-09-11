@@ -277,15 +277,16 @@ def get_object_or_404_json(*args, **kwargs):
 
 def user_is_admin(request):
     user_groups = set(request.session['USER_GROUPS'])
-    admin_group = set()
-    if 'ADMIN_GROUP' in settings.TERM_TOOL:
-        admin_group.add(settings.TERM_TOOL['ADMIN_GROUP'])
-    return bool(admin_group & user_groups)
+    admin_groups = set()
+    if 'admin_groups' in settings.COURSE_CONCLUDE_TOOL:
+        admin_groups.update(settings.COURSE_CONCLUDE_TOOL['admin_groups'])
+    return bool(admin_groups & user_groups)
 
 
 def user_allowed_schools(request):
     user_groups = set(request.session['USER_GROUPS'])
-    allowed_by_group = settings.TERM_TOOL.get('ALLOWED_GROUPS', {})
-    user_allowed_groups = user_groups.intersection(allowed_by_group.keys())
-    return [school for group, school in allowed_by_group
-                if group in user_allowed_groups]
+    allowed_by_group = settings.COURSE_CONCLUDE_TOOL.get('allowed_groups', {})
+    allowed_schools = set()
+    for group in user_groups.intersection(allowed_by_group.keys()):
+        allowed_schools.update(allowed_by_group[group])
+    return list(allowed_schools)
