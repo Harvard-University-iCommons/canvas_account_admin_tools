@@ -135,6 +135,7 @@
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
+            ctrl.concluded_courses = []
         };
 
         ctrl.addAlert = function (alert) {
