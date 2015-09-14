@@ -315,22 +315,18 @@ CANVAS_SHOPPING = {
 }
 
 COURSE_CONCLUDE_TOOL = {
-    'admin_groups': ['IcGroup:25292', 'IcGroup:474'],
+    #'admin_groups': [],
     'allowed_groups': {
-        'IcGroup:25095': ['colgsas'],
-        'IcGroup:25096': ['gse'],
-        'IcGroup:25097': ['hls'],
-        'IcGroup:25098': ['hsph'],
-        'IcGroup:25099': ['hds'],
-        'IcGroup:25100': ['gsd'],
-        'IcGroup:25101': ['ext'],
-        'IcGroup:25102': ['hks'],
-        'IcGroup:25103': ['hms'],
-        'IcGroup:25104': ['hsdm'],
-        'IcGroup:25105': ['hbsmba'],
-        'IcGroup:25106': ['hbsdoc'],
-        'IcGroup:25178': ['sum'],
-        'IcGroup:32222': ['ksg'],
+        'IcGroup:193': ['hds'],
+        'IcGroup:196': ['hls'],
+        'IcGroup:218': ['gse'],
+        'IcGroup:299': ['ext', 'sum'],
+        'IcGroup:311': ['gsd'],
+        'IcGroup:32471': ['hks'],
+        'IcGroup:400': ['hsph'],
+        'IcGroup:5257': ['ksg'],
+        'IcGroup:533': ['colgsas'],
+        'IcGroup:7528': ['hilr'],
     },
     'years_back': 5,
 }
