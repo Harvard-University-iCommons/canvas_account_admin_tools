@@ -36,6 +36,7 @@
             if (ctrl.schools.length==1) {
                 ctrl.currentSchool =  ctrl.schools[0];
                 ctrl.getConcludedCourses();
+                ctrl.getTerms();
             }
         });
 
