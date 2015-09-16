@@ -1,14 +1,19 @@
+import logging
+import re
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from icommons_common.canvas_utils import *
 from django.conf import settings
+
+from icommons_common.canvas_utils import *
+
+from canvas_shopping.models import SelfregCourse
 from canvas_shopping.decorators import check_user_id_integrity
-import logging
-import re
+
 
 group_pattern = re.compile('LdapGroup:[a-z]+\.student',re.IGNORECASE)
 
@@ -137,7 +142,7 @@ it simply redirects the user to the Canvas course site.
 
 @login_required
 def course_selfreg(request, canvas_course_id):
-    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    course_url = '%s/courses/%s' % (settings.CANVAS_URL, canvas_course_id)
 
     # is the user already in the course?
     user_id = request.user.username
@@ -160,31 +165,26 @@ def course_selfreg(request, canvas_course_id):
         canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
         # make sure this is a self-reg course
-        is_selfreg = False
-
-        # look for selfreg courses in settings:
-        selfreg_courses = settings.CANVAS_SHOPPING.get('selfreg_courses')
-        if selfreg_courses is not None:
-            selfreg_role = selfreg_courses.get(canvas_course_id)
-            if selfreg_role:
-                is_selfreg = True
-        else:
-            logger.warn('A user is trying to self-reg for Canvas course %s, \
-                but no self-reg courses have been configured in the settings file.' % canvas_course_id)
-
-        if is_selfreg is False:
+        try:
+            selfreg_course = SelfregCourse.objects.get(canvas_course_id=canvas_course_id)
+        except SelfregCourse.DoesNotExist:
+            logger.warn(
+                "A user is trying to self-reg for Canvas course %s, but this course "
+                "have been activated for self-reg",
+                canvas_course_id
+            )
             return render(request, 'canvas_shopping/not_selfreg.html', {'canvas_course': canvas_course})
-
         else:
-            # Enroll this user as a shopper
-
             # make sure the user has a Canvas account
             canvas_user = get_canvas_user(user_id)
             if not canvas_user:
                 return render(request, 'canvas_shopping/error.html',
                               {'error_message': 'Sorry, a Canvas user account does not exist for you.'})
 
-            # if there is a section matching the course's sis_course_id, enroll the user in that; otherwise use the default section
+            # Enroll this user with the mapped role
+            # if there is a section matching the course's sis_course_id,
+            # enroll the user in that; otherwise use the default section
+            selfreg_role = selfreg_course.canvas_role_name
             if canvas_course.get('sis_course_id'):
                 canvas_section = get_canvas_course_section(canvas_course['sis_course_id'])
                 if canvas_section:

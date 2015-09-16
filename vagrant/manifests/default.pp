@@ -147,7 +147,35 @@ package {'sqlite3':
     require => Exec['apt-get-update'],
 }
 
+# Install Postgresql
+package {'postgresql':
+    ensure => latest,
+    require => Exec['apt-get-update'],
+}
 
+package {'postgresql-contrib':
+    ensure => latest,
+    require => Exec['apt-get-update'],
+}
+
+package {'libpq-dev':
+    ensure => latest,
+    require => Exec['apt-get-update'],
+}
+
+# Create vagrant user for postgresql
+exec {'create-postgresql-user':
+    require => Package['postgresql'],
+    command => 'sudo -u postgres psql -c "CREATE ROLE vagrant SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN PASSWORD \'vagrant\'"',
+    unless => 'sudo -u postgres psql -qt -c "select 1 from pg_roles where rolname=\'vagrant\'" | grep -q 1',
+}
+
+# Create vagrant db for postgresql
+exec {'create-postgresql-db':
+    require => Exec['create-postgresql-user'],
+    command => 'sudo -u postgres createdb vagrant',
+    unless => 'sudo -u postgres psql -lqt | cut -d \| -f 1 | grep -wq vagrant',
+}
 
 # make a workspace directory and link it into the homedir
 
@@ -319,6 +347,18 @@ file_line {'add DJANGO_SETTINGS_MODULE env to postdeactivate':
     line => 'unset DJANGO_SETTINGS_MODULE',
     path => '/home/vagrant/.virtualenvs/icommons_tools/bin/postdeactivate',
     require => Exec['create-virtualenv'],
+}
+
+# init the development db, and run initial migrations
+exec {'init-db-and-migrate':
+    provider => 'shell',
+    user => 'vagrant',
+    group => 'vagrant',
+    require => [ File_line['add DJANGO_SETTINGS_MODULE env to postactivate'], ],
+    environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2","LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2","HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    command => '/vagrant/vagrant/django_postgres_bootstrap.sh',
+    unless => 'psql -lqt | cut -d \| -f 1 | grep -wq icommons_tools',
+    logoutput => true,
 }
 
 # Active this virtualenv upon login

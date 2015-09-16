@@ -16,19 +16,9 @@ DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 TEMPLATE_DEBUG = DEBUG
 
-# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-# NOTE: this was being set to a sample email address in non-prod
-# environments before this change.  This represents the address used
-# for prod.
-ADMINS = (
-    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
-),
-
 # This is the address that emails will be sent "from"
 # See other specific email settings in AWS or local.py files
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
-
-MANAGERS = ADMINS
 
 # DATABASES are defined in individual environment settings
 
@@ -184,35 +174,48 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 LOGIN_URL = reverse_lazy('pin:login')
 
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-# DATABASE
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('django_db', None),
-        'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
-        'HOST': SECURE_SETTINGS.get('django_db_host', None),
-        'PORT': str(SECURE_SETTINGS.get('django_db_port', None)),
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 1200,
-    }
-}
-
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
 DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'contenttypes': 'default',
+    'sessions': 'default',
+    'canvas_shopping': 'default',
     'canvas_whitelist': 'default',
-    'icommons_common': 'default',
+    'icommons_common': 'termtool',
     'icommons_ui': 'default',
-    'isites_export_tool': 'default',
+    'isites_export_tool': 'termtool',
     'qualtrics_whitelist': 'default',
     'term_tool': 'default',
 }
-#  Prevent all migrations by making this list empty
-DATABASE_MIGRATION_WHITELIST = []
+
+DATABASE_MIGRATION_WHITELIST = ['default']
+
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': SECURE_SETTINGS.get('db_default_name', 'icommons_tools'),
+        'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
+        'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
+        'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
+        'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
+    },
+    'termtool': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': SECURE_SETTINGS.get('django_db'),
+        'USER': SECURE_SETTINGS.get('django_db_user'),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass'),
+        'HOST': SECURE_SETTINGS.get('django_db_host'),
+        'PORT': str(SECURE_SETTINGS.get('django_db_port')),
+        'OPTIONS': {
+            'threaded': True,
+        },
+        'CONN_MAX_AGE': 0,
+    }
+}
 
 # CACHE
 
@@ -307,10 +310,6 @@ TERM_TOOL = {
 }
 
 CANVAS_SHOPPING = {
-    'CANVAS_BASE_URL': CANVAS_URL,
-    # Dictionary of course_id: role key-value pairs, i.e. 
-    # '495': 'Guest'
-    'selfreg_courses': SECURE_SETTINGS.get('canvas_shopping_selfreg_courses'),
     'SHOPPER_ROLE': 'Shopper',
     'ROOT_ACCOUNT': '1',
 }
