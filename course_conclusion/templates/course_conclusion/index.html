@@ -8,9 +8,10 @@
 {% endblock bodytag %}
 
 {% block content %}
-{% verbatim form %}
+
 
 <div  ng-controller="CourseConclusionController as courseCtrl">
+{% verbatim form %}
 <form novalidate class="form-horizontal" name="courseConcludeForm"
       ng-submit="courseCtrl.submit(courseConcludeForm)">
 
@@ -86,28 +87,28 @@
        <input type="button" class="btn btn-default" value="Reset" ng-click="courseCtrl.reset(courseConcludeForm)">
      </div>
    </div>
-    {% endverbatim form %} <!-- end inside the form so we can get the csrf token -->
+  {% endverbatim form %} <!-- end inside the form so we can get the csrf token -->
   {% csrf_token %}
 </form>
 
-   {% verbatim %}
-   <div class="col-sm-5" ng-show="courseCtrl.currentSchool">
+{% verbatim %}
+    <div class="col-sm-5" ng-show="courseCtrl.currentSchool">
      <input type="text" class="form-control ng-pristine ng-untouched ng-valid ng-valid-required" id="course-conclusion-date" name="courseConcludeDate"
             placeholder="Search Course" ng-disabled="!courseCtrl.concluded_courses" ng-required="false" ng-model="searchCourse">
-   </div>
-
-
-  <div class="col-sm-offset-2 col-sm-10 text-muted" ng-show="courseCtrl.hasMultipleSchools() && !courseCtrl.currentSchool">
-    Please select a school from the list above to view the concluded courses for the selected school.
-  </div>
-
-  <div class="form-group col-sm-12">
-    <div class="col-sm-2">
-    <label for="course-conclusion-date" class="control-label">
-      Course Conclusion Dates
-    </label>
     </div>
-    <div class="row col-sm-10">
+
+
+    <div class="col-sm-offset-2 col-sm-10 text-muted" ng-show="courseCtrl.hasMultipleSchools() && !courseCtrl.currentSchool">
+        Please select a school from the list above to view the concluded courses for the selected school.
+    </div>
+
+    <div class="form-group col-sm-12">
+        <div class="col-sm-2">
+        <label for="course-conclusion-date" class="control-label">
+          Course Conclusion Dates
+        </label>
+        </div>
+        <div class="row col-sm-10">
 
         <table class="table table-bordered table-condensed table-striped table-responsive" width="100%">
             <tr>
@@ -121,12 +122,13 @@
                 <td class="tbody">{{c.conclude_date }}</td>
             </tr>
         </table>
+        </div>
     </div>
-  </div>
 
-  {% endverbatim %}
-</div>
-<!-- Adding  this closing div to handle a rogue extra open div from icommons_ui/base.html-->
+{% endverbatim %}
+</div> <!--closing div for  ng-controller div-->
+
+<!-- Adding this  additional closing div to handle a rogue extra open div from icommons_ui/base.html-->
 </div>
 {% endblock content %}
 
