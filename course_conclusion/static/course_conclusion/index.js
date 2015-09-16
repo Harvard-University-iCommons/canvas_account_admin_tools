@@ -61,6 +61,8 @@
                 $http.get(url).success(function (data) {
                     ctrl.concluded_courses = data;
                 });
+            }else if (ctrl.currentSchool && !ctrl.currentTerm){
+                ctrl.getConcludedCourses();
             }
         };
         // gets the list of terms for a school
