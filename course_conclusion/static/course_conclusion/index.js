@@ -54,13 +54,17 @@
         //gets the list of concluded courses for a school and a term
         ctrl.getConcludedCoursesBySchoolTerm= function() {
             ctrl.concluded_courses = [];
-            if (ctrl.currentSchool && ctrl.currentTerm) {
-                var url = baseUrl + 'concluded_courses_by_school_term'
-                    + '?school_id=' + ctrl.currentSchool.school_id
-                    + '&term_id=' + ctrl.currentTerm.term_id;
-                $http.get(url).success(function (data) {
-                    ctrl.concluded_courses = data;
-                });
+            if (ctrl.currentSchool) {
+                if (ctrl.currentTerm) {
+                    var url = baseUrl + 'concluded_courses_by_school_term'
+                        + '?school_id=' + ctrl.currentSchool.school_id
+                        + '&term_id=' + ctrl.currentTerm.term_id;
+                    $http.get(url).success(function (data) {
+                        ctrl.concluded_courses = data;
+                    });
+                } else {
+                    ctrl.getConcludedCourses();
+                }
             }
         };
         // gets the list of terms for a school
