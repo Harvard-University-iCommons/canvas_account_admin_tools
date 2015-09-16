@@ -91,7 +91,7 @@
 </form>
 
    {% verbatim %}
-   <div class="col-sm-5" ng-show="courseCtrl.hasMultipleSchools() && courseCtrl.currentSchool">
+   <div class="col-sm-5" ng-show="courseCtrl.currentSchool">
      <input type="text" class="form-control ng-pristine ng-untouched ng-valid ng-valid-required" id="course-conclusion-date" name="courseConcludeDate"
             placeholder="Search Course" ng-disabled="!courseCtrl.concluded_courses" ng-required="false" ng-model="searchCourse">
    </div>
