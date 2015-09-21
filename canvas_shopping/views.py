@@ -32,7 +32,7 @@ def remove_shopper_role(request, canvas_course_id):
 @check_user_id_integrity()
 def remove_role(request, canvas_course_id, role):
     """
-    Helper method to remove the  current users's enrollment for teh specified course 
+    Helper method to remove the  current users's enrollment for teh specified course
     and role ( Shopper)
     """
 
@@ -48,7 +48,7 @@ def remove_role(request, canvas_course_id, role):
 
     # Return  canvas_course  object, as it's attribute(s) will be used in the confirmation page
     # return canvas_course
-    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    course_url = '%s/courses/%s' % (settings.CANVAS_URL, canvas_course_id)
 
     return render(request, 'canvas_shopping/removal_confirmation.html',
                   {'canvas_course': canvas_course, 'course_url': course_url})
@@ -76,7 +76,7 @@ def shop_course(request, canvas_course_id):
         return render(request, 'canvas_shopping/error.html',
                       {'message': 'Sorry, this request is invalid (missing course ID).'})
 
-    course_url = '%s/courses/%s' % (settings.CANVAS_SHOPPING['CANVAS_BASE_URL'], canvas_course_id)
+    course_url = '%s/courses/%s' % (settings.CANVAS_URL, canvas_course_id)
 
     user_id = request.user.username
 
@@ -134,7 +134,7 @@ def get_enrollment_id(user_id, course_id, role):
 
 
 '''
-The course_selfreg view allows users to be added to certain courses (specified in the settings file).  The settings also indicate what role 
+The course_selfreg view allows users to be added to certain courses (specified in the settings file).  The settings also indicate what role
 the new user should have within the course.  This view will also ensure that the user has a Canvas user account. Upon successful enrollment,
 it simply redirects the user to the Canvas course site.
 '''
@@ -226,7 +226,7 @@ def my_list(request):
         courses[enrollment_id] = course
 
     return render(request, 'canvas_shopping/my_list.html',
-                  {'courses': courses, 'canvas_base_url': settings.CANVAS_SHOPPING['CANVAS_BASE_URL']})
+                  {'courses': courses, 'canvas_base_url': settings.CANVAS_URL})
 
 
 @login_required
