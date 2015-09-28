@@ -4,7 +4,7 @@ import sys
 
 if __name__ == "__main__":
     if 'test' in sys.argv:
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'canvas_account_admin_tools.settings.unit_test'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'canvas_account_admin_tools.settings.test'
     else:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'canvas_account_admin_tools.settings.aws')
 
