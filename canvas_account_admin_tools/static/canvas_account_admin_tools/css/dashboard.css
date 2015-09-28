@@ -1,0 +1,4 @@
+.list-group-item.active {
+    background-image: linear-gradient(to bottom, #4e84c4 0%, #3b71b1 100%);
+    background-repeat: repeat-x;
+}

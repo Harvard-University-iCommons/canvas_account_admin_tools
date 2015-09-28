@@ -1,0 +1,122 @@
+[
+{
+    "fields": {
+        "canvas_account_id": "*",
+        "canvas_course_id": "*",
+        "name": "courses_in_this_account",
+        "external_tool_id": 1033
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 1
+},
+{
+    "fields": {
+        "canvas_account_id": "*",
+        "canvas_course_id": "*",
+        "name": "lti_tools_usage",
+        "external_tool_id": 8662
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 2
+},
+{
+    "fields": {
+        "canvas_account_id": "32",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 5745
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 3
+},
+{
+    "fields": {
+        "canvas_account_id": "36",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 5694
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 4
+},
+{
+    "fields": {
+        "canvas_account_id": "37",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 5654
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 5
+},
+{
+    "fields": {
+        "canvas_account_id": "38",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 6308
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 6
+},
+{
+    "fields": {
+        "canvas_account_id": "39",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 5903
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 7
+},
+{
+    "fields": {
+        "canvas_account_id": "19",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 5646
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 8
+},
+{
+    "fields": {
+        "canvas_account_id": "22",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 6307
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 9
+},
+{
+    "fields": {
+        "canvas_account_id": "26",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 7308
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 10
+},
+{
+    "fields": {
+        "canvas_account_id": "30",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 7229
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 11
+},
+{
+    "fields": {
+        "canvas_account_id": "31",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 6309
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 12
+}
+]

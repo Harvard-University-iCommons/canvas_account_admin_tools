@@ -1,0 +1,18 @@
+# local environment requirements
+
+#includes the base.txt requirements needed in all environments
+-r base.txt 
+ 
+# below are requirements specific to the local environment
+
+django-debug-toolbar==1.3.2
+django-sslserver==0.15
+mock==1.3.0
+pep8==1.6.2
+flake8==2.4.1
+
+# icommons_common unit tests depend on ccsw, and ccsw depends on icommons_common.
+# until ccsw gets its own proper project, and we move the delete command out of
+# icommons_common and into ccsw, work around the circular dependency by calling
+# out the ccsw dependency here.
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v1.3.8#egg=django-canvas-course-site-wizard==1.3.8
