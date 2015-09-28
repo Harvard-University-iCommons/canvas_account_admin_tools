@@ -1,0 +1,6 @@
+To install the git hooks in this directory for this repository only, create symbolic links in the canvas_account_admin_tools/.git/hooks directory:
+
+Example:
+
+cd ~/tlt/canvas_account_admin_tools
+ln -s ~/tlt/canvas_account_admin_tools/.git_template/hooks/pre-commit ~/tlt/canvas_account_admin_tools/.git/hooks/pre-commit

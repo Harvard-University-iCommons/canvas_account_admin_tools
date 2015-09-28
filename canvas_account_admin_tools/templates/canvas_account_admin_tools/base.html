@@ -1,0 +1,24 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Admin Tasks</title>
+
+        <link href="{% static 'bootstrap-3.3.4/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'font-awesome-4.2.0/css/font-awesome.min.css' %}" rel="stylesheet">
+        {% block stylesheets %}{% endblock stylesheets %}
+    </head>
+    <body>
+        <div class="container">
+            {% block content %}{% endblock content %}
+        </div>
+
+        <script src="{% static 'jquery-1.10.2/jquery-1.10.2.min.js' %}"></script>
+        <script src="{% static 'bootstrap-3.3.4/js/bootstrap.min.js' %}"></script>
+        {% block javascript %}{% endblock javascript %}
+    </body>
+</html>

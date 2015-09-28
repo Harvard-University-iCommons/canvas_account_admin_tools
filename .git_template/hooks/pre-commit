@@ -1,0 +1,47 @@
+#!/bin/bash
+
+for file in $(git diff-index --name-only --diff-filter=ACM HEAD -- | grep '\.py$'); do
+    echo $file
+    pep8 $file --ignore=E501,W293
+    if [ $? -ne 0 ] ; then
+        rc=1
+    fi
+done
+
+for file in $(git diff-index --name-only --diff-filter=ACM HEAD -- | grep '\.js$'); do
+    if grep -q '\/\/.*sourceMappingURL' $file; then
+        printf "\n\\033[31;1m$file\\033[m\n"
+	    echo "- File references a JS source map, please remove reference and commit again."
+        rc=1
+    fi
+done
+
+python manage.py test --settings=canvas_account_admin_tools.settings.test
+
+if [[ `git symbolic-ref HEAD` == "refs/heads/master" ]]
+then
+    echo "You cannot commit to master!"
+    echo "Stash your changes and apply them to another branch"
+    echo "git stash"
+    echo "git checkout branch"
+    echo "git stash apply"
+    rc=1
+fi
+
+if [[ `git symbolic-ref HEAD` == "refs/heads/develop" ]]
+then
+    echo "You cannot commit to develop!"
+    echo "Stash your changes and apply them to another branch"
+    echo "git stash"
+    echo "git checkout branch"
+    echo "git stash apply"
+    rc=1
+fi
+
+if [[ $rc == 1 ]]
+then
+    printf "\n\\033[31;01mGIT COMMIT FAILED\\033[m\n"
+    echo "Please resolve the reported issues"
+fi
+
+exit $rc
