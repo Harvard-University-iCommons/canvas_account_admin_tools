@@ -13,6 +13,8 @@
         ctrl.schools = [];
         ctrl.terms = [];
         ctrl.courses = [];
+        ctrl.concluded_courses = [];
+
 
         // models matching the current selections on the page
         ctrl.currentSchool = null;
@@ -30,8 +32,41 @@
         // go get the list of schools once
         $http.get(baseUrl + 'schools').success(function(data) {
             ctrl.schools = data;
+            //If there is only one school, pre-select it and render the concluded courses for that school
+            if (ctrl.schools.length==1) {
+                ctrl.currentSchool =  ctrl.schools[0];
+                ctrl.getConcludedCourses();
+                ctrl.getTerms();
+            }
         });
 
+        //gets the list of concluded courses for a school
+        ctrl.getConcludedCourses = function() {
+            ctrl.concluded_courses = [];
+            if (ctrl.currentSchool) {
+                var url = baseUrl + 'concluded_courses_by_school?school_id=' + ctrl.currentSchool.school_id;
+                $http.get(url).success(function (data) {
+                    ctrl.concluded_courses = data;
+                });
+            }
+        };
+
+        //gets the list of concluded courses for a school and a term
+        ctrl.getConcludedCoursesBySchoolTerm= function() {
+            ctrl.concluded_courses = [];
+            if (ctrl.currentSchool) {
+                if (ctrl.currentTerm) {
+                    var url = baseUrl + 'concluded_courses_by_school_term'
+                        + '?school_id=' + ctrl.currentSchool.school_id
+                        + '&term_id=' + ctrl.currentTerm.term_id;
+                    $http.get(url).success(function (data) {
+                        ctrl.concluded_courses = data;
+                    });
+                } else {
+                    ctrl.getConcludedCourses();
+                }
+            }
+        };
         // gets the list of terms for a school
         ctrl.getTerms = function() {
             ctrl.terms = [];
@@ -39,11 +74,12 @@
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
-
-            var url = baseUrl + 'terms?school_id=' + ctrl.currentSchool.school_id;
-            $http.get(url).success(function(data) {
-                ctrl.terms = data;
-            });
+            if (ctrl.currentSchool) {
+                var url = baseUrl + 'terms?school_id=' + ctrl.currentSchool.school_id;
+                $http.get(url).success(function (data) {
+                    ctrl.terms = data;
+                });
+            }
         };
 
         // gets the list of courses for a school and term
@@ -52,12 +88,14 @@
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
 
-            var url = baseUrl + 'courses'
-                      + '?school_id=' + ctrl.currentSchool.school_id
-                      + '&term_id=' + ctrl.currentTerm.term_id;
-            $http.get(url).success(function(data) {
-                ctrl.courses = data;
-            });
+            if (ctrl.currentSchool && ctrl.currentTerm){
+                var url = baseUrl + 'courses'
+                    + '?school_id=' + ctrl.currentSchool.school_id
+                    + '&term_id=' + ctrl.currentTerm.term_id;
+                $http.get(url).success(function (data) {
+                    ctrl.courses = data;
+                });
+            }
         };
 
         // submits the current course's conclude_date to the server
@@ -79,11 +117,20 @@
                     }
                     ctrl.currentCourse.conclude_date = data.conclude_date;
                     ctrl.addAlert({type: 'success', msg: msg});
+                    ctrl.concluded_courses = ctrl.getConcludedCoursesBySchoolTerm();
                 })
                 .error(function(data) {
                     ctrl.addAlert({type: 'error', msg: data.error});
                 });
         };
+
+        //checks if there are multiple schools in the schools list
+        ctrl.hasMultipleSchools = function(){
+            if (ctrl.schools.length>1) {
+                return true;
+            }
+            return false;
+        }
 
 
         ctrl.reset = function(form) {
@@ -93,6 +140,7 @@
             ctrl.currentTerm = null;
             ctrl.currentCourse = null;
             ctrl.currentConcludeDate = null;
+            ctrl.concluded_courses = []
         };
 
         ctrl.addAlert = function (alert) {

@@ -315,6 +315,19 @@ CANVAS_SHOPPING = {
 }
 
 COURSE_CONCLUDE_TOOL = {
+    #'admin_groups': [],
+    'allowed_groups': {
+        'IcGroup:193': ['hds'],
+        'IcGroup:196': ['hls'],
+        'IcGroup:218': ['gse'],
+        'IcGroup:299': ['ext', 'sum'],
+        'IcGroup:311': ['gsd'],
+        'IcGroup:32471': ['hks'],
+        'IcGroup:400': ['hsph'],
+        'IcGroup:5257': ['ksg'],
+        'IcGroup:533': ['colgsas'],
+        'IcGroup:7528': ['hilr'],
+    },
     'years_back': 5,
 }
 
@@ -401,6 +414,11 @@ LOGGING = {
             'propagate': False,
         },
         'canvas_shopping': {
+            'handlers': ['console', 'app_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
+        'course_conclusion': {
             'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,

@@ -8,9 +8,11 @@
 {% endblock bodytag %}
 
 {% block content %}
+
+
+<div  ng-controller="CourseConclusionController as courseCtrl">
 {% verbatim form %}
 <form novalidate class="form-horizontal" name="courseConcludeForm"
-      ng-controller="CourseConclusionController as courseCtrl"
       ng-submit="courseCtrl.submit(courseConcludeForm)">
 
   <div class="col-sm-offset-2 col-sm-10">
@@ -26,9 +28,9 @@
       <select class="form-control" name="school" required
               ng-options="school.title_short for school in courseCtrl.schools"
               ng-model="courseCtrl.currentSchool"
-              ng-change="courseCtrl.getTerms()"
+              ng-change="courseCtrl.getTerms();courseCtrl.getConcludedCourses()"
               ng-disabled="courseCtrl.schools.length === 0">
-        <option value="">-- Choose A School --</option>
+        <option ng-show="courseCtrl.hasMultipleSchools()" value="">-- Choose A School --</option>
       </select>
     </div>
   </div>
@@ -39,7 +41,7 @@
       <select class="form-control" name="term" required
               ng-options="term.display_name for term in courseCtrl.terms"
               ng-model="courseCtrl.currentTerm"
-              ng-change="courseCtrl.getCourses()"
+              ng-change="courseCtrl.getCourses();courseCtrl.getConcludedCoursesBySchoolTerm()"
               ng-disabled="courseCtrl.terms.length === 0">
         <option value="">-- Choose A Term --</option>
       </select>
@@ -67,28 +69,67 @@
     <label for="course-conclusion-date" class="col-sm-2 control-label">
       Course Conclude Date
     </label>
-    <div class="col-sm-10">
-      <input type="text" class="dateinput form-control"
-             name="courseConcludeDate" placeholder="YYYY-MM-DD"
-             data-provide="datepicker" data-date-format="yyyy-mm-dd"
-             ng-model="courseCtrl.currentConcludeDate"
-             ng-disabled="!courseCtrl.currentCourse"
-             ng-required="false" pattern="^\d{4}-\d{2}-\d{2}$">
+    <div class="col-sm-2">
+      <div class="input-group">
+          <input type="text" class="dateinput form-control"
+                 name="courseConcludeDate" placeholder="YYYY-MM-DD"
+                 data-provide="datepicker" data-date-format="yyyy-mm-dd"
+                 ng-model="courseCtrl.currentConcludeDate"
+                 ng-disabled="!courseCtrl.currentCourse"
+                 ng-required="false" pattern="^\d{4}-\d{2}-\d{2}$">
+       </div>
     </div>
   </div>
 
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <input type="submit" class="btn btn-default" value="Save"
-             ng-disabled="courseConcludeForm.$invalid" />
-      <input type="button" class="btn btn-default" value="Reset"
-             ng-click="courseCtrl.reset(courseConcludeForm)" />
-    </div>
-  </div>
-
-{% endverbatim form %} <!-- end inside the form so we can get the csrf token -->
+  <div class="col-sm-offset-2 col-sm-5">
+     <div class="form-group">
+       <input type="submit" class="btn btn-default" value="Save" ng-disabled="courseConcludeForm.$invalid" disabled="disabled">
+       <input type="button" class="btn btn-default" value="Reset" ng-click="courseCtrl.reset(courseConcludeForm)">
+     </div>
+   </div>
+  {% endverbatim form %} <!-- end inside the form so we can get the csrf token -->
   {% csrf_token %}
 </form>
+
+{% verbatim %}
+    <div class="col-sm-5" ng-show="courseCtrl.currentSchool">
+     <input type="text" class="form-control ng-pristine ng-untouched ng-valid ng-valid-required" id="course-conclusion-date" name="courseConcludeDate"
+            placeholder="Search Course" ng-disabled="!courseCtrl.concluded_courses" ng-required="false" ng-model="searchCourse">
+    </div>
+
+
+    <div class="col-sm-offset-2 col-sm-10 text-muted" ng-show="courseCtrl.hasMultipleSchools() && !courseCtrl.currentSchool">
+        Please select a school from the list above to view the concluded courses for the selected school.
+    </div>
+
+    <div class="form-group col-sm-12">
+        <div class="col-sm-2">
+        <label for="course-conclusion-date" class="control-label">
+          Course Conclusion Dates
+        </label>
+        </div>
+        <div class="row col-sm-10">
+
+        <table class="table table-bordered table-condensed table-striped table-responsive" width="100%">
+            <tr>
+                <th class="thead">SIS ID</th>
+                <th class="thead">Course</th>
+                <th class="thead">Course Conclusion Date</th>
+            </tr>
+            <tr ng-repeat="c in courseCtrl.concluded_courses|filter:searchCourse">
+                <td class="tbody">{{c.course_instance_id }}</td>
+                <td class="tbody">{{c.title }}</td>
+                <td class="tbody">{{c.conclude_date }}</td>
+            </tr>
+        </table>
+        </div>
+    </div>
+
+{% endverbatim %}
+</div> <!--closing div for  ng-controller div-->
+
+<!-- Adding this  additional closing div to handle a rogue extra open div from icommons_ui/base.html-->
+</div>
 {% endblock content %}
 
 {% block javascript %}
