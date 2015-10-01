@@ -1,0 +1,176 @@
+{% extends 'course_info/base.html' %}
+
+{% load static %}
+{% load collections %}
+{% load django_helpers %}
+
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-bootstrap3/BS3/assets/css/datatables.css' %}" media="screen"/>
+{% endblock css %}
+
+{% block js %}
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
+    <script>
+        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+    </script>
+    <script src="{% static 'course_info/js/app.js' %}"></script>
+    <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
+{% endblock js %}
+
+{% block body %}
+<body class="lti-tool" role="application" ng-app="app" ng-controller="IndexController">
+<header>
+  <h1>Find Course</h1>
+</header>
+<main class="float-left col-60">
+<div class="btn-toolbar" role="toolbar" aria-label="...">
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              id="dropdownMenuSchool" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="true">Graduate School of Education
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuSchool">
+        <li><a href="#">All schools</a></li>
+        <li><a href="#">Divinity School</a></li>
+        <li><a href="#">Graduate School of Education</a></li>
+        <li><a href="#">HILR</a></li>
+        <li><a href="#">HKS Exec Ed</a></li>
+        <li><a href="#">HLS Executive Education</a></li>
+        <li><a href="#">Harvard</a></li>
+        <li><a href="#">Harvard Business School MBA Program</a></li>
+        <li><a href="#">Harvard College Library</a></li>
+        <li><a href="#">Harvard College/GSAS</a></li>
+        <li><a href="#">Harvard Design School</a></li>
+        <li><a href="#">Harvard Extension School</a></li>
+        <li><a href="#">Harvard Kennedy School (HKS)</a></li>
+        <li><a href="#">Harvard Law School</a></li>
+        <li><a href="#">Harvard Medical School</a></li>
+        <li><a href="#">Harvard School of Dental Medicine</a></li>
+        <li><a href="#">Harvard Summer School</a></li>
+        <li><a href="#">Harvard School of Public Health</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              id="dropdownMenuYear" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="true">2015
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuYear">
+        <li><a href="#">All years</a></li>
+        <li><a href="#">2016</a></li>
+        <li><a href="#">2015</a></li>
+        <li><a href="#">2014</a></li>
+        <li><a href="#">2013</a></li>
+        <li><a href="#">2012</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              id="dropdownMenuTerm" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="true">Fall
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuTerm">
+        <li><a href="#">All terms</a></li>
+        <li><a href="#">Summer</a></li>
+        <li><a href="#">Fall</a></li>
+        <li><a href="#">Spring</a></li>
+        <li><a href="#">Full Year</a></li>
+        <li><a href="#">Winter</a></li>
+        <li><a href="#">July and August</a></li>
+        <li><a href="#">June and July</a></li>
+        <li><a href="#">Spring 2</a></li>
+        <li><a href="#">Spring 1</a></li>
+        <li><a href="#">Fall 2</a></li>
+        <li><a href="#">Fall 1</a></li>
+        <li><a href="#">July</a></li>
+        <li><a href="#">August</a></li>
+        <li><a href="#">June</a></li>
+        <li><a href="#">Fall-Winter</a></li>
+        <li><a href="#">Winter-Spring</a></li>
+        <li><a href="#">Spring Saturday</a></li>
+        <li><a href="#">Fall Saturday</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              id="dropdownMenuSites" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="true">All courses
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuSites">
+        <li><a href="#">Only courses with sites</a></li>
+        <li><a href="#">Only courses without sites</a></li>
+        <li><a href="#">Sites without attached courses</a></li>
+        <li><a href="#">Courses being synced to Canvas</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="input-group" style="width: 56%">
+    <input type="text" class="form-control"
+           placeholder="Search by Member's name or email, course code, SIS or Canvas course ID, course title">
+  </div>
+
+
+</div>
+
+  <p>
+    <div class="row">
+      <div class="col-mid-12">
+        <button type="button" class="btn btn-primary btn-block center-block"
+                style="min-width: 15%; width: 15%;"><i class="fa fa-search"></i>
+          Search
+        </button>
+      </div>
+      <div class="col-mid-5"></div>
+    </div>
+  </p>
+
+  <p>
+    <div class="row" ng-cloak ng-show="searchInProgress">
+      <div class="col-md-8 col-md-offset-2">
+        <div class="progress">
+          <div
+              class="progress-bar progress-bar-success progress-bar-striped active"
+              role="progressbar" aria-valuenow="100" aria-valuemin="0"
+              aria-valuemax="100" style="width: 100%">
+            <span class="sr-only">Search in progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p>
+
+  <p class="panel" ng-cloak>
+    <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
+      <thead>
+        <th class="sorting" tabindex="0">Department&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Course Details&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Academic year&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Academic Term&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Associated Site&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Course Instance ID&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Cross Listing&nbsp;&nbsp;</th>
+      </thead>
+    </table>
+  </p>
+
+</main>
+</body>
+{% endblock body %}
