@@ -10,6 +10,9 @@
                     // window.globals.append_resource_link_id function added by
                     // django_auth_lti/js/resource_link_id.js
                     config.url = window.globals.append_resource_link_id(config.url);
+                    config.headers = config.headers || {};
+                    config.headers.Authorization = 'Token temporarylongstringpleasefixme';
+                    return config;
                 }
             };
         });

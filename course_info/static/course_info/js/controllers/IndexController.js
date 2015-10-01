@@ -4,6 +4,64 @@
      */
     angular.module('app').controller('IndexController', ['$scope', '$http', function($scope, $http){
         $scope.searchInProgress = false;
+        $scope.useCannedData = false;
+
+        $scope.courseInstanceToTable = function(course) {
+            var cinfo = {};
+            // todo: fixme, should be department not school
+            cinfo['department'] = course.course ? course.course.school_id : '';
+            cinfo['description'] = course.title;
+            cinfo['year'] = course.term ? course.term.academic_year : '';
+            cinfo['term'] = course.term ? course.term.display_name : '';
+            // todo: fixme (show multiple)
+            if (course.sites && course.sites.length > 0) {
+                cinfo['site_id'] = course.sites[0].external_id;
+                cinfo['site_url'] = course.sites[0].course_site_url;
+            } else {
+                cinfo['site_id'] = '';
+                cinfo['site_url'] = '';
+            }
+            if (course.sites && course.sites.length > 0) {
+                cinfo['code'] = (course.course.registrar_code_display
+                + ' (' + course.course.course_id + ')').trim();
+            } else {
+                cinfo['code'] = '';
+            }
+            cinfo['cid'] = course.course_instance_id;
+            if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
+                cinfo['xlist_status'] = 'Primary';
+            } else if (course.primary_xlist_instances && course.primary_xlist_instances.length > 0) {
+                cinfo['xlist_status'] = 'Secondary';
+            } else {
+                cinfo['xlist_status'] = '';
+            }
+            return cinfo;
+        };
+
+        $scope.initializeDatatable = function() {
+            $scope.dataTable = $('#courseInfoDT').DataTable({
+                data: $scope.courseInfo,
+                dataSrc: '',  // data is an array
+                // todo: p_r_ocessing?...
+                dom: '<<t>ip>',
+                language: {
+                    info: 'Showing _START_ to _END_ of _TOTAL_ courses',
+                    emptyTable: 'There are no courses to display.'
+                },
+                order: [[6, 'asc']],  // order by course instance ID
+                columns: [
+                    {data: 'department'},
+                    {data: 'description'},
+                    {data: 'year'},
+                    {data: 'term'},
+                    {data: 'site_id'},  // todo: render with link
+                    {data: 'code'},
+                    {data: 'cid'},
+                    {data: 'xlist_status'}  // todo: render with badge
+                ]
+            });
+        };
+
         $scope.canned_courses = [{
             "course_instance_id": 339009,
             "course": {
@@ -263,58 +321,24 @@
             ]
         }];
 
-        // flatten for datatable and generate composite fields
-        $scope.courseInfo = $scope.canned_courses.map(function(course){
-            var cinfo = {};
-            // todo: fixme, should be department not school
-            cinfo['department'] = course.course.school_id;
-            cinfo['description'] = course.title;
-            cinfo['year'] = course.term.academic_year;
-            cinfo['term'] = course.term.display_name;
-            // todo: fixme (show multiple)
-            if (course.sites.length > 0) {
-                cinfo['site_id'] = course.sites[0].external_id;
-                cinfo['site_url'] = course.sites[0].course_site_url;
-            } else {
-                cinfo['site_id'] = '';
-                cinfo['site_url'] = '';
-            }
-            cinfo['code'] = (course.course.registrar_code_display
-                + ' (' + course.course.course_id + ')').trim();
-            cinfo['cid'] = course.course_instance_id;
-            if (course.secondary_xlist_instances.length > 0) {
-                cinfo['xlist_status'] = 'Primary';
-            } else if (course.primary_xlist_instances.length > 0) {
-                cinfo['xlist_status'] = 'Secondary';
-            } else {
-                cinfo['xlist_status'] = '';
-            }
-            return cinfo;
-        });
+        if ($scope.useCannedData) {
+            $scope.courseInfo = $scope.canned_courses.map($scope.courseInstanceToTable);
+            angular.element(document).ready($scope.initializeDatatable);
+        } else {
+            // Use for direct access to local (sslserver) rest api
+            var url = 'https://localhost:8001/api/course/v2/course_instances/?format=json&school=hds';
+            // Use for passthrough configured in secure.py (not working for me right now)
+            //var url = 'https://localhost:8000/icommons_rest_api/api/course/v2/course_instances/?format=json&school=hds';
+            $http.get(url).success(function (data, status, headers, config) {
+                $scope.api_courses = data.results;
 
-        angular.element(document).ready(function() {
-            console.log('initializing data table');
-            $scope.dataTable = $('#courseInfoDT').DataTable({
-                data: $scope.courseInfo,
-                dataSrc: '',  // data is an array
-                // todo: p_r_ocessing?...
-                dom: '<<t>ip>',
-                language: {
-                    info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                    emptyTable: 'There are no courses to display.'
-                },
-                order: [[6, 'asc']],  // order by course instance ID
-                columns: [
-                    {data: 'department'},
-                    {data: 'description'},
-                    {data: 'year'},
-                    {data: 'term'},
-                    {data: 'site_id'},  // todo: render with link
-                    {data: 'code'},
-                    {data: 'cid'},
-                    {data: 'xlist_status'}  // todo: render with badge
-                ]
-            });
-        });
+                // flatten for datatable and generate composite fields
+                $scope.courseInfo = $scope.api_courses.map($scope.courseInstanceToTable);
+
+                angular.element(document).ready($scope.initializeDatatable);
+                }).error(function (data, status, headers, config) {
+                    // todo: error handling
+                });
+        }
     }]);
 })();
