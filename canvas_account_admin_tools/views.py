@@ -1,4 +1,3 @@
-import json
 import logging
 
 from django.conf import settings
@@ -12,6 +11,8 @@ from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
 
 from canvas_account_admin_tools.models import ExternalTool
+
+from proxy.views import proxy_view
 
 
 logger = logging.getLogger(__name__)
@@ -91,4 +92,14 @@ def dashboard_account(request):
         'lti_tools_usage': lti_tools_usage,
         'courses_in_this_account': courses_in_this_account,
         'course_info': course_info
+    })
+
+
+@login_required
+def icommons_rest_api_proxy(request, path):
+    url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, path)
+    return proxy_view(request, url, {
+        'headers': {
+            'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
+        }
     })
