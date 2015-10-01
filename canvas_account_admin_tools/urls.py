@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^not_authorized$', icommons_ui_views.not_authorized, name='not_authorized'),
     url(r'^tool_config$', views.tool_config, name='tool_config'),
     url(r'^lti_launch$', views.lti_launch, name='lti_launch'),
+    url(r'^icommons_rest_api/(?P<path>.*)$', views.icommons_rest_api_proxy, name='icommons_rest_api_proxy'),
     url(r'^account_dashboard$', views.dashboard_account, name='dashboard_account'),
 ]

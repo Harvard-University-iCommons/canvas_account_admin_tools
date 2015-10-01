@@ -35,6 +35,7 @@ INSTALLED_APPS = (
     'django_auth_lti',
     'icommons_common',
     'icommons_ui',
+    'proxy',
     'canvas_account_admin_tools',
 )
 
@@ -240,3 +241,6 @@ CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'conclude_courses_url',
     'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
 )
+
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://localhost:8000')
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
