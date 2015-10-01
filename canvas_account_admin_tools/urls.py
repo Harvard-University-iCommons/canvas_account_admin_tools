@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^tool_config$', views.tool_config, name='tool_config'),
     url(r'^lti_launch$', views.lti_launch, name='lti_launch'),
     url(r'^account_dashboard$', views.dashboard_account, name='dashboard_account'),
+    url(r'^course_info/', include('course_info.urls', namespace='course_info')),
 ]

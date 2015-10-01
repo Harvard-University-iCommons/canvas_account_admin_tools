@@ -55,6 +55,13 @@
                         <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
                     </a>
                     {% endif %}
+                    {% if course_info %}
+{#                      todo: verify wording and behavior at this level #}
+                    <a href="{% url 'course_info:index' %}" class="list-group-item active" target="_parent">
+                        <h4 class="list-group-item-heading">Course Information</h4>
+                        <p class="list-group-item-text">Search for course information</p>
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>

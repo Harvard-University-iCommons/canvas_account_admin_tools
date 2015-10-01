@@ -74,10 +74,13 @@ def dashboard_account(request):
         custom_canvas_account_id
     )
 
+    # todo: confirm what conditions need to be met for course_info to be available
+    course_info = True
     manage_account = [
         conclude_courses,
         lti_tools_usage,
-        courses_in_this_account
+        courses_in_this_account,
+        course_info
     ]
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
@@ -86,5 +89,6 @@ def dashboard_account(request):
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
-        'courses_in_this_account': courses_in_this_account
+        'courses_in_this_account': courses_in_this_account,
+        'course_info': course_info
     })

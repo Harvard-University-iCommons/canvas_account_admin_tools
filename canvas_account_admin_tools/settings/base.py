@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'icommons_common',
     'icommons_ui',
     'canvas_account_admin_tools',
+    'course_info',
 )
 
 MIDDLEWARE_CLASSES = (
