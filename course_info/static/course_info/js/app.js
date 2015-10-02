@@ -1,5 +1,5 @@
 (function(){
-    var app = angular.module('app', []).config(function($httpProvider){
+    var app = angular.module('app', ['ngResource', 'courseInstanceService']).config(function($httpProvider){
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';

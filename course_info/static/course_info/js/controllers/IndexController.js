@@ -2,14 +2,13 @@
     /**
      * Angular controller for the home page of course_info.
      */
-    angular.module('app').controller('IndexController', ['$scope', '$http', function($scope, $http){
+    angular.module('app').controller('IndexController', ['$scope', '$http', 'CourseInstance', function($scope, $http, CourseInstance){
         $scope.searchInProgress = false;
         $scope.useCannedData = false;
+        $scope.queryString = '';
 
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
-            // todo: fixme, should be department not school
-            cinfo['department'] = course.course ? course.course.school_id : '';
             cinfo['description'] = course.title;
             cinfo['year'] = course.term ? course.term.academic_year : '';
             cinfo['term'] = course.term ? course.term.display_name : '';
@@ -21,11 +20,13 @@
                 cinfo['site_id'] = '';
                 cinfo['site_url'] = '';
             }
-            if (course.sites && course.sites.length > 0) {
+            if (course.course) {
                 cinfo['code'] = (course.course.registrar_code_display
                 + ' (' + course.course.course_id + ')').trim();
+                cinfo['department'] = course.course.department ? course.course.department : '';
             } else {
                 cinfo['code'] = '';
+                cinfo['department'] = '';
             }
             cinfo['cid'] = course.course_instance_id;
             if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
@@ -61,6 +62,18 @@
                 ]
             });
         };
+
+        angular.element(document).ready($scope.initializeDatatable);
+
+        $scope.updateData = function(newData) {
+            if (newData) {
+                $scope.dataTable.clear();
+                $scope.dataTable.rows.add(newData);
+                $scope.dataTable.draw();
+            }
+        };
+
+        $scope.$watch('courseInfo', $scope.updateData);
 
         $scope.canned_courses = [{
             "course_instance_id": 339009,
@@ -319,29 +332,229 @@
             "primary_xlist_instances": [
                 "https://icommons.harvard.edu/api/course/v2/course_instances/334017/"
             ]
+        }, {
+            "course_instance_id": 291651,
+            "course": {
+                "url": "https://icommons-rest-api.dev.tlt.harvard.edu/api/course/v2/courses/65025/",
+                "school": "https://icommons-rest-api.dev.tlt.harvard.edu/api/course/v2/schools/colgsas/",
+                "registrar_code": "111104",
+                "registrar_code_display": "1914",
+                "course_id": 65025,
+                "school_id": "colgsas"
+            },
+            "term": {
+                "url": "https://icommons-rest-api.dev.tlt.harvard.edu/api/course/v2/terms/3221/",
+                "academic_year": "2011",
+                "display_name": "Fall 2011-2012",
+                "school": "https://icommons-rest-api.dev.tlt.harvard.edu/api/course/v2/schools/colgsas/",
+                "school_id": "colgsas",
+                "term_id": 3221,
+                "term_code": 1,
+                "term_name": "Fall"
+            },
+            "sites": {
+                "course_site_url": "http://isites.harvard.edu/k79918"
+            },
+            "url": "https://icommons-rest-api.dev.tlt.harvard.edu/api/course/v2/course_instances/291651/",
+            "section": "",
+            "title": "History 82l",
+            "short_title": "HIST 82l",
+            "sub_title": "The French Revolution",
+            "location": "",
+            "meeting_time": "Wednesday 2:00pm - 4:00pm",
+            "exam_group": "7,8",
+            "instructors_display": "Patrice Higonnet 2730 (on leave spring term)",
+            "description": "The history of Jacobinism during the French Revolution.",
+            "notes": "",
+            "prereq": "",
+            "course_type": "Research Seminar",
+            "xreg_flag": 1,
+            "xlist_flag": 0,
+            "enrollment_limit_flag": 0,
+            "audit_flag": 0,
+            "undergraduate_credit_flag": 1,
+            "graduate_credit_flag": 0,
+            "offered_flag": 1,
+            "exclude_from_isites": "0",
+            "exclude_from_catalog": "0",
+            "exclude_from_coop": null,
+            "credits": "Half course",
+            "exam_date": null,
+            "exam_date_description": "",
+            "xlist_description": "",
+            "xreg_description": "",
+            "next_offer_year": null,
+            "info_url": "",
+            "enrollment_limit": "15",
+            "xreg_instructor_sig_reqd": "1",
+            "xreg_grading_options": "letter/ordinal",
+            "sync_to_canvas": 0,
+            "canvas_course_id": null,
+            "secondary_xlist_instances": [],
+            "primary_xlist_instances": []
+        }, {
+            "course_instance_id": 357547,
+            "course": {
+                "url": "https://icommons.harvard.edu/api/course/v2/courses/87208/",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/colgsas/",
+                "registrar_code": "110382",
+                "registrar_code_display": "110382",
+                "course_id": 87208,
+                "school_id": "colgsas"
+            },
+            "term": {
+                "url": "https://icommons.harvard.edu/api/course/v2/terms/5928/",
+                "academic_year": "2015",
+                "display_name": "Fall 2015-2016",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/colgsas/",
+                "school_id": "colgsas",
+                "term_id": 5928,
+                "term_code": 1,
+                "term_name": "Fall"
+            },
+            "sites": [
+                {
+                    "external_id": "https://canvas.harvard.edu/courses/3232",
+                    "site_type_id": "external",
+                    "course_site_url": "https://canvas.harvard.edu/courses/3232",
+                    "url": "https://icommons.harvard.edu/api/course/v2/course_sites/201661/"
+                },
+                {
+                    "external_id": "k113141",
+                    "site_type_id": "isite",
+                    "course_site_url": "http://isites.harvard.edu/k113141",
+                    "url": "https://icommons.harvard.edu/api/course/v2/course_sites/205889/"
+                }
+            ],
+            "url": "https://icommons.harvard.edu/api/course/v2/course_instances/357547/",
+            "section": "001",
+            "title": "SCILIVSY 26",
+            "short_title": "SCILIVSY 26",
+            "sub_title": "The Toll of Infection: Understanding Disease in Scientific, Social, and Cultural Contexts",
+            "location": "Holden Chapel Classroom (FAS)",
+            "meeting_time": "Monday, Wednesday 1:00pm - 2:29pm",
+            "exam_group": "FAS08_I",
+            "instructors_display": "Donald A. Goldmann (Harvard School of Public Health)",
+            "description": "This course will review the devastating impact of representative infectious diseases on wars, politics, economics, religion, public health, and society as reflected in history, literature, and the arts. We will study how infections spawned revolutionary epidemiologic and scientific advances in detection, treatment, and prevention. We will address the gaps between discovery and implementation, including ethical, social, economic, and health systems barriers to progress. We will confront challenges posed by microbial mutation (e.g., antibiotic resistance, evasion of immunity, and adaptation of animal viruses to humans). By weaving together knowledge from science and the humanities, students will understand the historical and contemporary impact of infections and potential solutions to the challenges they pose.",
+            "notes": "If student interest exceeds the course limit, a random lottery will be conducted. To enter the lottery, you must add the course to the Study Card and explicitly request enrollment permission when prompted. Instructor permission will be granted to only those admitted by the lottery; all students will be notified of their results. See the course website for more details.",
+            "prereq": "",
+            "course_type": "Lecture",
+            "xreg_flag": 1,
+            "xlist_flag": 0,
+            "enrollment_limit_flag": 0,
+            "audit_flag": 0,
+            "undergraduate_credit_flag": 1,
+            "graduate_credit_flag": 0,
+            "offered_flag": 1,
+            "exclude_from_isites": "0",
+            "exclude_from_catalog": "0",
+            "exclude_from_coop": null,
+            "credits": "4",
+            "exam_date": "2015-12-15",
+            "exam_date_description": "",
+            "xlist_description": "",
+            "xreg_description": "",
+            "next_offer_year": null,
+            "info_url": "",
+            "enrollment_limit": "60",
+            "xreg_instructor_sig_reqd": "1",
+            "xreg_grading_options": "letter/ordinal",
+            "sync_to_canvas": true,
+            "canvas_course_id": 3232,
+            "secondary_xlist_instances": [],
+            "primary_xlist_instances": []
+        }, {
+            "course_instance_id": 348897,
+            "course": {
+                "url": "https://icommons.harvard.edu/api/course/v2/courses/66353/",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/hds/",
+                "registrar_code": "103794",
+                "registrar_code_display": "HDS 1551",
+                "course_id": 66353,
+                "school_id": "hds"
+            },
+            "term": {
+                "url": "https://icommons.harvard.edu/api/course/v2/terms/5511/",
+                "academic_year": "2014",
+                "display_name": "Fall 2014",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/hds/",
+                "school_id": "hds",
+                "term_id": 5511,
+                "term_code": 1,
+                "term_name": "Fall"
+            },
+            "sites": [
+                {
+                    "external_id": "k105393",
+                    "site_type_id": "isite",
+                    "course_site_url": "http://isites.harvard.edu/k105393",
+                    "url": "https://icommons.harvard.edu/api/course/v2/course_sites/192520/"
+                },
+                {
+                    "external_id": "https://canvas.harvard.edu/courses/816",
+                    "site_type_id": "external",
+                    "course_site_url": "https://canvas.harvard.edu/courses/816",
+                    "url": "https://icommons.harvard.edu/api/course/v2/course_sites/192561/"
+                }
+            ],
+            "url": "https://icommons.harvard.edu/api/course/v2/course_instances/348897/",
+            "section": "",
+            "title": "Greek Exegesis of 1 Corinthians",
+            "short_title": "",
+            "sub_title": "",
+            "location": "Divinity Hall, Room 106",
+            "meeting_time": "Wednesday 1:00pm - 3:00pm",
+            "exam_group": "",
+            "instructors_display": "Laura Salah Nasrallah",
+            "description": "The course is devoted to close reading and interpretation of 1 Corinthians. Discussion of the Greek text of 1 Corinthians will focus on literary style, use of rhetoric, philology, and the social and theological issues of the text. This course also fulfills the study of fourth semester Greek. Note: Course has additional hour to be arranged. Offered jointly with the Faculty of Arts and Sciences as Religion 1441.",
+            "notes": "",
+            "prereq": "",
+            "course_type": "Lecture",
+            "xreg_flag": 1,
+            "xlist_flag": 1,
+            "enrollment_limit_flag": 0,
+            "audit_flag": 0,
+            "undergraduate_credit_flag": 0,
+            "graduate_credit_flag": 1,
+            "offered_flag": 1,
+            "exclude_from_isites": "0",
+            "exclude_from_catalog": "0",
+            "exclude_from_coop": 0,
+            "credits": "0.50",
+            "exam_date": null,
+            "exam_date_description": "",
+            "xlist_description": "",
+            "xreg_description": "",
+            "next_offer_year": null,
+            "info_url": "http://div.hds.harvard.edu/academics/courses/course-detail.cfm?CrsNumber=1551&section=01&term=FALL&year=2014",
+            "enrollment_limit": "No",
+            "xreg_instructor_sig_reqd": "0",
+            "xreg_grading_options": "letter/ordinal|sat/unsat|audit",
+            "sync_to_canvas": true,
+            "canvas_course_id": 816,
+            "secondary_xlist_instances": [],
+            "primary_xlist_instances": []
         }];
 
-        if ($scope.useCannedData) {
-            $scope.courseInfo = $scope.canned_courses.map($scope.courseInstanceToTable);
-            angular.element(document).ready($scope.initializeDatatable);
-        } else {
-            // Use for direct access to local (sslserver) rest api
-            // * ensure authorization header code in app.js is active
-            //var url = 'https://localhost:8001/api/course/v2/course_instances/?format=json';
+        $scope.searchCourseInstances = function() {
+            if ($scope.useCannedData) {
+                $scope.courseInfo = $scope.canned_courses.map($scope.courseInstanceToTable);
+            } else {
+                // Use for direct access to local (sslserver) rest api
+                // * ensure authorization header code in app.js is active
+                //var url = 'https://localhost:8001/api/course/v2/course_instances/?format=json';
 
-            // Use for passthrough configured in secure.py
-            // * also comment-out authorization header code in app.js
-            var url = 'https://localhost:8000/icommons_rest_api/api/course/v2/course_instances/?format=json';
-            $http.get(url).success(function (data, status, headers, config) {
-                $scope.api_courses = data.results;
-
-                // flatten for datatable and generate composite fields
-                $scope.courseInfo = $scope.api_courses.map($scope.courseInstanceToTable);
-
-                angular.element(document).ready($scope.initializeDatatable);
-                }).error(function (data, status, headers, config) {
-                    // todo: error handling
+                // Use for passthrough configured in secure.py
+                // * also comment-out authorization header code in app.js
+                var queryParameters = {};
+                if ($scope.queryString != '') {
+                    queryParameters.search = $scope.queryString;
+                }
+                $scope.api_course_results = CourseInstance.query(queryParameters, function() {
+                    $scope.api_courses = $scope.api_course_results.results;
+                    $scope.courseInfo = $scope.api_courses.map($scope.courseInstanceToTable);
                 });
+            }
         }
     }]);
 })();

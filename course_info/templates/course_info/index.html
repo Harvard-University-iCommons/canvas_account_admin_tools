@@ -18,6 +18,7 @@
     </script>
     <script src="{% static 'course_info/js/app.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
+    <script src="{% static 'course_info/js/services.js' %}"></script>
 {% endblock js %}
 
 {% block body %}
@@ -122,7 +123,7 @@
   </div>
 
   <div class="input-group" style="width: 56%">
-    <input type="text" class="form-control"
+    <input type="text" class="form-control" ng-model="queryString"
            placeholder="Search by Member's name or email, course code, SIS or Canvas course ID, course title">
   </div>
 
@@ -133,6 +134,7 @@
     <div class="row">
       <div class="col-mid-12">
         <button type="button" class="btn btn-primary btn-block center-block"
+                ng-click="searchCourseInstances()"
                 style="min-width: 15%; width: 15%;"><i class="fa fa-search"></i>
           Search
         </button>
