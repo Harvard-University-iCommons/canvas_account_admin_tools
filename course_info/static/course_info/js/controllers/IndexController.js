@@ -326,9 +326,12 @@
             angular.element(document).ready($scope.initializeDatatable);
         } else {
             // Use for direct access to local (sslserver) rest api
-            var url = 'https://localhost:8001/api/course/v2/course_instances/?format=json&school=hds';
-            // Use for passthrough configured in secure.py (not working for me right now)
-            //var url = 'https://localhost:8000/icommons_rest_api/api/course/v2/course_instances/?format=json&school=hds';
+            // * ensure authorization header code in app.js is active
+            //var url = 'https://localhost:8001/api/course/v2/course_instances/?format=json';
+
+            // Use for passthrough configured in secure.py
+            // * also comment-out authorization header code in app.js
+            var url = 'https://localhost:8000/icommons_rest_api/api/course/v2/course_instances/?format=json';
             $http.get(url).success(function (data, status, headers, config) {
                 $scope.api_courses = data.results;
 

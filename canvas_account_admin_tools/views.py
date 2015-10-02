@@ -98,8 +98,11 @@ def dashboard_account(request):
 @login_required
 def icommons_rest_api_proxy(request, path):
     url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, path)
-    return proxy_view(request, url, {
+    request_args = {
         'headers': {
             'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
         }
-    })
+    }
+    if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
+        request_args['verify'] = False
+    return proxy_view(request, url, request_args)
