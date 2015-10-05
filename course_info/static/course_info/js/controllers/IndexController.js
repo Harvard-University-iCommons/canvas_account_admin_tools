@@ -42,12 +42,12 @@
             ],
             // todo: this wants to be handled like .schools
             years: [
-                {key:'year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'},
-                {key:'year', value: '2016', name:'2016', query: true, text: '2016 <span class="caret"></span>'},
-                {key:'year', value: '2015', name:'2015', query: true, text: '2015 <span class="caret"></span>'},
-                {key:'year', value: '2014', name:'2014', query: true, text: '2014 <span class="caret"></span>'},
-                {key:'year', value: '2013', name:'2013', query: true, text: '2013 <span class="caret"></span>'},
-                {key:'year', value: '2012', name:'2012', query: true, text: '2012 <span class="caret"></span>'}
+                {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'},
+                {key:'academic_year', value: '2016', name:'2016', query: true, text: '2016 <span class="caret"></span>'},
+                {key:'academic_year', value: '2015', name:'2015', query: true, text: '2015 <span class="caret"></span>'},
+                {key:'academic_year', value: '2014', name:'2014', query: true, text: '2014 <span class="caret"></span>'},
+                {key:'academic_year', value: '2013', name:'2013', query: true, text: '2013 <span class="caret"></span>'},
+                {key:'academic_year', value: '2012', name:'2012', query: true, text: '2012 <span class="caret"></span>'}
             ]
         };
         $scope.filters = {
