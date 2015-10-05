@@ -28,8 +28,11 @@
 </header>
 <main class="float-left col-60">
 <div class="btn-toolbar" role="toolbar" aria-label="...">
+
+  {# verbatim is for angular-bound filters #}
+  {% verbatim %}
+
   <div class="btn-group" role="group" aria-label="...">
-    {% verbatim%}
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
               ng-bind-html="filters.schools.text"
@@ -38,26 +41,24 @@
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuSchools">
         <li ng-repeat="opt in filterOptions.schools">
-          <a href="#" ng-click="updateFilterSchools(opt.value)">{{ opt.name }}</a>
+          <a href="#" ng-click="updateFilter('schools', opt.value)">{{ opt.name }}</a>
         </li>
       </ul>
     </div>
-    {% endverbatim%}
   </div>
+
   <div class="btn-group" role="group" aria-label="...">
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.years.text"
               id="dropdownMenuYear" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">2015
+              aria-expanded="true">
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuYear">
-        <li><a href="#">All years</a></li>
-        <li><a href="#">2016</a></li>
-        <li><a href="#">2015</a></li>
-        <li><a href="#">2014</a></li>
-        <li><a href="#">2013</a></li>
-        <li><a href="#">2012</a></li>
+        <li ng-repeat="opt in filterOptions.years">
+          <a href="#" ng-click="updateFilter('years', opt.value)">{{ opt.name }}</a>
+        </li>
       </ul>
     </div>
   </div>
@@ -65,35 +66,19 @@
   <div class="btn-group" role="group" aria-label="...">
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.terms.text"
               id="dropdownMenuTerm" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">All terms
+              aria-expanded="true">
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuTerm">
-        <li><a href="#">All terms</a></li>
-        <li><a href="#">Summer</a></li>
-        <li><a href="#">Fall</a></li>
-        <li><a href="#">Spring</a></li>
-        <li><a href="#">Full Year</a></li>
-        <li><a href="#">Winter</a></li>
-        <li><a href="#">July and August</a></li>
-        <li><a href="#">June and July</a></li>
-        <li><a href="#">Spring 2</a></li>
-        <li><a href="#">Spring 1</a></li>
-        <li><a href="#">Fall 2</a></li>
-        <li><a href="#">Fall 1</a></li>
-        <li><a href="#">July</a></li>
-        <li><a href="#">August</a></li>
-        <li><a href="#">June</a></li>
-        <li><a href="#">Fall-Winter</a></li>
-        <li><a href="#">Winter-Spring</a></li>
-        <li><a href="#">Spring Saturday</a></li>
-        <li><a href="#">Fall Saturday</a></li>
+        <li ng-repeat="opt in filterOptions.terms">
+          <a href="#" ng-click="updateFilter('terms', opt.value)">{{ opt.name }}</a>
+        </li>
       </ul>
     </div>
   </div>
 
-{% verbatim %}
   <div class="btn-group" role="group" aria-label="...">
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
@@ -103,12 +88,13 @@
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuSites">
         <li ng-repeat="opt in filterOptions.sites">
-          <a href="#" ng-click="updateFilterSites(opt.value)">{{ opt.name }}</a>
+          <a href="#" ng-click="updateFilter('sites', opt.value)">{{ opt.name }}</a>
         </li>
       </ul>
     </div>
   </div>
-{% endverbatim %}
+  {% endverbatim %}
+  {# endverbatim for angular-bound filters #}
 
   <div class="input-group" style="width: 56%">
     <input type="text" class="form-control" ng-model="queryString"

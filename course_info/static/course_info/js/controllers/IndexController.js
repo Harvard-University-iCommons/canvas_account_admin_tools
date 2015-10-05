@@ -18,29 +18,61 @@
                 {key:'sites', value: 'ca', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
+            // todo: this wants to be handled like .schools
+            terms: [
+                {key:'term', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'},
+                {key:'term', value: 'su', name:'Summer', query: true, text: 'Summer <span class="caret"></span>'},
+                {key:'term', value: 'fa', name:'Fall', query: true, text: 'Fall <span class="caret"></span>'},
+                {key:'term', value: 'sp', name:'Spring', query: true, text: 'Spring <span class="caret"></span>'},
+                {key:'term', value: 'fy', name:'Full Year', query: true, text: 'Full Year <span class="caret"></span>'},
+                {key:'term', value: 'wi', name:'Winter', query: true, text: 'Winter <span class="caret"></span>'},
+                {key:'term', value: 'ja', name:'July and August', query: true, text: 'July and August <span class="caret"></span>'},
+                {key:'term', value: 'jj', name:'June and July', query: true, text: 'June and July <span class="caret"></span>'},
+                {key:'term', value: 's2', name:'Spring 2', query: true, text: 'Spring 2<span class="caret"></span>'},
+                {key:'term', value: 's1', name:'Spring 1', query: true, text: 'Spring 1<span class="caret"></span>'},
+                {key:'term', value: 'f2', name:'Fall 2', query: true, text: 'Fall 2 <span class="caret"></span>'},
+                {key:'term', value: 'f1', name:'Fall 1', query: true, text: 'Fall 1 <span class="caret"></span>'},
+                {key:'term', value: 'july', name:'July', query: true, text: 'July <span class="caret"></span>'},
+                {key:'term', value: 'au', name:'August', query: true, text: 'August <span class="caret"></span>'},
+                {key:'term', value: 'june', name:'June', query: true, text: 'June <span class="caret"></span>'},
+                {key:'term', value: 'fw', name:'Fall-Winter', query: true, text: 'Fall-Winter <span class="caret"></span>'},
+                {key:'term', value: 'ws', name:'Winter-Spring', query: true, text: 'Winter-Spring <span class="caret"></span>'},
+                {key:'term', value: 'ss', name:'Spring Saturday', query: true, text: 'Spring Saturday <span class="caret"></span>'},
+                {key:'term', value: 'fs', name:'Fall Saturday', query: true, text: 'Fall Saturday <span class="caret"></span>'}
+            ],
+            // todo: this wants to be handled like .schools
+            years: [
+                {key:'year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'},
+                {key:'year', value: '2016', name:'2016', query: true, text: '2016 <span class="caret"></span>'},
+                {key:'year', value: '2015', name:'2015', query: true, text: '2015 <span class="caret"></span>'},
+                {key:'year', value: '2014', name:'2014', query: true, text: '2014 <span class="caret"></span>'},
+                {key:'year', value: '2013', name:'2013', query: true, text: '2013 <span class="caret"></span>'},
+                {key:'year', value: '2012', name:'2012', query: true, text: '2012 <span class="caret"></span>'}
+            ]
         };
         $scope.filters = {
-            sites: $scope.filterOptions.sites[0],
+            // default to first in list on load
             schools: $scope.filterOptions.schools[0],
+            sites: $scope.filterOptions.sites[0],
+            terms: $scope.filterOptions.terms[0],
+            years: $scope.filterOptions.years[0]
         };
 
-        $scope.updateFilterSites = function(selectedValue) {
-            $scope.filters.sites = $scope.filterOptions.sites.filter(
-                function(option){ return option.value == selectedValue})[0];
-            $scope.checkIfFiltersApplied();
-        };
-
-        $scope.updateFilterSchools = function(selectedValue) {
-            $scope.filters.schools = $scope.filterOptions.schools.filter(
+        $scope.updateFilter = function(filterKey, selectedValue) {
+            $scope.filters[filterKey] = $scope.filterOptions[filterKey].filter(
                 function(option){ return option.value == selectedValue})[0];
             $scope.checkIfFiltersApplied();
         };
 
         $scope.checkIfFiltersApplied = function() {
-            // todo: update to check for any filter
-            $scope.filtersApplied = $scope.filters.sites.query || $scope.filters.schools.query;
+            for (var key in $scope.filters) {
+                if ($scope.filters[key].query) {
+                    $scope.filtersApplied = true;
+                    break;
+                }
+            $scope.filtersApplied = false;
+            }
         };
-
 
         $scope.checkIfSearchable = function() {
             $scope.searchEnabled = $scope.filtersApplied || $scope.queryString.trim() != '';
