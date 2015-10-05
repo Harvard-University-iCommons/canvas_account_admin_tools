@@ -32,28 +32,13 @@
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
               id="dropdownMenuSchool" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">Graduate School of Education
+              aria-expanded="true">All schools
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuSchool">
-        <li><a href="#">All schools</a></li>
-        <li><a href="#">Divinity School</a></li>
-        <li><a href="#">Graduate School of Education</a></li>
-        <li><a href="#">HILR</a></li>
-        <li><a href="#">HKS Exec Ed</a></li>
-        <li><a href="#">HLS Executive Education</a></li>
-        <li><a href="#">Harvard</a></li>
-        <li><a href="#">Harvard Business School MBA Program</a></li>
-        <li><a href="#">Harvard College Library</a></li>
-        <li><a href="#">Harvard College/GSAS</a></li>
-        <li><a href="#">Harvard Design School</a></li>
-        <li><a href="#">Harvard Extension School</a></li>
-        <li><a href="#">Harvard Kennedy School (HKS)</a></li>
-        <li><a href="#">Harvard Law School</a></li>
-        <li><a href="#">Harvard Medical School</a></li>
-        <li><a href="#">Harvard School of Dental Medicine</a></li>
-        <li><a href="#">Harvard Summer School</a></li>
-        <li><a href="#">Harvard School of Public Health</a></li>
+{% for school_id, school_name in schools %}
+        <li><a href="#" data-school-id="{{ school_id }}">{{ school_name }}</a></li>
+{% endfor %}
       </ul>
     </div>
   </div>
