@@ -29,18 +29,20 @@
 <main class="float-left col-60">
 <div class="btn-toolbar" role="toolbar" aria-label="...">
   <div class="btn-group" role="group" aria-label="...">
+    {% verbatim%}
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
-              id="dropdownMenuSchool" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">All schools
-        <span class="caret"></span>
+              ng-bind-html="filters.schools.text"
+              id="dropdownMenuSchools" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="true">
       </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuSchool">
-{% for school_id, school_name in schools %}
-        <li><a href="#" data-school-id="{{ school_id }}">{{ school_name }}</a></li>
-{% endfor %}
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuSchools">
+        <li ng-repeat="opt in filterOptions.schools">
+          <a href="#" ng-click="updateFilterSchools(opt.value)">{{ opt.name }}</a>
+        </li>
       </ul>
     </div>
+    {% endverbatim%}
   </div>
   <div class="btn-group" role="group" aria-label="...">
     <div class="dropdown">
@@ -163,5 +165,8 @@
   </p>
 
 </main>
+<script type="application/json" id="schoolOptions">
+{{ schools | safe }}
+</script>
 </body>
 {% endblock body %}

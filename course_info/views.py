@@ -1,4 +1,6 @@
+import json
 import logging
+from operator import itemgetter
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
@@ -18,10 +20,25 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
-    accounts = get_administered_school_accounts(canvas_user_id)
-    schools = [(a['sis_account_id'].split(':')[1], a['name']) for a in accounts]
-    schools.sort(key=lambda r: r[1])
+
+    # prep context data, used to fill filter dropdowns with data targeted
+    # to the lti launch's user.
     context = {
-        'schools': schools,
+        'schools': _get_schools_context(canvas_user_id),
     }
     return render(request, 'course_info/index.html', context)
+
+
+def _get_schools_context(canvas_user_id):
+    accounts = get_administered_school_accounts(canvas_user_id)
+    schools = [{
+                    'key': 'school',
+                    'value': a['sis_account_id'].split(':')[1],
+                    'name': a['name'],
+                    'query': True,
+                    'text': a['name'] + ' <span class="caret"></span>',
+                } for a in accounts]
+    schools.sort(key=itemgetter('name'))
+    schools.insert(0, {'key': 'school', 'name': 'All Schools', 'query': False,
+                       'text': 'All Schools <span class="caret"></span>'})
+    return json.dumps(schools)

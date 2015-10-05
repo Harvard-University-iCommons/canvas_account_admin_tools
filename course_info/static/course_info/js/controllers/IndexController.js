@@ -16,10 +16,12 @@
                 {key:'sites', value: 'ns', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
                 {key:'sites', value: 'so', name:'Sites without attached courses', query: true, text: 'Sites without attached courses <span class="caret"></span>'},
                 {key:'sites', value: 'ca', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
-            ]
+            ],
+            schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
         };
         $scope.filters = {
-            sites: $scope.filterOptions.sites[0]
+            sites: $scope.filterOptions.sites[0],
+            schools: $scope.filterOptions.schools[0],
         };
 
         $scope.updateFilterSites = function(selectedValue) {
@@ -28,9 +30,15 @@
             $scope.checkIfFiltersApplied();
         };
 
+        $scope.updateFilterSchools = function(selectedValue) {
+            $scope.filters.schools = $scope.filterOptions.schools.filter(
+                function(option){ return option.value == selectedValue})[0];
+            $scope.checkIfFiltersApplied();
+        };
+
         $scope.checkIfFiltersApplied = function() {
             // todo: update to check for any filter
-            $scope.filtersApplied = $scope.filters.sites.query;
+            $scope.filtersApplied = $scope.filters.sites.query || $scope.filters.schools.query;
         };
 
 

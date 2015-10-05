@@ -38,14 +38,21 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
 
         # now that we know which accounts pass the permissions tests, pull in
         # their child accounts
-        for id_ in allowed_accounts.keys():
+        all_accounts = {}
+        for id_ in sorted(allowed_accounts):
+            if id_ in all_accounts:
+                # we've already found this account and its children by way of
+                # a parent account.  no need to check for this account again.
+                continue
+
+            all_accounts[id_] = allowed_accounts[id_]
             subaccounts = get_all_list_data(
-                              SDK_CONTEXT, get_sub_accounts_of_account,
-                              account['id'], recursive=True, as_user_id=canvas_user_id)
-            allowed_accounts.update({s['id']: s for s in subaccounts})
+                              SDK_CONTEXT, get_sub_accounts_of_account, id_,
+                              recursive=True, as_user_id=canvas_user_id)
+            all_accounts.update({s['id']: s for s in subaccounts})
 
         # filter down to just school accounts
         school_accounts = filter(lambda a: (a.get('sis_account_id') or '').startswith('school'),
-                                 allowed_accounts.values())
+                                 all_accounts.values())
         cache.set(cache_key, school_accounts)
     return school_accounts
