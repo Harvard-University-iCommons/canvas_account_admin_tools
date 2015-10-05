@@ -14,10 +14,10 @@ from course_info.canvas import get_administered_school_accounts
 
 logger = logging.getLogger(__name__)
 
-
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@require_http_methods(['GET'])
+#
+# @login_required
+# @lti_role_required(const.ADMINISTRATOR)
+# @require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
 
