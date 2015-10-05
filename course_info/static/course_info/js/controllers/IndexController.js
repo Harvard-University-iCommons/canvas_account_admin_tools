@@ -54,14 +54,17 @@
             cinfo['description'] = course.title;
             cinfo['year'] = course.term ? course.term.academic_year : '';
             cinfo['term'] = course.term ? course.term.display_name : '';
-            // todo: fixme (show multiple)
-            if (course.sites && course.sites.length > 0) {
-                cinfo['site_id'] = course.sites[0].external_id;
-                cinfo['site_url'] = course.sites[0].course_site_url;
-            } else {
-                cinfo['site_id'] = '';
-                cinfo['site_url'] = '';
-            }
+            cinfo['sites'] = course.sites || [];
+            cinfo['sites'].forEach(function (site) {
+                site.site_id = site.external_id;
+                if (site.site_id.indexOf('http') === 0) {
+                    site.site_id = site.site_id.substr(site.site_id.lastIndexOf('/')+1);
+                }
+            });
+            cinfo['sites'].sort(function(a,b) {
+                return (a.external_id > b.external_id) ? 1 :
+                           (b.external_id > a.external_id) ? -1 : 0;
+            });
             if (course.course) {
                 cinfo['code'] = (course.course.registrar_code_display
                 + ' (' + course.course.course_id + ')').trim();
@@ -106,7 +109,13 @@
                     {data: 'description'},
                     {data: 'year'},
                     {data: 'term'},
-                    {data: 'site_id'},  // todo: render multiple with link
+                    {render: function(data, type, row, meta) {
+                        var sites = row.sites.map(function(site) {
+                            return '<a href="' + site.course_site_url + '">'
+                                       + site.site_id + '</a>';
+                        });
+                        return sites.join(', ');
+                    }},
                     {data: 'code'},
                     {data: 'cid'},
                     {data: null, render: function(data, type, full, meta) {
