@@ -20,25 +20,25 @@
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
             // todo: this wants to be handled like .schools
             terms: [
-                {key:'term', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'},
-                {key:'term', value: 'su', name:'Summer', query: true, text: 'Summer <span class="caret"></span>'},
-                {key:'term', value: 'fa', name:'Fall', query: true, text: 'Fall <span class="caret"></span>'},
-                {key:'term', value: 'sp', name:'Spring', query: true, text: 'Spring <span class="caret"></span>'},
-                {key:'term', value: 'fy', name:'Full Year', query: true, text: 'Full Year <span class="caret"></span>'},
-                {key:'term', value: 'wi', name:'Winter', query: true, text: 'Winter <span class="caret"></span>'},
-                {key:'term', value: 'ja', name:'July and August', query: true, text: 'July and August <span class="caret"></span>'},
-                {key:'term', value: 'jj', name:'June and July', query: true, text: 'June and July <span class="caret"></span>'},
-                {key:'term', value: 's2', name:'Spring 2', query: true, text: 'Spring 2<span class="caret"></span>'},
-                {key:'term', value: 's1', name:'Spring 1', query: true, text: 'Spring 1<span class="caret"></span>'},
-                {key:'term', value: 'f2', name:'Fall 2', query: true, text: 'Fall 2 <span class="caret"></span>'},
-                {key:'term', value: 'f1', name:'Fall 1', query: true, text: 'Fall 1 <span class="caret"></span>'},
-                {key:'term', value: 'july', name:'July', query: true, text: 'July <span class="caret"></span>'},
-                {key:'term', value: 'au', name:'August', query: true, text: 'August <span class="caret"></span>'},
-                {key:'term', value: 'june', name:'June', query: true, text: 'June <span class="caret"></span>'},
-                {key:'term', value: 'fw', name:'Fall-Winter', query: true, text: 'Fall-Winter <span class="caret"></span>'},
-                {key:'term', value: 'ws', name:'Winter-Spring', query: true, text: 'Winter-Spring <span class="caret"></span>'},
-                {key:'term', value: 'ss', name:'Spring Saturday', query: true, text: 'Spring Saturday <span class="caret"></span>'},
-                {key:'term', value: 'fs', name:'Fall Saturday', query: true, text: 'Fall Saturday <span class="caret"></span>'}
+                {key:'term_code', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'},
+                {key:'term_code', value: '0', name:'Summer', query: true, text: 'Summer <span class="caret"></span>'},
+                {key:'term_code', value: '1', name:'Fall', query: true, text: 'Fall <span class="caret"></span>'},
+                {key:'term_code', value: '2', name:'Spring', query: true, text: 'Spring <span class="caret"></span>'},
+                {key:'term_code', value: '4', name:'Full Year', query: true, text: 'Full Year <span class="caret"></span>'},
+                {key:'term_code', value: '5', name:'Winter', query: true, text: 'Winter <span class="caret"></span>'},
+                {key:'term_code', value: '11', name:'July and August', query: true, text: 'July and August <span class="caret"></span>'},
+                {key:'term_code', value: '10', name:'June and July', query: true, text: 'June and July <span class="caret"></span>'},
+                {key:'term_code', value: '9', name:'Spring 2', query: true, text: 'Spring 2<span class="caret"></span>'},
+                {key:'term_code', value: '8', name:'Spring 1', query: true, text: 'Spring 1<span class="caret"></span>'},
+                {key:'term_code', value: '7', name:'Fall 2', query: true, text: 'Fall 2 <span class="caret"></span>'},
+                {key:'term_code', value: '6', name:'Fall 1', query: true, text: 'Fall 1 <span class="caret"></span>'},
+                {key:'term_code', value: '17', name:'July', query: true, text: 'July <span class="caret"></span>'},
+                {key:'term_code', value: '18', name:'August', query: true, text: 'August <span class="caret"></span>'},
+                {key:'term_code', value: '16', name:'June', query: true, text: 'June <span class="caret"></span>'},
+                {key:'term_code', value: '12', name:'Fall-Winter', query: true, text: 'Fall-Winter <span class="caret"></span>'},
+                {key:'term_code', value: '13', name:'Winter-Spring', query: true, text: 'Winter-Spring <span class="caret"></span>'},
+                {key:'term_code', value: '15', name:'Spring Saturday', query: true, text: 'Spring Saturday <span class="caret"></span>'},
+                {key:'term_code', value: '14', name:'Fall Saturday', query: true, text: 'Fall Saturday <span class="caret"></span>'}
             ],
             // todo: this wants to be handled like .schools
             years: [
@@ -86,6 +86,7 @@
             cinfo['description'] = course.title;
             cinfo['year'] = course.term ? course.term.academic_year : '';
             cinfo['term'] = course.term ? course.term.display_name : '';
+            cinfo['term_code'] = course.term ? course.term.term_code : '';
             cinfo['sites'] = course.sites || [];
             cinfo['sites'].forEach(function (site) {
                 site.site_id = site.external_id;
