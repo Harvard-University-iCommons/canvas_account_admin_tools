@@ -79,7 +79,7 @@
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
               id="dropdownMenuTerm" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">Fall
+              aria-expanded="true">All terms
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuTerm">
@@ -106,21 +106,22 @@
     </div>
   </div>
 
+{% verbatim %}
   <div class="btn-group" role="group" aria-label="...">
     <div class="dropdown">
       <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.sites.text"
               id="dropdownMenuSites" data-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="true">All courses
-        <span class="caret"></span>
+              aria-expanded="true">
       </button>
       <ul class="dropdown-menu" aria-labelledby="dropdownMenuSites">
-        <li><a href="#">Only courses with sites</a></li>
-        <li><a href="#">Only courses without sites</a></li>
-        <li><a href="#">Sites without attached courses</a></li>
-        <li><a href="#">Courses being synced to Canvas</a></li>
+        <li ng-repeat="opt in filterOptions.sites">
+          <a href="#" ng-click="updateFilterSites(opt.value)">{{ opt.name }}</a>
+        </li>
       </ul>
     </div>
   </div>
+{% endverbatim %}
 
   <div class="input-group" style="width: 56%">
     <input type="text" class="form-control" ng-model="queryString"
@@ -134,6 +135,7 @@
     <div class="row">
       <div class="col-mid-12">
         <button type="button" class="btn btn-primary btn-block center-block"
+                ng-disabled="!searchEnabled"
                 ng-click="searchCourseInstances()"
                 style="min-width: 15%; width: 15%;"><i class="fa fa-search"></i>
           Search
@@ -158,19 +160,21 @@
     </div>
   </p>
 
-  <p class="panel" ng-cloak>
-    <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
-      <thead>
-        <th class="sorting" tabindex="0">Department&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Course Details&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Academic year&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Academic Term&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Associated Site&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Course Instance ID&nbsp;&nbsp;</th>
-        <th class="sorting" tabindex="0">Cross Listing&nbsp;&nbsp;</th>
-      </thead>
-    </table>
+  <p class="panel">
+    <div ng-cloak ng-show="courseInfo !== null && !searchInProgress">
+      <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
+        <thead>
+          <th class="sorting" tabindex="0">Department&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Details&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Academic year&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Academic Term&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Associated Site&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Instance ID&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Cross Listing&nbsp;&nbsp;</th>
+        </thead>
+      </table>
+    </div>
   </p>
 
 </main>

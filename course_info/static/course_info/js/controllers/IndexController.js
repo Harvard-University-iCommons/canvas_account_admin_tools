@@ -6,6 +6,40 @@
         $scope.searchInProgress = false;
         $scope.useCannedData = false;
         $scope.queryString = '';
+        $scope.courseInfo = null;
+        $scope.searchEnabled = false;
+        $scope.filtersApplied = false;
+        $scope.filterOptions = {
+            sites: [
+                {key:'sites', value: 'all', name:'All courses', query: false, text: 'All courses <span class="caret"></span>'},
+                {key:'sites', value: 'ws', name:'Only courses with sites', query: true, text: 'Only courses with sites <span class="caret"></span>'},
+                {key:'sites', value: 'ns', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
+                {key:'sites', value: 'so', name:'Sites without attached courses', query: true, text: 'Sites without attached courses <span class="caret"></span>'},
+                {key:'sites', value: 'ca', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
+            ]
+        };
+        $scope.filters = {
+            sites: $scope.filterOptions.sites[0]
+        };
+
+        $scope.updateFilterSites = function(selectedValue) {
+            $scope.filters.sites = $scope.filterOptions.sites.filter(
+                function(option){ return option.value == selectedValue})[0];
+            $scope.checkIfFiltersApplied();
+        };
+
+        $scope.checkIfFiltersApplied = function() {
+            // todo: update to check for any filter
+            $scope.filtersApplied = $scope.filters.sites.query;
+        };
+
+
+        $scope.checkIfSearchable = function() {
+            $scope.searchEnabled = $scope.filtersApplied || $scope.queryString.trim() != '';
+        };
+
+        $scope.$watch('filtersApplied', $scope.checkIfSearchable);
+        $scope.$watch('queryString', $scope.checkIfSearchable);
 
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
@@ -31,8 +65,10 @@
             cinfo['cid'] = course.course_instance_id;
             if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
                 cinfo['xlist_status'] = 'Primary';
+                cinfo['xlist_status_label'] = 'success';
             } else if (course.primary_xlist_instances && course.primary_xlist_instances.length > 0) {
                 cinfo['xlist_status'] = 'Secondary';
+                cinfo['xlist_status_label'] = 'info';
             } else {
                 cinfo['xlist_status'] = '';
             }
@@ -47,7 +83,14 @@
                 dom: '<<t>ip>',
                 language: {
                     info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                    emptyTable: 'There are no courses to display.'
+                    emptyTable: 'There are no courses to display.',
+                    // datatables-bootstrap js adds glyphicons, so remove
+                    // default Previous/Next text and don't add &laquo; or
+                    // &raquo; as in that case the chevrons will be repeated
+                    paginate: {
+                        previous: '',
+                        next: ''
+                    }
                 },
                 order: [[6, 'asc']],  // order by course instance ID
                 columns: [
@@ -55,10 +98,18 @@
                     {data: 'description'},
                     {data: 'year'},
                     {data: 'term'},
-                    {data: 'site_id'},  // todo: render with link
+                    {data: 'site_id'},  // todo: render multiple with link
                     {data: 'code'},
                     {data: 'cid'},
-                    {data: 'xlist_status'}  // todo: render with badge
+                    {data: null, render: function(data, type, full, meta) {
+                        if (data.xlist_status != '') {
+                            return '<span class="label label-'
+                                + data.xlist_status_label + '">'
+                                + data.xlist_status + '</span>';
+                        } else {
+                            return data.xlist_status;
+                        }
+                    }}
                 ]
             });
         };
@@ -76,6 +127,71 @@
         $scope.$watch('courseInfo', $scope.updateData);
 
         $scope.canned_courses = [{
+            "course_instance_id": 339009,
+            "course": {
+                "url": "https://icommons.harvard.edu/api/course/v2/courses/86374/",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/ksg/",
+                "registrar_code": "HKSEEEL1402",
+                "registrar_code_display": "",
+                "course_id": 86374,
+                "school_id": "ksg"
+            },
+            "term": {
+                "url": "https://icommons.harvard.edu/api/course/v2/terms/4968/",
+                "academic_year": "2014",
+                "display_name": "Spring 2014",
+                "school": "https://icommons.harvard.edu/api/course/v2/schools/ksg/",
+                "school_id": "ksg",
+                "term_id": 4968,
+                "term_code": 2,
+                "term_name": "Spring"
+            },
+            "sites": [
+                {
+                    "external_id": "k102751",
+                    "site_type_id": "isite",
+                    "course_site_url": "http://isites.harvard.edu/k102751",
+                    "url": "https://icommons.harvard.edu/api/course/v2/course_sites/189769/"
+                }
+            ],
+            "url": "https://icommons.harvard.edu/api/course/v2/course_instances/339009/",
+            "section": "",
+            "title": "Emerging Leaders",
+            "short_title": "",
+            "sub_title": "",
+            "location": "",
+            "meeting_time": "",
+            "exam_group": "",
+            "instructors_display": "",
+            "description": "",
+            "notes": "",
+            "prereq": "",
+            "course_type": "",
+            "xreg_flag": 0,
+            "xlist_flag": 0,
+            "enrollment_limit_flag": 0,
+            "audit_flag": 0,
+            "undergraduate_credit_flag": 0,
+            "graduate_credit_flag": 0,
+            "offered_flag": 1,
+            "exclude_from_isites": "0",
+            "exclude_from_catalog": "1",
+            "exclude_from_coop": null,
+            "credits": "",
+            "exam_date": null,
+            "exam_date_description": "",
+            "xlist_description": "",
+            "xreg_description": "",
+            "next_offer_year": null,
+            "info_url": "",
+            "enrollment_limit": "",
+            "xreg_instructor_sig_reqd": "1",
+            "xreg_grading_options": "",
+            "sync_to_canvas": false,
+            "canvas_course_id": null,
+            "secondary_xlist_instances": [],
+            "primary_xlist_instances": []
+        }, {
             "course_instance_id": 339009,
             "course": {
                 "url": "https://icommons.harvard.edu/api/course/v2/courses/86374/",
@@ -537,8 +653,10 @@
         }];
 
         $scope.searchCourseInstances = function() {
+            $scope.searchInProgress = true;
             if ($scope.useCannedData) {
                 $scope.courseInfo = $scope.canned_courses.map($scope.courseInstanceToTable);
+                $scope.searchInProgress = false;
             } else {
                 // Use for direct access to local (sslserver) rest api
                 // * ensure authorization header code in app.js is active
@@ -547,12 +665,19 @@
                 // Use for passthrough configured in secure.py
                 // * also comment-out authorization header code in app.js
                 var queryParameters = {};
-                if ($scope.queryString != '') {
-                    queryParameters.search = $scope.queryString;
+                if ($scope.queryString.trim() != '') {
+                    queryParameters.search = $scope.queryString.trim();
+                }
+                if ($scope.filtersApplied) {
+                    for (var key in $scope.filters) {
+                        var f = $scope.filters[key];
+                        if (f.query) { queryParameters[f.key] = f.value; }
+                    }
                 }
                 $scope.api_course_results = CourseInstance.query(queryParameters, function() {
                     $scope.api_courses = $scope.api_course_results.results;
                     $scope.courseInfo = $scope.api_courses.map($scope.courseInstanceToTable);
+                    $scope.searchInProgress = false;
                 });
             }
         }
