@@ -15,3 +15,7 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 
 dictConfig(LOGGING)
+
+# Allows the REST API passthrough to successfully negotiate an SSL session
+# with an unverified certificate, e.g. the one that ships with django-sslserver
+ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True

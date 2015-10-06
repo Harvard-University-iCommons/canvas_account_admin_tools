@@ -1,0 +1,3 @@
+table.dataTable thead .sorting.sorting_disabled {
+    background-image: none;
+}
