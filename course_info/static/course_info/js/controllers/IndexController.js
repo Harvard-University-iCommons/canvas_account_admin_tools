@@ -248,11 +248,13 @@
 
         angular.element(document).ready($scope.initializeDatatable);
 
-        $scope.searchCourseInstances = function() {
-            // Call within timeout to prevent https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
-            $timeout(function(){
-                $scope.dataTable.ajax.reload();
-            }, 0);
+        $scope.searchCourseInstances = function(event) {
+            if (event.type == 'click' || (event.type == 'keypress' && event.which == 13)) {
+                // Call within timeout to prevent https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
+                $timeout(function () {
+                    $scope.dataTable.ajax.reload();
+                }, 0);
+            }
         }
     }]);
 })();

@@ -97,7 +97,7 @@
   {# endverbatim for angular-bound filters #}
 
   <div class="input-group" style="width: 56%">
-    <input type="text" class="form-control" ng-model="queryString"
+    <input type="text" class="form-control" ng-model="queryString" ng-keypress="searchCourseInstances($event)"
            placeholder="Search by course code, SIS or Canvas course ID, course title">
   </div>
 
@@ -109,7 +109,7 @@
       <div class="col-mid-12">
         <button type="button" class="btn btn-primary btn-block center-block"
                 ng-disabled="!searchEnabled"
-                ng-click="searchCourseInstances()"
+                ng-click="searchCourseInstances($event)"
                 style="min-width: 15%; width: 15%;"><i class="fa fa-search"></i>
           Search
         </button>
