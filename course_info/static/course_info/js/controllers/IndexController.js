@@ -15,12 +15,19 @@
             5: 'course__registrar_code_display'
         };
         $scope.filterOptions = {
-            // todo: describe purpose of query_value etc
+            // `key` and `value` are the GET params sent to the server when
+            // the option is chosen. `value` must be unique in its option list,
+            // as it is also used for the HTML input element value. `value` can
+            // be arbitrarily set to something unique if there are duplicate
+            // values; in that case, an optional `query_value` attribute can be
+            // included in the option object to indicate what to send to the
+            // server. `query` is `true` if this option should trigger a GET
+            // param included in the request, or `false` if it is e.g. the
+            // default and should not be appended to the request params.
             sites: [
                 {key:'sites', value: 'all', name:'All courses', query: false, text: 'All courses <span class="caret"></span>'},
                 {key:'has_sites', value: 'True', name:'Only courses with sites', query: true, text: 'Only courses with sites <span class="caret"></span>'},
                 {key:'has_sites', value: 'False', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
-                {key:'sites', value: 'so', name:'Sites without attached courses', query: true, text: 'Sites without attached courses <span class="caret"></span>'},
                 {key:'sync_to_canvas', value: 'sync_to_canvas_true', query_value: 'True', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
@@ -46,9 +53,9 @@
                 {key:'term_code', value: '15', name:'Spring Saturday', query: true, text: 'Spring Saturday <span class="caret"></span>'},
                 {key:'term_code', value: '14', name:'Fall Saturday', query: true, text: 'Fall Saturday <span class="caret"></span>'}
             ],
-            // todo: this wants to be handled like .schools
             years: [
-                {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'},
+                {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'}
+                // specific years are filled out dynamically below
             ]
         };
 
