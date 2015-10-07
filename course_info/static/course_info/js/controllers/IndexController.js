@@ -126,14 +126,12 @@
             if (course.course) {
                 cinfo['code'] = (course.course.registrar_code_display
                 + ' (' + course.course.course_id + ')').trim();
-                cinfo['departments'] = course.course.departments || [];
-                cinfo['departments'].forEach(function (department) {
-                    department.name = department.name;
-                });
+                cinfo['school'] = course.course.school_id;
             } else {
                 cinfo['code'] = '';
-                cinfo['departments'] = '';
+                cinfo['school'] = '';
             }
+
             cinfo['cid'] = course.course_instance_id;
             if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
                 cinfo['xlist_status'] = 'Primary';
@@ -214,15 +212,7 @@
                 },
                 order: [[6, 'asc']],  // order by course instance ID
                 columns: [
-                    {
-                        orderable: false,
-                        render: function(data, type, row, meta) {
-                            var depts = row.departments.map(function(department) {
-                                return department.name;
-                            });
-                            return depts;
-                        }
-                    },
+                    {data: 'school'},
                     {data: 'description'},
                     {data: 'year'},
                     {data: 'term'},
