@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -93,7 +94,12 @@ def dashboard_account(request):
 
 @login_required
 def icommons_rest_api_proxy(request, path):
-    url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, path)
+    # Remove resource_link_id query param
+    # request.GET is immutable, so we need to copy before modifying
+    request.GET = request.GET.copy()
+    request.GET.pop('resource_link_id', None)
+
+    url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
     return proxy_view(request, url, {
         'headers': {
             'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
