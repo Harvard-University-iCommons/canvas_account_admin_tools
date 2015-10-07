@@ -15,12 +15,13 @@
             5: 'course__registrar_code_display'
         };
         $scope.filterOptions = {
+            // todo: describe purpose of query_value etc
             sites: [
                 {key:'sites', value: 'all', name:'All courses', query: false, text: 'All courses <span class="caret"></span>'},
-                {key:'sites', value: 'ws', name:'Only courses with sites', query: true, text: 'Only courses with sites <span class="caret"></span>'},
-                {key:'sites', value: 'ns', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
+                {key:'has_sites', value: 'True', name:'Only courses with sites', query: true, text: 'Only courses with sites <span class="caret"></span>'},
+                {key:'has_sites', value: 'False', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
                 {key:'sites', value: 'so', name:'Sites without attached courses', query: true, text: 'Sites without attached courses <span class="caret"></span>'},
-                {key:'sites', value: 'ca', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
+                {key:'sync_to_canvas', value: 'sync_to_canvas_true', query_value: 'True', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
             // todo: this wants to be handled like .schools
@@ -122,7 +123,6 @@
                 cinfo['departments'].forEach(function (department) {
                     department.name = department.name;
                 });
-
             } else {
                 cinfo['code'] = '';
                 cinfo['departments'] = '';
@@ -155,7 +155,9 @@
                     if ($scope.filtersApplied) {
                         for (var key in $scope.filters) {
                             var f = $scope.filters[key];
-                            if (f.query) { queryParameters[f.key] = f.value; }
+                            if (f.query) {
+                                queryParameters[f.key] = f.query_value ? f.query_value : f.value;
+                            }
                         }
                     }
                     queryParameters.offset = data.start;
