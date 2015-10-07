@@ -8,6 +8,7 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
     <link rel="stylesheet" type="text/css" href="{% static 'datatables-bootstrap3/BS3/assets/css/datatables.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'course_info/css/index.css' %}">
 {% endblock css %}
 
 {% block js %}
@@ -18,7 +19,6 @@
     </script>
     <script src="{% static 'course_info/js/app.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
-    <script src="{% static 'course_info/js/services.js' %}"></script>
 {% endblock js %}
 
 {% block body %}
@@ -97,7 +97,7 @@
   {# endverbatim for angular-bound filters #}
 
   <div class="input-group" style="width: 56%">
-    <input type="text" class="form-control" ng-model="queryString"
+    <input type="text" class="form-control" ng-model="queryString" ng-keypress="searchCourseInstances($event)"
            placeholder="Search by course code, SIS or Canvas course ID, course title">
   </div>
 
@@ -109,7 +109,7 @@
       <div class="col-mid-12">
         <button type="button" class="btn btn-primary btn-block center-block"
                 ng-disabled="!searchEnabled"
-                ng-click="searchCourseInstances()"
+                ng-click="searchCourseInstances($event)"
                 style="min-width: 15%; width: 15%;"><i class="fa fa-search"></i>
           Search
         </button>
@@ -134,7 +134,7 @@
   </p>
 
   <p class="panel">
-    <div ng-cloak ng-show="courseInfo !== null && !searchInProgress">
+    <div ng-cloak ng-show="showDataTable">
       <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
         <thead>
           <th class="sorting" tabindex="0">Department&nbsp;&nbsp;</th>
