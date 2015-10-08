@@ -63,7 +63,6 @@
         $scope.updateFilter = function(filterKey, selectedValue) {
             $scope.filters[filterKey] = $scope.filterOptions[filterKey].filter(
                 function(option){ return option.value == selectedValue})[0];
-            $scope.checkIfFiltersApplied();
         };
 
         $scope.checkIfFiltersApplied = function() {
@@ -72,8 +71,9 @@
                     $scope.filtersApplied = true;
                     break;
                 }
-            $scope.filtersApplied = false;
+                $scope.filtersApplied = false;
             }
+            $scope.checkIfSearchable();
         };
 
         $scope.checkIfSearchable = function() {
@@ -83,8 +83,9 @@
             }
         };
 
-        $scope.$watch('filtersApplied', $scope.checkIfSearchable);
         $scope.$watch('queryString', $scope.checkIfSearchable);
+        // deep object compare
+        $scope.$watch('filters', $scope.checkIfFiltersApplied, true);
 
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
