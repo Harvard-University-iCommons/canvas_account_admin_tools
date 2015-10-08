@@ -125,6 +125,7 @@
             return cinfo;
         };
 
+        var request = null;
         $scope.initializeDatatable = function() {
             $scope.dataTable = $('#courseInfoDT').DataTable({
                 serverSide: true,
@@ -149,7 +150,13 @@
                     queryParameters.limit = data.length;
                     var order = data.order[0];
                     queryParameters.ordering = (order.dir == 'desc' ? '-' : '') + $scope.columnFieldMap[order.column];
-                    $.ajax({
+                    //if search request is already in progress, abort the previous one.
+                    if (request) {
+                        request.abort();
+                        //restart the progress bar
+                        $scope.searchInProgress = true;
+                    }
+                    request = $.ajax({
                         url: '/icommons_rest_api/api/course/v2/course_instances',
                         method: 'GET',
                         data: queryParameters,
@@ -175,6 +182,8 @@
                             $scope.$apply(function(){
                                 $scope.searchInProgress = false;
                             });
+                            //reset request when complete
+                            request = null;
                         }
                     });
                 },
