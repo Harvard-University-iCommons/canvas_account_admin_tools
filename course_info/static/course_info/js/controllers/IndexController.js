@@ -32,27 +32,7 @@
             ],
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
             // todo: this wants to be handled like .schools
-            terms: [
-                {key:'term_code', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'},
-                {key:'term_code', value: '0', name:'Summer', query: true, text: 'Summer <span class="caret"></span>'},
-                {key:'term_code', value: '1', name:'Fall', query: true, text: 'Fall <span class="caret"></span>'},
-                {key:'term_code', value: '2', name:'Spring', query: true, text: 'Spring <span class="caret"></span>'},
-                {key:'term_code', value: '4', name:'Full Year', query: true, text: 'Full Year <span class="caret"></span>'},
-                {key:'term_code', value: '5', name:'Winter', query: true, text: 'Winter <span class="caret"></span>'},
-                {key:'term_code', value: '11', name:'July and August', query: true, text: 'July and August <span class="caret"></span>'},
-                {key:'term_code', value: '10', name:'June and July', query: true, text: 'June and July <span class="caret"></span>'},
-                {key:'term_code', value: '9', name:'Spring 2', query: true, text: 'Spring 2<span class="caret"></span>'},
-                {key:'term_code', value: '8', name:'Spring 1', query: true, text: 'Spring 1<span class="caret"></span>'},
-                {key:'term_code', value: '7', name:'Fall 2', query: true, text: 'Fall 2 <span class="caret"></span>'},
-                {key:'term_code', value: '6', name:'Fall 1', query: true, text: 'Fall 1 <span class="caret"></span>'},
-                {key:'term_code', value: '17', name:'July', query: true, text: 'July <span class="caret"></span>'},
-                {key:'term_code', value: '18', name:'August', query: true, text: 'August <span class="caret"></span>'},
-                {key:'term_code', value: '16', name:'June', query: true, text: 'June <span class="caret"></span>'},
-                {key:'term_code', value: '12', name:'Fall-Winter', query: true, text: 'Fall-Winter <span class="caret"></span>'},
-                {key:'term_code', value: '13', name:'Winter-Spring', query: true, text: 'Winter-Spring <span class="caret"></span>'},
-                {key:'term_code', value: '15', name:'Spring Saturday', query: true, text: 'Spring Saturday <span class="caret"></span>'},
-                {key:'term_code', value: '14', name:'Fall Saturday', query: true, text: 'Fall Saturday <span class="caret"></span>'}
-            ],
+            terms: JSON.parse(document.getElementById('termOptions').innerHTML),
             years: [
                 {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'}
                 // specific years are filled out dynamically below
@@ -61,8 +41,8 @@
 
         var year = (new Date()).getFullYear();
         var endYear = year + 1;
-        var startYear = year - 4;
-        for (var i = endYear ; i > startYear; i--) {
+        var startYear = 2002;
+        for (var i = endYear ; i >= startYear; i--) {
             $scope.filterOptions.years.push({
                 key: 'academic_year',
                 value: i + '',
