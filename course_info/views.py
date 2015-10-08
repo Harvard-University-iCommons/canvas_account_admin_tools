@@ -10,7 +10,6 @@ from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 
 from course_info.canvas import get_administered_school_accounts
-from icommons_common.models import TermCode
 
 
 logger = logging.getLogger(__name__)
