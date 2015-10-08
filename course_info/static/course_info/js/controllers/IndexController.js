@@ -158,7 +158,7 @@
                         $scope.searchInProgress = true;
                     }
                     request = $.ajax({
-                        url: '/icommons_rest_api/api/course/v2/course_instances',
+                        url: window.globals.COURSE_API_URL,
                         method: 'GET',
                         data: queryParameters,
                         dataType: 'json',

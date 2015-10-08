@@ -16,6 +16,7 @@
     <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+        window.globals.COURSE_API_URL = '{% url "courseinstance-list" %}';
     </script>
     <script src="{% static 'course_info/js/app.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
