@@ -227,6 +227,12 @@
 
         angular.element(document).ready($scope.initializeDatatable);
 
+        $(document).on('hidden.bs.dropdown', function(event) {
+            var dropdown = $(event.target);
+            dropdown.find('.dropdown-menu').attr('aria-expanded', false);
+            dropdown.find('.dropdown-toggle').focus();
+        });
+
         $scope.searchCourseInstances = function(event) {
             if (event.type == 'click' || (event.type == 'keypress' && event.which == 13)) {
                 // Call within timeout to prevent https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
