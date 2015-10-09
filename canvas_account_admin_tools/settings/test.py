@@ -1,25 +1,34 @@
 from .local import *
 
-# Make tests faster
+DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'canvas_account_admin_tools': 'default',
+    'contenttypes': 'default',
+    'course_info': 'default',
+    'django_auth_lti': 'default',
+    'icommons_common': 'default',
+    'icommons_ui': 'default',
+    'messages': 'default',
+    'proxy': 'default',
+    'sessions': 'default',
+    'staticfiles': 'default',
+}
 
-DATABASE_ROUTERS = []
+DATABASE_MIGRATION_WHITELIST = ['default']
 
+# Make tests faster by using sqlite3
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_account_admin_tools'),
-        'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
-        'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
-        'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
-        'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
     }
 }
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     },
     'shared': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     }
 }
