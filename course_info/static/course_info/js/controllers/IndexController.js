@@ -31,13 +31,31 @@
                 {key:'sync_to_canvas', value: 'sync_to_canvas_true', query_value: 'True', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
             schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
-            // todo: this wants to be handled like .schools
-            terms: JSON.parse(document.getElementById('termOptions').innerHTML),
+            terms: [
+                {key:'term_code', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'}
+                // specific terms are filled out dynamically below
+            ],
             years: [
                 {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'}
                 // specific years are filled out dynamically below
             ]
         };
+
+        $http.get('/icommons_rest_api/api/course/v2/term_codes')
+            .then(function successCallback(response) {
+                $scope.filterOptions.terms =
+                    $scope.filterOptions.terms.concat(response.data.map(function (tc) {
+                        return {
+                            key: 'term_code',
+                            value: tc.term_code,
+                            name: tc.term_name,
+                            query: true,
+                            text: tc.term_name + ' <span class="caret"></span>',
+                        };
+                    }));
+            }, function errorCallback(response) {
+                console.log(response.statusText);
+            });
 
         var year = (new Date()).getFullYear();
         var endYear = year + 1;
