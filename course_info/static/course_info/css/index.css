@@ -1,3 +1,16 @@
 table.dataTable thead .sorting.sorting_disabled {
     background-image: none;
 }
+
+div.btn-toolbar div.input-group {
+    width: 56%;
+}
+
+div.row div.col-mid-12 button.center-block {
+    width: 15%;
+    min-width: 15%;
+}
+
+div.progress div.progress-bar {
+    width: 100%;
+}
