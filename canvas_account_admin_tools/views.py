@@ -76,32 +76,40 @@ def dashboard_account(request):
         custom_canvas_account_id
     )
 
+    # todo: confirm what conditions need to be met for course_info to be available
+    course_info = True
     manage_account = [
         conclude_courses,
         lti_tools_usage,
-        courses_in_this_account
+        courses_in_this_account,
+        course_info
     ]
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'has_manage_courses': [x for x in manage_courses if x is not None],
-        'has_manage_account': [x for x in manage_account if x is not None],
+        'has_manage_courses': any(manage_courses),
+        'has_manage_account': any(manage_account),
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
-        'courses_in_this_account': courses_in_this_account
+        'courses_in_this_account': courses_in_this_account,
+        'course_info': course_info
     })
 
 
 @login_required
 def icommons_rest_api_proxy(request, path):
+    request_args = {
+        'headers': {
+            'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
+        }
+    }
+
     # Remove resource_link_id query param
     # request.GET is immutable, so we need to copy before modifying
     request.GET = request.GET.copy()
     request.GET.pop('resource_link_id', None)
 
     url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
-    return proxy_view(request, url, {
-        'headers': {
-            'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
-        }
-    })
+    if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
+        request_args['verify'] = False
+    return proxy_view(request, url, request_args)

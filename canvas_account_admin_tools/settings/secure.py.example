@@ -13,6 +13,9 @@ SECURE_SETTINGS = {
     'icommons_api_pass': '{{ secure_settings.icommons_api_pass }}',
     'icommons_api_host': '{{ secure_settings.icommons_api_host }}',
 
+    'icommons_rest_api_host': '{{ secure_settings.icommons_rest_api_host }},
+    'icommons_rest_api_token': '{{ secure_settings.icommons_rest_api_token }}'',
+
     'django_secret_key': '{{ secure_settings.django_secret_key }}',
 
     'db_default_name': '{{ secure_settings.db_default_name }}',
@@ -29,8 +32,4 @@ SECURE_SETTINGS = {
     'redis_host': '{{ secure_settings.redis_host }}',
     'redis_port': {{ secure_settings.redis_port }},
 
-    'listserv_domain': '{{ secure_settings.listserv_domain }}',
-    'listserv_api_url': '{{ secure_settings.listserv_api_url }}',
-    'listserv_api_user': '{{ secure_settings.listserv_api_user }}',
-    'listserv_api_key': '{{ secure_settings.listserv_api_key }}',
 }

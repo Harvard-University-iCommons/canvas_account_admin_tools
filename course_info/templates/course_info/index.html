@@ -1,0 +1,161 @@
+{% extends 'course_info/base.html' %}
+
+{% load static %}
+{% load collections %}
+{% load django_helpers %}
+
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-bootstrap3/BS3/assets/css/datatables.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'course_info/css/index.css' %}">
+{% endblock css %}
+
+{% block js %}
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
+    <script>
+        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+    </script>
+    <script src="{% static 'course_info/js/app.js' %}"></script>
+    <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
+{% endblock js %}
+
+{% block body %}
+<body class="lti-tool" role="application" ng-app="app" ng-controller="IndexController">
+<header>
+  <h1>Find Course</h1>
+</header>
+<main class="float-left col-60">
+<div class="btn-toolbar" role="toolbar" aria-label="...">
+
+  {# verbatim is for angular-bound filters #}
+  {% verbatim %}
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.schools.text"
+              id="dropdownMenuSchools" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSchools">
+        <li ng-repeat="opt in filterOptions.schools">
+          <a href="#" ng-click="updateFilter('schools', opt.value)">{{ opt.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.years.text"
+              id="dropdownMenuYear" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuYear">
+        <li ng-repeat="opt in filterOptions.years">
+          <a href="#" ng-click="updateFilter('years', opt.value)">{{ opt.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.terms.text"
+              id="dropdownMenuTerm" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuTerm">
+        <li ng-repeat="opt in filterOptions.terms">
+          <a href="#" ng-click="updateFilter('terms', opt.value)">{{ opt.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="btn-group" role="group" aria-label="...">
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button"
+              ng-bind-html="filters.sites.text"
+              id="dropdownMenuSites" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSites">
+        <li ng-repeat="opt in filterOptions.sites">
+          <a href="#" ng-click="updateFilter('sites', opt.value)">{{ opt.name }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  {% endverbatim %}
+  {# endverbatim for angular-bound filters #}
+
+  <div class="input-group">
+    <input type="text" class="form-control" ng-model="queryString" ng-keypress="searchCourseInstances($event)"
+           placeholder="Search by course code, SIS or Canvas course ID, course title">
+  </div>
+
+
+</div>
+
+  <p>
+    <div class="row">
+      <div class="col-mid-12">
+        <button type="button" class="btn btn-primary btn-block center-block"
+                ng-disabled="!searchEnabled"
+                ng-click="searchCourseInstances($event)">
+          <i class="fa fa-search"></i>
+          Search
+        </button>
+      </div>
+      <div class="col-mid-5"></div>
+    </div>
+  </p>
+
+  <p>
+    <div class="row" ng-cloak ng-show="searchInProgress">
+      <div class="col-md-8 col-md-offset-2">
+        <div class="progress">
+          <div
+              class="progress-bar progress-bar-success progress-bar-striped active"
+              role="progressbar" aria-valuenow="100" aria-valuemin="0"
+              aria-valuemax="100">
+            <span class="sr-only">Search in progress</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p>
+
+  <p class="panel">
+    <div ng-cloak ng-show="showDataTable">
+      <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
+        <thead>
+          <th class="sorting" tabindex="0">School&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Details&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Academic year&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Academic Term&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Associated Site&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Course Instance ID&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">Cross Listing&nbsp;&nbsp;</th>
+        </thead>
+      </table>
+    </div>
+  </p>
+
+</main>
+<script type="application/json" id="schoolOptions">
+{{ schools | safe }}
+</script>
+<script type="application/json" id="termOptions">
+{{ terms | safe }}
+</script>
+</body>
+{% endblock body %}
