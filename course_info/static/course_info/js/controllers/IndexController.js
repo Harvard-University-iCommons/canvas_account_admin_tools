@@ -165,10 +165,7 @@
                         success: function(data, textStatus, jqXHR) {
                             var results = data.results;
                             var resultsLength = data.results.length;
-                            var processedData = [];
-                            for (var i = 0; i < resultsLength; i++) {
-                                processedData.push($scope.courseInstanceToTable(results[i]));
-                            }
+                            var processedData = results.map($scope.courseInstanceToTable);
                             callback({
                                 recordsTotal: data.count,
                                 recordsFiltered: data.count,
@@ -210,7 +207,8 @@
                         orderable: false,
                         render: function(data, type, row, meta) {
                             var sites = row.sites.map(function(site) {
-                                return '<a href="' + site.course_site_url + '">'
+                                return '<a href="' + site.course_site_url
+                                           + '" target="_parent">'
                                            + site.site_id + '</a>';
                             });
                             return sites.join(', ');

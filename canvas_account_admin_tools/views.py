@@ -86,8 +86,8 @@ def dashboard_account(request):
     ]
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'has_manage_courses': [x for x in manage_courses if x is not None],
-        'has_manage_account': [x for x in manage_account if x is not None],
+        'has_manage_courses': any(manage_courses),
+        'has_manage_account': any(manage_account),
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
