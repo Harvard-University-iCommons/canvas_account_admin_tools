@@ -41,7 +41,7 @@
             ]
         };
 
-        $http.get('/icommons_rest_api/api/course/v2/term_codes')
+        $http.get(window.globals.TERM_CODE_API_URL)
             .then(function successCallback(response) {
                 $scope.filterOptions.terms =
                     $scope.filterOptions.terms.concat(response.data.map(function (tc) {
@@ -176,7 +176,7 @@
                         $scope.searchInProgress = true;
                     }
                     request = $.ajax({
-                        url: '/icommons_rest_api/api/course/v2/course_instances',
+                        url: window.globals.COURSE_INSTANCE_API_URL,
                         method: 'GET',
                         data: queryParameters,
                         dataType: 'json',

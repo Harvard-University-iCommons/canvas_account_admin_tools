@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'icommons_common',
     'icommons_ui',
     'proxy',
+    'course_api',
     'canvas_account_admin_tools',
     'course_info',
 )
@@ -253,6 +254,27 @@ CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
 )
 
-ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://localhost:8000')
-ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
-ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
+REST_FRAMEWORK = {
+    'FILTER_BACKEND': 'rest_framework.filters.DjangoFilterBackend',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,  # Number of results returned defaults to this, if the limit request param in not passed
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '100/minute'
+    },
+}

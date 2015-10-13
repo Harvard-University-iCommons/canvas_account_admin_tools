@@ -94,22 +94,3 @@ def dashboard_account(request):
         'courses_in_this_account': courses_in_this_account,
         'course_info': course_info
     })
-
-
-@login_required
-def icommons_rest_api_proxy(request, path):
-    request_args = {
-        'headers': {
-            'Authorization': "Token {}".format(settings.ICOMMONS_REST_API_TOKEN)
-        }
-    }
-
-    # Remove resource_link_id query param
-    # request.GET is immutable, so we need to copy before modifying
-    request.GET = request.GET.copy()
-    request.GET.pop('resource_link_id', None)
-
-    url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
-    if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
-        request_args['verify'] = False
-    return proxy_view(request, url, request_args)
