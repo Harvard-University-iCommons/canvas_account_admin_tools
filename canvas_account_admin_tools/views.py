@@ -14,7 +14,8 @@ from ims_lti_py.tool_config import ToolConfig
 from canvas_account_admin_tools.models import ExternalTool
 
 from proxy.views import proxy_view
-
+from django_auth_lti import const
+from django_auth_lti.decorators import lti_role_required
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,8 @@ def lti_launch(request):
 
 
 @login_required
+@lti_role_required(const.ADMINISTRATOR)
+@require_http_methods(['GET'])
 def dashboard_account(request):
     custom_canvas_account_id = request.LTI['custom_canvas_account_id']
 
