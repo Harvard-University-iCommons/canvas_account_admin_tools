@@ -12,6 +12,7 @@
             3: 'term__display_name',
             5: 'course__registrar_code_display'
         };
+        $scope.columnOrderable = {};
         $scope.filterOptions = {
             // `key` and `value` are the GET params sent to the server when
             // the option is chosen. `value` must be unique in its option list,
@@ -82,6 +83,20 @@
                 function(option){ return option.value == selectedValue})[0];
         };
 
+        $scope.enableColumnSorting = function(toggle) {
+            var cols = $('#courseInfoDT').dataTable().fnSettings().aoColumns;
+            $.each(cols, function(index, column){
+                if (toggle) {
+                    // restore state
+                    column.bSortable = $scope.columnOrderable[column.idx];
+                } else {
+                    // save state before disabling
+                    $scope.columnOrderable[column.idx] = column.bSortable;
+                    column.bSortable = toggle;
+                }
+            });
+        };
+
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
             cinfo['description'] = course.title;
@@ -130,6 +145,7 @@
                     $scope.$apply(function(){
                         $scope.searchInProgress = true;
                     });
+                    $scope.enableColumnSorting(false);
                     var queryParameters = {};
                     if ($scope.queryString.trim() != '') {
                         queryParameters.search = $scope.queryString.trim();
@@ -173,6 +189,7 @@
                             $scope.$apply(function(){
                                 $scope.searchInProgress = false;
                             });
+                            $scope.enableColumnSorting(true);
                             //reset request when complete
                             request = null;
                         }
