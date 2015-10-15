@@ -39,6 +39,4 @@ def _get_schools_context(canvas_user_id):
                     'text': a['name'] + ' <span class="caret"></span>',
                 } for a in accounts]
     schools.sort(key=itemgetter('name'))
-    schools.insert(0, {'key': 'school', 'name': 'All Schools', 'query': False,
-                       'text': 'All Schools <span class="caret"></span>'})
     return json.dumps(schools)

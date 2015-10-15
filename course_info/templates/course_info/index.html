@@ -19,6 +19,9 @@
     </script>
     <script src="{% static 'course_info/js/app.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/IndexController.js' %}"></script>
+    <script>
+      window.schoolOptions = {{ schools | safe }};
+    </script>
 {% endblock js %}
 
 {% block body %}
@@ -151,8 +154,5 @@
   </p>
 
 </main>
-<script type="application/json" id="schoolOptions">
-{{ schools | safe }}
-</script>
 </body>
 {% endblock body %}

@@ -2,7 +2,9 @@
     /**
      * Angular controller for the home page of course_info.
      */
-    angular.module('app').controller('IndexController', ['$scope', '$http', '$timeout', function($scope, $http, $timeout){
+    var module = angular.module('app');
+    
+    module.controller('IndexController', ['$scope', '$http', '$timeout', '$document', '$window', function($scope, $http, $timeout, $document, $window){
         $scope.searchInProgress = false;
         $scope.queryString = '';
         $scope.showDataTable = false;
@@ -30,7 +32,11 @@
                 {key:'has_sites', value: 'False', name:'Only courses without sites', query: true, text: 'Only courses without sites <span class="caret"></span>'},
                 {key:'sync_to_canvas', value: 'sync_to_canvas_true', query_value: 'True', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
-            schools: JSON.parse(document.getElementById('schoolOptions').innerHTML),
+            schools: [
+                {key: 'school', name: 'All Schools', query: false,
+                 text: 'All Schools <span class="caret"></span>'},
+                // specific schools are filled out dynamically below
+            ],
             terms: [
                 {key:'term_code', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'}
                 // specific terms are filled out dynamically below
@@ -69,6 +75,10 @@
                 text: i + ' <span class="caret"></span>'
             });
         }
+
+        Array.prototype.push.apply(
+            $scope.filterOptions.schools,
+            $window.schoolOptions);
 
         $scope.filters = {
             // default to first in list on load
@@ -146,7 +156,7 @@
 
         var request = null;
         $scope.initializeDatatable = function() {
-            $scope.dataTable = $('#courseInfoDT').DataTable({
+            $scope.dataTable = angular.element('#courseInfoDT').DataTable({
                 serverSide: true,
                 deferLoading: true,
                 ajax: function(data, callback, settings) {
@@ -251,10 +261,10 @@
             });
         };
 
-        angular.element(document).ready($scope.initializeDatatable);
+        $document.ready($scope.initializeDatatable);
 
-        $(document).on('hidden.bs.dropdown', function(event) {
-            var dropdown = $(event.target);
+        $document.on('hidden.bs.dropdown', function(event) {
+            var dropdown = angular.element(event.target);
             dropdown.find('.dropdown-menu').attr('aria-expanded', false);
             dropdown.find('.dropdown-toggle').focus();
         });
