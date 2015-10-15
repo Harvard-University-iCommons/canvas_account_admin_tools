@@ -6,7 +6,6 @@
         $scope.searchInProgress = false;
         $scope.queryString = '';
         $scope.showDataTable = false;
-        $scope.searchEnabled = false;
         $scope.filtersApplied = false;
         $scope.columnFieldMap = {
             1: 'title',
@@ -44,7 +43,7 @@
         $http.get('/icommons_rest_api/api/course/v2/term_codes')
             .then(function successCallback(response) {
                 $scope.filterOptions.terms =
-                    $scope.filterOptions.terms.concat(response.data.map(function (tc) {
+                    $scope.filterOptions.terms.concat(response.data.results.map(function (tc) {
                         return {
                             key: 'term_code',
                             value: tc.term_code,
@@ -75,7 +74,8 @@
             schools: $scope.filterOptions.schools[0],
             sites: $scope.filterOptions.sites[0],
             terms: $scope.filterOptions.terms[0],
-            years: $scope.filterOptions.years[0]
+            // default to current year
+            years: $scope.filterOptions.years[2]
         };
 
         $scope.updateFilter = function(filterKey, selectedValue) {
@@ -91,17 +91,8 @@
                 }
                 $scope.filtersApplied = false;
             }
-            $scope.checkIfSearchable();
         };
 
-        $scope.checkIfSearchable = function() {
-            $scope.searchEnabled = $scope.filtersApplied || $scope.queryString.trim() != '';
-            if (!$scope.searchEnabled) {
-                $scope.showDataTable = false;
-            }
-        };
-
-        $scope.$watch('queryString', $scope.checkIfSearchable);
         // deep object compare
         $scope.$watch('filters', $scope.checkIfFiltersApplied, true);
 
@@ -215,7 +206,7 @@
                         next: ''
                     }
                 },
-                order: [[6, 'asc']],  // order by course instance ID
+                order: [[1, 'asc']],  // order by course description
                 columns: [
                     {data: 'school'},
                     {data: 'description'},
@@ -224,12 +215,16 @@
                     {
                         orderable: false,
                         render: function(data, type, row, meta) {
-                            var sites = row.sites.map(function(site) {
-                                return '<a href="' + site.course_site_url
-                                           + '" target="_parent">'
-                                           + site.site_id + '</a>';
-                            });
-                            return sites.join(', ');
+                            if (row.sites.length > 0) {
+                                var sites = row.sites.map(function(site) {
+                                    return '<a href="' + site.course_site_url
+                                               + '" target="_parent">'
+                                               + site.site_id + '</a>';
+                                });
+                                return sites.join(', ');
+                            } else {
+                                return 'N/A';
+                            }
                         }
                     },
                     {data: 'code'},
@@ -243,7 +238,7 @@
                                     + data.xlist_status_label + '">'
                                     + data.xlist_status + '</span>';
                             } else {
-                                return data.xlist_status;
+                                return 'N/A';
                             }
                         }
                     }
@@ -263,7 +258,6 @@
             if (event.type == 'click' || (event.type == 'keypress' && event.which == 13)) {
                 // Call within timeout to prevent https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
                 $timeout(function () {
-                    $scope.searchEnabled = false;
                     $scope.dataTable.ajax.reload();
                 }, 0);
             }
