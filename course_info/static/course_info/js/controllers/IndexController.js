@@ -6,7 +6,6 @@
         $scope.searchInProgress = false;
         $scope.queryString = '';
         $scope.showDataTable = false;
-        $scope.filtersApplied = false;
         $scope.columnFieldMap = {
             1: 'title',
             2: 'term__academic_year',
@@ -83,19 +82,6 @@
                 function(option){ return option.value == selectedValue})[0];
         };
 
-        $scope.checkIfFiltersApplied = function() {
-            for (var key in $scope.filters) {
-                if ($scope.filters[key].query) {
-                    $scope.filtersApplied = true;
-                    break;
-                }
-                $scope.filtersApplied = false;
-            }
-        };
-
-        // deep object compare
-        $scope.$watch('filters', $scope.checkIfFiltersApplied, true);
-
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
             cinfo['description'] = course.title;
@@ -148,12 +134,10 @@
                     if ($scope.queryString.trim() != '') {
                         queryParameters.search = $scope.queryString.trim();
                     }
-                    if ($scope.filtersApplied) {
-                        for (var key in $scope.filters) {
-                            var f = $scope.filters[key];
-                            if (f.query) {
-                                queryParameters[f.key] = f.query_value ? f.query_value : f.value;
-                            }
+                    for (var key in $scope.filters) {
+                        var f = $scope.filters[key];
+                        if (f.query) {
+                            queryParameters[f.key] = f.query_value ? f.query_value : f.value;
                         }
                     }
                     queryParameters.offset = data.start;
