@@ -6,5 +6,3 @@ class PinBasePageObject(BasePageObject):
     Locators and Services would be common to all pages on Pin
     """
     pass
-
-

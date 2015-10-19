@@ -62,5 +62,3 @@ class PinLoginPageObject(PinBasePageObject):
         self.set_password(password)
         self.click_submit()
         print 'Logging in user: %s' % username
-
-

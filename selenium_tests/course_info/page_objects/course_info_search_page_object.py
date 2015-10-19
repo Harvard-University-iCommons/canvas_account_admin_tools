@@ -42,7 +42,6 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
 
     def select_year(self, year):
         """ select a year from the year dropdown """
-        # Select(self.find_element(*CourseSearchPageLocators.SELECT_YEAR_DROPDOWN)).select_by_value(year)
         self.find_element(*CourseSearchPageLocators.SELECT_YEAR_DROPDOWN).click()
         self.find_element(By.LINK_TEXT, year).click()
 

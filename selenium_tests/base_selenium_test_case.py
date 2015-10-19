@@ -1,5 +1,4 @@
 import unittest
-import xlrd
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from pyvirtualdisplay import Display
@@ -28,7 +27,6 @@ class BaseSeleniumTestCase(unittest.TestCase):
             # set up virtual display
             cls.display = Display(visible=0, size=(1480, 1024)).start()
             # create a new local browser session
-            # todo: browser should be configurable (i.e. not always FF)
             cls.driver = webdriver.Firefox()
         else:
             # Run selenium tests from the Selenium Grid server
@@ -48,18 +46,3 @@ class BaseSeleniumTestCase(unittest.TestCase):
         cls.driver.quit()
         if cls.display:
             cls.display.stop()
-
-
-def get_xl_data(file_name, sheet_index=0, header_row=True):
-    # create an empty list to store rows Using Excel
-    rows = []
-    # open the specified Excel spreadsheet as workbook
-    book = xlrd.open_workbook(file_name)
-    # get the first sheet
-    sheet = book.sheet_by_index(sheet_index)
-    # iterate through the sheet and get data from rows in list
-    start_row_index = 1 if header_row else 0
-    for row_idx in range(start_row_index, sheet.nrows):
-        rows.append(list(sheet.row_values(row_idx, 0, sheet.ncols)))
-    return rows
-
