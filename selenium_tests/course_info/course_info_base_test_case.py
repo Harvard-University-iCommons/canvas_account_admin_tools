@@ -1,19 +1,14 @@
 from selenium_tests.base_selenium_test_case import BaseSeleniumTestCase
-from selenium_tests.course_info.page_objects.pin_login_page_object import PinLoginPageObject
+from selenium_tests.pin.page_objects.pin_login_page_object import PinLoginPageObject
 from selenium_tests.course_info.page_objects.course_info_parent_page_object import CourseInfoParentPage
-# from django.conf import settings
-
 from urlparse import urljoin
-# from os.path import abspath, dirname, join
-
-
 from django.conf import settings
+
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
     """
     Bulk Create base test case, all other tests will subclass this class
     """
-
     @classmethod
     def setUpClass(cls):
         """
@@ -37,10 +32,6 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
 
-
     @classmethod
     def tearDownClass(cls):
         super(CourseInfoBaseTestCase, cls).tearDownClass()
-
-
-

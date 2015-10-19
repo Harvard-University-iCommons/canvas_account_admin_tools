@@ -4,7 +4,6 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object import
 from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
 
 
-
 class CourseInfoParentPageLocators(object):
     PAGE_TITLE = (By.CSS_SELECTOR, "h1")
     COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Course Information")
@@ -13,16 +12,17 @@ class CourseInfoParentPageLocators(object):
 class CourseInfoParentPage(CourseInfoBasePageObject):
 
     def is_loaded(self):
-        # Note: this just checks that the breadcrumb title is displayed;
+        """
+        Verifies that the page is loaded correctly by validating the title
+        :returns True if title matches else a RuntimeError is raised
+        """
+        # Note: this just checks that the  title is displayed;
         # it doesn't guaranteed that everything we expect is rendered on the
         # page, because angular fetches the data asynchronously
 
-        # frame context stickiness is a bit flaky for some reason, so make sure
-        # we're in the tool_content frame context before checking for elements
-        # self.focus_on_tool_frame()
         title = None
         try:
-            title = self.find_element(*CourseInfoParentPageLocators.PAGE_TITLE)
+            title = self.get_page_title()
         except NoSuchElementException:
             return False
 
@@ -43,10 +43,10 @@ class CourseInfoParentPage(CourseInfoBasePageObject):
         return element
 
     def select_course_info_link(self):
-        """ select the course info link element and click it
+        """
+        select the course info link element and click it
         :returns CourseSearchPageObject
         """
         self.focus_on_tool_frame()
         self.find_element(*CourseInfoParentPageLocators.COURSE_INFO_LINK).click()
         return CourseSearchPageObject(self._driver)
-

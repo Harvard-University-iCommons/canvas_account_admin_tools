@@ -8,11 +8,14 @@ from selenium_tests.course_info.page_objects.course_info_search_page_object impo
 class CourseInfoIsSearchPageLoadedTest(CourseInfoBaseTestCase):
 
     def test_is_loaded(self):
-        """Check that page is loaded by checking against search pgae title"""
+        """
+        Verify  that the course info search page is loaded by checking against page title
+        """
         driver = self.driver
-        parent_page = CourseInfoParentPage(driver)  # instantiate the tool
+        parent_page = CourseInfoParentPage(driver)
         search_page = CourseSearchPageObject(driver)
 
+        # navigate to course info search page
         search_page = parent_page.select_course_info_link()
         element = search_page.get_page_title()
         page_title_text = "Find Course"

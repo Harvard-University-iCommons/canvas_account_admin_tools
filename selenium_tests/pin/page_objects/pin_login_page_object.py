@@ -3,7 +3,7 @@ import abc
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
-from selenium_tests.course_info.page_objects.pin_base_page_object import PinBasePageObject
+from selenium_tests.pin.page_objects.pin_base_page_object import PinBasePageObject
 
 
 class PinPageLocators(object):
@@ -61,6 +61,6 @@ class PinLoginPageObject(PinBasePageObject):
         self.set_username(username)
         self.set_password(password)
         self.click_submit()
-        print 'Pin Login page returning Index page for user: %s' % username
+        print 'Logging in user: %s' % username
 
 
