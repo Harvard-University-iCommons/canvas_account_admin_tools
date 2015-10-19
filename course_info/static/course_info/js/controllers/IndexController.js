@@ -8,14 +8,13 @@
         $scope.searchInProgress = false;
         $scope.queryString = '';
         $scope.showDataTable = false;
-        $scope.searchEnabled = false;
-        $scope.filtersApplied = false;
         $scope.columnFieldMap = {
             1: 'title',
             2: 'term__academic_year',
             3: 'term__display_name',
             5: 'course__registrar_code_display'
         };
+        $scope.columnOrderable = {};
         $scope.filterOptions = {
             // `key` and `value` are the GET params sent to the server when
             // the option is chosen. `value` must be unique in its option list,
@@ -48,7 +47,7 @@
         $http.get('/icommons_rest_api/api/course/v2/term_codes')
             .then(function successCallback(response) {
                 $scope.filterOptions.terms =
-                    $scope.filterOptions.terms.concat(response.data.map(function (tc) {
+                    $scope.filterOptions.terms.concat(response.data.results.map(function (tc) {
                         return {
                             key: 'term_code',
                             value: tc.term_code,
@@ -83,30 +82,23 @@
             schools: $scope.filterOptions.schools[0],
             sites: $scope.filterOptions.sites[0],
             terms: $scope.filterOptions.terms[0],
-            years: $scope.filterOptions.years[0]
+            // default to current year
+            years: $scope.filterOptions.years[2]
         };
 
-        $scope.checkIfFiltersApplied = function() {
-            $scope.filtersApplied = false;
-            for (var key in $scope.filters) {
-                if ($scope.filters[key].query) {
-                    $scope.filtersApplied = true;
-                    break;
+        $scope.enableColumnSorting = function(toggle) {
+            var cols = $('#courseInfoDT').dataTable().fnSettings().aoColumns;
+            $.each(cols, function(index, column){
+                if (toggle) {
+                    // restore state
+                    column.bSortable = $scope.columnOrderable[column.idx];
+                } else {
+                    // save state before disabling
+                    $scope.columnOrderable[column.idx] = column.bSortable;
+                    column.bSortable = toggle;
                 }
-            }
-            $scope.checkIfSearchable();
+            });
         };
-
-        $scope.checkIfSearchable = function() {
-            $scope.searchEnabled = $scope.filtersApplied || ($scope.queryString.trim() != '');
-            if (!$scope.searchEnabled) {
-                $scope.showDataTable = false;
-            }
-        };
-
-        $scope.$watch('queryString', $scope.checkIfSearchable);
-        // deep object compare
-        $scope.$watch('filters', $scope.checkIfFiltersApplied, true);
 
         $scope.courseInstanceToTable = function(course) {
             var cinfo = {};
@@ -156,16 +148,15 @@
                     $scope.$apply(function(){
                         $scope.searchInProgress = true;
                     });
+                    $scope.enableColumnSorting(false);
                     var queryParameters = {};
                     if ($scope.queryString.trim() != '') {
                         queryParameters.search = $scope.queryString.trim();
                     }
-                    if ($scope.filtersApplied) {
-                        for (var key in $scope.filters) {
-                            var f = $scope.filters[key];
-                            if (f.query) {
-                                queryParameters[f.key] = f.query_value ? f.query_value : f.value;
-                            }
+                    for (var key in $scope.filters) {
+                        var f = $scope.filters[key];
+                        if (f.query) {
+                            queryParameters[f.key] = f.query_value ? f.query_value : f.value;
                         }
                     }
                     queryParameters.offset = data.start;
@@ -201,6 +192,7 @@
                             $scope.$apply(function(){
                                 $scope.searchInProgress = false;
                             });
+                            $scope.enableColumnSorting(true);
                             //reset request when complete
                             request = null;
                         }
@@ -218,7 +210,7 @@
                         next: ''
                     }
                 },
-                order: [[6, 'asc']],  // order by course instance ID
+                order: [[1, 'asc']],  // order by course description
                 columns: [
                     {data: 'school'},
                     {data: 'description'},
@@ -227,12 +219,16 @@
                     {
                         orderable: false,
                         render: function(data, type, row, meta) {
-                            var sites = row.sites.map(function(site) {
-                                return '<a href="' + site.course_site_url
-                                           + '" target="_parent">'
-                                           + site.site_id + '</a>';
-                            });
-                            return sites.join(', ');
+                            if (row.sites.length > 0) {
+                                var sites = row.sites.map(function(site) {
+                                    return '<a href="' + site.course_site_url
+                                               + '" target="_parent">'
+                                               + site.site_id + '</a>';
+                                });
+                                return sites.join(', ');
+                            } else {
+                                return 'N/A';
+                            }
                         }
                     },
                     {data: 'code'},
@@ -246,7 +242,7 @@
                                     + data.xlist_status_label + '">'
                                     + data.xlist_status + '</span>';
                             } else {
-                                return data.xlist_status;
+                                return 'N/A';
                             }
                         }
                     }
@@ -266,7 +262,6 @@
             if (event.type == 'click' || (event.type == 'keypress' && event.which == 13)) {
                 // Call within timeout to prevent https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
                 $timeout(function () {
-                    $scope.searchEnabled = false;
                     $scope.dataTable.ajax.reload();
                 }, 0);
             }

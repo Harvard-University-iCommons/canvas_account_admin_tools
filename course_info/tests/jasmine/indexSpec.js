@@ -70,11 +70,7 @@ describe('course_info IndexController', function() {
       
   });
 
-  describe('$scope.checkIfFiltersApplied()', function() {
-
-  });
-
-  describe('$scope.checkIfSearchable()', function() {
+  describe('$scope.enableColumnSorting()', function() {
 
   });
 
