@@ -88,24 +88,19 @@
             years: $scope.filterOptions.years[0]
         };
 
-        $scope.updateFilter = function(filterKey, selectedValue) {
-            $scope.filters[filterKey] = $scope.filterOptions[filterKey].filter(
-                function(option){ return option.value == selectedValue})[0];
-        };
-
         $scope.checkIfFiltersApplied = function() {
+            $scope.filtersApplied = false;
             for (var key in $scope.filters) {
                 if ($scope.filters[key].query) {
                     $scope.filtersApplied = true;
                     break;
                 }
-                $scope.filtersApplied = false;
             }
             $scope.checkIfSearchable();
         };
 
         $scope.checkIfSearchable = function() {
-            $scope.searchEnabled = $scope.filtersApplied || $scope.queryString.trim() != '';
+            $scope.searchEnabled = $scope.filtersApplied || ($scope.queryString.trim() != '');
             if (!$scope.searchEnabled) {
                 $scope.showDataTable = false;
             }

@@ -1,3 +1,5 @@
+// NOTE - this is still a work in progress, doesn't really test anything useful
+
 describe('course_info IndexController', function() {
   beforeEach(module('app'));
 
@@ -51,6 +53,7 @@ describe('course_info IndexController', function() {
     expect($window).not.toBe(null);
     expect($document).not.toBe(null);
     expect($httpBackend).not.toBe(null);
+    expect($rootScope).not.toBe(null);
   });
 
   it("should instantiate the controller", function() {
@@ -65,10 +68,6 @@ describe('course_info IndexController', function() {
 
   describe('$scope setup', function() {
       
-  });
-
-  describe('$scope.updateFilter()', function() {
-
   });
 
   describe('$scope.checkIfFiltersApplied()', function() {
