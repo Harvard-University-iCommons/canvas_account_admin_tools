@@ -157,7 +157,6 @@ INSTALLED_APPS = (
     'crispy_forms',
     'isites_export_tool',
     'huey.djhuey',
-    'rest_framework',
     'course_conclusion',
 )
 

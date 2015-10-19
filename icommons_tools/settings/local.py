@@ -17,7 +17,6 @@ EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
 INSTALLED_APPS += (
     'debug_toolbar',
-    'rest_framework.authtoken',
 )
 
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
