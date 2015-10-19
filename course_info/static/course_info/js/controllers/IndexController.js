@@ -156,7 +156,7 @@
 
         var request = null;
         $scope.initializeDatatable = function() {
-            $scope.dataTable = angular.element('#courseInfoDT').DataTable({
+            $scope.dataTable = $('#courseInfoDT').DataTable({
                 serverSide: true,
                 deferLoading: true,
                 ajax: function(data, callback, settings) {
@@ -264,7 +264,7 @@
         $document.ready($scope.initializeDatatable);
 
         $document.on('hidden.bs.dropdown', function(event) {
-            var dropdown = angular.element(event.target);
+            var dropdown = $(event.target);
             dropdown.find('.dropdown-menu').attr('aria-expanded', false);
             dropdown.find('.dropdown-toggle').focus();
         });

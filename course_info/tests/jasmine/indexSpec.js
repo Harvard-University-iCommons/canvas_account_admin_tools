@@ -1,16 +1,17 @@
 describe('course_info IndexController', function() {
   beforeEach(module('app'));
 
-  var $controller, $window, $document, $httpBackend;
-  var controller;
+  var $controller, $window, $document, $httpBackend, $rootScope;
+  var scope, controller;
 
-  beforeEach(inject(function(_$controller_, _$window_, _$document_, _$httpBackend_){
+  beforeEach(inject(function(_$controller_, _$window_, _$document_, _$httpBackend_, _$rootScope_){
     // The injector unwraps the underscores (_) from around
     // the parameter names when matching
     $controller = _$controller_;
     $window = _$window_;
     $document = _$document_;
     $httpBackend = _$httpBackend_;
+    $rootScope = _$rootScope_;
 
     // this comes from django_auth_lti, just stub it out so that the $httpBackend
     // sanity checks in afterEach() don't fail
@@ -18,12 +19,9 @@ describe('course_info IndexController', function() {
         append_resource_link_id: function(url) { return url; },
     };
 
-    // stub out the DataTable constructor for now
-    angular.element.prototype.DataTable = function() { return {}; };
-
-    // instantiate the controller, give it a dummy $scope
-    $scope = {$watch: function() {}};
-    controller = $controller('IndexController', { $scope: $scope });
+    // instantiate the controller, give it a $scope
+    scope = $rootScope.new();
+    controller = $controller('IndexController', { $scope: scope });
 
     // always expect the controller constructor to call for term codes
     var term_codes = [
