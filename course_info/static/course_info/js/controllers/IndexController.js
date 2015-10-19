@@ -33,8 +33,6 @@
                 {key:'sync_to_canvas', value: 'sync_to_canvas_true', query_value: 'True', name:'Courses being synced to Canvas', query: true, text: 'Courses being synced to Canvas <span class="caret"></span>'}
             ],
             schools: [
-                {key: 'school', name: 'All Schools', query: false,
-                 text: 'All Schools <span class="caret"></span>'},
                 // specific schools are filled out dynamically below
             ],
             terms: [
