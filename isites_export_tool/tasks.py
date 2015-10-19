@@ -47,7 +47,7 @@ def process_job(site_keyword):
         job.save()
 
 
-@db_periodic_task(crontab(hour=settings.EXPORT_TOOL['archive_task_crontab_hours']))
+@db_periodic_task(crontab(**settings.EXPORT_TOOL['archive_task_crontab']))
 def archive_jobs():
     # Set up time difference
     days_ago_threshold = datetime.now() - timedelta(hours=settings.EXPORT_TOOL['archive_cutoff_time_in_hours'])
