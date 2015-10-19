@@ -338,8 +338,8 @@ EXPORT_TOOL = {
     'ssh_private_key': '/home/deploy/.ssh/id_rsa',  # AWS user, so override for non-AWS envs
     'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_s3.pl',
     'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),
-    # Default to running every hour
-    'archive_task_crontab': SECURE_SETTINGS.get('archive_task_crontab', {'hour': '*/1', 'minute': '0'}),
+    # Default to running at the start of every hour
+    'archive_task_crontab': SECURE_SETTINGS.get('archive_task_crontab', {'minute': '0'}),
     'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
     's3_bucket': SECURE_SETTINGS.get('isites_export_s3_bucket', ''),
     's3_download_url_expiration_in_secs': SECURE_SETTINGS.get('isites_export_s3_download_url_expiration_in_secs', 60),
