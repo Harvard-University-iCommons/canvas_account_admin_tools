@@ -59,7 +59,6 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         """
         course_info_link = self.get_course_info_link()
         link_text = 'Course Information'
-        print(course_info_link.text)
 
         if link_text in course_info_link.text:
             return True
