@@ -44,7 +44,7 @@
             ]
         };
 
-        $http.get('/icommons_rest_api/api/course/v2/term_codes')
+        $http.get('/icommons_rest_api/api/course/v2/term_codes/?limit=100')
             .then(function successCallback(response) {
                 $scope.filterOptions.terms =
                     $scope.filterOptions.terms.concat(response.data.results.map(function (tc) {
@@ -56,6 +56,9 @@
                             text: tc.term_name + ' <span class="caret"></span>',
                         };
                     }));
+                if (response.data.next !== null) {
+                    console.log('Warning: Some terms missing from dropdown!');
+                }
             }, function errorCallback(response) {
                 console.log(response.statusText);
             });
