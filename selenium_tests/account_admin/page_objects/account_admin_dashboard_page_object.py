@@ -1,15 +1,16 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
+
+from selenium_tests.account_admin.page_objects.account_admin_base_page_object import AccountAdminBasePage
 from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
 
 
-class CourseInfoParentPageLocators(object):
+class AccountAdminDashboardPageLocators(object):
     PAGE_TITLE = (By.CSS_SELECTOR, "h1")
     COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Course Information")
 
 
-class CourseInfoParentPage(CourseInfoBasePageObject):
+class AccountAdminDashboardPage(AccountAdminBasePage):
 
     def is_loaded(self):
         """
@@ -30,16 +31,16 @@ class CourseInfoParentPage(CourseInfoBasePageObject):
             return True
         else:
             raise RuntimeError(
-                'Could not determine if Course Info  base page loaded as expected;'
+                'Could not determine if dashboard page loaded as expected;'
                 'title element was found but did not contain expected text'
             )
 
     def get_page_title(self):
-        element = self.find_element(*CourseInfoParentPageLocators.PAGE_TITLE)
+        element = self.find_element(*AccountAdminDashboardPageLocators.PAGE_TITLE)
         return element
 
     def get_course_info_link(self):
-        element = self.find_element(*CourseInfoParentPageLocators.COURSE_INFO_LINK)
+        element = self.find_element(*AccountAdminDashboardPageLocators.COURSE_INFO_LINK)
         return element
 
     def select_course_info_link(self):
@@ -48,5 +49,21 @@ class CourseInfoParentPage(CourseInfoBasePageObject):
         :returns CourseSearchPageObject
         """
         self.focus_on_tool_frame()
-        self.find_element(*CourseInfoParentPageLocators.COURSE_INFO_LINK).click()
+        self.find_element(*AccountAdminDashboardPageLocators.COURSE_INFO_LINK).click()
         return CourseSearchPageObject(self._driver)
+
+    def is_course_info_block_present(self):
+        """
+        check if course info block element is present
+        :return:boolean
+        """
+        course_info_link = self.get_course_info_link()
+        link_text = 'Course Information'
+        print(course_info_link.text)
+
+        if link_text in course_info_link.text:
+            return True
+        else:
+            raise RuntimeError(
+                'Could not find the  Course Info link on the page as expected'
+            )

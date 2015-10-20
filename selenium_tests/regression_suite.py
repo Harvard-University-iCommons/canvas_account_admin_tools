@@ -15,11 +15,10 @@ In PyCharm, if xvfb is installed already, you can run them through the Python un
 import unittest
 import time
 
-# from selenium_tests.bulk_create.bc_test_flow import TestFlow
+from os import path, makedirs
 
 import HTMLTestRunner
-from os import path, makedirs
-from selenium_tests.course_info.course_info_is_initialized_test import CourseInfoIsInitializedTest
+from selenium_tests.account_admin.account_admin_is_dashboard_page_loaded_test import AccountAdminIsDasboardLoadedTest
 from selenium_tests.course_info.course_info_is_search_page_loaded_test import CourseInfoIsSearchPageLoadedTest
 from selenium_tests.course_info.course_info_search_test import CourseInfoSearchTest
 
@@ -39,12 +38,12 @@ runner = HTMLTestRunner.HTMLTestRunner(
 )
 
 # course search - test the flow of the app from login to course search
-parent_page_tests = unittest.TestLoader().loadTestsFromTestCase(CourseInfoIsInitializedTest)
+dashboard_page_tests = unittest.TestLoader().loadTestsFromTestCase(AccountAdminIsDasboardLoadedTest)
 course_info_initialize_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoIsSearchPageLoadedTest)
 course_info_search_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoSearchTest)
 
 # create a test suite combining the tests above
-smoke_tests = unittest.TestSuite([parent_page_tests, course_info_initialize_testing, course_info_search_testing])
+smoke_tests = unittest.TestSuite([dashboard_page_tests, course_info_initialize_testing, course_info_search_testing])
 
 # run the suite
 runner.run(smoke_tests)
