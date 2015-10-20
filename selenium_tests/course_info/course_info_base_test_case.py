@@ -32,7 +32,4 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
             login_page.login(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
-
-    @classmethod
-    def tearDownClass(cls):
-        super(CourseInfoBaseTestCase, cls).tearDownClass()
+            
