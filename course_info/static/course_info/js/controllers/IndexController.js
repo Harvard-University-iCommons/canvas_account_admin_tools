@@ -47,7 +47,7 @@
         $http.get('/icommons_rest_api/api/course/v2/term_codes')
             .then(function successCallback(response) {
                 $scope.filterOptions.terms =
-                    $scope.filterOptions.terms.concat(response.data.map(function (tc) {
+                    $scope.filterOptions.terms.concat(response.data.results.map(function (tc) {
                         return {
                             key: 'term_code',
                             value: tc.term_code,
