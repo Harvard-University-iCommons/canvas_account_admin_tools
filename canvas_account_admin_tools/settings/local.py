@@ -25,7 +25,7 @@ SELENIUM_CONFIG = {
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
    'canvas_base_url': CANVAS_URL,
-   'run_locally': True,
+   'run_locally': False,
    'account_admin_relative_url': 'accounts/342/external_tools/1845',
    'course_info_tool_relative_url': 'accounts/342/external_tools/1845'
 }
