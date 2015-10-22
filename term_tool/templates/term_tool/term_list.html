@@ -15,13 +15,12 @@
 
 {% block content %}
 
-{% if term_list %}
 {% if AUTHORIZEDTOEDIT %}
     <a href="{% url "tt:termcreate" school_id=school.school_id %}" class="btn btn-success">
         <i class="icon-plus"></i> Create a new {{ school.school_id|upper }} term</a>
 {% endif %}
 
-
+{% if term_list %}
 
 <table class="table table-striped">
     <thead>
@@ -32,9 +31,9 @@
             <th>Disable Auth User Param</th>
             {% endcomment %}
             <th>Start Date</th>
-            <th>End Date</th> 
+            <th>End Date</th>
             <th>Xreg Start Date</th>
-            <th>Xreg End Date</th> 
+            <th>Xreg End Date</th>
         </tr>
     </thead>
     <tbody>
@@ -62,10 +61,10 @@
         {% else %}
                 <td>
                     {{ term.display_name|default:term.term_id }}
-                </td>    
+                </td>
         {% endif %}
-        
-        
+
+
             <td>
                 {{ term.academic_year }}
             </td>
