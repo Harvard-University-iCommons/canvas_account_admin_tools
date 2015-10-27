@@ -26,7 +26,7 @@ from selenium_tests.course_info.course_info_search_test import CourseInfoSearchT
 date_timestamp = time.strftime('%Y%m%d_%H_%M_%S')
 
 # This relative path should point to BASE_DIR/selenium_tests/reports
-report_file_path = path.relpath('../reports')
+report_file_path = path.relpath('./reports')
 if not path.exists(report_file_path):
     makedirs(report_file_path)
 report_file_name = "course_info_test_report_{}.html".format(date_timestamp)
