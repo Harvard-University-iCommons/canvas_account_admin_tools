@@ -3,7 +3,7 @@ from icommons_common.models import Person
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
-
+from django.utils.functional import cached_property
 
 def validate_site_exists(keyword):
     if (Site.objects.filter(keyword=keyword).count() == 0):
@@ -60,6 +60,7 @@ class ISitesExportJob(models.Model):
     def is_complete(self):
         return self.status == ISitesExportJob.STATUS_COMPLETE
 
+    @cached_property
     def person(self):
         return Person.objects.filter(univ_id=self.created_by)[0]
 
