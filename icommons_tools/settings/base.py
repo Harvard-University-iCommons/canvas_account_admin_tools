@@ -263,7 +263,7 @@ LOGGING = {
             'propagate': False,
         },
         'huey': {
-            'handlers': ['huey'],
+            'handlers': ['default'],
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
