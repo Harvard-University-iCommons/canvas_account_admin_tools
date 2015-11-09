@@ -1,25 +1,14 @@
 from django.db import models
-from icommons_common.models import Person
+from icommons_common.models import Person, Site
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
 from django.utils.functional import cached_property
 
+
 def validate_site_exists(keyword):
     if (Site.objects.filter(keyword=keyword).count() == 0):
         raise ValidationError(u'keyword does not map to an existing iSite!')
-
-
-class Site(models.Model):
-    site_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=150, null=False)
-    keyword = models.CharField(max_length=30, null=False, unique=True)
-    site_type = models.IntegerField()
-    enabled = models.CharField(max_length=1, null=False)
-
-    class Meta:
-        db_table = u'site'
-        managed = False
 
 
 class ISitesExportJob(models.Model):
