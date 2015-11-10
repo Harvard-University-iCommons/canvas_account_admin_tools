@@ -335,7 +335,8 @@ TERM_TOOL = {
         'IcGroup:25105': 'hbsmba',
         'IcGroup:25106': 'hbsdoc',
         'IcGroup:25178': 'sum',
-        'IcGroup:32222': 'ksg'
+        'IcGroup:32222': 'ksg',
+        'IcGroup:32569': 'mit',
     },
 }
 
