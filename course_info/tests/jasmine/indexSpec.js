@@ -22,28 +22,30 @@ describe('course_info IndexController', function() {
     };
 
     // instantiate the controller, give it a $scope
-    scope = $rootScope.new();
+    scope = $rootScope.$new();
     controller = $controller('IndexController', { $scope: scope });
 
     // always expect the controller constructor to call for term codes
-    var term_codes = [
-        {
-            "term_code": 0,
-            "term_name": "Summer",
-            "sort_order": 40
-        },
-        {
-            "term_code": 1,
-            "term_name": "Fall",
-            "sort_order": 60
-        },
-        {
-            "term_code": 2,
-            "term_name": "Spring",
-            "sort_order": 30
-        },
-    ];
-    $httpBackend.expectGET('/icommons_rest_api/api/course/v2/term_codes')
+    var term_codes = {
+        "results": [
+            {
+                "term_code": 0,
+                "term_name": "Summer",
+                "sort_order": 40
+            },
+            {
+                "term_code": 1,
+                "term_name": "Fall",
+                "sort_order": 60
+            },
+            {
+                "term_code": 2,
+                "term_name": "Spring",
+                "sort_order": 30
+            },
+        ],
+    };
+    $httpBackend.expectGET('/icommons_rest_api/api/course/v2/term_codes/?limit=100')
         .respond(200, JSON.stringify(term_codes));
     $httpBackend.flush(1); // flush the term_codes request
   }));
