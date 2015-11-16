@@ -4,7 +4,7 @@
      */
     var module = angular.module('app');
     
-    module.controller('IndexController', ['$scope', '$http', '$timeout', '$document', '$window', function($scope, $http, $timeout, $document, $window){
+    module.controller('IndexController', ['$scope', '$http', '$timeout', '$document', '$window', 'djangoUrl', function($scope, $http, $timeout, $document, $window, djangoUrl){
         $scope.searchInProgress = false;
         $scope.queryString = '';
         $scope.showDataTable = false;
@@ -173,7 +173,8 @@
                         $scope.searchInProgress = true;
                     }
                     request = $.ajax({
-                        url: '/icommons_rest_api/api/course/v2/course_instances',
+                        url: djangoUrl.reverse('icommons_rest_api_proxy',
+                                               ['/api/course/v2/course_instances']),
                         method: 'GET',
                         data: queryParameters,
                         dataType: 'json',
@@ -219,8 +220,8 @@
                     {
                         data: null,
                         render: function(data, type, row, meta) {
-                            // TODO - cave and use djangular to reverse url
-                            var url = 'enrollments/' + row.cid + '/';
+                            var url = djangoUrl.reverse('course_info:enrollments',
+                                                        [row.cid]);
                             url = window.globals.append_resource_link_id(url);
                             return '<a href="' + url + '">' + row.description + '</a>';
                         },
