@@ -216,7 +216,15 @@
                 order: [[1, 'asc']],  // order by course description
                 columns: [
                     {data: 'school'},
-                    {data: 'description'},
+                    {
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            // TODO - cave and use djangular to reverse url
+                            var url = 'enrollments/' + row.cid + '/';
+                            url = window.globals.append_resource_link_id(url);
+                            return '<a href="' + url + '">' + row.description + '</a>';
+                        },
+                    },
                     {data: 'year'},
                     {data: 'term'},
                     {

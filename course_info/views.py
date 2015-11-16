@@ -18,6 +18,14 @@ logger = logging.getLogger(__name__)
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @require_http_methods(['GET'])
+def enrollments(request, course_instance_id):
+    from django.http import HttpResponse
+    return HttpResponse('<html><body><h1>{}</h1></body></html>'.format(course_instance_id))
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
 
