@@ -21,8 +21,8 @@ class Migration(migrations.Migration):
                 ('site_keyword', models.CharField(max_length=30, validators=[isites_export_tool.models.validate_site_exists])),
                 ('status', models.CharField(default=b'New', max_length=15, choices=[(b'New', b'New'), (b'In Progress', b'In Progress'), (b'Error', b'Error'), (b'Complete', b'Complete'), (b'Archived', b'Archived')])),
                 ('archived_on', models.DateField(null=True, blank=True)),
-                ('output_file_name', models.CharField(max_length=100, blank=True)),
-                ('output_message', models.CharField(max_length=250, blank=True)),
+                ('output_file_name', models.CharField(max_length=100, blank=True, null=True)),
+                ('output_message', models.CharField(max_length=250, blank=True, null=True)),
             ],
             options={
                 'db_table': 'isites_export_job',

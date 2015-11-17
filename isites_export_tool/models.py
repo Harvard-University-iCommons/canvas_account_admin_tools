@@ -37,8 +37,8 @@ class ISitesExportJob(models.Model):
     site_keyword = models.CharField(max_length=30, validators=[validate_site_exists])
     status = models.CharField(max_length=15, choices=JOB_STATUS_CHOICES, default=STATUS_NEW)
     archived_on = models.DateField(null=True, blank=True)
-    output_file_name = models.CharField(max_length=100, blank=True)
-    output_message = models.CharField(max_length=250, blank=True)
+    output_file_name = models.CharField(null=True, max_length=100, blank=True)
+    output_message = models.CharField(null=True, max_length=250, blank=True)
 
     class Meta:
         db_table = u'isites_export_job'
