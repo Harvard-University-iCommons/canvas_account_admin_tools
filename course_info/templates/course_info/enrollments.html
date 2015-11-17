@@ -1,0 +1,217 @@
+{% extends 'course_info/base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{% static 'datatables-bootstrap3/BS3/assets/css/datatables.css' %}" media="screen">
+<style type="text/css">
+  .error {
+    color: #A64343;
+  }
+  #canvas_course_id {display: none;}
+  .tlt-alert-info-blue-fg {
+    color: #31708f;
+  }
+  .even_row {
+    background-color: #f9f9f9;
+    color: #000000;
+  }
+  thead:hover {
+    background-color:#f5f5f5;
+    color: #000000;
+  }
+  .selected_row {
+    background-color: #fcf9e3 !important;
+    color: #000000;
+  }
+  thead tr {
+    cursor: pointer;
+            * cursor: hand;
+  }
+  tr {
+    cursor: pointer;
+    * cursor: hand;
+  }
+  input[type="submit"] {
+    font-family: FontAwesome;
+  }
+</style>
+{% endblock css %}
+
+{% block js %}
+{% endblock js %}
+
+{% block title %}
+<title>Course People</title>
+{% endblock title %}
+
+{% block body %}
+<body class="lti-tool" role="application">
+  <div class="container-fluid">
+    <div class="container-fluid">
+      <div class="container">
+        <div class="col-md-12">
+          <header>
+            <h2>
+              <a href="#">Find Course</a>
+              <small><i class="fa fa-chevron-right"></i></small>
+              People in Course [course name]
+            </h2>
+          </header>
+        </div>
+        <div class="btn-group col-md-12">
+          <h3>
+            <button type="button" class="btn btn-default dropdown-toggle pull-right" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-info-circle"></i> Privacy Disclaimer <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu pull-right" style="width:30em; padding:1em;">
+              <li>The University has a legal responsibility to protect the privacy of students and the confidentiality of student records. Adding a member to the teaching staff of this course will allow them to view both "directory information" (i.e. student's name) and "non-directory information" (i.e. student's Harvard University ID#) for the students included in this course. The course list may include students who have asked that we not release any information about them, including the fact that they attend classes at Harvard. By adding a person to the teaching staff you are granting them access to view this information; others are not permitted to view these records. For these reasons, all members of the teaching staff should be reminded to keep this information confidential. If you have any questions, please contact the Office of the Registrar.</li>
+            </ul>
+          </h3>
+        </div>
+        <form method="post">
+          <div class="form-group">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th class="sorting" tabindex="0">Name</th>
+                  <th class="sorting" tabindex="0">ID</th>
+                  <th class="sorting" tabindex="0">Role</th>
+                  <th class="sorting" tabindex="0">Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="">
+                  <td>
+                    <span>Brooke, Danny</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 234567890
+                  </td>
+                  <td>
+                    <span>Guest</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr class="hidden">
+                  <td>
+                    <span>Bucchieri, Vittorio</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 123456789
+                  </td>
+                  <td>
+                    <span>Designer</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Chow, Hiu-Kei</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 34567890
+                  </td>
+                  <td>
+                    <span>Student</span>
+                  </td>
+                  <td>
+                    <span>Registrar Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Chow, Hiu-Kei</span>
+                  </td>
+                  <td>
+                    <span class="label label-primary">XID</span> 45678901
+                  </td>
+                  <td>
+                    <span>Teaching Assistant</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Parker, Eric P.</span>
+                  </td>
+                  <td>
+                    <span class="label label-primary">XID</span> 45678901
+                  </td>
+                  <td>
+                    <span>Guest</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Mysore, Sapna</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 12345678
+                  </td>
+                  <td>
+                    <span>Teacher</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Yip, Josie</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 56789012
+                  </td>
+                  <td>
+                    <span>Teaching Assistant</span>
+                  </td>
+                  <td>
+                    <span>Registrar Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Yip, Josie</span>
+                  </td>
+                  <td>
+                    <span class="label label-danger">HUID</span> 56789012
+                  </td>
+                  <td>
+                    <span>Teaching Staff</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span>Yip, Josie</span>
+                  </td>
+                  <td>
+                    <span class="label label-primary">XID</span> 45678901
+                  </td>
+                  <td>
+                    <span>Guest</span>
+                  </td>
+                  <td>
+                    <span>Manually Added</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+    </div>      
+  </div>
+</body>
+{% endblock body %}

@@ -19,8 +19,7 @@ logger = logging.getLogger(__name__)
 @lti_role_required(const.ADMINISTRATOR)
 @require_http_methods(['GET'])
 def enrollments(request, course_instance_id):
-    from django.http import HttpResponse
-    return HttpResponse('<html><body><h1>{}</h1></body></html>'.format(course_instance_id))
+    return render(request, 'course_info/enrollments.html', {})
 
 
 @login_required

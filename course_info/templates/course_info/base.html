@@ -6,6 +6,7 @@
 <head>
   <meta name="viewport"
         content="width=device-width, initial-scale=1, user-scalable=no">
+  <link href="/static/favicon.ico" rel="icon" type="image/x-icon">
   <link rel="stylesheet" type="text/css"
         href="{% static 'font-awesome-4.2.0/css/font-awesome.min.css' %}">
   <link rel="stylesheet" type="text/css"
@@ -23,7 +24,7 @@
     window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
   </script>
   {% block js %}{% endblock js %}
-  <title>Find Course</title>
+  {% block title %}{% endblock title %}
 </head>
 {% block body %}{% endblock body %}
 </html>
