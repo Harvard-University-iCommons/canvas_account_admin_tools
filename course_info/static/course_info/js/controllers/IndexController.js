@@ -260,8 +260,6 @@
             });
         };
 
-        $document.ready($scope.initializeDatatable);
-
         $document.on('hidden.bs.dropdown', function(event) {
             var dropdown = $(event.target);
             dropdown.find('.dropdown-menu').attr('aria-expanded', false);
@@ -276,5 +274,7 @@
                 }, 0);
             }
         }
+
+        $scope.initializeDatatable();
     }]);
 })();
