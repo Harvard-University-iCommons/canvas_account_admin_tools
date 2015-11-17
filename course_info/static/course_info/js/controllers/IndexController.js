@@ -220,9 +220,7 @@
                     {
                         data: null,
                         render: function(data, type, row, meta) {
-                            var url = djangoUrl.reverse('course_info:enrollments',
-                                                        [row.cid]);
-                            url = window.globals.append_resource_link_id(url);
+                            var url = '#/enrollments/' + row.cid;
                             return '<a href="' + url + '">' + row.description + '</a>';
                         },
                     },

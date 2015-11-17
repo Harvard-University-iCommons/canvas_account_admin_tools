@@ -18,13 +18,6 @@ logger = logging.getLogger(__name__)
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @require_http_methods(['GET'])
-def enrollments(request, course_instance_id):
-    return render(request, 'course_info/enrollments.html', {})
-
-
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
 
@@ -34,6 +27,13 @@ def index(request):
         'schools': _get_schools_context(canvas_user_id),
     }
     return render(request, 'course_info/index.html', context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@require_http_methods(['GET'])
+def partials(request, path):
+    return render(request, 'course_info/partials/' + path, {})
 
 
 def _get_schools_context(canvas_user_id):
