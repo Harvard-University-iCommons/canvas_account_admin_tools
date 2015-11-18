@@ -1,5 +1,5 @@
 (function(){
-    var app = angular.module('app', ['ngSanitize', 'ng.django.urls', 'ngRoute']);
+    var app = angular.module('CourseInfo', ['ngSanitize', 'ng.django.urls', 'ngRoute']);
     
     app.config(['$httpProvider', '$routeProvider',
                 function($httpProvider, $routeProvider){
@@ -20,11 +20,12 @@
 
         $routeProvider
             .when('/', {
-                templateUrl: 'partials/find.html',
-                controller: 'IndexController',
+                templateUrl: 'partials/search.html',
+                controller: 'SearchController',
             })
             .when('/enrollments/:course_instance_id', {
                 templateUrl: 'partials/enrollments.html',
+                controller: 'EnrollmentsController',
             })
             .otherwise({
                 redirectTo: '/',

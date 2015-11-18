@@ -3,7 +3,7 @@
   <h1>
     <a href="#/">Find Course</a>
     <small><i class="fa fa-chevron-right"></i></small>
-    People in Course [course name]
+    People in {{ title }}
   </h1>
 </nav>
 
@@ -33,131 +33,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="">
-                  <td>
-                    <span>Brooke, Danny</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 234567890
-                  </td>
-                  <td>
-                    <span>Guest</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr class="hidden">
-                  <td>
-                    <span>Bucchieri, Vittorio</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 123456789
-                  </td>
-                  <td>
-                    <span>Designer</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Chow, Hiu-Kei</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 34567890
-                  </td>
-                  <td>
-                    <span>Student</span>
-                  </td>
-                  <td>
-                    <span>Registrar Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Chow, Hiu-Kei</span>
-                  </td>
-                  <td>
-                    <span class="label label-primary">XID</span> 45678901
-                  </td>
-                  <td>
-                    <span>Teaching Assistant</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Parker, Eric P.</span>
-                  </td>
-                  <td>
-                    <span class="label label-primary">XID</span> 45678901
-                  </td>
-                  <td>
-                    <span>Guest</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Mysore, Sapna</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 12345678
-                  </td>
-                  <td>
-                    <span>Teacher</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Yip, Josie</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 56789012
-                  </td>
-                  <td>
-                    <span>Teaching Assistant</span>
-                  </td>
-                  <td>
-                    <span>Registrar Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Yip, Josie</span>
-                  </td>
-                  <td>
-                    <span class="label label-danger">HUID</span> 56789012
-                  </td>
-                  <td>
-                    <span>Teaching Staff</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <span>Yip, Josie</span>
-                  </td>
-                  <td>
-                    <span class="label label-primary">XID</span> 45678901
-                  </td>
-                  <td>
-                    <span>Guest</span>
-                  </td>
-                  <td>
-                    <span>Manually Added</span>
-                  </td>
+                <tr ng-repeat="enrollment in enrollments">
+                  <td>{{ enrollment.name }}</td>
+                  <td><span class="label">{{ enrollment.type }}</span> {{ enrollment.user_id }}</td>
+                  <td>{{ enrollment.role }}</td>
+                  <td>{{ enrollment.source }}</td>
                 </tr>
               </tbody>
             </table>
