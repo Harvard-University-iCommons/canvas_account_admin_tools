@@ -35,7 +35,7 @@
               <tbody>
                 <tr ng-repeat="enrollment in enrollments">
                   <td>{{ enrollment.name }}</td>
-                  <td><span class="label">{{ enrollment.type }}</span> {{ enrollment.user_id }}</td>
+                  <td><badge user-type="{{ enrollment.type }}" user-id="{{ enrollment.user_id }}"></badge></td>
                   <td>{{ enrollment.role }}</td>
                   <td>{{ enrollment.source }}</td>
                 </tr>
