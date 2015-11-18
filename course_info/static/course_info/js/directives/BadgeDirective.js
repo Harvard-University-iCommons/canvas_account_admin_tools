@@ -5,19 +5,34 @@
         return {
             restrict: 'E',
             scope: {
-                userType: '@',
-                userId: '@',
+                role: '@',
             },
             controller: function($scope) {
-                $scope.typeClasses = {
+                // convert from role_type_cd to a badge
+                $scope.roleToBadgeMap = {
+                    CLASPART: 'HUID',
+                    COUNTWAY: 'LIBRARY',
+                    EMPLOYEE: 'HUID',
+                    STUDENT: 'HUID',
+                    WIDENER: 'LIBRARY',
+                    XIDHOLDER: 'XID',
+                };
+                $scope.roleToBadge = function(role) {
+                    return $scope.roleToBadgeMap[role] || 'OTHER';
+                };
+
+                // get the css class we want for a badge
+                $scope.badgeToClassMap = {
                     HUID: 'label-danger',
                     XID: 'label-primary',
+                    LIBRARY: 'label-default',
+                    OTHER: 'label-default',
                 }
-                $scope.typeClass = function(type) {
-                    return $scope.typeClasses[type] || 'label-default';
+                $scope.badgeToClass = function(badge) {
+                    return $scope.badgeToClassMap[badge];
                 };
             },
-            templateUrl: 'partials/badge.html',
+            template: '<span class="label {{ badgeToClass(roleToBadge(role)) }}">{{ roleToBadge(role) }}</span>',
         };
     });
 })();
