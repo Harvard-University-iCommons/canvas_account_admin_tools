@@ -10,7 +10,7 @@
             role: {
                 role_name: 'Guest',
             },
-            source: 'Manually Added',
+            source: 'peopletool',
         },
         {
             user: {
@@ -22,7 +22,7 @@
             role: {
                 role_name: 'Designer',
             },
-            source: 'Manually Added',
+            source: 'peopletool',
         },
         {
             user: {
@@ -34,7 +34,7 @@
             role: {
                 role_name: 'Student',
             },
-            source: 'Registrar Added',
+            source: 'xmlfeed',
         },
         {
             user: {
@@ -46,7 +46,7 @@
             role: {
                 role_name: 'Teaching Assistant',
             },
-            source: 'Manually Added',
+            source: 'peopletool',
         },
         {
             user: {
@@ -58,7 +58,7 @@
             role: {
                 role_name: 'Guest',
             },
-            source: 'Manually Added',
+            source: 'peopletool',
         },
         {
             user: {
@@ -70,7 +70,7 @@
             role: {
                 role_name: 'Teacher',
             },
-            source: 'Manually Added',
+            source: 'peopletool',
         },
         {
             user: {
@@ -82,7 +82,7 @@
             role: {
                 role_name: 'Teaching Assistant',
             },
-            source: 'Registrar Added',
+            source: 'fasfeed',
         },
     ];
 
@@ -122,7 +122,14 @@
                 title: 'ID',
             },
             {data: 'role.role_name', title: 'Role'},
-            {data: 'source', title: 'Source'},
+            {
+                data: 'source',
+                render: function(data, type, full, meta) {
+                    return (data === 'peopletool')
+                               ? 'Manually Added' : 'Registrar Added';
+                },
+                title: 'Source',
+            },
         ];
     }
 })();
