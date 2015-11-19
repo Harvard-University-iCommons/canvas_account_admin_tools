@@ -175,7 +175,7 @@
                         }
                         request = $.ajax({
                             url: djangoUrl.reverse('icommons_rest_api_proxy',
-                                                   ['/api/course/v2/course_instances']),
+                                                   ['api/course/v2/course_instances']),
                             method: 'GET',
                             data: queryParameters,
                             dataType: 'json',
