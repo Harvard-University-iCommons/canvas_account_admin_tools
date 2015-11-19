@@ -21,28 +21,9 @@
             </ul>
           </h3>
         </div>
-        <form method="post">
-          <div class="form-group">
-            <table class="table table-striped table-hover">
-              <thead>
-                <tr>
-                  <th class="sorting" tabindex="0">Name</th>
-                  <th class="sorting" tabindex="0">ID</th>
-                  <th class="sorting" tabindex="0">Role</th>
-                  <th class="sorting" tabindex="0">Source</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="enrollment in enrollments">
-                  <td>{{ enrollment.name }}</td>
-                  <td><badge role="{{ enrollment.role_type_cd }}"></badge> {{ enrollment.user_id }}</td>
-                  <td>{{ enrollment.role }}</td>
-                  <td>{{ enrollment.source }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </form>
+        <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
+               class="table table-striped table-hover">
+        </table>
       </div>
     </div>      
   </div>

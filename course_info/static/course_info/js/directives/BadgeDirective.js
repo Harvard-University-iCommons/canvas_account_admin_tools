@@ -25,8 +25,8 @@
                 $scope.badgeToClassMap = {
                     HUID: 'label-danger',
                     XID: 'label-primary',
-                    LIBRARY: 'label-default',
-                    OTHER: 'label-default',
+                    LIBRARY: 'label-success',
+                    OTHER: 'label-warning',
                 }
                 $scope.badgeToClass = function(badge) {
                     return $scope.badgeToClassMap[badge];
