@@ -14,7 +14,7 @@
             0: 'name',
             1: 'user_id',
             2: 'role__role_name',
-            3: 'source',
+            3: 'source_manual_registrar',
         };
         $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {
@@ -25,6 +25,7 @@
                 var queryParams = {
                     offset: data.start,
                     limit: data.length,
+                    '-source': 'xreg_map', // exclude xreg people
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
                               + $scope.columnFieldMap[data.order[0].column],
                 };
@@ -65,7 +66,6 @@
                 },
             },
             lengthChange: false,
-            order: [[0, 'asc']],
             sAjaxDataProp: 'aaData',
             searching: false,
             serverSide: true,
@@ -81,13 +81,24 @@
             {
                 data: '',
                 render: function(data, type, full, meta) {
-                    return '<badge role="' + full.profile.role_type_cd + '"></badge> '
+                    return '<badge ng-cloak role="' + full.profile.role_type_cd + '"></badge> '
                            + full.user_id;
                 },
                 title: 'ID',
             },
             {data: 'role.role_name', title: 'Role'},
-            {data: 'source', title: 'Source'},
+            {
+                data: 'source',
+                render: function(data, type, full, meta) {
+                    if ((data === '') || (data === 'xreg_map')
+                            || (data.indexOf('feed') != -1)) {
+                        return 'Registrar Added';
+                    }
+                    else {
+                        return 'Manually Added';
+                    }
+                },
+                title: 'Source',},
         ];
     }
 })();
