@@ -11,10 +11,10 @@
         $scope.title = ci ? ci.title : 'NO COURSE INSTANCE FOUND';
         $scope.dtInstance = null;
         $scope.columnFieldMap = {
-            1: 'user__name_last',
-            2: 'user__univ_id',
-            3: 'role__role_name',
-            4: 'source',
+            0: 'user__name_last',
+            1: 'user__univ_id',
+            2: 'role__role_name',
+            3: 'source',
         };
 
         $scope.dtOptions = {
@@ -44,6 +44,11 @@
                     error: function(data, textStatus, errorThrown) {
                         console.log('Error getting data from ' + url + ': '
                                     + textStatus + ', ' + errorThrown);
+                        callback({
+                            recordsTotal: 0,
+                            recordsFiltered: 0,
+                            aaData: [],
+                        });
                     },
                 });
             },
