@@ -3,14 +3,33 @@
     app.controller('EnrollmentsController', EnrollmentsController);
 
     function EnrollmentsController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
-        // TODO - if courseInstances is empty, ajax for the instance details.
-        //        needed if someone bookmarks the enrollments view.
-        var ci = courseInstances.instances[$routeParams.course_instance_id];
-
         $scope.course_instance_id = $routeParams.course_instance_id;
-        $scope.title = ci ? ci.title : 'NO COURSE INSTANCE FOUND';
+        var ci = courseInstances.instances[$scope.course_instance_id];
+        if (angular.isDefined(ci)) {
+            $scope.title = ci.title;
+        }
+        else {
+            $scope.title = '';
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.course_instance_id + '/']);
+            $.ajax({
+                url: url,
+                dataType: 'json',
+                success: function(data, textStatus, jqXHR) {
+                    $scope.$apply(function(){
+                        $scope.title = data.title;
+                        courseInstances.instances[data.course_instance_id] = data;
+                    });
+                },
+                error: function(data, textStatus, errorThrown) {
+                    console.log('Error getting data from ' + url + ': '
+                                + textStatus + ', ' + errorThrown);
+                },
+            });
+        }
 
-        $scope.columnFieldMap = {
+        $scope.sortKeyByColumnId = {
             0: 'name',
             1: 'user_id',
             2: 'role__role_name',
@@ -27,7 +46,7 @@
                     limit: data.length,
                     '-source': 'xreg_map', // exclude xreg people
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
-                              + $scope.columnFieldMap[data.order[0].column],
+                              + $scope.sortKeyByColumnId[data.order[0].column],
                 };
 
                 $.ajax({
