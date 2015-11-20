@@ -57,9 +57,9 @@
                 $compile(angular.element(row).contents())($scope);
             },
             language: {
-                emptyTable: 'There are no courses to display.',
-                info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                infoEmpty: 'Showing 0 to 0 of 0 courses',
+                emptyTable: 'There are no people to display.',
+                info: 'Showing _START_ to _END_ of _TOTAL_ people',
+                infoEmpty: 'Showing 0 to 0 of 0 people',
                 paginate: {
                     next: '',
                     previous: '',
