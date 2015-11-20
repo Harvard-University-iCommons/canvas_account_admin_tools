@@ -9,14 +9,14 @@
 
         $scope.course_instance_id = $routeParams.course_instance_id;
         $scope.title = ci ? ci.title : 'NO COURSE INSTANCE FOUND';
-        $scope.dtInstance = null;
+
         $scope.columnFieldMap = {
-            0: 'user__name_last',
-            1: 'user__univ_id',
+            0: 'name',
+            1: 'user_id',
             2: 'role__role_name',
             3: 'source',
         };
-
+        $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
@@ -55,121 +55,39 @@
             createdRow: function( row, data, dataIndex ) {
                 $compile(angular.element(row).contents())($scope);
             },
-            serverSide: true,
+            language: {
+                emptyTable: 'There are no courses to display.',
+                info: 'Showing _START_ to _END_ of _TOTAL_ courses',
+                infoEmpty: 'Showing 0 to 0 of 0 courses',
+                paginate: {
+                    next: '',
+                    previous: '',
+                },
+            },
+            lengthChange: false,
+            order: [[0, 'asc']],
             sAjaxDataProp: 'aaData',
+            searching: false,
+            serverSide: true,
         };
         $scope.dtColumns = [
             {
                 data: '',
                 render: function(data, type, full, meta) {
-                    return full.user.name_last + ', ' + full.user.name_first;
+                    return full.profile.name_last + ', ' + full.profile.name_first;
                 },
                 title: 'Name',
             },
             {
                 data: '',
                 render: function(data, type, full, meta) {
-                    return '<badge role="' + full.user.role_type_cd + '"></badge> '
-                           + full.user.univ_id;
+                    return '<badge role="' + full.profile.role_type_cd + '"></badge> '
+                           + full.user_id;
                 },
                 title: 'ID',
             },
             {data: 'role.role_name', title: 'Role'},
-            {
-                data: 'source',
-                render: function(data, type, full, meta) {
-                    return (data === 'peopletool')
-                               ? 'Manually Added' : 'Registrar Added';
-                },
-                title: 'Source',
-            },
+            {data: 'source', title: 'Source'},
         ];
     }
-
-    var dummyEnrollments = [
-        {
-            user: {
-                name_first: 'Danny',
-                name_last: 'Brooke',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 987654321,
-            },
-            role: {
-                role_name: 'Guest',
-            },
-            source: 'peopletool',
-        },
-        {
-            user: {
-                name_first: 'Vittorio',
-                name_last: 'Bucchieri',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 123456789,
-            },
-            role: {
-                role_name: 'Designer',
-            },
-            source: 'peopletool',
-        },
-        {
-            user: {
-                name_first: 'Hiu-Kei',
-                name_last: 'Chow',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 456789123,
-            },
-            role: {
-                role_name: 'Student',
-            },
-            source: 'xmlfeed',
-        },
-        {
-            user: {
-                name_first: 'Hiu-Kei',
-                name_last: 'Chow',
-                role_type_cd: 'XIDHOLDER',
-                univ_id: 456789123,
-            },
-            role: {
-                role_name: 'Teaching Assistant',
-            },
-            source: 'peopletool',
-        },
-        {
-            user: {
-                name_first: 'Eric P.',
-                name_last: 'Parker',
-                role_type_cd: 'XIDHOLDER',
-                univ_id: 7894567123,
-            },
-            role: {
-                role_name: 'Guest',
-            },
-            source: 'peopletool',
-        },
-        {
-            user: {
-                name_first: 'Sapna',
-                name_last: 'Mysore',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 456123789,
-            },
-            role: {
-                role_name: 'Teacher',
-            },
-            source: 'peopletool',
-        },
-        {
-            user: {
-                name_first: 'Josie',
-                name_last: 'Yip',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 789123456,
-            },
-            role: {
-                role_name: 'Teaching Assistant',
-            },
-            source: 'fasfeed',
-        },
-    ];
 })();
