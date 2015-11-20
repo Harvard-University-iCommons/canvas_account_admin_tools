@@ -90,13 +90,7 @@
             {
                 data: 'source',
                 render: function(data, type, full, meta) {
-                    if ((data === '') || (data === 'xreg_map')
-                            || (data.indexOf('feed') != -1)) {
-                        return 'Registrar Added';
-                    }
-                    else {
-                        return 'Manually Added';
-                    }
+                    return /^(|.*feed)$/.test(data) ? 'Registrar Added' : 'Manually Added';
                 },
                 title: 'Source',},
         ];
