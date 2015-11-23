@@ -1,5 +1,8 @@
 Django==1.8.6
 boto==2.38.0
+# NOTE: jasmine testing relies on a checked-in version of the django-angular js.
+# if you bump the version of django-angular, please also download and check in
+# new copies of django-angular[.min].js.
 django-angular==0.7.15
 django-cached-authentication-middleware==0.2.1
 django-proxy==1.0.2
