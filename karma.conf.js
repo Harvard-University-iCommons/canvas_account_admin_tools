@@ -14,10 +14,12 @@ module.exports = function(config) {
     files: [
       'node_modules/angular/angular.js',
       'node_modules/angular-mocks/angular-mocks.js',
+      'node_modules/angular-route/angular-route.js',
       'node_modules/angular-sanitize/angular-sanitize.js',
       'node_modules/jquery/dist/jquery.js',
       'node_modules/datatables.net/js/jquery.dataTables.js',
       'node_modules/datatables.net-bs/js/dataTables.bootstrap.js',
+      'node_modules/angular-datatables/dist/angular-datatables.js',
       'course_info/**/*.js'
     ],
 
