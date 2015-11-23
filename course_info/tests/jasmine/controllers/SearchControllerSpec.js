@@ -1,7 +1,7 @@
 // NOTE - this is still a work in progress, doesn't really test anything useful
 
-describe('course_info IndexController', function() {
-  beforeEach(module('app'));
+describe('course_info SearchController', function() {
+  beforeEach(module('CourseInfo'));
 
   var $controller, $window, $document, $httpBackend, $rootScope;
   var scope, controller;
@@ -23,7 +23,7 @@ describe('course_info IndexController', function() {
 
     // instantiate the controller, give it a $scope
     scope = $rootScope.$new();
-    controller = $controller('IndexController', { $scope: scope });
+    controller = $controller('SearchController', { $scope: scope });
 
     // always expect the controller constructor to call for term codes
     var term_codes = {
@@ -51,11 +51,13 @@ describe('course_info IndexController', function() {
   }));
 
   it("should inject the providers we've requested", function() {
-    expect($controller).not.toBe(null);
-    expect($window).not.toBe(null);
-    expect($document).not.toBe(null);
-    expect($httpBackend).not.toBe(null);
-    expect($rootScope).not.toBe(null);
+    [null, undefined].forEach(function(bad) {
+        expect($controller).not.toBe(bad);
+        expect($window).not.toBe(bad);
+        expect($document).not.toBe(bad);
+        expect($httpBackend).not.toBe(bad);
+        expect($rootScope).not.toBe(bad);
+    });
   });
 
   it("should instantiate the controller", function() {
