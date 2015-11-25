@@ -1,8 +1,8 @@
 (function() {
     var app = angular.module('CourseInfo');
-    app.controller('EnrollmentsController', EnrollmentsController);
+    app.controller('PeopleController', PeopleController);
 
-    function EnrollmentsController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
+    function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
         $scope.course_instance_id = $routeParams.course_instance_id;
         var ci = courseInstances.instances[$scope.course_instance_id];
         if (angular.isDefined(ci)) {
