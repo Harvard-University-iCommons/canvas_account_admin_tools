@@ -1,6 +1,6 @@
 // NOTE - this is still a work in progress, doesn't really test anything useful
 
-describe('course_info SearchController', function() {
+describe('Unit testing SearchController', function() {
     beforeEach(module('CourseInfo'));
 
     var $controller, $window, $document, $httpBackend, $rootScope;
