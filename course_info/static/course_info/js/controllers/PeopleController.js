@@ -5,6 +5,8 @@
     function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
         $scope.course_instance_id = $routeParams.course_instance_id;
         var ci = courseInstances.instances[$scope.course_instance_id];
+        // TODO - move this into courseInstances service, add .get() method
+        //        that returns a promise?
         if (angular.isDefined(ci)) {
             $scope.title = ci.title;
         }
