@@ -282,8 +282,11 @@ HUEY = {
     'backend': 'huey.backends.redis_backend',
     'connection': {'host': REDIS_HOST, 'port': int(REDIS_PORT)},  # huey needs redis port to be an int
     'always_eager': False,  # Defaults to False when running via manage.py run_huey
-    # Have periodic task scheduler wake up every hour instead of every minute
-    'consumer_options': {'workers': 2, 'periodic_task_interval': 60 * 60},
+    # Have periodic task scheduler wake up every hour by default instead of every minute
+    'consumer_options': {
+        'workers': SECURE_SETTINGS.get('isites_export_huey_worker_threads', 2),
+        'periodic_task_interval': SECURE_SETTINGS.get('isites_export_huey_periodic_task_interval_secs', 60 * 60),
+    },
     'name': 'huey-icommons-tools-queue',
 }
 
@@ -369,7 +372,10 @@ EXPORT_TOOL = {
     'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_s3.pl',
     'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),
     # Default to running at the start of every hour
-    'archive_task_crontab': SECURE_SETTINGS.get('archive_task_crontab', {'minute': '0'}),
+    'archive_task_crontab': {
+        'minute': SECURE_SETTINGS.get('isites_export_archive_task_crontab_minute', '0'),
+        'hour': SECURE_SETTINGS.get('isites_export_archive_task_crontab_hour', '*'),
+    },
     'allowed_groups': ['IcGroup:358', 'IcGroup:29819'],
     's3_bucket': SECURE_SETTINGS.get('isites_export_s3_bucket', ''),
     's3_download_url_expiration_in_secs': SECURE_SETTINGS.get('isites_export_s3_download_url_expiration_in_secs', 60),
