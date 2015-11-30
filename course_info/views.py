@@ -29,6 +29,13 @@ def index(request):
     return render(request, 'course_info/index.html', context)
 
 
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@require_http_methods(['GET'])
+def partials(request, path):
+    return render(request, 'course_info/partials/' + path, {})
+
+
 def _get_schools_context(canvas_user_id):
     accounts = get_administered_school_accounts(canvas_user_id)
     schools = [{

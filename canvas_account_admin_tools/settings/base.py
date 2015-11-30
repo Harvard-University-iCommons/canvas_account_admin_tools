@@ -38,9 +38,12 @@ INSTALLED_APPS = (
     'proxy',
     'canvas_account_admin_tools',
     'course_info',
+    'djangular',
 )
 
 MIDDLEWARE_CLASSES = (
+    # NOTE - djangular needs to be the first item in this list
+    'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

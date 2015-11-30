@@ -1,5 +1,9 @@
 (function(){
-    var app = angular.module('app', ['ngSanitize']).config(function($httpProvider){
+    var app = angular.module('CourseInfo',
+                             ['ngSanitize', 'ng.django.urls', 'ngRoute', 'datatables']);
+    
+    app.config(['$httpProvider', '$routeProvider',
+                function($httpProvider, $routeProvider){
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
         $httpProvider.defaults.xsrfCookieName = 'csrftoken';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -14,5 +18,18 @@
                 }
             };
         });
-    });
+
+        $routeProvider
+            .when('/', {
+                templateUrl: 'partials/search.html',
+                controller: 'SearchController',
+            })
+            .when('/enrollments/:course_instance_id', {
+                templateUrl: 'partials/enrollments.html',
+                controller: 'EnrollmentsController',
+            })
+            .otherwise({
+                redirectTo: '/',
+            });
+    }]);
 })();
