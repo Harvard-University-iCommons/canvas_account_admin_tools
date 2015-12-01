@@ -3,40 +3,55 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
-        $scope.course_instance_id = $routeParams.course_instance_id;
-        var ci = courseInstances.instances[$scope.course_instance_id];
-        // TODO - move this into courseInstances service, add .get() method
-        //        that returns a promise?
-        if (angular.isDefined(ci)) {
-            $scope.title = ci.title;
-        }
-        else {
-            $scope.title = '';
-            var url = djangoUrl.reverse('icommons_rest_api_proxy',
-                                        ['api/course/v2/course_instances/'
-                                         + $scope.course_instance_id + '/']);
-            $.ajax({
-                url: url,
-                dataType: 'json',
-                success: function(data, textStatus, jqXHR) {
-                    $scope.$apply(function(){
-                        $scope.title = data.title;
-                        courseInstances.instances[data.course_instance_id] = data;
-                    });
-                },
-                error: function(data, textStatus, errorThrown) {
-                    console.log('Error getting data from ' + url + ': '
-                                + textStatus + ', ' + errorThrown);
-                },
-            });
-        }
-
+        // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
             1: 'user_id',
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
+
+        // set up functions we'll be calling later
+        $scope.renderName = function (data, type, full, meta) {
+            return full.profile.name_last + ', ' + full.profile.name_first;
+        };
+        $scope.renderId = function (data, type, full, meta) {
+            return '<badge ng-cloak role="' + full.profile.role_type_cd 
+                   + '"></badge> ' + full.user_id;
+        };
+        $scope.renderSource = function (data, type, full, meta) {
+            return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
+        },
+        $scope.setTitle = function(id) {
+            var ci = courseInstances.instances[id];
+            if (angular.isDefined(ci)) {
+                $scope.title = ci.title;
+            }
+            else {
+                $scope.title = '';
+                var url = djangoUrl.reverse(
+                              'icommons_rest_api_proxy',
+                              ['api/course/v2/course_instances/' + id + '/']);
+                $.ajax({
+                    url: url,
+                    dataType: 'json',
+                    success: function(data, textStatus, jqXHR) {
+                        $scope.$apply(function(){
+                            courseInstances.instances[data.course_instance_id] = data;
+                            $scope.title = data.title;
+                        });
+                    },
+                    error: function(data, textStatus, errorThrown) {
+                        console.log('Error getting data from ' + url + ': '
+                                    + textStatus + ', ' + errorThrown);
+                    },
+                });
+            }
+        };
+
+        // now actually init the controller
+        $scope.course_instance_id = $routeParams.course_instance_id;
+        $scope.setTitle($scope.course_instance_id);
         $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
@@ -55,12 +70,13 @@
                     url: url,
                     method: 'GET',
                     data: queryParams,
+                    dataSrc: 'data',
                     dataType: 'json',
                     success: function(data, textStatus, jqXHR) {
                         callback({
                             recordsTotal: data.count,
                             recordsFiltered: data.count,
-                            aaData: data.results,
+                            data: data.results,
                         });
                     },
                     error: function(data, textStatus, errorThrown) {
@@ -69,12 +85,14 @@
                         callback({
                             recordsTotal: 0,
                             recordsFiltered: 0,
-                            aaData: [],
+                            data: [],
                         });
                     },
                 });
             },
             createdRow: function( row, data, dataIndex ) {
+                // to use angular directives within the rendered datatable,
+                // we have to compile those elements ourselves.  joy.
                 $compile(angular.element(row).contents())($scope);
             },
             language: {
@@ -87,33 +105,27 @@
                 },
             },
             lengthChange: false,
-            sAjaxDataProp: 'aaData',
+            sAjaxDataProp: 'data',
             searching: false,
             serverSide: true,
         };
         $scope.dtColumns = [
             {
                 data: '',
-                render: function(data, type, full, meta) {
-                    return full.profile.name_last + ', ' + full.profile.name_first;
-                },
+                render: $scope.renderName,
                 title: 'Name',
             },
             {
                 data: '',
-                render: function(data, type, full, meta) {
-                    return '<badge ng-cloak role="' + full.profile.role_type_cd + '"></badge> '
-                           + full.user_id;
-                },
+                render: $scope.renderId,
                 title: 'ID',
             },
             {data: 'role.role_name', title: 'Role'},
             {
                 data: 'source',
-                render: function(data, type, full, meta) {
-                    return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
-                },
-                title: 'Source',},
+                render: $scope.renderSource,
+                title: 'Source',
+            },
         ];
     }
 })();
