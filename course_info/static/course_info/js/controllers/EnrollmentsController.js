@@ -109,7 +109,7 @@
             {
                 data: 'source',
                 render: function(data, type, full, meta) {
-                    return /^(|.*feed)$/.test(data) ? 'Registrar Added' : 'Manually Added';
+                    return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
                 },
                 title: 'Source',},
         ];
