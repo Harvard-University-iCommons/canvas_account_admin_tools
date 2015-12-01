@@ -17,35 +17,43 @@ import time
 
 from os import path, makedirs
 
-import HTMLTestRunner
+from selenium_common import HTMLTestRunner
 from selenium_tests.account_admin.account_admin_is_dashboard_page_loaded_test import AccountAdminIsDasboardLoadedTest
 from selenium_tests.course_info.course_info_is_search_page_loaded_test import CourseInfoIsSearchPageLoadedTest
 from selenium_tests.course_info.course_info_search_test import CourseInfoSearchTest
+from selenium_tests.course_info.course_info_people_list_test import CourseInfoPeopleListTest
 
+class RegressionSuite(unittest.TestCase):
+    def main(self):
 
-date_timestamp = time.strftime('%Y%m%d_%H_%M_%S')
+        date_timestamp = time.strftime('%Y%m%d_%H_%M_%S')
 
-# This relative path should point to BASE_DIR/selenium_tests/reports
-report_file_path = path.relpath('./reports')
-if not path.exists(report_file_path):
-    makedirs(report_file_path)
-report_file_name = "course_info_test_report_{}.html".format(date_timestamp)
-report_file_buffer = file(path.join(report_file_path, report_file_name), 'wb')
-runner = HTMLTestRunner.HTMLTestRunner(
-    stream=report_file_buffer,
-    title='Course Info test suite report',
-    description='Result of tests in {}'.format(__file__)
-)
+        # This relative path should point to BASE_DIR/selenium_tests/reports
+        report_file_path = path.relpath('./reports')
+        if not path.exists(report_file_path):
+            makedirs(report_file_path)
+        report_file_name = "course_info_test_report_{}.html".format(date_timestamp)
+        report_file_buffer = file(path.join(report_file_path, report_file_name), 'wb')
+        runner = HTMLTestRunner.HTMLTestRunner(
+            stream=report_file_buffer,
+            title='Course Info test suite report',
+            description='Result of tests in {}'.format(__file__)
+        )
 
-# course search - test the flow of the app from login to course search
-dashboard_page_tests = unittest.TestLoader().loadTestsFromTestCase(AccountAdminIsDasboardLoadedTest)
-course_info_initialize_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoIsSearchPageLoadedTest)
-course_info_search_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoSearchTest)
+        # course search - test the flow of the app from login to course search
+        dashboard_page_tests = unittest.TestLoader().loadTestsFromTestCase(AccountAdminIsDasboardLoadedTest)
+        course_info_initialize_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoIsSearchPageLoadedTest)
+        course_info_search_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoSearchTest)
+        course_info_people_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoPeopleListTest)
 
-# create a test suite combining the tests above
-smoke_tests = unittest.TestSuite([dashboard_page_tests, course_info_initialize_testing, course_info_search_testing])
+        # create a test suite combining the tests above
+        smoke_tests = unittest.TestSuite([dashboard_page_tests, course_info_initialize_testing, course_info_search_testing, course_info_people_testing])
 
-# run the suite
-runner.run(smoke_tests)
-# close test report file
-report_file_buffer.close()
+        # run the suite
+        runner.run(smoke_tests)
+        # close test report file
+        report_file_buffer.close()
+
+if __name__ == "__main__":
+    unittest.main()
+
