@@ -7,3 +7,4 @@
 django-debug-toolbar==1.3.2
 git+https://github.com/inducer/pudb.git#egg=pudb
 mock==1.3.0
+django-sslserver==0.15

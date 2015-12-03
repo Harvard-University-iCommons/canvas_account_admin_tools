@@ -112,11 +112,13 @@
 
         <table class="table table-bordered table-condensed table-striped table-responsive" width="100%">
             <tr>
+                <th class="thead">Term</th>
                 <th class="thead">SIS ID</th>
                 <th class="thead">Course</th>
                 <th class="thead">Course Conclusion Date</th>
             </tr>
             <tr ng-repeat="c in courseCtrl.concluded_courses|filter:searchCourse">
+                <td class="tbody">{{c.term_id__display_name }}</td>
                 <td class="tbody">{{c.course_instance_id }}</td>
                 <td class="tbody">{{c.title }}</td>
                 <td class="tbody">{{c.conclude_date }}</td>

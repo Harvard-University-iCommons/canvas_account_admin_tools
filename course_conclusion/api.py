@@ -132,7 +132,7 @@ def concluded_courses_by_school(request):
     filters['course__school'] = school_id
     query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
         'title', 'course_id')
-    course_data = list(query.values('course_instance_id', 'title', 'conclude_date'))
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'term_id__display_name'))
 
     for course in course_data:
         if course['conclude_date']:
@@ -156,7 +156,7 @@ def concluded_courses_by_school_term(request):
     filters['course__school'] = school_id
     query = CourseInstance.objects.filter(**filters).exclude(conclude_date__isnull=True).order_by(
         'title', 'course_id')
-    course_data = list(query.values('course_instance_id', 'title', 'conclude_date'))
+    course_data = list(query.values('course_instance_id', 'title', 'conclude_date', 'term_id__display_name'))
 
     for course in course_data:
         if course['conclude_date']:
