@@ -29,7 +29,7 @@ describe('Unit testing PeopleController', function() {
     // DI sanity check
     it('should inject the providers we requested', function() {
         [$controller, $rootScope, $routeParams, courseInstances, $compile,
-         djangoUrl, $httpBackend].forEach(function(thing) {
+         djangoUrl, $httpBackend, $window].forEach(function(thing) {
             expect(thing).not.toBeUndefined();
             expect(thing).not.toBeNull();
         });
@@ -59,7 +59,7 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
-    describe('testing setTitle', function() {
+    describe('setTitle', function() {
         var ci;
         beforeEach(function() {
             ci = {
@@ -85,4 +85,41 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
+    describe('dt cell render functions', function() {
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope});
+        });
+
+        it('renderName', function() {
+            var full = {
+                profile: {
+                    name_first: 'Joe',
+                    name_last: 'Student',
+                },
+            };
+            var result = scope.renderName(undefined, undefined, full, undefined);
+            expect(result).toBe('Student, Joe');
+        });
+
+        it('renderId', function() {
+            var full = {
+                profile: {role_type_cd: 'STUDENT'},
+                user_id: 123456,
+            }
+            var result = scope.renderId(undefined, undefined, full, undefined);
+            expect(result).toBe('<badge ng-cloak role="STUDENT"></badge> 123456');
+        });
+
+        it('renderSource for registrar-fed', function() {
+            var data = 'fasfeed';
+            var result = scope.renderSource(data, undefined, undefined, undefined);
+            expect(result).toBe('Registrar Added');
+        });
+
+        it('renderSource for manual', function() {
+            var data = '';
+            var result = scope.renderSource(data, undefined, undefined, undefined);
+            expect(result).toBe('Manually Added');
+        });
+    });
 });
