@@ -24,9 +24,9 @@
                 templateUrl: 'partials/search.html',
                 controller: 'SearchController',
             })
-            .when('/enrollments/:course_instance_id', {
-                templateUrl: 'partials/enrollments.html',
-                controller: 'EnrollmentsController',
+            .when('/people/:course_instance_id', {
+                templateUrl: 'partials/people.html',
+                controller: 'PeopleController',
             })
             .otherwise({
                 redirectTo: '/',

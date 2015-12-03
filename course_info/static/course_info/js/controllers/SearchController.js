@@ -57,7 +57,7 @@
                                 text: tc.term_name + ' <span class="caret"></span>',
                             };
                         }));
-                    if (response.data.next !== null) {
+                    if (response.data.next !== '') {
                         console.log('Warning: Some terms missing from dropdown!');
                     }
                 }, function errorCallback(response) {
@@ -227,7 +227,7 @@
                         {
                             data: null,
                             render: function(data, type, row, meta) {
-                                var url = '#/enrollments/' + row.cid;
+                                var url = '#/people/' + row.cid;
                                 return '<a href="' + url + '">' + row.description + '</a>';
                             },
                         },
