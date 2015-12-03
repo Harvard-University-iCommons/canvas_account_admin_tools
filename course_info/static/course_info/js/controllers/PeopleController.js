@@ -2,7 +2,7 @@
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
 
-    function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl) {
+    function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl, $http) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -32,20 +32,15 @@
                 var url = djangoUrl.reverse(
                               'icommons_rest_api_proxy',
                               ['api/course/v2/course_instances/' + id + '/']);
-                $.ajax({
-                    url: url,
-                    dataType: 'json',
-                    success: function(data, textStatus, jqXHR) {
-                        $scope.$apply(function(){
-                            courseInstances.instances[data.course_instance_id] = data;
-                            $scope.title = data.title;
-                        });
-                    },
-                    error: function(data, textStatus, errorThrown) {
+                $http.get(url)
+                    .success(function(data, status, headers, config) {
+                        courseInstances.instances[data.course_instance_id] = data;
+                        $scope.title = data.title;
+                    })
+                    .error(function(data, status, headers, config) {
                         console.log('Error getting data from ' + url + ': '
-                                    + textStatus + ', ' + errorThrown);
-                    },
-                });
+                                    + status + ' ' + data);
+                    });
             }
         };
 

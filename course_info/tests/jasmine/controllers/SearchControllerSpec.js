@@ -27,23 +27,24 @@ describe('Unit testing SearchController', function() {
 
         // always expect the controller constructor to call for term codes
         var term_codes = {
-            "results": [
-            {
-                "term_code": 0,
-                "term_name": "Summer",
-                "sort_order": 40
-            },
-            {
-                "term_code": 1,
-                "term_name": "Fall",
-                "sort_order": 60
-            },
-            {
-                "term_code": 2,
-                "term_name": "Spring",
-                "sort_order": 30
-            },
+            results: [
+                {
+                    term_code: 0,
+                    term_name: 'Summer',
+                    sort_order: 40
+                },
+                {
+                    term_code: 1,
+                    term_name: 'Fall',
+                    sort_order: 60
+                },
+                {
+                    term_code: 2,
+                    term_name: 'Spring',
+                    sort_order: 30
+                },
             ],
+            next: '',
         };
         $httpBackend.expectGET('/icommons_rest_api/api/course/v2/term_codes/?limit=100')
             .respond(200, JSON.stringify(term_codes));
