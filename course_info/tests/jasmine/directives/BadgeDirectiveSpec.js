@@ -15,7 +15,8 @@ describe('Unit testing BadgeDirective', function() {
         });
     });
 
-    // these are just copied from BadgeDirective.js, and should be kept in sync
+    // these are just copied from BadgeDirective.js, and should be kept in sync.
+    // note that NOPE is added to test the handling of roles not in roleToBadge.
     var roleToBadge = {
         CLASPART: 'HUID',
         COUNTWAY: 'LIBRARY',
@@ -23,6 +24,7 @@ describe('Unit testing BadgeDirective', function() {
         STUDENT: 'HUID',
         WIDENER: 'LIBRARY',
         XIDHOLDER: 'XID',
+        NOPE: 'OTHER',
     };
     var badgeToClass = {
         HUID: 'label-danger',
