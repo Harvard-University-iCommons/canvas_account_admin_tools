@@ -30,7 +30,7 @@ class AccountAdminBaseTestCase(BaseSeleniumTestCase):
         login_page = PinLoginPageObject(driver)
         if login_page.is_loaded():
             print " logging the user in"
-            login_page.login(cls.USERNAME, cls.PASSWORD)
+            login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
 
