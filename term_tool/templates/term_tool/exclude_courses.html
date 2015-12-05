@@ -31,27 +31,6 @@
     </div>
 
     <table id="course-list-table" class="display" cellspacing="0" width="100%">
-        <thead>
-            <th>Course Instance ID</th>
-            <th>Short Title</th>
-            <th>Title</th>
-            <th>Disable auth user access</th>
-        </thead>
-        <tbody>
-        {% for course in object_list %}
-            <tr>
-            <td>{{ course.course_instance_id }}</td>
-            <td>{{ course.short_title }}</td>
-            <td>{{ course.title }}</td>
-            <td>
-                {% if course.exclude_from_shopping %}
-                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox" checked="checked">
-                {% else %}
-                    <input type="checkbox" name="exclude_from_shopping" value="{{ course.course_instance_id }}" id="input-course-instance-{{ course.course_instance_id }}" class="checkboxinput checkbox">
-                {% endif %}
-            </td>
-            </tr>
-        {% endfor %}
     </table>
 
 
@@ -76,7 +55,7 @@
             var $checkbox = $(event.target);
             var state = $checkbox.prop('checked') ? 'true' : 'false';
             var value = $checkbox.attr('value');
-            var url = "{% url 'tt:excludecourses' term_id school_id %}";
+            var url = "{% url 'tt:excludecoursesdata' term_id school_id %}";
             var ajax_req = $.ajax({
                 url: url,
                 type: "POST",
@@ -99,12 +78,32 @@
         });
 
         $('#course-list-table').DataTable({
+            ajax: "{% url 'tt:excludecoursesdata' term_id school_id %}",
+            columns: [
+                {name: 'course_instance_id', title: 'Course Instance ID'},
+                {name: 'short_title', title: 'Short Title'},
+                {name: 'title', title: 'Title'},
+                {
+                    name: 'exclude_from_shopping',
+                    render: function (data, type, row, meta) {
+                        return '<input type="checkbox" name="exclude_from_shopping" value="'
+                                   + row[0] + '" id="input-course-instance-'
+                                   + row[0] + '" class="checkboxinput checkbox"'
+                                   + (data ? ' checked="checked"' : '')
+                                   + '>';
+                    },
+                    title: 'Disable auth user access',
+                },
+            ],
+
+            drawCallback: function(){
+                $('#course-list-table .checkbox').on('click', handleExcludeCourse);
+            },
+            serverSide: true,
             preDrawCallback: function(){
                 $('#course-list-table .checkbox').off('click', handleExcludeCourse);
             },
-            drawCallback: function(){
-                $('#course-list-table .checkbox').on('click', handleExcludeCourse);
-            }
+            processing: true,
         });
     })
     </script>
