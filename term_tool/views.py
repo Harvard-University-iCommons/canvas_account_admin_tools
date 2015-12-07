@@ -186,7 +186,7 @@ class ExcludeCoursesFromViewing(LoginRequiredMixin, BaseDatatableView):
     max_display_length = 100
 
     def get_initial_queryset(self):
-        term_id = self.request.resolver_match.kwargs['term_id']
+        term_id = self.kwargs['term_id']
         return self.model.objects.filter(sync_to_canvas=True, term_id=term_id).all()
 
     def post(self, request, *args, **kwargs):
