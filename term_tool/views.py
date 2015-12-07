@@ -1,19 +1,23 @@
 import json
 import logging
 
-from django.core.urlresolvers import reverse
-from django.views import generic
-from django.contrib import messages
-from icommons_common.models import (School, CourseInstance)
-from icommons_common.auth.views import LoginRequiredMixin
-from django.http import HttpResponse
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.views import generic
+from django_datatables_view.base_datatable_view import BaseDatatableView
 from canvas_sdk.methods import (courses)
 from canvas_sdk.exceptions import CanvasAPIError
+
+from icommons_common.auth.views import LoginRequiredMixin
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.models import (School, CourseInstance)
 from icommons_common.models import Term
 
-from term_tool.forms import (EditTermForm, CreateTermForm,)
+from term_tool.forms import (CreateTermForm, EditTermForm)
 from util import util
 
 
@@ -169,20 +173,21 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
         return reverse('tt:termlist', kwargs={'school_id': self.object.school_id})
 
 
-class ExcludeCoursesFromViewing(LoginRequiredMixin, generic.ListView):
+@login_required
+def exclude_courses(request, term_id, school_id):
+    return render(request, 'term_tool/exclude_courses.html',
+                  {'term_id': term_id, 'school_id': school_id})
 
-    template_name = 'term_tool/exclude_courses.html'
+
+class ExcludeCoursesFromViewing(LoginRequiredMixin, BaseDatatableView):
     model = CourseInstance
+    columns = ['course_instance_id', 'short_title', 'title', 'exclude_from_shopping']
+    order_columns = columns
+    max_display_length = 100
 
-    def get_queryset(self):
+    def get_initial_queryset(self):
         term_id = self.kwargs['term_id']
-        return CourseInstance.objects.filter(term=term_id, sync_to_canvas=True)
-
-    def get_context_data(self, **kwargs):
-        context = super(ExcludeCoursesFromViewing, self).get_context_data(**kwargs)
-        context['term_id'] = self.kwargs['term_id']
-        context['school_id'] = self.kwargs['school_id']
-        return context
+        return self.model.objects.filter(sync_to_canvas=True, term_id=term_id).all()
 
     def post(self, request, *args, **kwargs):
         """

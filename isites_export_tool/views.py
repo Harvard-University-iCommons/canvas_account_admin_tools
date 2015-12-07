@@ -1,25 +1,21 @@
+import logging
+
+import boto
 from django.conf import settings
-from django.views.generic.base import TemplateResponseMixin
-from django.views.generic.edit import BaseCreateView
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import redirect
+from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.edit import BaseCreateView
 
 from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.auth.views import GroupMembershipRequiredMixin
+from icommons_common.models import Person
 from icommons_common.monitor.views import BaseMonitorResponseView
 
-from icommons_common.models import Person
 from .models import ISitesExportJob, ISitesExportJobForm
 from .tasks import process_job
 
-import boto
-
-# from braces.views import CsrfExemptMixin
-# from django.http import HttpResponse
-import logging
-# import hashlib # Hash encrypt the user's HUID
-# import json # Formats form post that user submitted to Piazza
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
