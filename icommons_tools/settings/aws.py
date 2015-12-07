@@ -1,6 +1,12 @@
 from .base import *
 from logging.config import dictConfig
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = SECURE_SETTINGS['django_secret_key']
+
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
 
 # AWS Email Settings

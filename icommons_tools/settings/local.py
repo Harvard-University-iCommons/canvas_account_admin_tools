@@ -1,6 +1,12 @@
 from .base import *
 from logging.config import dictConfig
 
+DEBUG = True
+
+CRISPY_FAIL_SILENTLY = False
+
+SECRET_KEY = 'changeme'
+
 ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -17,7 +23,6 @@ EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
 INSTALLED_APPS += (
     'debug_toolbar',
-    'rest_framework.authtoken',
 )
 
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)

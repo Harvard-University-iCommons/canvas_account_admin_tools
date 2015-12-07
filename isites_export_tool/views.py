@@ -9,6 +9,7 @@ from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.auth.views import GroupMembershipRequiredMixin
 from icommons_common.monitor.views import BaseMonitorResponseView
 
+from icommons_common.models import Person
 from .models import ISitesExportJob, ISitesExportJobForm
 from .tasks import process_job
 
@@ -47,6 +48,21 @@ class JobListView(GroupMembershipRequiredMixin, TemplateResponseMixin, BaseCreat
             job_list = ISitesExportJob.objects.filter(status=ISitesExportJob.STATUS_ARCHIVED)
         else:
             job_list = ISitesExportJob.objects.exclude(status=ISitesExportJob.STATUS_ARCHIVED)
+
+        # Retrieve the unique set of created_by university ids by using a set
+        job_creator_univ_ids = {job.created_by for job in job_list}
+        # Retrieve list of Person objects associated with jobs in a single query
+        job_creators = Person.objects.filter(univ_id__in=job_creator_univ_ids)
+        # There may be multiple entries for a given university id, but since we
+        # only care about the identifying information, we can use a dictionary to
+        # eliminate dupes and for easy lookup below.
+        job_creator_dict = {jc.univ_id: jc for jc in job_creators}
+
+        # Set person attribute for each job by filtering on the cached queryset
+        # This is the same query that the export job would normally perform when
+        # calling the person property
+        for job in job_list:
+            job.person = job_creator_dict[job.created_by]
 
         context['jobs'] = job_list
         context['showing_archive'] = self.archive

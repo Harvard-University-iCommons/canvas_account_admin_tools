@@ -59,11 +59,7 @@
         <tr>
             <td><span>{{ job.site_keyword }}</span></td>
             <td><span data-sort="{{ job.created_at|date:"U" }}">{{ job.created_at }}</span></td>
-            <td><span>
-              {% with exporter=job.person %}
-                  {{ exporter.name_first}} {{ exporter.name_last }}
-              {% endwith %}
-            </span></td>
+            <td><span>{{ job.person.name_first}} {{ job.person.name_last }}</span></td>
             <td><span>{{ job.status }}</span></td>
             <td>
               <span>

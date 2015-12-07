@@ -1,25 +1,14 @@
 from django.db import models
-from icommons_common.models import Person
+from icommons_common.models import Person, Site
 from django.forms import ModelForm, ValidationError
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
+from django.utils.functional import cached_property
 
 
 def validate_site_exists(keyword):
     if (Site.objects.filter(keyword=keyword).count() == 0):
         raise ValidationError(u'keyword does not map to an existing iSite!')
-
-
-class Site(models.Model):
-    site_id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=150, null=False)
-    keyword = models.CharField(max_length=30, null=False, unique=True)
-    site_type = models.IntegerField()
-    enabled = models.CharField(max_length=1, null=False)
-
-    class Meta:
-        db_table = u'site'
-        managed = False
 
 
 class ISitesExportJob(models.Model):
@@ -48,8 +37,8 @@ class ISitesExportJob(models.Model):
     site_keyword = models.CharField(max_length=30, validators=[validate_site_exists])
     status = models.CharField(max_length=15, choices=JOB_STATUS_CHOICES, default=STATUS_NEW)
     archived_on = models.DateField(null=True, blank=True)
-    output_file_name = models.CharField(max_length=100, blank=True)
-    output_message = models.CharField(max_length=250, blank=True)
+    output_file_name = models.CharField(null=True, max_length=100, blank=True)
+    output_message = models.CharField(null=True, max_length=250, blank=True)
 
     class Meta:
         db_table = u'isites_export_job'
@@ -60,6 +49,7 @@ class ISitesExportJob(models.Model):
     def is_complete(self):
         return self.status == ISitesExportJob.STATUS_COMPLETE
 
+    @cached_property
     def person(self):
         return Person.objects.filter(univ_id=self.created_by)[0]
 
