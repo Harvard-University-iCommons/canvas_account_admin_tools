@@ -18,6 +18,7 @@ class CourseSearchPageLocators(object):
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
     COURSE_LINK_TEXT = "A Profile in Ministry: Dietrich Bonhoeffer"
     COURSE_ID_LINK = (By.LINK_TEXT, COURSE_LINK_TEXT)
+    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20881755')]")
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
@@ -65,10 +66,6 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         self.find_element(*CourseSearchPageLocators.COURSE_SEARCH_TEXTBOX).send_keys(search_text)
         self.find_element(*CourseSearchPageLocators.COURSE_INFO_SEARCH_BUTTON_PATH).click()
 
-    def get_people_table(self):
-        element = self.find_element(*CourseSearchPageLocators.PEOPLE_TABLE)
-        return element
-
     def select_course_id(self):
         self.focus_on_tool_frame()
         self.find_element(*CourseSearchPageLocators.COURSE_ID_LINK).click()
@@ -76,4 +73,8 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
     def select_a_course_on_page(self):
         self.focus_on_tool_frame()
         self.select_course_id()
+
+    def find_test_person_on_page(self):
+        element = self.find_element(*CourseSearchPageLocators.TEST_PERSON_ON_PAGE)
+        return element
 

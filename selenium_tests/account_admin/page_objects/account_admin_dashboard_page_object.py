@@ -2,7 +2,6 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from selenium_tests.account_admin.page_objects.account_admin_base_page_object import AccountAdminBasePage
-from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
 
 
 class AccountAdminDashboardPageLocators(object):
@@ -46,11 +45,9 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
     def select_course_info_link(self):
         """
         select the course info link element and click it
-        :returns CourseSearchPageObject
         """
         self.focus_on_tool_frame()
         self.find_element(*AccountAdminDashboardPageLocators.COURSE_INFO_LINK).click()
-        return CourseSearchPageObject(self._driver)
 
     def is_course_info_block_present(self):
         """
