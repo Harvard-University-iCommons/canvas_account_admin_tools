@@ -17,6 +17,7 @@ class CourseConclusionTests(CourseConclusionBaseTestCase):
         """
         index_page = IndexPage(self.driver)
         test_data = settings.SELENIUM_CONFIG['course_conclusion']
+        self.assertTrue(index_page.is_loaded())
         index_page.select_school(test_data['school'])
         expected_course_data = test_data['course_data']
         course_data = index_page.get_data_for_course(test_data['cid'])
