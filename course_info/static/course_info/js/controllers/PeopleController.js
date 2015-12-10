@@ -12,12 +12,18 @@
         };
 
         // set up functions we'll be calling later
-        $scope.renderName = function (data, type, full, meta) {
-            return full.profile.name_last + ', ' + full.profile.name_first;
+        $scope.closeSuccess = function(index) {
+            $scope.successes.splice(index, 1);
+        };
+        $scope.closeWarning = function(index) {
+            $scope.warnings.splice(index, 1);
         };
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
                    + '"></badge> ' + full.user_id;
+        };
+        $scope.renderName = function (data, type, full, meta) {
+            return full.profile.name_last + ', ' + full.profile.name_first;
         };
         $scope.renderSource = function (data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
@@ -47,6 +53,40 @@
         // now actually init the controller
         $scope.course_instance_id = $routeParams.course_instance_id;
         $scope.setTitle($scope.course_instance_id);
+        $scope.warnings = [
+            {search_term: 'foo bar baz'},
+            {
+                email_address: 'eric_parker@harvard.edu',
+                role_type_cd: 'XID',
+                enrollments: [{
+                    email_address: 'eric_parker@harvard.edu',
+                    role_type_cd: 'XID',
+                    canvas_role: 'Guest',
+                }],
+            },
+        ];
+        $scope.successes = [{
+            email_address: 'jill_ehrenzweig@harvard.edu',
+            role_type_cd: 'EMPLOYEE',
+            univ_id: 123456789,
+            canvas_role: 'Teaching Staff',
+        }];
+        $scope.searchResults = [
+            {
+                name_last: 'Ehrenzweig',
+                name_first: 'Jill',
+                email_address: 'jill_ehrenzweig@harvard.edu',
+                role_type_cd: 'EMPLOYEE',
+                univ_id: 123456789,
+            },
+            {
+                name_last: 'Ehrenzweig',
+                name_first: 'Jill',
+                email_address: 'jill_ehrenzweig@harvard.edu',
+                role_type_cd: 'XID',
+                univ_id: 123456789,
+            },
+        ];
         $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
