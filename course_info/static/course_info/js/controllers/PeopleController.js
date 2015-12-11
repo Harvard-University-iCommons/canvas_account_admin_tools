@@ -12,11 +12,57 @@
         };
 
         // set up functions we'll be calling later
+        $scope.ajaxErrorHandler = function(data, status, headers, config) {
+            console.log('Error getting data from ' + url + ': '
+                        + status + ' ' + data);
+        };
         $scope.closeSuccess = function(index) {
             $scope.successes.splice(index, 1);
         };
         $scope.closeWarning = function(index) {
             $scope.warnings.splice(index, 1);
+        };
+        $scope.isEmailAddress = function(searchTerm) {
+            // TODO - better regex
+            var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
+            return re.test(searchTerm);
+        };
+        $scope.addUser = function(searchTerm) {
+            if ($scope.searchResults.length > 1) {
+                // TODO - require that a radio button is checked
+                //        (ie. that $scope.selectedResult is valid)
+                // TODO - we've already searched and presented a choice of
+                // role_type_cd, so just POST the user/role.
+            };
+            else if ($scope.searchResults === 1) {
+                // TODO - shouldn't get here...with a single result, we should
+                // just be POSTing.  maybe disable search button while search
+                // is in flight?
+            }
+            else {
+                $scope.lookup(searchTerm);
+            }
+        };
+        $scope.lookup = function(searchTerm) {
+            // TODO - figure out how to decide if they're already in the class
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/people/']);
+            var params = {page_size: 50};
+            if ($scope.isEmailAddress(searchTerm)) {
+                params.email_address = searchTerm;
+            } else {
+                params.univ_id = searchTerm;
+            }
+            $http.get(url, {params: params})
+                .success(function(data, status, headers, config) {
+                    // TODO - write generic "follow next link until we exhaust
+                    //        the results" code, and use it here
+                    $scope.searchResults = data.results;
+                    if (data.results.length === 1) {
+                        // TODO - POST user, handle results
+                    }
+                })
+                .error($scope.ajaxErrorHandler);
         };
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -43,10 +89,7 @@
                         courseInstances.instances[data.course_instance_id] = data;
                         $scope.title = data.title;
                     })
-                    .error(function(data, status, headers, config) {
-                        console.log('Error getting data from ' + url + ': '
-                                    + status + ' ' + data);
-                    });
+                    .error($scope.ajaxErrorHandler);
             }
         };
 
@@ -57,6 +100,7 @@
             {search_term: 'foo bar baz'},
             {
                 email_address: 'eric_parker@harvard.edu',
+                full_name: 'Eric Parker',
                 role_type_cd: 'XID',
                 enrollments: [{
                     email_address: 'eric_parker@harvard.edu',
@@ -71,7 +115,9 @@
             univ_id: 123456789,
             canvas_role: 'Teaching Staff',
         }];
+        $scope.searchTerm = '';
         $scope.searchResults = [
+        /*
             {
                 name_last: 'Ehrenzweig',
                 name_first: 'Jill',
@@ -86,6 +132,7 @@
                 role_type_cd: 'XID',
                 univ_id: 123456789,
             },
+            */
         ];
         $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {

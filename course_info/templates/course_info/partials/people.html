@@ -21,13 +21,18 @@
           <div class="collapse" id="addPeopleDialog">
             <div class="well container-fluid col-md-12">
               <div class="form-group-inline">
+
                 <div class="col-md-6">
                   <div class="form-group">
                     <label class="sr-only" for="emailHUID">Enter Harvard University ID or email addresses</label>
-                    <input type="email" class="form-control" id="emailHUID" placeholder="Enter Harvard University ID or email addresses">
+                    <input class="form-control" id="emailHUID"
+                           placeholder="Enter Harvard University ID or email addresses"
+                           ng-model="searchTerm">
                   </div>
                 </div>
+
                 <div class="col-md-2">
+                  <!-- TODO - bind this selection to a model -->
                   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Guest <span class="caret"></span>
                   </button>
@@ -106,7 +111,9 @@
 												<tr ng-repeat="result in searchResults" class="">
 													<td scope="row">
 														<label>
-															<input type="radio" class="check_search" name="matching_records" id="add_person1">
+															<input type="radio" class="check_search"
+                                     name="matching_records" id="add_person1"
+                                     ng-model="selectedResult" value="$index">
                               <span class="sr-only">{{ result.name_last }}, {{ result.name_first }}</span>
 														</label>
 													</td>
@@ -127,7 +134,7 @@
               </div>
 
 							<div class="col-md-12 row">
-								<a class="btn btn-primary" type="button" disabled>
+                <a class="btn btn-primary" type="button" ng-click="addUser(searchTerm)">
 									<i class="fa fa-plus-circle"></i> Add to Course
 								</a>
 							</div>
