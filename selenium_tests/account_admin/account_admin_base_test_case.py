@@ -2,8 +2,8 @@ from urlparse import urljoin
 
 from django.conf import settings
 
-from selenium_tests.base_selenium_test_case import BaseSeleniumTestCase
-from selenium_tests.pin.page_objects.pin_login_page_object import PinLoginPageObject
+from selenium_common.base_test_case import BaseSeleniumTestCase
+from selenium_common.pin.page_objects.pin_login_page_object import PinLoginPageObject
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object import AccountAdminDashboardPage
 
 
@@ -30,7 +30,7 @@ class AccountAdminBaseTestCase(BaseSeleniumTestCase):
         login_page = PinLoginPageObject(driver)
         if login_page.is_loaded():
             print " logging the user in"
-            login_page.login(cls.USERNAME, cls.PASSWORD)
+            login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
 
