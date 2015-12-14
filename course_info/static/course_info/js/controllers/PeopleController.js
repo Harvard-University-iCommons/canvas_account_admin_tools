@@ -60,9 +60,11 @@
                         console.log('Received multiple pages of results from '
                                     + config.url + ', only using one.');
                     }
-
-                    $scope.searchResults = data.results;
-                    if (data.results.length === 1) {
+                    $scope.intermediateResults = data.results;
+                    if (data.results.length === 0) {
+                        $scope.warnings.push({searchTerm: searchTerm});
+                    }
+                    else if (data.results.length === 1) {
                         // TODO - POST user, handle results
                     }
                 })
@@ -101,7 +103,6 @@
         $scope.course_instance_id = $routeParams.course_instance_id;
         $scope.setTitle($scope.course_instance_id);
         $scope.warnings = [
-            {search_term: 'foo bar baz'},
             {
                 email_address: 'eric_parker@harvard.edu',
                 full_name: 'Eric Parker',
@@ -120,24 +121,7 @@
             canvas_role: 'Teaching Staff',
         }];
         $scope.searchTerm = '';
-        $scope.searchResults = [
-        /*
-            {
-                name_last: 'Ehrenzweig',
-                name_first: 'Jill',
-                email_address: 'jill_ehrenzweig@harvard.edu',
-                role_type_cd: 'EMPLOYEE',
-                univ_id: 123456789,
-            },
-            {
-                name_last: 'Ehrenzweig',
-                name_first: 'Jill',
-                email_address: 'jill_ehrenzweig@harvard.edu',
-                role_type_cd: 'XID',
-                univ_id: 123456789,
-            },
-            */
-        ];
+        $scope.searchResults = [];
         $scope.dtInstance = null;  // not used in code, useful for debugging
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
