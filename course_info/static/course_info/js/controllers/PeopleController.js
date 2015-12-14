@@ -67,8 +67,55 @@
                     else if (data.results.length === 1) {
                         // TODO - POST user, handle results
                     }
+
+                    $scope.searchResults = $scope.filterResults(data.results);
                 })
                 .error($scope.ajaxErrorHandler);
+        };
+        /*
+            concat the active flag with the prime_role_indicator
+            value to be able to sort records base on these values
+            active = (0 | 1) a value of 1 here trumps the prime_role_indicator
+            prime_role_indicator = ( "Y" | "N" | "")
+            1 > 0  true
+            '1:string' > '0:string' true
+            'Y' > 'N' true
+            This should let any records with a 1 in the active column float to the top
+            if there are non, records with a Y in the prime_role_indicator will float up
+            and records with both will float above each of those.
+         */
+        $scope.compare = function(a, b) {
+          var a_item = a.active + ':' + a.prime_role_indicator;
+          var b_item = b.active + ':' + b.prime_role_indicator;
+          if (a_item > b_item)
+            return -1;
+          if (a_item < b_item)
+            return 1;
+          return 0;
+        };
+        $scope.filterResults = function(searchresults){
+            var filteredResults = Array();
+            var resultsDict = {};
+
+            // create a dict of the id's as keys and the
+            // role records as values
+            for (i = 0; i < searchresults.length; i++) {
+              var role = searchresults[i];
+              if (resultsDict[role.univ_id] != undefined) {
+                resultsDict[role.univ_id].push(role);
+              } else {
+                resultsDict[role.univ_id] = [role];
+              }
+            }
+            // for each id sort the role list
+            // and fetch the top record
+            for (id in resultsDict) {
+              var role_list = resultsDict[id];
+              role_list.sort($scope.compare);
+              filteredResults.push(role_list[0]);
+            }
+            // return the filtered list
+            return filteredResults;
         };
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
