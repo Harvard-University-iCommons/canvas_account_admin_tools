@@ -33,7 +33,7 @@
                 //        (ie. that $scope.selectedResult is valid)
                 // TODO - we've already searched and presented a choice of
                 // role_type_cd, so just POST the user/role.
-            };
+            }
             else if ($scope.searchResults === 1) {
                 // TODO - shouldn't get here...with a single result, we should
                 // just be POSTing.  maybe disable search button while search
@@ -44,10 +44,9 @@
             }
         };
         $scope.lookup = function(searchTerm) {
-            // TODO - figure out how to decide if they're already in the class
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/people/']);
-            var params = {page_size: 50};
+            var params = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
                 params.email_address = searchTerm;
             } else {
@@ -57,6 +56,11 @@
                 .success(function(data, status, headers, config) {
                     // TODO - write generic "follow next link until we exhaust
                     //        the results" code, and use it here
+                    if ((data.next !== null) && (data.next !== '')) {
+                        console.log('Received multiple pages of results from '
+                                    + config.url + ', only using one.');
+                    }
+
                     $scope.searchResults = data.results;
                     if (data.results.length === 1) {
                         // TODO - POST user, handle results
