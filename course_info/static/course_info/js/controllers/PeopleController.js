@@ -4,6 +4,7 @@
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
                               djangoUrl, $http, $q) {
+
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -12,18 +13,25 @@
             3: 'source_manual_registrar',
         };
 
+        $scope.selectedResult = {
+            id: undefined
+        };
+
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
-            if ($scope.searchResults.length > 1) {
-                // TODO - require that a radio button is checked
-                //        (ie. that $scope.selectedResult is valid)
-                // TODO - we've already searched and presented a choice of
-                // role_type_cd, so just POST the user/role.
+            if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
+                var user = {
+                    course_instance_id: $scope.course_instance_id,
+                    id: $scope.selectedResult.id,
+                    role: $scope.selectedrole
+                };
+                restService.addUser(user)
+                    .success(function () { console.log('sucess')})
+                    .error(function () { console.log('error')});
             }
             else if ($scope.searchResults === 1) {
-                // TODO - shouldn't get here...with a single result, we should
-                // just be POSTing.  maybe disable search button while search
-                // is in flight?
+
+                //post
             }
             else {
                 $scope.lookup(searchTerm);
@@ -31,6 +39,22 @@
         };
         $scope.closeSuccess = function(index) {
             $scope.successes.splice(index, 1);
+        };
+        $scope.disableAddUserButton = function(){
+            if($scope.searchResults.length > 0 ){
+                if(! $scope.selectedResult.id){
+                    return true;
+                }
+                return false;
+            }
+            if($scope.searchTerm.length > 0){
+                return false;
+            }
+            return true;
+        };
+        $scope.selectRole = function(role_id, role_name){
+            $scope.selectedrole = role_id;
+            $('#select-role-btn-id').text(role_name);
         };
         $scope.closeWarning = function(index) {
             $scope.warnings.splice(index, 1);

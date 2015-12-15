@@ -44,6 +44,7 @@
                   </button>
                   <ul class="dropdown-menu">
                     <li class="disabled"><a href="javascript:undefined">Select Role</a></li>
+
                     <li><a ng-click="selectRole(0, 'Student')">Student</a></li>
                     <li><a ng-click="selectRole(10, 'Guest')">Guest</a></li>
                     <li><a ng-click="selectRole(14, 'Shopper')">Shopper</a></li>
@@ -116,8 +117,8 @@
 													<td scope="row">
 														<label>
 															<input type="radio" class="check_search"
-                                     name="matching_records" id="add_person1"
-                                     ng-model="selectedResult" value="$index">
+                                     name="matching_records" id="add_person{{$index}}"
+                                     ng-model="selectedResult.id" value="{{ result.univ_id }}">
                               <span class="sr-only">{{ result.name_last }}, {{ result.name_first }}</span>
 														</label>
 													</td>
@@ -142,7 +143,7 @@
                    class="btn btn-primary"
                    type="button"
                    ng-click="addUser(searchTerm)"
-                   ng-disabled="searchTerm.length == 0">
+                   ng-disabled="disableAddUserButton()">
 									<i class="fa fa-plus-circle"></i> Add to Course
 								</a>
 							</div>
