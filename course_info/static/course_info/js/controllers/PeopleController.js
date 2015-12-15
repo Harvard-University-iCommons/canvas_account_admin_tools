@@ -85,13 +85,9 @@
             and records with both will float above each of those.
          */
         $scope.compare = function(a, b) {
-          var a_item = a.active + ':' + a.prime_role_indicator;
-          var b_item = b.active + ':' + b.prime_role_indicator;
-          if (a_item > b_item)
-            return -1;
-          if (a_item < b_item)
-            return 1;
-          return 0;
+          return b.active == a.active
+            ? b.prime_role_indicator > a.prime_role_indicator
+            : b.active > a.active;
         };
         $scope.filterResults = function(searchresults){
             var filteredResults = Array();
