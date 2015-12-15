@@ -43,7 +43,7 @@
                 $scope.lookup(searchTerm);
             }
         };
-        $scope.roleselected = function(role_id, role_name){
+        $scope.roleSelected = function(role_id, role_name){
             $scope.selectedrole = role_id;
             $('#select-role-btn-id').text(role_name);
         };
