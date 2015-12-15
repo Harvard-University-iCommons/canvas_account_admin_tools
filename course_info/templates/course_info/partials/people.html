@@ -76,18 +76,18 @@
               <uib-alert ng-repeat="warning in warnings" type="warning"
                          close="closeWarning($index)" class="col-md-12">
                 <!-- user was already enrolled -->
-                <div ng-if="warning.enrollments">
-                  <p><strong>{{ warning.email_address }}</strong> was found in the course:</p>
-                  <p>{{ warning.full_name }} has the following email/id and role associated with this course:</p>
-									<div ng-repeat="enrollment in warning.enrollments"
+                <div ng-if="warning.memberships">
+                  <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
+                  <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
+									<div ng-repeat="membership in warning.memberships"
                        style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-                    {{ enrollment.email_address }}
-                    <badge role="{{ enrollment.role_type_cd }}"></badge>
-                    <strong>Enrolled as {{ enrollment.canvas_role }}</strong>
+                    {{ membership.profile.name_last }}, {{ membership.profile.name_first }}
+                    <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
+                    <strong>Enrolled as {{ membership.role.role_name }}</strong>
 									</div>
                 </div>
                 <!-- search term didn't find a user -->
-                <div ng-if="warning.searchTerm">
+                <div ng-if="!warning.memberships">
                   <p>
                     <i class="fa fa-warning"></i>
                     {{ warning.searchTerm }} was not found. Please check the email or Harvard University ID and try again.

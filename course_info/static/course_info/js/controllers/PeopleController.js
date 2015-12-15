@@ -2,7 +2,8 @@
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
 
-    function PeopleController($scope, $routeParams, courseInstances, $compile, djangoUrl, $http) {
+    function PeopleController($scope, $routeParams, courseInstances, $compile,
+                              djangoUrl, $http, $q) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -79,39 +80,84 @@
             console.log('Error getting data from ' + url + ': '
                         + status + ' ' + data);
         };
+        $scope.handleLookupResults = function(results) {
+            var peopleResult = results[0];
+            var memberResult = results[1];
+
+            // TODO - implement and use generalized logic that will follow any
+            //        "next" links in the rest api response.  note that the api
+            //        proxy doesn't rewrite the next urls.
+            for (result in results) {
+                if (result.next) {
+                    console.log('Received multiple pages of results from '
+                                + result.config.url + ', only using one.');
+                }
+            }
+
+            // if the user is already in the course, just show their current
+            // enrollment
+            if (memberResult.data.results.length > 0) {
+                // just pick the first one to find the name
+                var profile = memberResult.data.results[0].profile
+                $scope.warnings.push({
+                    fullName: profile.name_first + ' ' + profile.name_last,
+                    memberships: memberResult.data.results,
+                    searchTerm: memberResult.config.searchTerm,
+                });
+            }
+            else {
+                var filteredResults = $scope.filterResults(
+                                          peopleResult.data.results);
+                if (filteredResults.length == 0) {
+                    // didn't find any people for the search term
+                    $scope.warnings.push(
+                        {searchTerm: peopleResult.config.searchTerm});
+                }
+                else if (filteredResults.length == 1) {
+                    console.log(filteredResults)
+                }
+                else {
+                    $scope.searchResults = filteredResults;
+                }
+            }
+        };
         $scope.isEmailAddress = function(searchTerm) {
             // TODO - better regex
             var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
             return re.test(searchTerm);
         };
         $scope.lookup = function(searchTerm) {
-            var url = djangoUrl.reverse('icommons_rest_api_proxy',
-                                        ['api/course/v2/people/']);
-            var params = {page_size: 100};
+            // first the general people lookup
+            var peopleUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+                                              ['api/course/v2/people/']);
+            var peopleParams = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
-                params.email_address = searchTerm;
+                peopleParams.email_address = searchTerm;
             } else {
-                params.univ_id = searchTerm;
+                peopleParams.univ_id = searchTerm;
             }
-            $http.get(url, {params: params})
-                .success(function(data, status, headers, config) {
-                    // TODO - write generic "follow next link until we exhaust
-                    //        the results" code, and use it here
-                    if ((data.next !== null) && (data.next !== '')) {
-                        console.log('Received multiple pages of results from '
-                                + config.url + ', only using one.');
-                    }
-                    $scope.intermediateResults = data.results;
-                    if (data.results.length === 0) {
-                        $scope.warnings.push({searchTerm: searchTerm});
-                    }
-                    else if (data.results.length === 1) {
-                        // TODO - POST user, handle results
-                    }
+            var peoplePromise = $http.get(peopleUrl, {params: peopleParams,
+                                                      searchTerm: searchTerm})
+                                     .error($scope.handleAjaxError);
 
-                    $scope.searchResults = $scope.filterResults(data.results);
-                })
-            .error($scope.handleAjaxError);
+            // then the course membership lookup
+            var memberUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+                                              ['api/course/v2/course_instances/'
+                                               + $scope.courseInstanceId
+                                               + '/people/']);
+            var memberParams = {page_size: 100};
+            if ($scope.isEmailAddress(searchTerm)) {
+                memberParams['profile.email_address'] = searchTerm;
+            } else {
+                memberParams.user_id = searchTerm;
+            }
+            var memberPromise = $http.get(memberUrl, {params: memberParams,
+                                                      searchTerm: searchTerm})
+                                     .error($scope.handleAjaxError);
+
+            // wait until they're both done, handle the combined results
+            $q.all([peoplePromise, memberPromise])
+                .then($scope.handleLookupResults);
         };
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -149,18 +195,7 @@
         // now actually init the controller
         $scope.courseInstanceId = $routeParams.courseInstanceId;
         $scope.setTitle($scope.courseInstanceId);
-        $scope.warnings = [
-            {
-                email_address: 'eric_parker@harvard.edu',
-                full_name: 'Eric Parker',
-                role_type_cd: 'XID',
-                enrollments: [{
-                    email_address: 'eric_parker@harvard.edu',
-                    role_type_cd: 'XID',
-                    canvas_role: 'Guest',
-                }],
-            },
-        ];
+        $scope.warnings = [];
         $scope.successes = [{
             email_address: 'jill_ehrenzweig@harvard.edu',
             role_type_cd: 'EMPLOYEE',
