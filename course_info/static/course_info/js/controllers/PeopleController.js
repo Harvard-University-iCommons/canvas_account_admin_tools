@@ -43,6 +43,10 @@
                 $scope.lookup(searchTerm);
             }
         };
+        $scope.roleselected = function(role_id, role_name){
+            $scope.selectedrole = role_id;
+            $('#select-role-btn-id').text(role_name);
+        };
         $scope.lookup = function(searchTerm) {
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/people/']);
