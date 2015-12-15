@@ -55,9 +55,3 @@ SELENIUM_CONFIG = {
     'term_tool_relative_url': SECURE_SETTINGS.get('term_tool_relative_url'),
 
 }
-
-
-
-
-
-
