@@ -31,7 +31,7 @@
                 templateUrl: 'partials/search.html',
                 controller: 'SearchController',
             })
-            .when('/people/:course_instance_id', {
+            .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
                 controller: 'PeopleController',
             })

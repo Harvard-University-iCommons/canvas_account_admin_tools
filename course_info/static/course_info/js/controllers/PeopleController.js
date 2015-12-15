@@ -12,21 +12,6 @@
         };
 
         // set up functions we'll be calling later
-        $scope.ajaxErrorHandler = function(data, status, headers, config) {
-            console.log('Error getting data from ' + url + ': '
-                        + status + ' ' + data);
-        };
-        $scope.closeSuccess = function(index) {
-            $scope.successes.splice(index, 1);
-        };
-        $scope.closeWarning = function(index) {
-            $scope.warnings.splice(index, 1);
-        };
-        $scope.isEmailAddress = function(searchTerm) {
-            // TODO - better regex
-            var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
-            return re.test(searchTerm);
-        };
         $scope.addUser = function(searchTerm) {
             if ($scope.searchResults.length > 1) {
                 // TODO - require that a radio button is checked
@@ -43,9 +28,61 @@
                 $scope.lookup(searchTerm);
             }
         };
-        $scope.roleSelected = function(role_id, role_name){
-            $scope.selectedrole = role_id;
-            $('#select-role-btn-id').text(role_name);
+        $scope.closeSuccess = function(index) {
+            $scope.successes.splice(index, 1);
+        };
+        $scope.closeWarning = function(index) {
+            $scope.warnings.splice(index, 1);
+        };
+        $scope.compareRoles = function(a, b) {
+            /*
+               concat the active flag with the prime_role_indicator
+               value to be able to sort records base on these values
+               active = (0 | 1) a value of 1 here trumps the prime_role_indicator
+               prime_role_indicator = ( "Y" | "N" | "")
+               1 > 0  true
+               '1:string' > '0:string' true
+               'Y' > 'N' true
+               This should let any records with a 1 in the active column float to the top
+               if there are non, records with a Y in the prime_role_indicator will float up
+               and records with both will float above each of those.
+               */
+            return b.active == a.active
+                ? b.prime_role_indicator > a.prime_role_indicator
+                : b.active > a.active;
+        };
+        $scope.filterResults = function(searchResults){
+            var filteredResults = Array();
+            var resultsDict = {};
+
+            // create a dict of the id's as keys and the
+            // role records as values
+            for (i = 0; i < searchResults.length; i++) {
+                var role = searchResults[i];
+                if (resultsDict[role.univ_id] != undefined) {
+                    resultsDict[role.univ_id].push(role);
+                } else {
+                    resultsDict[role.univ_id] = [role];
+                }
+            }
+            // for each id sort the role list
+            // and fetch the top record
+            for (id in resultsDict) {
+                var roleList = resultsDict[id];
+                roleList.sort($scope.compareRoles);
+                filteredResults.push(roleList[0]);
+            }
+            // return the filtered list
+            return filteredResults;
+        };
+        $scope.handleAjaxError = function(data, status, headers, config) {
+            console.log('Error getting data from ' + url + ': '
+                        + status + ' ' + data);
+        };
+        $scope.isEmailAddress = function(searchTerm) {
+            // TODO - better regex
+            var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
+            return re.test(searchTerm);
         };
         $scope.lookup = function(searchTerm) {
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
@@ -62,7 +99,7 @@
                     //        the results" code, and use it here
                     if ((data.next !== null) && (data.next !== '')) {
                         console.log('Received multiple pages of results from '
-                                    + config.url + ', only using one.');
+                                + config.url + ', only using one.');
                     }
                     $scope.intermediateResults = data.results;
                     if (data.results.length === 0) {
@@ -74,48 +111,7 @@
 
                     $scope.searchResults = $scope.filterResults(data.results);
                 })
-                .error($scope.ajaxErrorHandler);
-        };
-        /*
-            concat the active flag with the prime_role_indicator
-            value to be able to sort records base on these values
-            active = (0 | 1) a value of 1 here trumps the prime_role_indicator
-            prime_role_indicator = ( "Y" | "N" | "")
-            1 > 0  true
-            '1:string' > '0:string' true
-            'Y' > 'N' true
-            This should let any records with a 1 in the active column float to the top
-            if there are non, records with a Y in the prime_role_indicator will float up
-            and records with both will float above each of those.
-         */
-        $scope.compare = function(a, b) {
-          return b.active == a.active
-            ? b.prime_role_indicator > a.prime_role_indicator
-            : b.active > a.active;
-        };
-        $scope.filterResults = function(searchresults){
-            var filteredResults = Array();
-            var resultsDict = {};
-
-            // create a dict of the id's as keys and the
-            // role records as values
-            for (i = 0; i < searchresults.length; i++) {
-              var role = searchresults[i];
-              if (resultsDict[role.univ_id] != undefined) {
-                resultsDict[role.univ_id].push(role);
-              } else {
-                resultsDict[role.univ_id] = [role];
-              }
-            }
-            // for each id sort the role list
-            // and fetch the top record
-            for (id in resultsDict) {
-              var role_list = resultsDict[id];
-              role_list.sort($scope.compare);
-              filteredResults.push(role_list[0]);
-            }
-            // return the filtered list
-            return filteredResults;
+            .error($scope.handleAjaxError);
         };
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -127,6 +123,10 @@
         $scope.renderSource = function (data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         },
+        $scope.selectRole = function(roleId, roleName){
+            $scope.selectedrole = roleId;
+            $('#select-role-btn-id').text(roleName);
+        };
         $scope.setTitle = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
@@ -142,13 +142,13 @@
                         courseInstances.instances[data.course_instance_id] = data;
                         $scope.title = data.title;
                     })
-                    .error($scope.ajaxErrorHandler);
+                    .error($scope.handleAjaxError);
             }
         };
 
         // now actually init the controller
-        $scope.course_instance_id = $routeParams.course_instance_id;
-        $scope.setTitle($scope.course_instance_id);
+        $scope.courseInstanceId = $routeParams.courseInstanceId;
+        $scope.setTitle($scope.courseInstanceId);
         $scope.warnings = [
             {
                 email_address: 'eric_parker@harvard.edu',
@@ -174,7 +174,7 @@
             ajax: function(data, callback, settings) {
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/course_instances/'
-                                             + $scope.course_instance_id + '/people/']);
+                                             + $scope.courseInstanceId + '/people/']);
                 var queryParams = {
                     offset: data.start,
                     limit: data.length,
