@@ -33,24 +33,28 @@
 
                 <div class="col-md-2">
                   <!-- TODO - bind this selection to a model -->
-                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button id="select-role-btn-id"
+                          type="button"
+                          class="btn btn-primary dropdown-toggle"
+                          data-toggle="dropdown"
+                          aria-haspopup="true"
+                          aria-expanded="false"
+                          ng-disabled="searchTerm.length == 0">
                     Guest <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
                     <li class="disabled"><a href="javascript:undefined">Select Role</a></li>
-                    <li class=""><a href="javascript:undefined">Student</a></li>
-                    <li><a href="javascript:undefined">Guest</a></li>
-                    <li><a href="javascript:undefined">Shopper</a></li>
-                    <li><a href="javascript:undefined">Harvard-Viewer</a></li>
-                    <li><a href="javascript:undefined">Teacher</a></li>
-                    <li><a href="javascript:undefined">Course Head</a></li>
-                    <li><a href="javascript:undefined">Faculty</a></li>
-                    <li><a href="javascript:undefined">Teaching Staff</a></li>
-                    <li><a href="javascript:undefined">Teaching Assistant</a></li>
-                    <li><a href="javascript:undefined">Course Support Staff</a></li>
-                    <li><a href="javascript:undefined">TA</a></li>
-                    <li><a href="javascript:undefined">Designer</a></li>
-                    <li><a href="javascript:undefined">Observer</a></li>
+                    <li><a ng-click="roleselected(0, 'Student')">Student</a></li>
+                    <li><a ng-click="roleselected(10, 'Guest')">Guest</a></li>
+                    <li><a ng-click="roleselected(14, 'Shopper')">Shopper</a></li>
+                    <li><a ng-click="roleselected(9, 'Teacher')">Teacher</a></li>
+                    <li><a ng-click="roleselected(1, 'Course Head')">Course Head</a></li>
+                    <li><a ng-click="roleselected(2, 'Faculty')">Faculty</a></li>
+                    <li><a ng-click="roleselected(12, 'Teaching Staff')">Teaching Staff</a></li>
+                    <li><a ng-click="roleselected(5, 'Teaching Fellow')">Teaching Fellow</a></li>
+                    <li><a ng-click="roleselected(11, 'Course Support Staff')">Course Support Staff</a></li>
+                    <li><a ng-click="roleselected(7, 'Designer')">Designer</a></li>
+                    <li><a ng-click="roleselected(15, 'Observer')">Observer</a></li>
                   </ul>
                 </div>
 
@@ -134,7 +138,11 @@
               </div>
 
 							<div class="col-md-12 row">
-                <a class="btn btn-primary" type="button" ng-click="addUser(searchTerm)">
+                <a id="add-user-btn-id"
+                   class="btn btn-primary"
+                   type="button"
+                   ng-click="addUser(searchTerm)"
+                   ng-disabled="searchTerm.length == 0">
 									<i class="fa fa-plus-circle"></i> Add to Course
 								</a>
 							</div>
