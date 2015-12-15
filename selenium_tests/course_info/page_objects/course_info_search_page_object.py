@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
-
+from selenium.webdriver.support.select import Select
+from selenium.common.exceptions import NoSuchElementException
 
 class CourseSearchPageLocators(object):
     # List of WebElements found on course search page
@@ -19,6 +20,12 @@ class CourseSearchPageLocators(object):
     COURSE_LINK_TEXT = "A Profile in Ministry: Dietrich Bonhoeffer"
     COURSE_ID_LINK = (By.LINK_TEXT, COURSE_LINK_TEXT)
     TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20881755')]")
+    ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "BTN_Add_People_Search")
+    ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
+    ROLES_DROPDOWN_LIST = (By.ID, "LIST_Roles")
+    ADD_TO_COURSE_BUTTON = (By.ID, "BTN_Add_People_Course")
+    PEOPLE_TABLE = (By.ID, "TBL_people")
+    PEOPLE_ROWS = (By.TAG_NAME, "tr")
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
@@ -77,4 +84,69 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
     def find_test_person_on_page(self):
         element = self.find_element(*CourseSearchPageLocators.TEST_PERSON_ON_PAGE)
         return element
+
+    def search_for_a_user(self, user_id):
+        # Click "Add People" button
+        self.find_element(*CourseSearchPageLocators.ADD_PEOPLE_SEARCH_BUTTON).click()
+        # Clear Textbox
+        self.find_element(*CourseSearchPageLocators.ADD_PEOPLE_SEARCH_TXT).clear()
+        # Enter user to search on
+        self.find_element(*CourseSearchPageLocators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
+
+    def add_user_to_course(self, user_id, role):
+        # Click "Add People" button
+        self.search_for_a_user(user_id)
+        # Select role
+        select_role = self.select_role(role, user_id)
+        #  Add user to course
+        if select_role:
+            self.find_element(*CourseSearchPageLocators.ADD_TO_COURSE_BUTTON).click()
+        else:
+            return False
+
+
+    def select_role(self, role_visible_text=None, user_id=None):
+        """ Select role for user, return true if visible, else return false """
+
+        # Get the role dropdown as instance of Select class
+        if user_id:
+            user_role_select = self._driver.find_element_by_css_selector('[data-selenium-user-id=%s]' % user_id)
+        else:
+            try:
+                user_role_select = self.find_element(*CourseSearchPageLocators.ROLES_DROPDOWN_LIST)
+            except NoSuchElementException:
+                try:
+                    self.focus_on_tool_frame()
+                    user_role_select = self.find_element(*CourseSearchPageLocators.ROLES_DROPDOWN_LIST)
+                except:
+                    return False
+
+        selenium_select = Select(user_role_select)
+
+        try:
+            if role_visible_text:
+                selenium_select.select_by_visible_text(role_visible_text)
+            else:
+                # Default to this value if no role is passed in
+                selenium_select.select_by_index(1)
+        except:
+            return False
+
+
+        return True
+
+
+    def find_user_added_on_page(self, user_id):
+        user_table_id = self.find_element(*CourseSearchPageLocators.PEOPLE_TABLE)
+        rows = user_table_id.find_elements(*CourseSearchPageLocators.PEOPLE_ROWS)
+        match_found = False
+
+        for row in rows:
+            row_user = row.find_element(By.TAG_NAME, "td")[2]  # find univ_id to match on
+            if row_user == user_id:   # break, if match is found
+                match_found = True
+                break
+
+        if not match_found:
+            return False
 
