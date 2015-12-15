@@ -2,10 +2,7 @@ import unittest
 
 from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object import AccountAdminDashboardPage
-from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageLocators
 from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 
 COURSE_INSTANCE_ID = '347547'
 COURSE_USER_ID = "30833767"
@@ -31,8 +28,12 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         search_page.select_course_id()
 
         # search for a user
-        self.assertTrue()
+        search_page.search_for_a_user(COURSE_USER_ID)
 
+        # assert that user is found
+        # TODO - look for tag uib-alert type=success or look up by univ_id
+
+    @unittest.skip("repetitive adding of the same user is not allowed and delete function is not in place yet")
     def test_add_user_found_on_page(self):
         """verify the people search functionality"""
         # initialize
