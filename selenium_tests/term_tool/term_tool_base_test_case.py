@@ -1,5 +1,4 @@
 from urlparse import urljoin
-
 from django.conf import settings
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
