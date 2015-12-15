@@ -1,0 +1,1 @@
+from selenium_common.base_page_object import BasePageObjectclass IndexPageObject(BasePageObject):    def is_loaded(self):        pass        # Not testing the index page, for this round;        # placeholder page object to use with setup class

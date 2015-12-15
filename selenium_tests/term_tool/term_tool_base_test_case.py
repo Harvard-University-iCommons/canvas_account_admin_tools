@@ -3,9 +3,10 @@ from urlparse import urljoin
 from django.conf import settings
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
-from selenium_common.pin.page_objects.pin_login_page_object import PinLoginPageObject
-from selenium_tests.term_tool.page_objects.term_tool_shopping_exclude_page_object \
-    import TermToolShoppingExcludePageObject
+from selenium_common.pin.page_objects.pin_login_page_object \
+    import PinLoginPageObject
+from selenium_tests.term_tool.page_objects.index_page_page_object \
+    import IndexPageObject
 
 
 class TermToolBaseTestCase(BaseSeleniumTestCase):
@@ -19,14 +20,18 @@ class TermToolBaseTestCase(BaseSeleniumTestCase):
         super(TermToolBaseTestCase, cls).setUpClass()
         cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
         cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
-        cls.TERM_TOOL_BASE_URL = settings.SELENIUM_CONFIG.get('term_tool_base_url')
-        cls.TERM_TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG.get('term_tool_relative_url')
-        cls.TOOL_URL = urljoin(cls.TERM_TOOL_BASE_URL, cls.TERM_TOOL_RELATIVE_URL)
+        cls.TERM_TOOL_BASE_URL = settings.SELENIUM_CONFIG.get(
+            'term_tool_base_url')
+        cls.TERM_TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG.get(
+            'term_tool_relative_url')
+        cls.TOOL_URL = urljoin(cls.TERM_TOOL_BASE_URL,
+                               cls. TERM_TOOL_RELATIVE_URL)
 
         #  Login to Term Tool Index Page
-        cls.term_tool_index_page = TermToolShoppingExcludePageObject(cls.driver)
+        cls.term_tool_index_page = IndexPageObject(cls.driver)
         cls.term_tool_index_page.get(cls.TOOL_URL)
         login_page = PinLoginPageObject(cls.driver)
+        # TODO: check that the term_tool_index_page.is_loaded()
         if login_page.is_loaded():
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
