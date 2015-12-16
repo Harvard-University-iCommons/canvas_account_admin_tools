@@ -8,17 +8,4 @@
             instances: {}
         };
     });
-
-
-    app.factory('restService', '$http', function($http) {
-        var baseUrl = '/icommons_rest_api/api';
-        return {
-            addUser: function (user) {
-                console.log(user);
-                var apiCall = '/course_instance/' + user.course_instance_id + '/people';
-                return $http.post(baseUrl + apiCall, user);
-            }
-        }
-    });
-
 })();

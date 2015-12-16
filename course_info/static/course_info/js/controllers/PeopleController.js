@@ -19,23 +19,45 @@
 
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
+
+            // TODO need to build user dict so we can add it to sucess or warnings
+            // as well as submit to post?
+
+            // TODO sample of what we should pass, do we need all?
+            //email_address: 'jill_ehrenzweig@harvard.edu',
+            //role_type_cd: 'EMPLOYEE',
+            //univ_id: 123456789,
+            //canvas_role: 'Teaching Staff',
+
+            user = {
+                univ_id: $scope.selectedResult.id,
+                role_id: $scope.selectedrole
+                canvas_role: $scope.selectedRoleName
+            }
             if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
-                var user = {
-                    course_instance_id: $scope.course_instance_id,
-                    id: $scope.selectedResult.id,
-                    role: $scope.selectedrole
-                };
-                restService.addUser(user)
-                    .success(function () { console.log('sucess')})
-                    .error(function () { console.log('error')});
+                $scope.addUserToCourse(user);
             }
             else if ($scope.searchResults === 1) {
-
-                //post
+               $scope.addUserToCourse(user);
             }
             else {
                 $scope.lookup(searchTerm);
             }
+        };
+        $scope.addUserToCourse = function(user){
+
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                            ['api/course/v2/course_instances/'
+                                             + $scope.courseInstanceId + '/people/']);
+            $http.post(user)
+              .success(function(data, status){
+                  //TODO add the user to the sucess list, do the user match what we need?
+                  $scope.successes.push(user);
+              })
+              .error(function(data, status){
+                  // TODO do we need to add a message?
+                  $scope.warnings.push(user);
+              });
         };
         $scope.closeSuccess = function(index) {
             $scope.successes.splice(index, 1);
@@ -121,7 +143,7 @@
                 }
             }
 
-            // if the user is already in the course, just show their current
+            ///if the user is already in the course, just show their current
             // enrollment
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
@@ -133,6 +155,7 @@
                 });
             }
             else {
+
                 var filteredResults = $scope.filterResults(
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
@@ -141,7 +164,9 @@
                         {searchTerm: peopleResult.config.searchTerm});
                 }
                 else if (filteredResults.length == 1) {
-                    console.log(filteredResults)
+                    var user = {user_id: filteredResults.data.results[0].univ_id, role_id: $scope.selectedrole}
+                    console.log(filteredResults);
+                    $scope.addUserToCourse({user_id: filteredResults.univ_id, role_id: $scope.selectedrole});
                 }
                 else {
                     $scope.searchResults = filteredResults;
@@ -172,12 +197,15 @@
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
+
+
             var memberParams = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
                 memberParams['profile.email_address'] = searchTerm;
             } else {
                 memberParams.user_id = searchTerm;
             }
+
             var memberPromise = $http.get(memberUrl, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
@@ -198,6 +226,7 @@
         },
         $scope.selectRole = function(roleId, roleName){
             $scope.selectedrole = roleId;
+            $scope.selectedRoleName = roleName;
             $('#select-role-btn-id').text(roleName);
         };
         $scope.setTitle = function(id) {
