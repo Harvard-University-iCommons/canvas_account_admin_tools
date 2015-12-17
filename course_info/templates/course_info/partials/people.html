@@ -81,7 +81,7 @@
                   <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
 									<div ng-repeat="membership in warning.memberships"
                        style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-                    {{ membership.profile.name_last }}, {{ membership.profile.name_first }}
+                    {{ getProfileFullName(membership.profile) }}
                     <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
                     <strong>Enrolled as {{ membership.role.role_name }}</strong>
 									</div>
@@ -165,9 +165,9 @@
                    close="closeSuccess($index)" class="col-md-12">
           <p><strong>{{ person.email_address }}</strong> was just added to this course:</p>
           <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-            {{ person.email_address }}
+            {{ getProfileFullName(person) }}
             <badge role="{{ person.role_type_cd }}"></badge> {{ person.univ_id }}
-            <strong>{{ person.canvas_role }}</strong>
+            <strong>Enrolled as {{ person.canvas_role }}</strong>
           </div>
         </uib-alert>
 

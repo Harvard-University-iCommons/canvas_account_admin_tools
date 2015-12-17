@@ -76,6 +76,9 @@
             // return the filtered list
             return filteredResults;
         };
+        $scope.getProfileFullName = function(profile) {
+            return profile.name_last + ', ' + profile.name_first;
+        };
         $scope.handleAjaxError = function(data, status, headers, config) {
             console.log('Error getting data from ' + url + ': '
                         + status + ' ' + data);
@@ -100,7 +103,7 @@
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile
                 $scope.warnings.push({
-                    fullName: profile.name_first + ' ' + profile.name_last,
+                    fullName: $scope.getProfileFullName(profile),
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 });
@@ -164,7 +167,7 @@
                    + '"></badge> ' + full.user_id;
         };
         $scope.renderName = function (data, type, full, meta) {
-            return full.profile.name_last + ', ' + full.profile.name_first;
+            return $scope.getProfileFullName(full.profile);
         };
         $scope.renderSource = function (data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
@@ -197,6 +200,8 @@
         $scope.setTitle($scope.courseInstanceId);
         $scope.warnings = [];
         $scope.successes = [{
+            name_last: 'Ehrenzweig',
+            name_first: 'Jill',
             email_address: 'jill_ehrenzweig@harvard.edu',
             role_type_cd: 'EMPLOYEE',
             univ_id: 123456789,
