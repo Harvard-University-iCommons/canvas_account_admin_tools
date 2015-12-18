@@ -11,13 +11,14 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
-
+        $scope.searchInProgress = false;
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
+            $scope.searchInProgress = true;
             if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
                 // TODO: assert that radio box is selected
                 $scope.addUserToCourse(searchTerm,
-                                       {user_id: filteredResults[0].univ_id,
+                                       {user_id: $scope.selectedResult.id,
                                         role_id: $scope.selectedRole.roleId});
             }
             else if ($scope.searchResults === 1) {
@@ -69,6 +70,7 @@
                         roleName: $scope.getRoleName(user.role_id),
                     });
                 });
+            $scope.searchInProgress = false;
         };
         $scope.closeAlert = function(source, index) {
             $scope[source].splice(index, 1);
@@ -91,15 +93,22 @@
                 : b.active > a.active;
         };
         $scope.disableAddUserButton = function(){
-            if ($scope.searchResults.length > 0 ){
-                return (!$scope.selectedResult.id);
-            }
-            else if ($scope.searchTerm.length > 0){
+
+            /*
+            * this method will disable the button when a search is in progress
+            * it will enable the button if multiple results are found and one
+            * is selected.
+            * */
+            if ($scope.searchTerm.length > 0 && ! $scope.searchInProgress){
                 return false;
             }
-            else {
-                return true;
+
+            if( $scope.searchResults.length > 1 ){
+                return (!$scope.selectedResult.id);
             }
+
+            return true;
+
         };
         $scope.filterResults = function(searchResults){
             var filteredResults = Array();
@@ -172,7 +181,6 @@
                     });
                 }
                 else if (filteredResults.length == 1) {
-                    console.log(filteredResults);
                     $scope.addUserToCourse(peopleResult.config.searchTerm,
                                            {user_id: filteredResults[0].univ_id,
                                             role_id: $scope.selectedRole.roleId});
@@ -226,6 +234,9 @@
         $scope.renderId = function (data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
                    + '"></badge> ' + full.user_id;
+        };
+        $scope.getProfileFullName = function(profile){
+            return profile.name_first + ' ' + profile.name_last;
         };
         $scope.renderName = function (data, type, full, meta) {
             return $scope.getProfileFullName(full.profile);
