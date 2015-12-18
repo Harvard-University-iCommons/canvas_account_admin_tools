@@ -243,7 +243,7 @@
         };
         $scope.renderSource = function (data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
-        },
+        };
         $scope.selectRole = function (role) {
             $scope.selectedRole = role;
         };
