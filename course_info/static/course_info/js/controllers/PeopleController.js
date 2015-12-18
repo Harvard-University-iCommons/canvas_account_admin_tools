@@ -36,14 +36,26 @@
             $http.post(url, user)
                 .success(function(data, status, headers, config, statusText) {
                     if (data.detail) {
-                        // TODO - only add a failed-to-add-to-canvas partialFailure
-                        //        if the course instance has a canvas site.
-                        // TODO - put more details into this warning, like
-                        //        user/role details.
-                        $scope.partialFailures.push({
-                            searchTerm: searchTerm,
-                            text: data.detail,
-                        });
+                        if (data.detail ==
+                                'User could not be enrolled in Canvas course/section.') {
+                            var ci = courseInstances.instances[$scope.courseInstanceId];
+                            var externalSites = (ci.sites || []).filter(
+                                                    function(site) {
+                                                        return site.site_type_id == 'external';
+                                                    });
+                            if (externalSites.length > 0) {
+                                $scope.partialFailures.push({
+                                    searchTerm: searchTerm,
+                                    text: data.detail,
+                                });
+                            }
+                        }
+                        else {
+                            $scope.partialFailures.push({
+                                searchTerm: searchTerm,
+                                text: data.detail,
+                            });
+                        }
                     }
 
                     $http.get(url, {params: {user_id: user.user_id}})
