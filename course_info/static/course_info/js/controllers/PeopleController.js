@@ -35,8 +35,10 @@
             $http.post(url, user)
                 .success(function(data, status, headers, config, statusText) {
                     if (data.detail) {
+                        // TODO - only add a failed-to-add-to-canvas partialFailure
+                        //        if the course instance has a canvas site.
                         // TODO - put more details into this warning, like
-                        //        and user details.
+                        //        user/role details.
                         $scope.partialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
@@ -127,7 +129,7 @@
         };
         $scope.getRoleName = function(roleId) {
             var roles = $scope.roles.filter(
-                            function (role) { return role.roleId == roleId; });
+                            function(role) { return role.roleId == roleId; });
             // TODO - error handling if roles.length > 1
             return roles[0].roleName;
         };
@@ -223,20 +225,20 @@
             $q.all([peoplePromise, memberPromise])
                 .then($scope.handleLookupResults);
         };
-        $scope.renderId = function (data, type, full, meta) {
+        $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
                    + '"></badge> ' + full.user_id;
         };
-        $scope.renderName = function (data, type, full, meta) {
-            return $scope.getProfileFullName(full.profile);
+        $scope.renderName = function(data, type, full, meta) {
+            return full.profile.name_last + ', ' + full.profile.name_first;
         };
-        $scope.renderSource = function (data, type, full, meta) {
+        $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         },
-        $scope.selectRole = function (role) {
+        $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
-        $scope.setTitle = function (id) {
+        $scope.setTitle = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
                 $scope.title = ci.title;
