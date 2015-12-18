@@ -14,26 +14,66 @@
 
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
-            if ($scope.searchResults.length > 1) {
-                // TODO - require that a radio button is checked
-                //        (ie. that $scope.selectedResult is valid)
-                // TODO - we've already searched and presented a choice of
-                // role_type_cd, so just POST the user/role.
+            if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
+                // TODO: assert that radio box is selected
+                $scope.addUserToCourse(searchTerm,
+                                       {user_id: filteredResults[0].univ_id,
+                                        role_id: $scope.selectedRole.roleId});
             }
             else if ($scope.searchResults === 1) {
-                // TODO - shouldn't get here...with a single result, we should
-                // just be POSTing.  maybe disable search button while search
-                // is in flight?
+                // TODO - shouldn't get here, log the error
+                console.log('Add user button pressed while we have a single search result');
             }
             else {
                 $scope.lookup(searchTerm);
             }
         };
-        $scope.closeSuccess = function(index) {
-            $scope.successes.splice(index, 1);
+        $scope.addUserToCourse = function(searchTerm, user){
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.courseInstanceId + '/people/']);
+            $http.post(url, user)
+                .success(function(data, status, headers, config, statusText) {
+                    if (data.detail) {
+                        // TODO - only add a failed-to-add-to-canvas partialFailure
+                        //        if the course instance has a canvas site.
+                        // TODO - put more details into this warning, like
+                        //        user/role details.
+                        $scope.partialFailures.push({
+                            searchTerm: searchTerm,
+                            text: data.detail,
+                        });
+                    }
+
+                    $http.get(url, {params: {user_id: user.user_id}})
+                        .success(function(data, status, headers, config, statusText) {
+                            data.results[0].searchTerm = searchTerm;
+                            $scope.successes.push(data.results[0]);
+                            $scope.dtInstance.reloadData();
+                        })
+                        .error(function(data, status, headers, config, statusText) {
+                            // log it, then display a warning
+                            $scope.handleAjaxError(data, status, headers, config,
+                                                   statusText);
+                            $scope.partialFailures.push({
+                                searchTerm: searchTerm,
+                                text: 'Add to course seemed to succeed, but ' +
+                                      'we received an error trying to retrieve ' +
+                                      "the user's course details.",
+                            })
+                        });
+                })
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+                    $scope.warnings.push({
+                        type: 'addFailed',
+                        searchTerm: searchTerm,
+                        roleName: $scope.getRoleName(user.role_id),
+                    });
+                });
         };
-        $scope.closeWarning = function(index) {
-            $scope.warnings.splice(index, 1);
+        $scope.closeAlert = function(source, index) {
+            $scope[source].splice(index, 1);
         };
         $scope.compareRoles = function(a, b) {
             /*
@@ -51,6 +91,17 @@
             return b.active == a.active
                 ? b.prime_role_indicator > a.prime_role_indicator
                 : b.active > a.active;
+        };
+        $scope.disableAddUserButton = function(){
+            if ($scope.searchResults.length > 0 ){
+                return (!$scope.selectedResult.id);
+            }
+            else if ($scope.searchTerm.length > 0){
+                return false;
+            }
+            else {
+                return true;
+            }
         };
         $scope.filterResults = function(searchResults){
             var filteredResults = Array();
@@ -76,12 +127,16 @@
             // return the filtered list
             return filteredResults;
         };
-        $scope.getProfileFullName = function(profile) {
-            return profile.name_last + ', ' + profile.name_first;
+        $scope.getRoleName = function(roleId) {
+            var roles = $scope.roles.filter(
+                            function(role) { return role.roleId == roleId; });
+            // TODO - error handling if roles.length > 1
+            return roles[0].roleName;
         };
-        $scope.handleAjaxError = function(data, status, headers, config) {
-            console.log('Error getting data from ' + url + ': '
-                        + status + ' ' + data);
+        $scope.handleAjaxError = function(data, status, headers, config, statusText) {
+            console.log('Error getting data from ' + config.url + ': '
+                        + status + ' ' + statusText +
+                        ': ' + JSON.stringify(data));
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -97,13 +152,13 @@
                 }
             }
 
-            // if the user is already in the course, just show their current
-            // enrollment
+            // if the user is already in the course, show their current enrollment
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile
                 $scope.warnings.push({
-                    fullName: $scope.getProfileFullName(profile),
+                    type: 'alreadyInCourse',
+                    fullName: profile.name_first + ' ' + profile.name_last,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 });
@@ -113,11 +168,16 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.warnings.push(
-                        {searchTerm: peopleResult.config.searchTerm});
+                    $scope.warnings.push({
+                        type: 'notFound',
+                        searchTerm: peopleResult.config.searchTerm,
+                    });
                 }
                 else if (filteredResults.length == 1) {
-                    console.log(filteredResults)
+                    console.log(filteredResults);
+                    $scope.addUserToCourse(peopleResult.config.searchTerm,
+                                           {user_id: filteredResults[0].univ_id,
+                                            role_id: $scope.selectedRole.roleId});
                 }
                 else {
                     $scope.searchResults = filteredResults;
@@ -148,12 +208,15 @@
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
+
+
             var memberParams = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
                 memberParams['profile.email_address'] = searchTerm;
             } else {
                 memberParams.user_id = searchTerm;
             }
+
             var memberPromise = $http.get(memberUrl, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
@@ -162,19 +225,18 @@
             $q.all([peoplePromise, memberPromise])
                 .then($scope.handleLookupResults);
         };
-        $scope.renderId = function (data, type, full, meta) {
+        $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
                    + '"></badge> ' + full.user_id;
         };
-        $scope.renderName = function (data, type, full, meta) {
-            return $scope.getProfileFullName(full.profile);
+        $scope.renderName = function(data, type, full, meta) {
+            return full.profile.name_last + ', ' + full.profile.name_first;
         };
-        $scope.renderSource = function (data, type, full, meta) {
+        $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         },
-        $scope.selectRole = function(roleId, roleName){
-            $scope.selectedrole = roleId;
-            $('#select-role-btn-id').text(roleName);
+        $scope.selectRole = function(role) {
+            $scope.selectedRole = role;
         };
         $scope.setTitle = function(id) {
             var ci = courseInstances.instances[id];
@@ -187,7 +249,7 @@
                               'icommons_rest_api_proxy',
                               ['api/course/v2/course_instances/' + id + '/']);
                 $http.get(url)
-                    .success(function(data, status, headers, config) {
+                    .success(function(data, status, headers, config, statusText) {
                         courseInstances.instances[data.course_instance_id] = data;
                         $scope.title = data.title;
                     })
@@ -199,17 +261,26 @@
         $scope.courseInstanceId = $routeParams.courseInstanceId;
         $scope.setTitle($scope.courseInstanceId);
         $scope.warnings = [];
-        $scope.successes = [{
-            name_last: 'Ehrenzweig',
-            name_first: 'Jill',
-            email_address: 'jill_ehrenzweig@harvard.edu',
-            role_type_cd: 'EMPLOYEE',
-            univ_id: 123456789,
-            canvas_role: 'Teaching Staff',
-        }];
+        $scope.successes = [];
+        $scope.partialFailures = [];
         $scope.searchTerm = '';
         $scope.searchResults = [];
-        $scope.dtInstance = null;  // not used in code, useful for debugging
+        $scope.selectedResult = {id: undefined};
+        $scope.roles = [
+            {roleId: 0, roleName: 'Student'},
+            {roleId: 10, roleName: 'Guest'},
+            {roleId: 14, roleName: 'Shopper'},
+            {roleId: 9, roleName: 'Teacher'},
+            {roleId: 1, roleName: 'Course Head'},
+            {roleId: 2, roleName: 'Faculty'},
+            {roleId: 12, roleName: 'Teaching Staff'},
+            {roleId: 5, roleName: 'Teaching Fellow'},
+            {roleId: 11, roleName: 'Course Support Staff'},
+            {roleId: 7, roleName: 'Designer'},
+            {roleId: 15, roleName: 'Observer'},
+        ];
+        $scope.selectedRole = $scope.roles[0];
+        $scope.dtInstance = null;
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',

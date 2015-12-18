@@ -16,7 +16,7 @@
         <div role="tabpanel" class="tab-pane active fade in active" id="people">
           <br />
           <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#addPeopleDialog" aria-expanded="false" aria-controls="addPeopleDialog">
-            <i class="fa fa-navicon"></i> Add People  <span class="caret"></span>
+            <i class="fa fa-navicon"></i> Add People <span class="caret"></span>
           </button>
           <div class="collapse" id="addPeopleDialog">
             <div class="well container-fluid col-md-12">
@@ -32,29 +32,22 @@
                 </div>
 
                 <div class="col-md-2">
-                  <!-- TODO - bind this selection to a model -->
                   <button id="select-role-btn-id"
                           type="button"
                           class="btn btn-primary dropdown-toggle"
                           data-toggle="dropdown"
                           aria-haspopup="true"
                           aria-expanded="false"
-                          ng-disabled="searchTerm.length == 0">
-                    Guest <span class="caret"></span>
+                          ng-disabled="searchTerm.length == 0"
+                          ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
                   </button>
-                  <ul class="dropdown-menu">
-                    <li class="disabled"><a href="javascript:undefined">Select Role</a></li>
-                    <li><a ng-click="selectRole(0, 'Student')">Student</a></li>
-                    <li><a ng-click="selectRole(10, 'Guest')">Guest</a></li>
-                    <li><a ng-click="selectRole(14, 'Shopper')">Shopper</a></li>
-                    <li><a ng-click="selectRole(9, 'Teacher')">Teacher</a></li>
-                    <li><a ng-click="selectRole(1, 'Course Head')">Course Head</a></li>
-                    <li><a ng-click="selectRole(2, 'Faculty')">Faculty</a></li>
-                    <li><a ng-click="selectRole(12, 'Teaching Staff')">Teaching Staff</a></li>
-                    <li><a ng-click="selectRole(5, 'Teaching Fellow')">Teaching Fellow</a></li>
-                    <li><a ng-click="selectRole(11, 'Course Support Staff')">Course Support Staff</a></li>
-                    <li><a ng-click="selectRole(7, 'Designer')">Designer</a></li>
-                    <li><a ng-click="selectRole(15, 'Observer')">Observer</a></li>
+                  <ul class="dropdown-menu" role="menu"
+                      aria-labelledby="select-role-btn-id">
+                    <li ng-repeat="role in roles">
+                      <a ng-click="selectRole(role)">
+                        {{ role.roleName }}
+                      </a>
+                    </li>
                   </ul>
                 </div>
 
@@ -74,9 +67,9 @@
 
               <!-- warning alerts -->
               <uib-alert ng-repeat="warning in warnings" type="warning"
-                         close="closeWarning($index)" class="col-md-12">
+                         close="closeAlert('warnings', $index)" class="col-md-12">
                 <!-- user was already enrolled -->
-                <div ng-if="warning.memberships">
+                <div ng-if="warning.type == 'alreadyInCourse'">
                   <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
                   <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
 									<div ng-repeat="membership in warning.memberships"
@@ -86,12 +79,18 @@
                     <strong>Enrolled as {{ membership.role.role_name }}</strong>
 									</div>
                 </div>
+
                 <!-- search term didn't find a user -->
-                <div ng-if="!warning.memberships">
+                <div ng-if="warning.type == 'notFound'">
                   <p>
                     <i class="fa fa-warning"></i>
                     {{ warning.searchTerm }} was not found. Please check the email or Harvard University ID and try again.
                   </p>
+                </div>
+
+                <div ng-if="warning.type == 'addFailed'">
+                  <p>Error attempting to enroll <strong>{{ warning.searchTerm }}</strong>
+                  as <strong>{{ warning.roleName }}</strong>.  Please try again.</p>
                 </div>
               </uib-alert>
 
@@ -116,8 +115,8 @@
 													<td scope="row">
 														<label>
 															<input type="radio" class="check_search"
-                                     name="matching_records" id="add_person1"
-                                     ng-model="selectedResult" value="$index">
+                                     name="matching_records" id="add_person{{$index}}"
+                                     ng-model="selectedResult.id" value="{{ result.univ_id }}">
                               <span class="sr-only">{{ result.name_last }}, {{ result.name_first }}</span>
 														</label>
 													</td>
@@ -142,7 +141,7 @@
                    class="btn btn-primary"
                    type="button"
                    ng-click="addUser(searchTerm)"
-                   ng-disabled="searchTerm.length == 0">
+                   ng-disabled="disableAddUserButton()">
 									<i class="fa fa-plus-circle"></i> Add to Course
 								</a>
 							</div>
@@ -162,13 +161,20 @@
         <h3>People in {{title}}</h3>
 
         <uib-alert ng-repeat="person in successes" type="success"
-                   close="closeSuccess($index)" class="col-md-12">
-          <p><strong>{{ person.email_address }}</strong> was just added to this course:</p>
+                   close="closeAlert('successes', $index)" class="col-md-12">
+          <p><strong>{{ searchTerm }}</strong> was just added to this course:</p>
           <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-            {{ getProfileFullName(person) }}
-            <badge role="{{ person.role_type_cd }}"></badge> {{ person.univ_id }}
-            <strong>Enrolled as {{ person.canvas_role }}</strong>
+            {{ person.profile.name_last }}, {{ person.profile.name_first }}
+            <badge role="{{ person.profile.role_type_cd }}"></badge> {{ person.profile.univ_id }}
+            <strong>Enrolled as {{ person.role.role_name }}</strong>
           </div>
+        </uib-alert>
+
+        <!-- partial failure warning alerts -->
+        <uib-alert ng-repeat="partial in partialFailures" type="warning"
+                   close="closeAlert('partialFailures', $index)" class="col-md-12">
+          <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
+          <p>{{ partial.text }}</p>
         </uib-alert>
 
         <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
