@@ -67,9 +67,9 @@
 
               <!-- warning alerts -->
               <uib-alert ng-repeat="warning in warnings" type="warning"
-                         close="closeWarning($index)" class="col-md-12">
+                         close="closeAlert('warnings', $index)" class="col-md-12">
                 <!-- user was already enrolled -->
-                <div ng-if="warning.memberships">
+                <div ng-if="warning.type == 'alreadyInCourse'">
                   <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
                   <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
 									<div ng-repeat="membership in warning.memberships"
@@ -79,12 +79,18 @@
                     <strong>Enrolled as {{ membership.role.role_name }}</strong>
 									</div>
                 </div>
+
                 <!-- search term didn't find a user -->
-                <div ng-if="!warning.memberships">
+                <div ng-if="warning.type == 'notFound'">
                   <p>
                     <i class="fa fa-warning"></i>
                     {{ warning.searchTerm }} was not found. Please check the email or Harvard University ID and try again.
                   </p>
+                </div>
+
+                <div ng-if="warning.type == 'addFailed'">
+                  <p>Error attempting to enroll <strong>{{ warning.searchTerm }}</strong>
+                  as <strong>{{ warning.roleName }}</strong>.  Please try again.</p>
                 </div>
               </uib-alert>
 
@@ -155,13 +161,20 @@
         <h3>People in {{title}}</h3>
 
         <uib-alert ng-repeat="person in successes" type="success"
-                   close="closeSuccess($index)" class="col-md-12">
-          <p><strong>{{ person.email_address }}</strong> was just added to this course:</p>
+                   close="closeAlert('successes', $index)" class="col-md-12">
+          <p><strong>{{ searchTerm }}</strong> was just added to this course:</p>
           <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-            {{ getProfileFullName(person) }}
-            <badge role="{{ person.role_type_cd }}"></badge> {{ person.univ_id }}
-            <strong>Enrolled as {{ person.canvas_role }}</strong>
+            {{ person.profile.name_last }}, {{ person.profile.name_first }}
+            <badge role="{{ person.profile.role_type_cd }}"></badge> {{ person.profile.univ_id }}
+            <strong>Enrolled as {{ person.role.role_name }}</strong>
           </div>
+        </uib-alert>
+
+        <!-- partial failure warning alerts -->
+        <uib-alert ng-repeat="partial in partialFailures" type="warning"
+                   close="closeAlert('partialFailures', $index)" class="col-md-12">
+          <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
+          <p>{{ partial.text }}</p>
         </uib-alert>
 
         <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
