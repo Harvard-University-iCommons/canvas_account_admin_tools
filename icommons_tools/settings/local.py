@@ -53,5 +53,10 @@ SELENIUM_CONFIG = {
     'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
     'term_tool_base_url': SECURE_SETTINGS.get('term_tool_base_url'),
     'term_tool_relative_url': SECURE_SETTINGS.get('term_tool_relative_url'),
+    'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
+    'canvas_base_dev_url': SECURE_SETTINGS.get('canvas_base_dev_url'),
+    'canvas_shopping_relative_url': SECURE_SETTINGS.get(
+        'canvas_shopping_relative_url'),
+    'new_dev_selenium_user': SECURE_SETTINGS.get('new_dev_selenium_user')
 
 }
