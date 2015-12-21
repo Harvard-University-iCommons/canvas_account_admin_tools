@@ -151,7 +151,8 @@
               </a>
             </div>
 
-            <div class="col-md-8 col-md-offset-2 hidden" style="padding-top: 1em">
+            <div class="col-md-8 col-md-offset-2 hidden" style="padding-top: 1em"
+                 ng-class="{'hidden' : !searchInProgress || searchResults.length > 0}">
               <div class="progress">
                 <div class="progress-bar progress-bar-success progress-bar-striped active"
                      role="progressbar" aria-valuenow="100" aria-valuemin="0"
