@@ -185,6 +185,7 @@
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
                     });
+                    $scope.searchInProgress = false;
                 }
                 else if (filteredResults.length == 1) {
                     $scope.addUserToCourse(peopleResult.config.searchTerm,
@@ -193,6 +194,7 @@
                 }
                 else {
                     $scope.searchResults = filteredResults;
+                    $scope.searchInProgress = false;
                 }
             }
         };
