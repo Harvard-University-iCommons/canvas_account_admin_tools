@@ -56,13 +56,11 @@
                             });
                         }
                     }
-
                     $http.get(url, {params: {user_id: user.user_id}})
                         .success(function(data, status, headers, config, statusText) {
                             data.results[0].searchTerm = searchTerm;
                             $scope.successes.push(data.results[0]);
                             $scope.dtInstance.reloadData();
-
                         })
                         .error(function(data, status, headers, config, statusText) {
                             // log it, then display a warning
@@ -88,7 +86,6 @@
                     });
                     $scope.searchInProgress = false;
                 });
-
         };
         $scope.closeAlert = function(source, index) {
             $scope[source].splice(index, 1);
@@ -111,7 +108,6 @@
                 : b.active > a.active;
         };
         $scope.disableAddUserButton = function(){
-
             if ($scope.searchInProgress) {
                 return true;
             }
@@ -124,7 +120,6 @@
             else {
                 return true;
             }
-
         };
         $scope.filterResults = function(searchResults){
             var filteredResults = Array();
