@@ -35,6 +35,8 @@
             $http.post(url, user)
                 .success(function(data, status, headers, config, statusText) {
                     if (data.detail) {
+                        // TODO - remove this check once the API handles
+                        //        canvas failures for us
                         if (data.detail ==
                                 'User could not be enrolled in Canvas course/section.') {
                             var ci = courseInstances.instances[$scope.courseInstanceId];
@@ -80,7 +82,6 @@
                     $scope.warnings.push({
                         type: 'addFailed',
                         searchTerm: searchTerm,
-                        roleName: $scope.getRoleName(user.role_id),
                     });
                 });
         };
@@ -138,12 +139,6 @@
             }
             // return the filtered list
             return filteredResults;
-        };
-        $scope.getRoleName = function(roleId) {
-            var roles = $scope.roles.filter(
-                            function(role) { return role.roleId == roleId; });
-            // TODO - error handling if roles.length > 1
-            return roles[0].roleName;
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             console.log('Error getting data from ' + config.url + ': '
