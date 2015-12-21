@@ -11,7 +11,6 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
-        $scope.searchInProgress = false;
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
             $scope.searchInProgress = true;
@@ -63,6 +62,7 @@
                             data.results[0].searchTerm = searchTerm;
                             $scope.successes.push(data.results[0]);
                             $scope.dtInstance.reloadData();
+
                         })
                         .error(function(data, status, headers, config, statusText) {
                             // log it, then display a warning
@@ -73,7 +73,10 @@
                                 text: 'Add to course seemed to succeed, but ' +
                                       'we received an error trying to retrieve ' +
                                       "the user's course details.",
-                            })
+                            });
+
+                        }).then(function(){
+                            $scope.searchInProgress = false;
                         });
                 })
                 .error(function(data, status, headers, config, statusText) {
@@ -83,8 +86,9 @@
                         searchTerm: searchTerm,
                         roleName: $scope.getRoleName(user.role_id),
                     });
+                    $scope.searchInProgress = false;
                 });
-            $scope.searchInProgress = false;
+
         };
         $scope.closeAlert = function(source, index) {
             $scope[source].splice(index, 1);
@@ -113,15 +117,28 @@
             * it will enable the button if multiple results are found and one
             * is selected.
             * */
-            if ($scope.searchTerm.length > 0 && ! $scope.searchInProgress){
-                return false;
-            }
+            //if ($scope.searchTerm.length > 0 && ! $scope.searchInProgress){
+            //    return false;
+            //}
+            //
+            //if( $scope.searchResults.length > 1 ){
+            //    return (!$scope.selectedResult.id);
+            //}
+            //
+            //return true;
 
-            if( $scope.searchResults.length > 1 ){
+            if ($scope.searchInProgress) {
+                return true;
+            }
+            else if ($scope.searchResults.length > 0) {
                 return (!$scope.selectedResult.id);
             }
-
-            return true;
+            else if ($scope.searchTerm.length > 0) {
+                return false;
+            }
+            else {
+                return true;
+            }
 
         };
         $scope.filterResults = function(searchResults){
@@ -278,6 +295,7 @@
         };
 
         // now actually init the controller
+        $scope.searchInProgress = false;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
         $scope.setTitle($scope.courseInstanceId);
         $scope.warnings = [];
