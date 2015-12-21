@@ -11,13 +11,13 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
-
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
+            $scope.searchInProgress = true;
             if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
                 // TODO: assert that radio box is selected
                 $scope.addUserToCourse(searchTerm,
-                                       {user_id: filteredResults[0].univ_id,
+                                       {user_id: $scope.selectedResult.id,
                                         role_id: $scope.selectedRole.roleId});
             }
             else if ($scope.searchResults === 1) {
@@ -56,7 +56,6 @@
                             });
                         }
                     }
-
                     $http.get(url, {params: {user_id: user.user_id}})
                         .success(function(data, status, headers, config, statusText) {
                             data.results[0].searchTerm = searchTerm;
@@ -72,7 +71,10 @@
                                 text: 'Add to course seemed to succeed, but ' +
                                       'we received an error trying to retrieve ' +
                                       "the user's course details.",
-                            })
+                            });
+
+                        }).then(function(){
+                            $scope.searchInProgress = false;
                         });
                 })
                 .error(function(data, status, headers, config, statusText) {
@@ -82,6 +84,7 @@
                         searchTerm: searchTerm,
                         roleName: $scope.getRoleName(user.role_id),
                     });
+                    $scope.searchInProgress = false;
                 });
         };
         $scope.closeAlert = function(source, index) {
@@ -105,10 +108,13 @@
                 : b.active > a.active;
         };
         $scope.disableAddUserButton = function(){
-            if ($scope.searchResults.length > 0 ){
+            if ($scope.searchInProgress) {
+                return true;
+            }
+            else if ($scope.searchResults.length > 0) {
                 return (!$scope.selectedResult.id);
             }
-            else if ($scope.searchTerm.length > 0){
+            else if ($scope.searchTerm.length > 0) {
                 return false;
             }
             else {
@@ -245,7 +251,7 @@
         };
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
-        },
+        };
         $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
@@ -269,6 +275,7 @@
         };
 
         // now actually init the controller
+        $scope.searchInProgress = false;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
         $scope.setTitle($scope.courseInstanceId);
         $scope.warnings = [];
