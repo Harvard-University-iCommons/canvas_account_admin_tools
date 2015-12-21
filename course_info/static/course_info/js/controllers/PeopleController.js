@@ -112,21 +112,6 @@
         };
         $scope.disableAddUserButton = function(){
 
-            /*
-            * this method will disable the button when a search is in progress
-            * it will enable the button if multiple results are found and one
-            * is selected.
-            * */
-            //if ($scope.searchTerm.length > 0 && ! $scope.searchInProgress){
-            //    return false;
-            //}
-            //
-            //if( $scope.searchResults.length > 1 ){
-            //    return (!$scope.selectedResult.id);
-            //}
-            //
-            //return true;
-
             if ($scope.searchInProgress) {
                 return true;
             }
