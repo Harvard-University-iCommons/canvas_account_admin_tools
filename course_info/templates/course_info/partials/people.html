@@ -27,8 +27,8 @@
                 <div class="form-group">
                   <label class="sr-only" for="emailHUID">Enter Harvard University ID or email addresses</label>
                   <input class="form-control" id="emailHUID"
-                                              placeholder="Enter Harvard University ID or email addresses"
-                                              ng-model="searchTerm">
+                         placeholder="Enter Harvard University ID or email addresses"
+                         ng-model="searchTerm" ng-disabled="searchResults.length > 1">
                 </div>
               </div>
 
@@ -39,7 +39,7 @@
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
-                        ng-disabled="searchTerm.length == 0"
+                        ng-disabled="searchTerm.length == 0 || searchResults.length > 1"
                         ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
                 </button>
                 <ul class="dropdown-menu" role="menu"
@@ -142,13 +142,25 @@
             </div>
 
             <div class="col-md-12 row">
-              <a id="add-user-btn-id"
-                 class="btn btn-primary"
-                 type="button"
-                 ng-click="addUser(searchTerm)"
-                 ng-disabled="disableAddUserButton()">
-                <i class="fa fa-plus-circle"></i> Add to Course
-              </a>
+              <div class="col-md-2">
+                <a id="add-user-btn-id"
+                   class="btn btn-primary"
+                   type="button"
+                   ng-click="addUser(searchTerm)"
+                   ng-disabled="disableAddUserButton()">
+                  <i class="fa fa-plus-circle"></i> Add to Course
+                </a>
+              </div>
+
+              <div class="col-md-2">
+                <a id="cancel-add-user-btn-id"
+                   class="btn btn-default"
+                   type="button"
+                   ng-click="clearSearchResults()"
+                   ng-show="searchResults.length > 1">
+                  Cancel
+                </a>
+              </div>
             </div>
 
             <div class="col-md-8 col-md-offset-2 hidden" style="padding-top: 1em"

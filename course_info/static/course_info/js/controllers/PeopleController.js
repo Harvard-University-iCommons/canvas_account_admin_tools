@@ -20,7 +20,7 @@
                                        {user_id: $scope.selectedResult.id,
                                         role_id: $scope.selectedRole.roleId});
             }
-            else if ($scope.searchResults === 1) {
+            else if ($scope.searchResults.length === 1) {
                 // TODO - shouldn't get here, log the error
                 console.log('Add user button pressed while we have a single search result');
             }
@@ -74,8 +74,8 @@
                                       'we received an error trying to retrieve ' +
                                       "the user's course details.",
                             });
-
                         }).then(function(){
+                            $scope.clearSearchResults();
                             $scope.searchInProgress = false;
                         });
                 })
@@ -86,7 +86,11 @@
                         searchTerm: searchTerm,
                     });
                     $scope.searchInProgress = false;
+                    $scope.clearSearchResults();
                 });
+        };
+        $scope.clearSearchResults = function() {
+            $scope.searchResults = [];
         };
         $scope.closeAlert = function(source, index) {
             $scope[source].splice(index, 1);
@@ -175,6 +179,7 @@
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 });
+                $scope.searchInProgress = false;
             }
             else {
                 var filteredResults = $scope.filterResults(
