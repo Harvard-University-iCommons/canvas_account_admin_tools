@@ -20,6 +20,7 @@ module.exports = function(config) {
       'node_modules/datatables.net/js/jquery.dataTables.js',
       'node_modules/datatables.net-bs/js/dataTables.bootstrap.js',
       'node_modules/angular-datatables/dist/angular-datatables.js',
+      'node_modules/angular-ui-bootstrap/ui-bootstrap-tpls.js',
       'course_info/**/*.js'
     ],
 

@@ -3,7 +3,7 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q) {
+                              djangoUrl, $http, $q, $log) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -23,7 +23,7 @@
             }
             else if ($scope.searchResults.length === 1) {
                 // TODO - shouldn't get here, log the error
-                console.log('Add user button pressed while we have a single search result');
+                $log.log('Add user button pressed while we have a single search result');
             }
             else {
                 $scope.lookup(searchTerm);
@@ -98,20 +98,27 @@
         };
         $scope.compareRoles = function(a, b) {
             /*
-               concat the active flag with the prime_role_indicator
-               value to be able to sort records base on these values
-               active = (0 | 1) a value of 1 here trumps the prime_role_indicator
-               prime_role_indicator = ( "Y" | "N" | "")
-               1 > 0  true
-               '1:string' > '0:string' true
-               'Y' > 'N' true
-               This should let any records with a 1 in the active column float to the top
-               if there are non, records with a Y in the prime_role_indicator will float up
-               and records with both will float above each of those.
-               */
-            return b.active == a.active
-                ? b.prime_role_indicator > a.prime_role_indicator
-                : b.active > a.active;
+             * we want to sort roles by a combination of two fields.
+             * - active = (0 | 1)
+             * - prime_role_indicator = ('Y' | 'N' | '')
+             * 
+             * we're sorting descending by active, then descending by
+             * prime_role_indicator, where 'Y' > 'N' > ''.
+             */
+            if (a.active == b.active) {
+                if (b.prime_role_indicator > a.prime_role_indicator) {
+                    return 1;
+                }
+                else if (b.prime_role_indicator < a.prime_role_indicator) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            }
+            else {
+                return b.active - a.active;
+            }
         };
         $scope.disableAddUserButton = function(){
             if ($scope.searchInProgress) {
@@ -152,9 +159,8 @@
             return filteredResults;
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
-            console.log('Error getting data from ' + config.url + ': '
-                        + status + ' ' + statusText +
-                        ': ' + JSON.stringify(data));
+            $log.error('Error getting data from ' + config.url + ': ' + status +
+                       ' ' + statusText + ': ' + JSON.stringify(data));
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -165,8 +171,8 @@
             //        proxy doesn't rewrite the next urls.
             for (result in results) {
                 if (result.next) {
-                    console.log('Received multiple pages of results from '
-                                + result.config.url + ', only using one.');
+                    $log.log('Received multiple pages of results from '
+                             + result.config.url + ', only using one.');
                 }
             }
 
@@ -332,8 +338,8 @@
                         });
                     },
                     error: function(data, textStatus, errorThrown) {
-                        console.log('Error getting data from ' + url + ': '
-                                    + textStatus + ', ' + errorThrown);
+                        $log.log('Error getting data from ' + url + ': '
+                                 + textStatus + ', ' + errorThrown);
                         callback({
                             recordsTotal: 0,
                             recordsFiltered: 0,
