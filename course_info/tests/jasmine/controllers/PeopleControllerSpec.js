@@ -24,7 +24,7 @@ describe('Unit testing PeopleController', function() {
             };
         });
         scope = $rootScope.$new();
-        $routeParams.course_instance_id = 1234567890;
+        $routeParams.courseInstanceId = 1234567890;
     });
     afterEach(function() {
         // sanity checks to make sure no http calls are still pending
@@ -55,7 +55,7 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('should set the course instance id', function() {
-            expect(scope.course_instance_id).toEqual($routeParams.course_instance_id);
+            expect(scope.courseInstanceId).toEqual($routeParams.courseInstanceId);
         });
 
         it('should set dtColumns up', function() {
@@ -79,14 +79,14 @@ describe('Unit testing PeopleController', function() {
             // if we want to pull the instance id from $routeParams, this has
             // to be in a beforeEach(), can't be in a describe().
             ci = {
-                course_instance_id: $routeParams.course_instance_id,
+                course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
             };
         });
 
         it('should work when courseInstances has the course instance', function() {
             courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope });
+            controller = $controller('PeopleController', {$scope: scope});
             expect(scope.title).toEqual(ci.title);
         });
 
