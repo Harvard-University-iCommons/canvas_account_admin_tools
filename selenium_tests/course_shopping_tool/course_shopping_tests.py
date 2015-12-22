@@ -1,18 +1,13 @@
-from urlparse import urljoin
-from django.conf import settings
-
-from selenium_tests.course_shopping_tool.course_shopping_base_test_case \
-    import CourseShoppingBaseTestCase
-from selenium_tests.course_shopping_tool.page_objects\
-    .shopping_base_page_object import CourseShoppingPageObject
-
+from selenium_tests.course_shopping_tool.course_shopping_base_test_case import CourseShoppingBaseTestCase
+from selenium_tests.course_shopping_tool.page_objects.shopping_page_object import CourseShoppingPageObject
 
 class CourseShoppingTests(CourseShoppingBaseTestCase):
 
-    def test_is_loaded(self):
+    def shopping_page_is_loaded_test(self):
         shopping_page = CourseShoppingPageObject(self.driver)
-        shopping_url = urljoin(
-            settings.SELENIUM_CONFIG.get('canvas_base_dev_url'),
-            settings.SELENIUM_CONFIG.get('canvas_shopping_relative_url'))
-        shopping_page.get(shopping_url)
-        self.assertTrue(shopping_page.is_loaded())
+        self.assertTrue(shopping_page.is_loaded(), 'Shopping page is not loaded, shopping is not ON')
+
+    def shopping_is_on_test(self):
+        shopping_page = CourseShoppingPageObject(self.driver)
+        self.assertTrue(shopping_page.is_shopping_available(), 'Shopping option is not available, shopping is not ON')
+

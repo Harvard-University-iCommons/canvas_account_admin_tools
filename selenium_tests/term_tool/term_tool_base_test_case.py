@@ -20,7 +20,7 @@ class TermToolBaseTestCase(BaseSeleniumTestCase):
         cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
         cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
         cls.TERM_TOOL_BASE_URL = settings.SELENIUM_CONFIG.get(
-            'term_tool_base_url')
+            'project_base_url')
         cls.TERM_TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG.get(
             'term_tool_relative_url')
         cls.TOOL_URL = urljoin(cls.TERM_TOOL_BASE_URL,

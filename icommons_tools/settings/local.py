@@ -57,6 +57,8 @@ SELENIUM_CONFIG = {
     'canvas_base_dev_url': SECURE_SETTINGS.get('canvas_base_dev_url'),
     'canvas_shopping_relative_url': SECURE_SETTINGS.get(
         'canvas_shopping_relative_url'),
-    'new_dev_selenium_user': SECURE_SETTINGS.get('new_dev_selenium_user')
-
+    'new_dev_selenium_user': SECURE_SETTINGS.get('new_dev_selenium_user'),
+    'shopping_user_HUID':  SECURE_SETTINGS.get('shopping_user_HUID'),
+    'shopping_user_password': SECURE_SETTINGS.get('shopping_user_password'),
+    'canvas_shopping_external_tool_id':  SECURE_SETTINGS.get('canvas_shopping_external_tool_id'),
 }

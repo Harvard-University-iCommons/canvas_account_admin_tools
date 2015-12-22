@@ -1,4 +1,3 @@
-import unittest
 from urlparse import urljoin
 from django.conf import settings
 
@@ -20,7 +19,3 @@ class ExcludeShoppingTests(TermToolBaseTestCase):
                         settings.SELENIUM_CONFIG.get('term_tool_relative_url'))
         exclude_page.get(term_tool_url)
         self.assertTrue(exclude_page.is_loaded())
-
-
-if __name__ == "__main__":
-    unittest.main()
