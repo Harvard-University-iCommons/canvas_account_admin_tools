@@ -11,6 +11,7 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
+
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
             $scope.searchInProgress = true;
@@ -277,16 +278,10 @@
         };
 
         // now actually init the controller
-        $scope.searchInProgress = false;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.setTitle($scope.courseInstanceId);
-        $scope.warnings = [];
-        $scope.successes = [];
         $scope.partialFailures = [];
-        $scope.searchTerm = '';
-        $scope.searchResults = [];
-        $scope.selectedResult = {id: undefined};
         $scope.roles = [
+            // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
             {roleId: 10, roleName: 'Guest'},
             {roleId: 14, roleName: 'Shopper'},
@@ -299,7 +294,16 @@
             {roleId: 7, roleName: 'Designer'},
             {roleId: 15, roleName: 'Observer'},
         ];
+        $scope.searchInProgress = false;
+        $scope.searchResults = [];
+        $scope.searchTerm = '';
+        $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
+        $scope.setTitle($routeParams.courseInstanceId);
+        $scope.successes = [];
+        $scope.warnings = [];
+
+        // configure the datatable
         $scope.dtInstance = null;
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
