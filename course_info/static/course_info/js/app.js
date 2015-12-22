@@ -1,7 +1,7 @@
 (function(){
     var app = angular.module('CourseInfo',
                              ['ngSanitize', 'ng.django.urls', 'ngRoute',
-                              'datatables']);
+                              'ui.bootstrap', 'datatables']);
     
     app.config(['$httpProvider', '$routeProvider',
                 function($httpProvider, $routeProvider){
