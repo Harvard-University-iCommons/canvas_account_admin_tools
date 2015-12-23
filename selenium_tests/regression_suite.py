@@ -14,38 +14,39 @@ In PyCharm, if xvfb is installed already, you can run them through the Python un
 
 import unittest
 import time
+import os
 
-from os import path, makedirs
-
-import HTMLTestRunner
-from selenium_tests.account_admin.account_admin_is_dashboard_page_loaded_test import AccountAdminIsDasboardLoadedTest
-from selenium_tests.course_info.course_info_is_search_page_loaded_test import CourseInfoIsSearchPageLoadedTest
-from selenium_tests.course_info.course_info_search_test import CourseInfoSearchTest
+from selenium_common import HTMLTestRunner
 
 
-date_timestamp = time.strftime('%Y%m%d_%H_%M_%S')
+def main():
 
-# This relative path should point to BASE_DIR/selenium_tests/reports
-report_file_path = path.relpath('./reports')
-if not path.exists(report_file_path):
-    makedirs(report_file_path)
-report_file_name = "course_info_test_report_{}.html".format(date_timestamp)
-report_file_buffer = file(path.join(report_file_path, report_file_name), 'wb')
-runner = HTMLTestRunner.HTMLTestRunner(
-    stream=report_file_buffer,
-    title='Course Info test suite report',
-    description='Result of tests in {}'.format(__file__)
-)
+    date_timestamp = time.strftime('%Y%m%d_%H_%M_%S')
 
-# course search - test the flow of the app from login to course search
-dashboard_page_tests = unittest.TestLoader().loadTestsFromTestCase(AccountAdminIsDasboardLoadedTest)
-course_info_initialize_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoIsSearchPageLoadedTest)
-course_info_search_testing = unittest.TestLoader().loadTestsFromTestCase(CourseInfoSearchTest)
+    # This relative path should point to BASE_DIR/selenium_tests/reports
+    report_file_path = os.path.relpath('./reports')
+    if not os.path.exists(report_file_path):
+        os.makedirs(report_file_path)
+    report_file_name = "course_info_test_report_{}.html".format(date_timestamp)
+    report_file_obj = file(os.path.join(report_file_path, report_file_name), 'wb')
+    runner = HTMLTestRunner.HTMLTestRunner(
+        stream=report_file_obj,
+        title='Course Info test suite report',
+        description='Result of tests in {}'.format(__file__)
+    )
 
-# create a test suite combining the tests above
-smoke_tests = unittest.TestSuite([dashboard_page_tests, course_info_initialize_testing, course_info_search_testing])
+    suite = unittest.defaultTestLoader.discover(
+        os.path.abspath(os.path.dirname(__file__)),
+        pattern = '*_tests.py',
+        top_level_dir=os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..'))
+    )
 
-# run the suite
-runner.run(smoke_tests)
-# close test report file
-report_file_buffer.close()
+    # run the suite
+    runner.run(suite)
+    # close test report file
+    report_file_obj.close()
+
+if __name__ == "__main__":
+    main()
+

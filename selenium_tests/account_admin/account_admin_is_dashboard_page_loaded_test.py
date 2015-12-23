@@ -1,6 +1,4 @@
 import unittest
-# from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
-# from selenium_tests.course_info.page_objects.course_info_parent_page_object import CourseInfoParentPage
 from selenium_tests.account_admin.account_admin_base_test_case import AccountAdminBaseTestCase
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object import AccountAdminDashboardPage
 
