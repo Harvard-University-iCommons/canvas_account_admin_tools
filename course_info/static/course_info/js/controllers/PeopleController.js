@@ -15,18 +15,21 @@
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
             $scope.searchInProgress = true;
-            if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
-                // TODO: assert that radio box is selected
-                $scope.addUserToCourse(searchTerm,
-                                       {user_id: $scope.selectedResult.id,
-                                        role_id: $scope.selectedRole.roleId});
+            if ($scope.searchResults.length === 0) {
+                $scope.lookup(searchTerm);
             }
             else if ($scope.searchResults.length === 1) {
-                // TODO - shouldn't get here, log the error
                 $log.error('Add user button pressed while we have a single search result');
             }
-            else {
-                $scope.lookup(searchTerm);
+            else { // $scope.searchResults.length > 1
+                if ($scope.selectedResult.id) {
+                    $scope.addUserToCourse(searchTerm,
+                                           {user_id: $scope.selectedResult.id,
+                                            role_id: $scope.selectedRole.roleId});
+                }
+                else {
+                    $scope.lookup(searchTerm);
+                }
             }
         };
         $scope.addUserToCourse = function(searchTerm, user){

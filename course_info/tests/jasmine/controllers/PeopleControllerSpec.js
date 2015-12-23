@@ -309,6 +309,13 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope, 'addUserToCourse');
             spyOn(scope, 'lookup');
         });
+        it('should call lookup if there are no search results', function() {
+            scope.searchResults = [];
+            scope.addUser('bob');
+            expect(scope.addUserToCourse.calls.count()).toEqual(0);
+            expect(scope.lookup.calls.count()).toEqual(1);
+            expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
+        });
         it('should log an error if called with a single search result', function() {
             scope.searchResults = [{}]; // contents don't matter
             scope.addUser('bob');
@@ -317,6 +324,27 @@ describe('Unit testing PeopleController', function() {
             expect(scope.addUserToCourse.calls.count()).toEqual(0);
             expect(scope.lookup.calls.count()).toEqual(0);
         });
+        it('should call lookup if there are multiple search results and none selected',
+           function() {
+               scope.searchResults = [{}, {}];
+                scope.addUser('bob');
+                expect(scope.addUserToCourse.calls.count()).toEqual(0);
+                expect(scope.lookup.calls.count()).toEqual(1);
+                expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
+           }
+        );
+        it('should call addUserToCourse if there are multiple results and one selected',
+           function() {
+               scope.searchResults = [{}, {}];
+               scope.selectedResult = {id: 999};
+               scope.selectedRole = {roleId: 888};
+               scope.addUser('bob');
+               expect(scope.addUserToCourse.calls.count()).toEqual(1);
+               expect(scope.addUserToCourse.calls.argsFor(0)).toEqual(
+                       ['bob', {user_id: scope.selectedResult.id,
+                                role_id: scope.selectedRole.roleId}]);
+           }
+        );
     });
     describe('addUserToCourse', function() {});
     describe('handleLookupResults', function() {});
