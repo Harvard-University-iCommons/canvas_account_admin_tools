@@ -205,8 +205,61 @@ describe('Unit testing PeopleController', function() {
                 expect(roles).toEqual(afterSorting);
             });
         });
-        describe('disableAddUserButton', function() {});
-        describe('filterResults', function() {});
+        describe('disableAddUserButton', function() {
+            // the state of the add user button depends on the contents of
+            // the search field, on whether a lookup has returned multiple
+            // results, and on whether any of those results have been selected
+            it('should disable if a search is in progress', function() {
+                scope.searchInProgress = true;
+                expect(scope.disableAddUserButton()).toBe(true);
+            });
+            it('should enable if the search had multiple results and one is selected',
+               function() {
+                   scope.searchResults = [{}]; // contents don't matter, only length
+                   scope.selectedResult = {id: 123};
+                   expect(scope.disableAddUserButton()).toBe(false);
+               }
+            );
+            it('should disable if the search had multiple results and none are selected',
+               function() {
+                   scope.searchResults = [{}]; // contents don't matter, only length
+                   scope.selectedResult = {id: null};
+                   expect(scope.disableAddUserButton()).toBe(true);
+               }
+            );
+            it('should enable if a search term has been entered and there are no results',
+               function() {
+                   scope.searchTerm = 'bob';
+                   expect(scope.disableAddUserButton()).toBe(false);
+               }
+            );
+            it('should disable if there is no search term or results', function() {
+                expect(scope.disableAddUserButton()).toBe(true);
+            });
+        });
+        describe('filterResults', function() {
+            // NOTE: relies on compareRoles() working properly.  mocking
+            //       out compareRoles() was not worth it.
+            it('should not blow up on empty input', function() {
+                expect(scope.filterResults([])).toEqual([]);
+            });
+            it('should return one role per univ_id', function() {
+                var searchResults = [
+                    {univ_id: 123, active: 0, prime_role_indicator: ''},
+                    {univ_id: 123, active: 1, prime_role_indicator: 'Y'},
+                    {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
+                    {univ_id: 456, active: 1, prime_role_indicator: ''},
+                    {univ_id: 789, active: 0, prime_role_indicator: 'Y'},
+                ];
+                var filtered = scope.filterResults(searchResults);
+                var uniq = {};
+                filtered.forEach(function(r) { uniq[r.univ_id] = true; });
+                var filteredIds = Object.keys(uniq);
+                filteredIds.sort();
+                expect(filtered.length).toEqual(3);
+                expect(filteredIds).toEqual(['123', '456', '789']);
+            });
+        });
         describe('handleAjaxError', function() {
             it('should log an error', function() {
                 var expectedMessage = "Error getting data from https://tea.pot: 418 I'm a teapot: {}";
@@ -217,6 +270,7 @@ describe('Unit testing PeopleController', function() {
         });
         describe('isEmailAddress', function() {
             // TODO - steal test addresses from real email parsing library?
+            // all valid addresses, should return true
             [{description: 'simple email address', testString: 'bob_dobbs@harvard.edu'},
              {description: 'email address with long domain',
               testString: 'bob_dobbs@very.specific.server.harvard.edu'},
@@ -226,6 +280,7 @@ describe('Unit testing PeopleController', function() {
                 });
             });
 
+            // not addresses, should return false
             [{description: 'series of digits', testString: '123456789'},
              {description: '@ but no .', testString: 'bob_dobbs@harvard'},
              {description: '. but no @', testString: 'bob_dobbs.harvard.edu'},
@@ -243,7 +298,26 @@ describe('Unit testing PeopleController', function() {
             });
         });
     });
-    describe('addUser', function() {});
+    describe('addUser', function() {
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Fnord fnord fnord',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            spyOn(scope, 'addUserToCourse');
+            spyOn(scope, 'lookup');
+        });
+        it('should log an error if called with a single search result', function() {
+            scope.searchResults = [{}]; // contents don't matter
+            scope.addUser('bob');
+            expect($log.error.logs).toEqual(
+                [['Add user button pressed while we have a single search result']]);
+            expect(scope.addUserToCourse.calls.count()).toEqual(0);
+            expect(scope.lookup.calls.count()).toEqual(0);
+        });
+    });
     describe('addUserToCourse', function() {});
     describe('handleLookupResults', function() {});
     describe('lookup', function() {});

@@ -23,7 +23,7 @@
             }
             else if ($scope.searchResults.length === 1) {
                 // TODO - shouldn't get here, log the error
-                $log.log('Add user button pressed while we have a single search result');
+                $log.error('Add user button pressed while we have a single search result');
             }
             else {
                 $scope.lookup(searchTerm);
@@ -171,8 +171,8 @@
             //        proxy doesn't rewrite the next urls.
             for (result in results) {
                 if (result.next) {
-                    $log.log('Received multiple pages of results from '
-                             + result.config.url + ', only using one.');
+                    $log.warning('Received multiple pages of results from '
+                                 + result.config.url + ', only using one.');
                 }
             }
 
@@ -338,8 +338,8 @@
                         });
                     },
                     error: function(data, textStatus, errorThrown) {
-                        $log.log('Error getting data from ' + url + ': '
-                                 + textStatus + ', ' + errorThrown);
+                        $log.error('Error getting data from ' + url + ': '
+                                   + textStatus + ', ' + errorThrown);
                         callback({
                             recordsTotal: 0,
                             recordsFiltered: 0,
