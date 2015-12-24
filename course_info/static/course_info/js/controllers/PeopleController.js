@@ -185,7 +185,7 @@
                 var profile = memberResult.data.results[0].profile
                 $scope.warnings.push({
                     type: 'alreadyInCourse',
-                    fullName: profile.name_first + ' ' + profile.name_last,
+                    fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 });

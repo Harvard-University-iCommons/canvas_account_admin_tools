@@ -151,7 +151,7 @@ describe('Unit testing PeopleController', function() {
         beforeEach(function() {
             var ci = {
                 course_instance_id: $routeParams.courseInstanceId,
-                title: 'Fnord fnord fnord',
+                title: 'methods without side effects tests',
             };
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
@@ -184,23 +184,24 @@ describe('Unit testing PeopleController', function() {
             });
         });
         describe('compareRoles', function() {
-            var roles = [
-                {active: 0, prime_role_indicator: ''},
-                {active: 1, prime_role_indicator: ''},
-                {active: 0, prime_role_indicator: 'N'},
-                {active: 1, prime_role_indicator: 'N'},
-                {active: 0, prime_role_indicator: 'Y'},
-                {active: 1, prime_role_indicator: 'Y'},
-            ];
-            var afterSorting = [
-                {active: 1, prime_role_indicator: 'Y'},
-                {active: 1, prime_role_indicator: 'N'},
-                {active: 1, prime_role_indicator: ''},
-                {active: 0, prime_role_indicator: 'Y'},
-                {active: 0, prime_role_indicator: 'N'},
-                {active: 0, prime_role_indicator: ''},
-            ];
             it('should sort as expected', function() {
+                var roles = [
+                    {active: 0, prime_role_indicator: ''},
+                    {active: 1, prime_role_indicator: ''},
+                    {active: 0, prime_role_indicator: 'N'},
+                    {active: 1, prime_role_indicator: 'N'},
+                    {active: 0, prime_role_indicator: 'Y'},
+                    {active: 1, prime_role_indicator: 'Y'},
+                ];
+                var afterSorting = [
+                    {active: 1, prime_role_indicator: 'Y'},
+                    {active: 1, prime_role_indicator: 'N'},
+                    {active: 1, prime_role_indicator: ''},
+                    {active: 0, prime_role_indicator: 'Y'},
+                    {active: 0, prime_role_indicator: 'N'},
+                    {active: 0, prime_role_indicator: ''},
+                ];
+
                 roles.sort(scope.compareRoles);
                 expect(roles).toEqual(afterSorting);
             });
@@ -239,7 +240,7 @@ describe('Unit testing PeopleController', function() {
         });
         describe('filterResults', function() {
             // NOTE: relies on compareRoles() working properly.  mocking
-            //       out compareRoles() was not worth it.
+            //       its results wasn't worth it.
             it('should not blow up on empty input', function() {
                 expect(scope.filterResults([])).toEqual([]);
             });
@@ -256,13 +257,15 @@ describe('Unit testing PeopleController', function() {
                 filtered.forEach(function(r) { uniq[r.univ_id] = true; });
                 var filteredIds = Object.keys(uniq);
                 filteredIds.sort();
+
                 expect(filtered.length).toEqual(3);
                 expect(filteredIds).toEqual(['123', '456', '789']);
             });
         });
         describe('handleAjaxError', function() {
             it('should log an error', function() {
-                var expectedMessage = "Error getting data from https://tea.pot: 418 I'm a teapot: {}";
+                var expectedMessage = 
+                    "Error getting data from https://tea.pot: 418 I'm a teapot: {}";
                 scope.handleAjaxError({}, 418, {}, {url: 'https://tea.pot'},
                                       "I'm a teapot");
                 expect($log.error.logs).toEqual([[expectedMessage]]);
@@ -302,7 +305,7 @@ describe('Unit testing PeopleController', function() {
         beforeEach(function() {
             var ci = {
                 course_instance_id: $routeParams.courseInstanceId,
-                title: 'Fnord fnord fnord',
+                title: 'addUser tests',
             };
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
@@ -327,10 +330,10 @@ describe('Unit testing PeopleController', function() {
         it('should call lookup if there are multiple search results and none selected',
            function() {
                scope.searchResults = [{}, {}];
-                scope.addUser('bob');
-                expect(scope.addUserToCourse.calls.count()).toEqual(0);
-                expect(scope.lookup.calls.count()).toEqual(1);
-                expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
+               scope.addUser('bob');
+               expect(scope.addUserToCourse.calls.count()).toEqual(0);
+               expect(scope.lookup.calls.count()).toEqual(1);
+               expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
            }
         );
         it('should call addUserToCourse if there are multiple results and one selected',
@@ -347,6 +350,97 @@ describe('Unit testing PeopleController', function() {
         );
     });
     describe('addUserToCourse', function() {});
-    describe('handleLookupResults', function() {});
+    describe('handleLookupResults', function() {
+        // NOTE: relies on filterResults() working properly.  mocking
+        //       its results wasn't worth it.
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'handleLookupResults test',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            scope.searchInProgress = true;
+        });
+        it('should warn and disable progress if the user is already enrolled',
+           function() {
+               var peopleResult = {};
+               var memberResult = {
+                   data: {results:
+                              [{profile: {name_last: 'Dobbs',
+                                          name_first: 'Bob'}}]},
+                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
+               };
+               var expectedWarning = {
+                   type: 'alreadyInCourse',
+                   fullName: 'Dobbs, Bob',
+                   memberships: memberResult.data.results.slice(),
+                   searchTerm: 'bob_dobbs@harvard.edu',
+               };
+
+               scope.handleLookupResults([peopleResult, memberResult]);
+               expect(scope.warnings).toEqual([expectedWarning]);
+               expect(scope.searchInProgress).toBe(false);
+           }
+        );
+        it('should warn and disable progress if the user is not found',
+           function() {
+               var peopleResult = {
+                   data: {results: []},
+                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
+               };
+               var memberResult = {data: {results: []}};
+               var expectedWarning = {
+                   type: 'notFound',
+                   searchTerm: 'bob_dobbs@harvard.edu',
+               };
+
+               scope.searchTerm = 'bob_dobbs@harvard.edu';
+               scope.handleLookupResults([peopleResult, memberResult]);
+               expect(scope.warnings).toEqual([expectedWarning]);
+               expect(scope.searchInProgress).toBe(false);
+           }
+        );
+        it('should call addUserToCourse if one result is found', function() {
+            var peopleResult = {
+                data: {
+                    results: [
+                        {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
+                    ],
+                },
+                config: {searchTerm: 'bob_dobbs@harvard.edu'},
+            };
+            var memberResult = {data: {results: []}};
+            spyOn(scope, 'addUserToCourse');
+
+            scope.selectedRole = {roleId: 123};
+            scope.handleLookupResults([peopleResult, memberResult]);
+            expect(scope.addUserToCourse.calls.count()).toEqual(1);
+            expect(scope.addUserToCourse.calls.argsFor(0)).toEqual(
+                       ['bob_dobbs@harvard.edu',
+                        {user_id: 456, role_id: 123}]);
+            expect(scope.searchInProgress).toBe(true);
+        })
+        it('should show choices and disable progress for multiple results',
+           function() {
+               var peopleResult = {
+                   data: {
+                       results: [
+                           {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
+                           {univ_id: 789, active: 0, prime_role_indicator: 'Y'},
+                       ],
+                   },
+                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
+               };
+               var memberResult = {data: {results: []}};
+               var filteredResults = scope.filterResults(
+                                         peopleResult.data.results);
+
+               scope.handleLookupResults([peopleResult, memberResult]);
+               expect(scope.searchResults).toEqual(filteredResults);
+               expect(scope.searchInProgress).toBe(false);
+           }
+        );
+    });
     describe('lookup', function() {});
 });
