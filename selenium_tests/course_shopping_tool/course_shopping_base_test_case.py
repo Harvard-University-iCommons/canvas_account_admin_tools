@@ -1,8 +1,9 @@
 from django.conf import settings
-from urlparse import urljoin
 from selenium_common.base_test_case import BaseSeleniumTestCase
-from selenium_common.pin.page_objects.pin_login_page_object import PinLoginPageObject
-from selenium_tests.course_shopping_tool.page_objects.dashboard_page_object import DashboardPageObject
+from selenium_common.pin.page_objects.pin_login_page_object \
+    import PinLoginPageObject
+from selenium_tests.course_shopping_tool.page_objects.shopping_page_object \
+    import CourseShoppingPageObject
 
 class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
     """
@@ -16,26 +17,26 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
         setup values for the tests
         """
         super(CourseShoppingBaseTestCase, cls).setUpClass()
-        cls.USERNAME = settings.SELENIUM_CONFIG.get('shopping_user_HUID')
-        cls.COURSE_ID = settings.SELENIUM_CONFIG.get('canvas_shopping_course_id')
-        # new dev environment needs setup and configuration.
-        cls.PASSWORD = settings.SELENIUM_CONFIG.get('shopping_user_password')
-        cls.CANVAS_BASE_DEV_URL = settings.SELENIUM_CONFIG.get('canvas_base_dev_url')
-        cls.shopping_url = urljoin(
-            settings.SELENIUM_CONFIG.get('canvas_base_dev_url'),
-            settings.SELENIUM_CONFIG.get('canvas_shopping_relative_url'))
-        #  Login to tool index page
-        cls.index_page = DashboardPageObject(cls.driver)
-        cls.index_page.get(cls.CANVAS_BASE_DEV_URL)
+        shopping_data = settings.SELENIUM_CONFIG['course_shopping']
+        cls.USERNAME = shopping_data['user_HUID']
+        cls.PASSWORD = shopping_data['user_password']
 
-        login_page = PinLoginPageObject(cls.driver)
+        cls.CANVAS_BASE_DEV_URL = \
+            settings.SELENIUM_CONFIG.get('canvas_base_url')
+        cls.shopping_url =  '{}{}'.format(
+            cls.CANVAS_BASE_DEV_URL,shopping_data['relative_url'])
+        cls.shopping_page = CourseShoppingPageObject(cls.driver)
+        cls.shopping_page.get(cls.shopping_url)
 
-        # Verify that login page is loaded
-        if login_page.is_loaded():
-            login_page.login_huid(cls.USERNAME, cls.PASSWORD)
-        else:
-            print '(User {} already logged in to PIN)'.format(cls.USERNAME)
-        # Verifies that the index dashboard page is loaded after logging in
-        if cls.index_page.is_loaded():
-            cls.driver.get(cls.shopping_url)
-
+        # Verify if we already logged on, if not, do PIN logon
+        if not cls.shopping_page.is_loaded():
+            login_page = PinLoginPageObject(cls.driver)
+            # Verify if we need to logon
+            if login_page.is_loaded():
+                login_page.login_huid(cls.USERNAME, cls.PASSWORD)
+            else:
+                raise RuntimeError(
+                    'Could not determine if canvas main page loaded as'
+                    ' expected;title element was found but did not'
+                     'contain expected text'
+                )

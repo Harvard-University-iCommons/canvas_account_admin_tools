@@ -54,11 +54,10 @@ SELENIUM_CONFIG = {
     'term_tool_base_url': SECURE_SETTINGS.get('term_tool_base_url'),
     'term_tool_relative_url': SECURE_SETTINGS.get('term_tool_relative_url'),
     'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
-    'canvas_base_dev_url': SECURE_SETTINGS.get('canvas_base_dev_url'),
-    'canvas_shopping_relative_url': SECURE_SETTINGS.get(
-        'canvas_shopping_relative_url'),
-    'new_dev_selenium_user': SECURE_SETTINGS.get('new_dev_selenium_user'),
-    'shopping_user_HUID':  SECURE_SETTINGS.get('shopping_user_HUID'),
-    'shopping_user_password': SECURE_SETTINGS.get('shopping_user_password'),
-    'canvas_shopping_external_tool_id':  SECURE_SETTINGS.get('canvas_shopping_external_tool_id'),
+    'course_shopping': {
+        'user_HUID': SECURE_SETTINGS.get('shopping_user_HUID'),
+        'user_password': SECURE_SETTINGS.get('shopping_user_password'),
+        'relative_url': SECURE_SETTINGS.get('canvas_shopping_relative_url'),
+    },
+
 }
