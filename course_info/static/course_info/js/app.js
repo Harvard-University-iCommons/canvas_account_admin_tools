@@ -1,6 +1,7 @@
 (function(){
     var app = angular.module('CourseInfo',
-                             ['ngSanitize', 'ng.django.urls', 'ngRoute', 'datatables']);
+                             ['ngSanitize', 'ng.django.urls', 'ngRoute',
+                              'ui.bootstrap', 'datatables']);
     
     app.config(['$httpProvider', '$routeProvider',
                 function($httpProvider, $routeProvider){
@@ -10,10 +11,16 @@
         $httpProvider.interceptors.push(function(){
             return {
                 'request': function(config){
-                    // Append LTI resource link ID to all AJAX requests
+                    // Append LTI resource link ID to all AJAX requests not
+                    // triggered by ui-bootstrap.  Those will be served from
+                    // the template cache, but only if we don't screw with the
+                    // url.
+                    //
                     // window.globals.append_resource_link_id function added by
                     // django_auth_lti/js/resource_link_id.js
-                    config.url = window.globals.append_resource_link_id(config.url);
+                    if (config.url !== 'template/alert/alert.html') {
+                        config.url = window.globals.append_resource_link_id(config.url);
+                    }
                     return config;
                 }
             };
@@ -24,7 +31,7 @@
                 templateUrl: 'partials/search.html',
                 controller: 'SearchController',
             })
-            .when('/people/:course_instance_id', {
+            .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
                 controller: 'PeopleController',
             })
