@@ -40,3 +40,6 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
                     ' expected;title element was found but did not'
                      'contain expected text'
                 )
+
+        # adding more time for the shopping banner to appear
+        cls.driver.implicitly_wait(30)
