@@ -5,6 +5,7 @@ from selenium_common.pin.page_objects.pin_login_page_object \
 from selenium_tests.course_shopping_tool.page_objects.shopping_page_object \
     import CourseShoppingPageObject
 
+
 class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
     """
     Course shopping base test case, all other tests will subclass
@@ -23,8 +24,8 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
 
         cls.CANVAS_BASE_DEV_URL = \
             settings.SELENIUM_CONFIG.get('canvas_base_url')
-        cls.shopping_url =  '{}{}'.format(
-            cls.CANVAS_BASE_DEV_URL,shopping_data['relative_url'])
+        cls.shopping_url = '{}{}'.format(
+            cls.CANVAS_BASE_DEV_URL, shopping_data['relative_url'])
         cls.shopping_page = CourseShoppingPageObject(cls.driver)
         cls.shopping_page.get(cls.shopping_url)
 
@@ -37,8 +38,8 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             else:
                 raise RuntimeError(
                     'Could not determine if canvas main page loaded as'
-                    ' expected;title element was found but did not'
-                     'contain expected text'
+                    ' expected; title element was found but did not'
+                    ' contain expected text'
                 )
 
         # adding more time for the shopping banner to appear
