@@ -18,14 +18,29 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
         setup values for the tests
         """
         super(CourseShoppingBaseTestCase, cls).setUpClass()
+        missing_required_var = None
         shopping_data = settings.SELENIUM_CONFIG['course_shopping']
         cls.USERNAME = shopping_data['user_HUID']
         cls.PASSWORD = shopping_data['user_password']
 
-        cls.CANVAS_BASE_DEV_URL = \
-            settings.SELENIUM_CONFIG.get('canvas_base_url')
+        cls.CANVAS_BASE_DEV_URL = settings.SELENIUM_CONFIG.get(
+            'canvas_base_url')
         cls.shopping_url = '{}{}'.format(
             cls.CANVAS_BASE_DEV_URL, shopping_data['relative_url'])
+
+        if not (cls.USERNAME and cls.PASSWORD):
+            missing_required_var = 'shopping user credentials'
+
+        if not cls.CANVAS_BASE_DEV_URL:
+            missing_required_var = 'Canvas base URL'
+
+        if not cls.shopping_url:
+            missing_required_var = 'shopping tool relative URL'
+
+        if missing_required_var:
+            raise RuntimeError(
+                'Missing {} in SELENIUM_CONFIG!'.format(missing_required_var))
+
         cls.shopping_page = CourseShoppingPageObject(cls.driver)
         cls.shopping_page.get(cls.shopping_url)
 
