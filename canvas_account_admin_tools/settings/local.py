@@ -21,11 +21,16 @@ dictConfig(LOGGING)
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
 
 SELENIUM_CONFIG = {
+   'account_admin': {
+      'relative_url': 'accounts/1/external_tools/20',
+   },
+   'canvas_base_url': CANVAS_URL,
+   'course_info_tool': {
+      'relative_url': 'accounts/1/external_tools/20',
+   },
+   'run_locally': True,
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
-   'canvas_base_url': CANVAS_URL,
-   'run_locally': True,
-   'account_admin_relative_url': 'accounts/1/external_tools/20',
-   'course_info_tool_relative_url': 'accounts/1/external_tools/20'
+   'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
 }
