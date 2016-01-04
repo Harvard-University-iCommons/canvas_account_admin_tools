@@ -2,6 +2,9 @@ describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
         $httpBackend, $window, $log;
     var controller, scope;
+    var getCourseInstanceURL =
+        '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F';
 
     // set up the test environment
     beforeEach(function() {
@@ -50,8 +53,7 @@ describe('Unit testing PeopleController', function() {
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET('/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F')
-                .respond(200, '');
+            $httpBackend.expectGET(getCourseInstanceURL).respond(200, '');
             $httpBackend.flush(1);
         });
 
@@ -93,8 +95,8 @@ describe('Unit testing PeopleController', function() {
 
         it('should work whenCourseInstances is empty', function() {
             controller = $controller('PeopleController', {$scope: scope});
-            $httpBackend.expectGET('/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F')
-                .respond(200, JSON.stringify(ci));
+            $httpBackend.expectGET(getCourseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
             expect(scope.title).toEqual(ci.title);
         });
@@ -107,8 +109,7 @@ describe('Unit testing PeopleController', function() {
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET('/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F')
-                .respond(200, '');
+            $httpBackend.expectGET(getCourseInstanceURL).respond(200, '');
             $httpBackend.flush(1);
         });
 
