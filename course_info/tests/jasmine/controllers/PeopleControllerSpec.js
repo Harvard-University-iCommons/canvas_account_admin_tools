@@ -2,9 +2,10 @@ describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
         $httpBackend, $window, $log;
     var controller, scope;
-    var getCourseInstanceURL =
+    var courseInstanceURL =
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
         '=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F';
+    var coursePeopleURL = courseInstanceURL + 'people%2F';
 
     // set up the test environment
     beforeEach(function() {
@@ -53,7 +54,7 @@ describe('Unit testing PeopleController', function() {
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(getCourseInstanceURL).respond(200, '');
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
             $httpBackend.flush(1);
         });
 
@@ -95,7 +96,7 @@ describe('Unit testing PeopleController', function() {
 
         it('should work whenCourseInstances is empty', function() {
             controller = $controller('PeopleController', {$scope: scope});
-            $httpBackend.expectGET(getCourseInstanceURL)
+            $httpBackend.expectGET(courseInstanceURL)
                         .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
             expect(scope.title).toEqual(ci.title);
@@ -109,7 +110,7 @@ describe('Unit testing PeopleController', function() {
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(getCourseInstanceURL).respond(200, '');
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
             $httpBackend.flush(1);
         });
 
@@ -350,7 +351,127 @@ describe('Unit testing PeopleController', function() {
            }
         );
     });
-    describe('addUserToCourse', function() {});
+    describe('addUserToCourse', function() {
+        var user = {user_id: 'bobdobbs', role_id: 0};
+        var searchTerm = 'bob_dobbs@harvard.edu';
+        var enrollmentDetailsURL = coursePeopleURL + '&user_id=' + user.user_id;
+        var enrollmentDetails = {
+            results: [{
+                profile: {
+                    name_last: 'Dobbs',
+                    name_first: 'Bob',
+                    role_type_cd: 'STUDENT',
+                    univ_id: 'bobdobbs',
+                },
+                role: {
+                    role_name: 'Student',
+                }
+            }],
+        };
+
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'addUserToCourse test',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            scope.searchInProgress = true;
+            scope.searchResults = [{}];
+        });
+        afterEach(function() {
+            // no matter what, we should end the search and clear the results.
+            expect(scope.searchInProgress).toBe(false);
+            expect(scope.searchResults).toEqual([]);
+        });
+
+        it('should alert and reload the datatable on success', function() {
+            var expectedSuccess = 
+                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
+            expectedSuccess.searchTerm = searchTerm;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            // call it
+            scope.addUserToCourse(searchTerm, user);
+
+            // trigger the ajax calls
+            $httpBackend.expectPOST(coursePeopleURL, user)
+                        .respond(201, JSON.stringify(user)); 
+            $httpBackend.expectGET(enrollmentDetailsURL)
+                        .respond(200, JSON.stringify(enrollmentDetails));
+            $httpBackend.flush(2);
+
+            // check to see if it's reacting correctly
+            expect(scope.successes).toEqual([expectedSuccess]);
+            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
+        });
+        it('should alert on a partial failure', function() {
+            var partialFailureResponse = 
+                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
+            partialFailureResponse.detail = 'Some kind of partial failure';
+            var expectedSuccess = 
+                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
+            expectedSuccess.searchTerm = searchTerm;
+            var expectedPartialFailure = {
+                searchTerm: searchTerm,
+                text: partialFailureResponse.detail,
+            };
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            // call it
+            scope.addUserToCourse(searchTerm, user);
+
+            // trigger the ajax calls
+            $httpBackend.expectPOST(coursePeopleURL, user)
+                        .respond(201, JSON.stringify(partialFailureResponse)); 
+            $httpBackend.expectGET(enrollmentDetailsURL)
+                        .respond(200, JSON.stringify(enrollmentDetails));
+            $httpBackend.flush(2);
+
+            // check to see if it's reacting correctly
+            expect(scope.successes).toEqual([expectedSuccess]);
+            expect(scope.partialFailures).toEqual([expectedPartialFailure]);
+            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
+        });
+        it('should warn on failure to add the user', function() {
+            spyOn(scope, 'handleAjaxError');
+
+            scope.addUserToCourse(searchTerm, user);
+
+            $httpBackend.expectPOST(coursePeopleURL, user).respond(500, '');
+            $httpBackend.flush(1);
+
+            expect(scope.handleAjaxError.calls.count()).toEqual(1);
+            expect(scope.warnings).toEqual([{type: 'addFailed',
+                                             searchTerm: searchTerm}]);
+        });
+        it('should handle a failure to get user enrollment after an apparent add success',
+           function() {
+               var expectedPartialFailure = {
+                   searchTerm: searchTerm,
+                   text: 'Add to course seemed to succeed, but we received ' +
+                         'an error trying to retrieve the user\'s course details.',
+               };
+               spyOn(scope, 'handleAjaxError');
+
+               scope.addUserToCourse(searchTerm, user);
+
+               $httpBackend.expectPOST(coursePeopleURL, user)
+                           .respond(201, JSON.stringify(user)); 
+               $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
+               $httpBackend.flush(2);
+
+               expect(scope.partialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.handleAjaxError.calls.count()).toEqual(1);
+           }
+        );
+    });
     describe('handleLookupResults', function() {
         // NOTE: relies on filterResults() working properly.  mocking
         //       its results wasn't worth it.

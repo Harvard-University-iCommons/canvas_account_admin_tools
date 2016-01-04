@@ -39,28 +39,10 @@
             $http.post(url, user)
                 .success(function(data, status, headers, config, statusText) {
                     if (data.detail) {
-                        // TODO - remove this check once the API handles
-                        //        canvas failures for us
-                        if (data.detail ==
-                                'User could not be enrolled in Canvas course/section.') {
-                            var ci = courseInstances.instances[$scope.courseInstanceId];
-                            var externalSites = (ci.sites || []).filter(
-                                                    function(site) {
-                                                        return site.site_type_id == 'external';
-                                                    });
-                            if (externalSites.length > 0) {
-                                $scope.partialFailures.push({
-                                    searchTerm: searchTerm,
-                                    text: data.detail,
-                                });
-                            }
-                        }
-                        else {
-                            $scope.partialFailures.push({
-                                searchTerm: searchTerm,
-                                text: data.detail,
-                            });
-                        }
+                        $scope.partialFailures.push({
+                            searchTerm: searchTerm,
+                            text: data.detail,
+                        });
                     }
                     $http.get(url, {params: {user_id: user.user_id}})
                         .success(function(data, status, headers, config, statusText) {
@@ -78,7 +60,7 @@
                                       'we received an error trying to retrieve ' +
                                       "the user's course details.",
                             });
-                        }).then(function(){
+                        }).finally(function(){
                             $scope.clearSearchResults();
                             $scope.searchInProgress = false;
                         });
@@ -89,8 +71,8 @@
                         type: 'addFailed',
                         searchTerm: searchTerm,
                     });
-                    $scope.searchInProgress = false;
                     $scope.clearSearchResults();
+                    $scope.searchInProgress = false;
                 });
         };
         $scope.clearSearchResults = function() {
