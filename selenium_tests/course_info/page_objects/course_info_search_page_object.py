@@ -17,9 +17,9 @@ class CourseSearchPageLocators(object):
     COURSE_INFO_SEARCH_BUTTON_PATH = (By.XPATH, '(//button[@type="button"])[5]')
     COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
-    COURSE_LINK_TEXT = "A Profile in Ministry: Dietrich Bonhoeffer"
+    COURSE_LINK_TEXT = "Latin Paleography and Manuscript Culture: Seminar"
     COURSE_ID_LINK = (By.LINK_TEXT, COURSE_LINK_TEXT)
-    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20881755')]")
+    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20299916')]")
     ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "BTN_Add_People_Search")
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
     ROLES_DROPDOWN_LIST = (By.ID, "LIST_Roles")
@@ -36,7 +36,6 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         # before checking for elements on the expected
         self.focus_on_tool_frame()
         page_title_element = self.get_page_title()
-
         if page_title_element and page_title_element.text == CourseSearchPageLocators.PAGE_TITLE_TEXT:
             return True
         else:
