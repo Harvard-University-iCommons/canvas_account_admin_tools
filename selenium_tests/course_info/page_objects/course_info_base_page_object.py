@@ -1,5 +1,5 @@
-from selenium_common.base_page_object import BasePageObject
 from selenium.common.exceptions import NoSuchElementException
+from selenium_common.base_page_object import BasePageObject
 
 
 class CourseInfoBasePageObject(BasePageObject):
