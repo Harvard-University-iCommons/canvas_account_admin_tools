@@ -20,18 +20,18 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
         super(CourseShoppingBaseTestCase, cls).setUpClass()
         missing_required_var = None
         shopping_data = settings.SELENIUM_CONFIG['course_shopping']
-        cls.USERNAME = shopping_data['user_HUID']
-        cls.PASSWORD = shopping_data['user_password']
+        cls.username = shopping_data['user_HUID']
+        cls.password = shopping_data['user_password']
 
-        cls.CANVAS_BASE_DEV_URL = settings.SELENIUM_CONFIG.get(
+        cls.canvas_base_dev_url = settings.SELENIUM_CONFIG.get(
             'canvas_base_url')
         cls.shopping_url = '{}{}'.format(
-            cls.CANVAS_BASE_DEV_URL, shopping_data['relative_url'])
+            cls.canvas_base_dev_url, shopping_data['relative_url'])
 
-        if not (cls.USERNAME and cls.PASSWORD):
+        if not (cls.username and cls.password):
             missing_required_var = 'shopping user credentials'
 
-        if not cls.CANVAS_BASE_DEV_URL:
+        if not cls.canvas_base_dev_url:
             missing_required_var = 'Canvas base URL'
 
         if not cls.shopping_url:
@@ -49,7 +49,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             login_page = PinLoginPageObject(cls.driver)
             # Verify if we need to logon
             if login_page.is_loaded():
-                login_page.login_huid(cls.USERNAME, cls.PASSWORD)
+                login_page.login_huid(cls.username, cls.password)
             else:
                 raise RuntimeError(
                     'Could not determine if canvas main page loaded as'

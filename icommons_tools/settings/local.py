@@ -57,7 +57,7 @@ SELENIUM_CONFIG = {
     'course_shopping': {
         'user_HUID': SECURE_SETTINGS.get('shopping_user_HUID'),
         'user_password': SECURE_SETTINGS.get('shopping_user_password'),
-        'relative_url': SECURE_SETTINGS.get('canvas_shopping_relative_url'),
+        'relative_url': 'courses/81',
     },
 
 }

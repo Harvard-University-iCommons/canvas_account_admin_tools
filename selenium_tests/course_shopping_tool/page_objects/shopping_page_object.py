@@ -20,10 +20,6 @@ class CourseShoppingPageObject(BasePageObject):
     def is_shopping_available(self):
         try:
             self.find_element(*CourseShoppingLocators.COURSE_BANNER)
-        except TimeoutException:
-            try:
-                self.focus_on_tool_frame()
-                self.find_element(*CourseShoppingLocators.COURSE_BANNER)
-            except:
-                return False
+        except NoSuchElementException:
+            return False
         return True
