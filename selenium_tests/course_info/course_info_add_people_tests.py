@@ -30,8 +30,11 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         # search for a user and add user to course
         people_page.search_and_add_user(new_user['user_id'], new_user['role'])
 
-        # assert that user is found
+        # assert that user is found on page.
+        # Note: If the course has a lot of people enrolled, results are paginated and it's possible that
+        # user may not be on the initial page. So this  may change based on data changing
+
         self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
 
-        # Verify success text
+        # Assert that the  success text is displayed
         self.assertTrue(people_page.add_was_successful())

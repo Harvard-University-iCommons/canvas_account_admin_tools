@@ -45,7 +45,7 @@ SELENIUM_CONFIG = {
          }
       }
    },
-   'run_locally': True,
+   'run_locally': False,
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
