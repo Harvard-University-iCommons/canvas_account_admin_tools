@@ -3,7 +3,7 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q) {
+                              djangoUrl, $http, $q, $log) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -11,82 +11,80 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
+
         // set up functions we'll be calling later
         $scope.addUser = function(searchTerm) {
             $scope.searchInProgress = true;
-            if ($scope.searchResults.length > 1 && $scope.selectedResult.id) {
-                // TODO: assert that radio box is selected
-                $scope.addUserToCourse(searchTerm,
-                                       {user_id: $scope.selectedResult.id,
-                                        role_id: $scope.selectedRole.roleId});
+            if ($scope.searchResults.length === 0) {
+                $scope.lookup(searchTerm);
             }
             else if ($scope.searchResults.length === 1) {
-                // TODO - shouldn't get here, log the error
-                console.log('Add user button pressed while we have a single search result');
+                $log.error('Add user button pressed while we have a single search result');
             }
-            else {
-                $scope.lookup(searchTerm);
+            else { // $scope.searchResults.length > 1
+                if ($scope.selectedResult.id) {
+                    $scope.addUserToCourse(searchTerm,
+                                           {user_id: $scope.selectedResult.id,
+                                            role_id: $scope.selectedRole.roleId});
+                }
+                else {
+                    $scope.lookup(searchTerm);
+                }
             }
         };
         $scope.addUserToCourse = function(searchTerm, user){
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/course_instances/'
                                          + $scope.courseInstanceId + '/people/']);
-            $http.post(url, user)
-                .success(function(data, status, headers, config, statusText) {
-                    if (data.detail) {
-                        // TODO - remove this check once the API handles
-                        //        canvas failures for us
-                        if (data.detail ==
-                                'User could not be enrolled in Canvas course/section.') {
-                            var ci = courseInstances.instances[$scope.courseInstanceId];
-                            var externalSites = (ci.sites || []).filter(
-                                                    function(site) {
-                                                        return site.site_type_id == 'external';
-                                                    });
-                            if (externalSites.length > 0) {
-                                $scope.partialFailures.push({
-                                    searchTerm: searchTerm,
-                                    text: data.detail,
-                                });
-                            }
-                        }
-                        else {
-                            $scope.partialFailures.push({
-                                searchTerm: searchTerm,
-                                text: data.detail,
-                            });
-                        }
-                    }
-                    $http.get(url, {params: {user_id: user.user_id}})
-                        .success(function(data, status, headers, config, statusText) {
-                            data.results[0].searchTerm = searchTerm;
-                            $scope.successes.push(data.results[0]);
-                            $scope.dtInstance.reloadData();
-                        })
-                        .error(function(data, status, headers, config, statusText) {
-                            // log it, then display a warning
-                            $scope.handleAjaxError(data, status, headers, config,
-                                                   statusText);
-                            $scope.partialFailures.push({
-                                searchTerm: searchTerm,
-                                text: 'Add to course seemed to succeed, but ' +
-                                      'we received an error trying to retrieve ' +
-                                      "the user's course details.",
-                            });
-                        }).then(function(){
-                            $scope.clearSearchResults();
-                            $scope.searchInProgress = false;
+
+            // called on actual post success, and on error-but-partial-success
+            var handlePostSuccess = function() {
+                $http.get(url, {params: {user_id: user.user_id}})
+                    .success(function(data, status, headers, config, statusText) {
+                        data.results[0].searchTerm = searchTerm;
+                        $scope.successes.push(data.results[0]);
+                        $scope.dtInstance.reloadData();
+                    })
+                    .error(function(data, status, headers, config, statusText) {
+                        // log it, then display a warning
+                        $scope.handleAjaxError(data, status, headers, config,
+                                statusText);
+                        $scope.partialFailures.push({
+                            searchTerm: searchTerm,
+                            text: 'Add to course seemed to succeed, but ' +
+                                'we received an error trying to retrieve ' +
+                                "the user's course details.",
                         });
-                })
+                    })
+                    .finally(function(){
+                        $scope.clearSearchResults();
+                        $scope.searchInProgress = false;
+                    });
+            };
+
+            $http.post(url, user)
+                .success(handlePostSuccess)
                 .error(function(data, status, headers, config, statusText) {
                     $scope.handleAjaxError(data, status, headers, config, statusText);
-                    $scope.warnings.push({
-                        type: 'addFailed',
-                        searchTerm: searchTerm,
-                    });
-                    $scope.searchInProgress = false;
-                    $scope.clearSearchResults();
+
+                    if (data.detail &&
+                            (data.detail.indexOf('Canvas API error details') != -1)) {
+                        // partial success, where we enrolled in the coursemanager
+                        // db, but got an error trying to enroll in canvas
+                        $scope.partialFailures.push({
+                            searchTerm: searchTerm,
+                            text: data.detail,
+                        });
+                        handlePostSuccess();
+                    }
+                    else {
+                        $scope.warnings.push({
+                            type: 'addFailed',
+                            searchTerm: searchTerm,
+                        });
+                        $scope.clearSearchResults();
+                        $scope.searchInProgress = false;
+                    }
                 });
         };
         $scope.clearSearchResults = function() {
@@ -97,20 +95,27 @@
         };
         $scope.compareRoles = function(a, b) {
             /*
-               concat the active flag with the prime_role_indicator
-               value to be able to sort records base on these values
-               active = (0 | 1) a value of 1 here trumps the prime_role_indicator
-               prime_role_indicator = ( "Y" | "N" | "")
-               1 > 0  true
-               '1:string' > '0:string' true
-               'Y' > 'N' true
-               This should let any records with a 1 in the active column float to the top
-               if there are non, records with a Y in the prime_role_indicator will float up
-               and records with both will float above each of those.
-               */
-            return b.active == a.active
-                ? b.prime_role_indicator > a.prime_role_indicator
-                : b.active > a.active;
+             * we want to sort roles by a combination of two fields.
+             * - active = (0 | 1)
+             * - prime_role_indicator = ('Y' | 'N' | '')
+             * 
+             * we're sorting descending by active, then descending by
+             * prime_role_indicator, where 'Y' > 'N' > ''.
+             */
+            if (a.active == b.active) {
+                if (b.prime_role_indicator > a.prime_role_indicator) {
+                    return 1;
+                }
+                else if (b.prime_role_indicator < a.prime_role_indicator) {
+                    return -1;
+                }
+                else {
+                    return 0;
+                }
+            }
+            else {
+                return b.active - a.active;
+            }
         };
         $scope.disableAddUserButton = function(){
             if ($scope.searchInProgress) {
@@ -151,9 +156,8 @@
             return filteredResults;
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
-            console.log('Error getting data from ' + config.url + ': '
-                        + status + ' ' + statusText +
-                        ': ' + JSON.stringify(data));
+            $log.error('Error getting data from ' + config.url + ': ' + status +
+                       ' ' + statusText + ': ' + JSON.stringify(data));
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -164,8 +168,8 @@
             //        proxy doesn't rewrite the next urls.
             for (result in results) {
                 if (result.next) {
-                    console.log('Received multiple pages of results from '
-                                + result.config.url + ', only using one.');
+                    $log.warning('Received multiple pages of results from '
+                                 + result.config.url + ', only using one.');
                 }
             }
 
@@ -175,7 +179,7 @@
                 var profile = memberResult.data.results[0].profile
                 $scope.warnings.push({
                     type: 'alreadyInCourse',
-                    fullName: profile.name_first + ' ' + profile.name_last,
+                    fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 });
@@ -277,16 +281,10 @@
         };
 
         // now actually init the controller
-        $scope.searchInProgress = false;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.setTitle($scope.courseInstanceId);
-        $scope.warnings = [];
-        $scope.successes = [];
         $scope.partialFailures = [];
-        $scope.searchTerm = '';
-        $scope.searchResults = [];
-        $scope.selectedResult = {id: undefined};
         $scope.roles = [
+            // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
             {roleId: 10, roleName: 'Guest'},
             {roleId: 14, roleName: 'Shopper'},
@@ -299,7 +297,16 @@
             {roleId: 7, roleName: 'Designer'},
             {roleId: 15, roleName: 'Observer'},
         ];
+        $scope.searchInProgress = false;
+        $scope.searchResults = [];
+        $scope.searchTerm = '';
+        $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
+        $scope.setTitle($routeParams.courseInstanceId);
+        $scope.successes = [];
+        $scope.warnings = [];
+
+        // configure the datatable
         $scope.dtInstance = null;
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
@@ -328,8 +335,8 @@
                         });
                     },
                     error: function(data, textStatus, errorThrown) {
-                        console.log('Error getting data from ' + url + ': '
-                                    + textStatus + ', ' + errorThrown);
+                        $log.error('Error getting data from ' + url + ': '
+                                   + textStatus + ', ' + errorThrown);
                         callback({
                             recordsTotal: 0,
                             recordsFiltered: 0,
