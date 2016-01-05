@@ -12,24 +12,12 @@ class CourseInfoSearchTest(CourseInfoBaseTestCase):
 
     def test_course_search(self):
         """verify the course search functionality"""
-        # initialize
-        parent_page = AccountAdminDashboardPage(self.driver)
-        # navigate to course info page
-        parent_page.select_course_info_link()
-
-        # check if page is loaded (which will also set the focus on the tool),
-        # before selecting search terms
         search_page = CourseSearchPageObject(self.driver)
-        search_page.is_loaded()
 
         course = settings.SELENIUM_CONFIG['course_info_tool']['test_course']
-        # select a school, year, term and course type
-        search_page.select_course_type(course['type'])
-        search_page.select_school(course['school'])
-        search_page.select_term(course['term'])
-        search_page.select_year(course['year'])
 
-        # submit a search term, a course instance id in this case
-        search_page.submit_search(course['cid'])
+        self.search_for_course(
+            type=course['type'], school=course['school'], term=course['term'],
+            year=course['year'], search_term=course['cid'])
 
         self.assertTrue(search_page.is_course_displayed(cid=course['cid']))
