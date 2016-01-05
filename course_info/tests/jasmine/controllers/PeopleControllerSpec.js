@@ -1,7 +1,7 @@
-// regex taken from https://www.ietf.org/rfc/rfc3986.txt appendix B, which
-// explains the different capture groups.
-// the query string is $7.
-var URIRegex = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+// Regex taken from Errata #2624 (https://www.rfc-editor.org/errata_search.php?rfc=3986),
+// filed against RFC 3986 (https://www.rfc-editor.org/info/rfc3986) Appendix B
+// The RFC appendix explains the different capture groups.  The query string is $7.
+var URIRegex = /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
 function getParametersFromURI(uri) {
     var URIComponents = URIRegex.exec(decodeURI(uri));
     var paramStrings = URIComponents[7].split('&');
@@ -29,9 +29,10 @@ describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
         $httpBackend, $window, $log;
     var controller, scope;
+    var courseInstanceId = 1234567890;
     var courseInstanceURL =
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
-        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2F';
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2F';
     var coursePeopleURL = courseInstanceURL + 'people%2F';
 
     // set up the test environment
@@ -56,7 +57,7 @@ describe('Unit testing PeopleController', function() {
             };
         });
         scope = $rootScope.$new();
-        $routeParams.courseInstanceId = 1234567890;
+        $routeParams.courseInstanceId = courseInstanceId;
     });
 
     afterEach(function() {
@@ -250,7 +251,7 @@ describe('Unit testing PeopleController', function() {
             });
             it('should enable if the search had multiple results and one is selected',
                function() {
-                   scope.searchResults = [{}]; // contents don't matter, only length
+                   scope.searchResults = [{}, {}]; // contents don't matter, only length
                    scope.selectedResult = {id: 123};
                    expect(scope.disableAddUserButton()).toBe(false);
                }
@@ -294,6 +295,9 @@ describe('Unit testing PeopleController', function() {
                 var filteredIds = Object.keys(uniq);
                 filteredIds.sort();
 
+                // if the filtered results have duplicate ids in them, then
+                // either filtered.length will be > 3, or the ids we're
+                // expecting won't match what's in filteredIds.
                 expect(filtered.length).toEqual(3);
                 expect(filteredIds).toEqual(['123', '456', '789']);
             });
@@ -393,6 +397,7 @@ describe('Unit testing PeopleController', function() {
            }
         );
     });
+
     describe('addUserToCourse', function() {
         var user = {user_id: 'bobdobbs', role_id: 0};
         var searchTerm = 'bob_dobbs@harvard.edu';
@@ -518,6 +523,7 @@ describe('Unit testing PeopleController', function() {
            }
         );
     });
+
     describe('handleLookupResults', function() {
         // NOTE: relies on filterResults() working properly.  mocking
         //       its results wasn't worth it.
@@ -533,7 +539,7 @@ describe('Unit testing PeopleController', function() {
 
         it('should warn and disable progress if the user is already enrolled',
            function() {
-               var peopleResult = {};
+               var peopleResult = {}; // content doesn't matter
                var memberResult = {
                    data: {results:
                               [{profile: {name_last: 'Dobbs',
@@ -543,7 +549,7 @@ describe('Unit testing PeopleController', function() {
                var expectedWarning = {
                    type: 'alreadyInCourse',
                    fullName: 'Dobbs, Bob',
-                   memberships: memberResult.data.results.slice(),
+                   memberships: memberResult.data.results,
                    searchTerm: 'bob_dobbs@harvard.edu',
                };
 
