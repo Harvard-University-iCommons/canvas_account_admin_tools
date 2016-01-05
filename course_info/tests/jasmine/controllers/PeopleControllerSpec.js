@@ -452,37 +452,39 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
         });
 
-        it('should alert on a partial failure', function() {
-            var partialFailureResponse = 
-                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-            partialFailureResponse.detail = 'Some kind of partial failure';
-            var expectedSuccess = 
-                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-            expectedSuccess.searchTerm = searchTerm;
-            var expectedPartialFailure = {
-                searchTerm: searchTerm,
-                text: partialFailureResponse.detail,
-            };
+        it('should alert and reload the datatable on a canvas partial failure',
+           function() {
+               var partialFailureResponse = {
+                   detail: "Error while enrolling user USER in Canvas section sis_section_id:SECTION. Canvas API error details: 403: {u'message': u\"Can't add an enrollment to a concluded course.\"}",
+               };
+               var expectedSuccess =
+                   JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
+               expectedSuccess.searchTerm = searchTerm;
+               var expectedPartialFailure = {
+                   searchTerm: searchTerm,
+                   text: partialFailureResponse.detail,
+               };
 
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
+               // mock out the datatable so we can verify that it gets reloaded
+               scope.dtInstance = {reloadData: function(){}};
+               spyOn(scope.dtInstance, 'reloadData');
 
-            // call it
-            scope.addUserToCourse(searchTerm, user);
+               // call it
+               scope.addUserToCourse(searchTerm, user);
 
-            // trigger the ajax calls
-            $httpBackend.expectPOST(coursePeopleURL, user)
-                        .respond(201, JSON.stringify(partialFailureResponse)); 
-            $httpBackend.expectGET(enrollmentDetailsURL)
-                        .respond(200, JSON.stringify(enrollmentDetails));
-            $httpBackend.flush(2);
+               // trigger the ajax calls
+               $httpBackend.expectPOST(coursePeopleURL, user)
+                           .respond(500, JSON.stringify(partialFailureResponse));
+               $httpBackend.expectGET(enrollmentDetailsURL)
+                           .respond(200, JSON.stringify(enrollmentDetails));
+               $httpBackend.flush(2);
 
-            // check to see if it's reacting correctly
-            expect(scope.successes).toEqual([expectedSuccess]);
-            expect(scope.partialFailures).toEqual([expectedPartialFailure]);
-            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-        });
+               // check to see if it's reacting correctly
+               expect(scope.successes).toEqual([expectedSuccess]);
+               expect(scope.partialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
+           }
+        );
 
         it('should warn on failure to add the user', function() {
             spyOn(scope, 'handleAjaxError');
