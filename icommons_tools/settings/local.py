@@ -21,9 +21,7 @@ if not CANVAS_SHOPPING.get('selfreg_courses'):
 # .boto file in order to be able to download the exports
 EXPORT_TOOL['ssh_private_key'] = '/home/vagrant/.ssh/id_rsa'
 
-INSTALLED_APPS += (
-    'debug_toolbar',
-)
+INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
@@ -31,6 +29,26 @@ MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
+}
+
+SELENIUM_CONFIG = {
+    'project_base_url': 'https://icommons-tools.dev.tlt.harvard.edu/',
+    'course_conclusion': {
+        'cid': '339589',
+        'course_data': [
+            'Fall 2015',
+            '339589',
+            'Administration and Leadership',
+            '2016-01-01'
+        ],
+        'index_page': 'course_conclusion/',
+        'school': 'Divinity School'
+    },
+    'run_locally': False,
+    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
+    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
+    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
+    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
 }
 
 dictConfig(LOGGING)
