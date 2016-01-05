@@ -1,80 +1,95 @@
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
+from selenium.webdriver.support.wait import WebDriverWait
+
+from selenium_tests.course_info.page_objects.course_info_base_page_object \
+    import CourseInfoBasePageObject
+from selenium_tests.course_info.page_objects.course_people_page_object \
+    import Locators as CoursePeoplePageLocators
 
 
-class CourseSearchPageLocators(object):
-    # List of WebElements found on course search page
-    PAGE_TITLE = (By.CSS_SELECTOR, "h1")
-    PAGE_TITLE_TEXT = "Find Course"
-    COURSE_INFO_SEARCH_BUTTON = (By.CLASS_NAME, "button")
+class Locators(object):
     COURSE_INSTANCE_TABLE = (By.ID, "courseInstanceDT")
+    COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
+    COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
+    PAGE_TITLE = (By.XPATH, '//h1[text()="Find Course"]')
+    SEARCH_BUTTON = (By.XPATH, '//button[contains(.,"Search")]')
+    SELECT_COURSE_TYPE_DROPDOWN = (By.ID, "dropdownMenuSites")
     SELECT_SCHOOL_DROPDOWN = (By.ID, "dropdownMenuSchools")
     SELECT_TERM_DROPDOWN = (By.ID, "dropdownMenuTerm")
     SELECT_YEAR_DROPDOWN = (By.ID, "dropdownMenuYear")
-    SELECT_COURSE_TYPE_DROPDOWN = (By.ID, "dropdownMenuSites")
-    # The Search button is the 5th button on the page(all the dropdowns are also rendered as buttons)
-    COURSE_INFO_SEARCH_BUTTON_PATH = (By.XPATH, '(//button[@type="button"])[5]')
-    COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
-    COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
-    COURSE_LINK_TEXT = "A Profile in Ministry: Dietrich Bonhoeffer"
-    COURSE_ID_LINK = (By.LINK_TEXT, COURSE_LINK_TEXT)
-    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20881755')]")
+
+    @classmethod
+    def COURSE_LINK_HREF_CSS(cls, cid):
+        """ returns a locator for a course detail link in the course table """
+        return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
 
     def is_loaded(self):
-        """ determine if the page loaded by validating teh page title page """
-        # frame context stickiness is a bit flaky for some reason; make sure we're in the tool_content frame context
-        # before checking for elements on the expected
+        """ determine if the page loaded by validating the page title """
+        # frame context stickiness is a bit flaky for some reason; make sure
+        # we're in the tool_content frame context before checking for elements
         self.focus_on_tool_frame()
-        page_title_element = self.get_page_title()
-
-        if page_title_element and page_title_element.text == CourseSearchPageLocators.PAGE_TITLE_TEXT:
-            return True
-        else:
+        try:
+            self.find_element(*Locators.PAGE_TITLE)
+        except NoSuchElementException:
             return False
+        return True
 
-    def get_page_title(self):
-        element = self.find_element(*CourseSearchPageLocators.PAGE_TITLE)
-        return element
+    def is_course_displayed(self, cid=None, title=None):
+        # todo: this could be refactored along with select_course()
+        self.focus_on_tool_frame()
+        try:
+            if cid:
+                self.find_element(*Locators.COURSE_LINK_HREF_CSS(cid))
+            elif title:
+                self.find_element((By.LINK_TEXT, title))
+            else:
+                raise RuntimeError('select_course() requires cid or title')
+        except NoSuchElementException:
+            return False
+        return True
 
     def select_school(self, school):
         """ select a school from the schools dropdown """
-        self.find_element(*CourseSearchPageLocators.SELECT_SCHOOL_DROPDOWN).click()
+        self.find_element(*Locators.SELECT_SCHOOL_DROPDOWN).click()
         self.find_element(By.LINK_TEXT, school).click()
 
     def select_year(self, year):
         """ select a year from the year dropdown """
-        self.find_element(*CourseSearchPageLocators.SELECT_YEAR_DROPDOWN).click()
+        self.find_element(*Locators.SELECT_YEAR_DROPDOWN).click()
         self.find_element(By.LINK_TEXT, year).click()
 
     def select_term(self, term):
         """ select a term from the term dropdown """
-        self.find_element(*CourseSearchPageLocators.SELECT_TERM_DROPDOWN).click()
+        self.find_element(*Locators.SELECT_TERM_DROPDOWN).click()
         self.find_element(By.LINK_TEXT, term).click()
 
     def select_course_type(self, type):
-        """ select a site type  from the  type dropdown """
-        self.find_element(*CourseSearchPageLocators.SELECT_COURSE_TYPE_DROPDOWN).click()
+        """ select a site type from the type dropdown """
+        self.find_element(*Locators.SELECT_COURSE_TYPE_DROPDOWN).click()
         self.find_element(By.LINK_TEXT, type).click()
 
     def submit_search(self, search_text):
         self.focus_on_tool_frame()
-        self.find_element(*CourseSearchPageLocators.SELECT_SCHOOL_DROPDOWN).click()
-        self.find_element(*CourseSearchPageLocators.COURSE_SEARCH_TEXTBOX).clear()
-        self.find_element(*CourseSearchPageLocators.COURSE_SEARCH_TEXTBOX).send_keys(search_text)
-        self.find_element(*CourseSearchPageLocators.COURSE_INFO_SEARCH_BUTTON_PATH).click()
+        search_textbox = self.find_element(*Locators.COURSE_SEARCH_TEXTBOX)
+        search_textbox.clear()
+        search_textbox.send_keys(search_text)
+        self.find_element(*Locators.SEARCH_BUTTON).click()
+        # loading the results can take a long time, so explicitly wait longer
+        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+            *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
-    def select_course_id(self):
+    def select_course(self, cid=None, title=None):
         self.focus_on_tool_frame()
-        self.find_element(*CourseSearchPageLocators.COURSE_ID_LINK).click()
-
-    def select_a_course_on_page(self):
-        self.focus_on_tool_frame()
-        self.select_course_id()
-
-    def find_test_person_on_page(self):
-        element = self.find_element(*CourseSearchPageLocators.TEST_PERSON_ON_PAGE)
-        return element
-
+        if cid:
+            self.find_element(*Locators.COURSE_LINK_HREF_CSS(cid)).click()
+        elif title:
+            self.find_element((By.LINK_TEXT, title)).click()
+        else:
+            raise RuntimeError('select_course() requires cid or title')
+        # loading the results can take a long time, so explicitly wait longer
+        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+            *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
