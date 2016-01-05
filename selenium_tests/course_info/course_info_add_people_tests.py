@@ -1,3 +1,4 @@
+import unittest
 from django.conf import settings
 
 from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
@@ -8,6 +9,7 @@ from selenium_tests.course_info.page_objects.course_people_page_object import \
 
 class CourseInfoAddTest(CourseInfoBaseTestCase):
 
+    @unittest.skip("repetitive adding of the same user is not allowed and delete function is not in place yet")
     def test_search_and_add_person(self):
         """verify the person  search and add functionality"""
 
