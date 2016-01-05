@@ -53,5 +53,11 @@ SELENIUM_CONFIG = {
     'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
     'term_tool_base_url': SECURE_SETTINGS.get('term_tool_base_url'),
     'term_tool_relative_url': SECURE_SETTINGS.get('term_tool_relative_url'),
+    'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
+    'course_shopping': {
+        'user_HUID': SECURE_SETTINGS.get('shopping_user_HUID'),
+        'user_password': SECURE_SETTINGS.get('shopping_user_password'),
+        'relative_url': 'courses/81',
+    },
 
 }
