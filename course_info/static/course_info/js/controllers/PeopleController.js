@@ -36,43 +36,55 @@
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/course_instances/'
                                          + $scope.courseInstanceId + '/people/']);
+
+            // called on actual post success, and on error-but-partial-success
+            var handlePostSuccess = function() {
+                $http.get(url, {params: {user_id: user.user_id}})
+                    .success(function(data, status, headers, config, statusText) {
+                        data.results[0].searchTerm = searchTerm;
+                        $scope.successes.push(data.results[0]);
+                        $scope.dtInstance.reloadData();
+                    })
+                    .error(function(data, status, headers, config, statusText) {
+                        // log it, then display a warning
+                        $scope.handleAjaxError(data, status, headers, config,
+                                statusText);
+                        $scope.partialFailures.push({
+                            searchTerm: searchTerm,
+                            text: 'Add to course seemed to succeed, but ' +
+                                'we received an error trying to retrieve ' +
+                                "the user's course details.",
+                        });
+                    })
+                    .finally(function(){
+                        $scope.clearSearchResults();
+                        $scope.searchInProgress = false;
+                    });
+            };
+
             $http.post(url, user)
-                .success(function(data, status, headers, config, statusText) {
-                    if (data.detail) {
+                .success(handlePostSuccess)
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+
+                    if (data.detail &&
+                            (data.detail.indexOf('Canvas API error details') != -1)) {
+                        // partial success, where we enrolled in the coursemanager
+                        // db, but got an error trying to enroll in canvas
                         $scope.partialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
                         });
+                        handlePostSuccess();
                     }
-                    $http.get(url, {params: {user_id: user.user_id}})
-                        .success(function(data, status, headers, config, statusText) {
-                            data.results[0].searchTerm = searchTerm;
-                            $scope.successes.push(data.results[0]);
-                            $scope.dtInstance.reloadData();
-                        })
-                        .error(function(data, status, headers, config, statusText) {
-                            // log it, then display a warning
-                            $scope.handleAjaxError(data, status, headers, config,
-                                                   statusText);
-                            $scope.partialFailures.push({
-                                searchTerm: searchTerm,
-                                text: 'Add to course seemed to succeed, but ' +
-                                      'we received an error trying to retrieve ' +
-                                      "the user's course details.",
-                            });
-                        }).finally(function(){
-                            $scope.clearSearchResults();
-                            $scope.searchInProgress = false;
+                    else {
+                        $scope.warnings.push({
+                            type: 'addFailed',
+                            searchTerm: searchTerm,
                         });
-                })
-                .error(function(data, status, headers, config, statusText) {
-                    $scope.handleAjaxError(data, status, headers, config, statusText);
-                    $scope.warnings.push({
-                        type: 'addFailed',
-                        searchTerm: searchTerm,
-                    });
-                    $scope.clearSearchResults();
-                    $scope.searchInProgress = false;
+                        $scope.clearSearchResults();
+                        $scope.searchInProgress = false;
+                    }
                 });
         };
         $scope.clearSearchResults = function() {
