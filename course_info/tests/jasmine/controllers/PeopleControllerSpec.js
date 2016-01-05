@@ -17,7 +17,7 @@ function getParametersFromURI(uri) {
 // (as urls created by djangoUrl in the controller do).
 function validateURIHasParameters(uri, params) {
     var actualParams = getParametersFromURI(uri);
-    for (key in Object.keys(params)) {
+    for (var key in params) {
         if (actualParams[key] !== params[key]) {
             return false;
         }
