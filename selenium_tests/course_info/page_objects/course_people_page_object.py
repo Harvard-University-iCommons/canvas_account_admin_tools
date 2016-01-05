@@ -6,13 +6,18 @@ from selenium.common.exceptions import NoSuchElementException
 
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    TD_TEXT_XPATH = '//td[contains(text(), "{}")]'  # {} = name, user_id, etc.
     ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "BTN_Add_People_Search")
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ROLES_DROPDOWN_LIST = (By.ID, "LIST_Roles")
     ADD_TO_COURSE_BUTTON = (By.ID, "BTN_Add_People_Course")
+    ROLES_DROPDOWN_LIST = (By.ID, "LIST_Roles")
     PEOPLE_TABLE = (By.ID, "TBL_people")
     PEOPLE_ROWS = (By.TAG_NAME, "tr")
+
+    @classmethod
+    def TD_TEXT_XPATH(cls, search_text):
+        """ returns a locator for a table cell element in the people table;
+        search_text should be user's name, user_id, etc """
+        return By.XPATH, '//td[contains(text(), "{}")]'.format(search_text)
 
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
@@ -31,8 +36,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
     def is_person_on_page(self, lookup_text):
         """ looks up a person on page by name or user id """
         try:
-            self.find_element(
-                *(By.XPATH, Locators.TD_TEXT_XPATH.format(lookup_text)))
+            self.find_element(*Locators.TD_TEXT_XPATH(lookup_text))
         except NoSuchElementException:
             return False
         return True

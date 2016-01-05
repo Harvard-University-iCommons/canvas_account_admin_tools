@@ -7,7 +7,6 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object import
 class Locators(object):
     # List of WebElements found on course search page
     COURSE_INSTANCE_TABLE = (By.ID, "courseInstanceDT")
-    COURSE_LINK_HREF_CSS = 'a[href="#/people/{cid}"]'
     COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
     PAGE_TITLE = (By.XPATH, '//h1[text()="Find Course"]')
@@ -16,6 +15,11 @@ class Locators(object):
     SELECT_SCHOOL_DROPDOWN = (By.ID, "dropdownMenuSchools")
     SELECT_TERM_DROPDOWN = (By.ID, "dropdownMenuTerm")
     SELECT_YEAR_DROPDOWN = (By.ID, "dropdownMenuYear")
+
+    @classmethod
+    def COURSE_LINK_HREF_CSS(cls, cid):
+        """ returns a locator for a course detail link in the course table """
+        return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
@@ -36,10 +40,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         self.focus_on_tool_frame()
         try:
             if cid:
-                self.find_element(
-                    *(By.CSS_SELECTOR,
-                      Locators.COURSE_LINK_HREF_CSS.format(cid=cid))
-                )
+                self.find_element(*Locators.COURSE_LINK_HREF_CSS(cid))
             elif title:
                 self.find_element((By.LINK_TEXT, title))
             else:
@@ -80,10 +81,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
     def select_course(self, cid=None, title=None):
         self.focus_on_tool_frame()
         if cid:
-            self.find_element(
-                *(By.CSS_SELECTOR,
-                  Locators.COURSE_LINK_HREF_CSS.format(cid=cid))
-                ).click()
+            self.find_element(*Locators.COURSE_LINK_HREF_CSS(cid)).click()
         elif title:
             self.find_element((By.LINK_TEXT, title)).click()
         else:
