@@ -2,13 +2,10 @@ from selenium.webdriver.common.by import By
 from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
 
 
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "addPeopleBtn")
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
     ALERT_SUCCESS_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
@@ -44,7 +41,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
     def search_and_add_user(self, user_id, role):
         # Click "Add People" button to open the dialog
-        self.find_element(*Locators.ADD_PEOPLE_SEARCH_BUTTON).click()
+        self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
         # Clear Textbox
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).clear()
         # Enter user to search on
@@ -53,18 +50,14 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.select_role_type(role)
 
         # Click 'Add to course' course button
-        try:
-            self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
-            WebDriverWait(self._driver, 60).until\
-                (EC.presence_of_element_located((By.ID, "success-alert")))
-
-        except TimeoutException:
-            return False
+        self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
 
     def select_role_type(self, role):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, role).click()
 
-    def find_success_message(self):
-        self.find_element(*Locators.ALERT_SUCCESS_PERSON)
+    def add_was_successful(self):
+        # loading the results can take a long time, so explicitly wait longer
+        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+            *Locators.ALERT_SUCCESS_PERSON).is_displayed())

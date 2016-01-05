@@ -33,5 +33,7 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
 
         # assert that user is found
         self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
+        self.driver.save_screenshot('image3.jpeg')
         # Verify success text
-        self.assertTrue(people_page.find_success_message())
+        self.assertTrue(people_page.add_was_successful())
+        self.driver.save_screenshot('image4.jpeg')
