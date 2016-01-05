@@ -1,3 +1,30 @@
+// regex taken from https://www.ietf.org/rfc/rfc3986.txt appendix B, which
+// explains the different capture groups.
+// the query string is $7.
+var URIRegex = new RegExp("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+function getParametersFromURI(uri) {
+    var URIComponents = URIRegex.exec(decodeURI(uri));
+    var paramStrings = URIComponents[7].split('&');
+    var params = {};
+    paramStrings.forEach(function(paramString) {
+        var kv = paramString.split('=');
+        params[kv[0]] = kv[1];
+    });
+    return params;
+}
+
+// needed to let angular expect a url where the parameter order may vary
+// (as urls created by djangoUrl in the controller do).
+function validateURIHasParameters(uri, params) {
+    var actualParams = getParametersFromURI(uri);
+    for (key in Object.keys(params)) {
+        if (actualParams[key] !== params[key]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
         $httpBackend, $window, $log;
@@ -31,6 +58,7 @@ describe('Unit testing PeopleController', function() {
         scope = $rootScope.$new();
         $routeParams.courseInstanceId = 1234567890;
     });
+
     afterEach(function() {
         // sanity checks to make sure no http calls are still pending
         $httpBackend.verifyNoOutstandingExpectation();
@@ -107,6 +135,7 @@ describe('Unit testing PeopleController', function() {
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
+
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
@@ -166,6 +195,7 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.searchResults).toEqual([]);
             });
         });
+
         describe('closeAlert', function() {
             it('should work when an alert is present', function() {
                 scope.testAlerts = [{}];  // contents don't matter
@@ -185,6 +215,7 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.testAlerts).toEqual([1,3]);
             });
         });
+
         describe('compareRoles', function() {
             it('should sort as expected', function() {
                 var roles = [
@@ -208,6 +239,7 @@ describe('Unit testing PeopleController', function() {
                 expect(roles).toEqual(afterSorting);
             });
         });
+
         describe('disableAddUserButton', function() {
             // the state of the add user button depends on the contents of
             // the search field, on whether a lookup has returned multiple
@@ -240,12 +272,14 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.disableAddUserButton()).toBe(true);
             });
         });
+
         describe('filterResults', function() {
             // NOTE: relies on compareRoles() working properly.  mocking
             //       its results wasn't worth it.
             it('should not blow up on empty input', function() {
                 expect(scope.filterResults([])).toEqual([]);
             });
+
             it('should return one role per univ_id', function() {
                 var searchResults = [
                     {univ_id: 123, active: 0, prime_role_indicator: ''},
@@ -264,6 +298,7 @@ describe('Unit testing PeopleController', function() {
                 expect(filteredIds).toEqual(['123', '456', '789']);
             });
         });
+
         describe('handleAjaxError', function() {
             it('should log an error', function() {
                 var expectedMessage = 
@@ -273,6 +308,7 @@ describe('Unit testing PeopleController', function() {
                 expect($log.error.logs).toEqual([[expectedMessage]]);
             });
         });
+
         describe('isEmailAddress', function() {
             // TODO - steal test addresses from real email parsing library?
             // all valid addresses, should return true
@@ -295,6 +331,7 @@ describe('Unit testing PeopleController', function() {
                 });
             });
         });
+
         describe('selectRole', function() {
             it('should set the role on the scope', function() {
                 var role = {roleId: 123};
@@ -303,6 +340,7 @@ describe('Unit testing PeopleController', function() {
             });
         });
     });
+
     describe('addUser', function() {
         beforeEach(function() {
             var ci = {
@@ -314,6 +352,7 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope, 'addUserToCourse');
             spyOn(scope, 'lookup');
         });
+
         it('should call lookup if there are no search results', function() {
             scope.searchResults = [];
             scope.addUser('bob');
@@ -321,6 +360,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.lookup.calls.count()).toEqual(1);
             expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
         });
+
         it('should log an error if called with a single search result', function() {
             scope.searchResults = [{}]; // contents don't matter
             scope.addUser('bob');
@@ -329,6 +369,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.addUserToCourse.calls.count()).toEqual(0);
             expect(scope.lookup.calls.count()).toEqual(0);
         });
+
         it('should call lookup if there are multiple search results and none selected',
            function() {
                scope.searchResults = [{}, {}];
@@ -338,6 +379,7 @@ describe('Unit testing PeopleController', function() {
                expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
            }
         );
+
         it('should call addUserToCourse if there are multiple results and one selected',
            function() {
                scope.searchResults = [{}, {}];
@@ -379,6 +421,7 @@ describe('Unit testing PeopleController', function() {
             scope.searchInProgress = true;
             scope.searchResults = [{}];
         });
+
         afterEach(function() {
             // no matter what, we should end the search and clear the results.
             expect(scope.searchInProgress).toBe(false);
@@ -408,6 +451,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.successes).toEqual([expectedSuccess]);
             expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
         });
+
         it('should alert on a partial failure', function() {
             var partialFailureResponse = 
                 JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
@@ -439,6 +483,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.partialFailures).toEqual([expectedPartialFailure]);
             expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
         });
+
         it('should warn on failure to add the user', function() {
             spyOn(scope, 'handleAjaxError');
 
@@ -451,6 +496,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.warnings).toEqual([{type: 'addFailed',
                                              searchTerm: searchTerm}]);
         });
+
         it('should handle a failure to get user enrollment after an apparent add success',
            function() {
                var expectedPartialFailure = {
@@ -484,6 +530,7 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
             scope.searchInProgress = true;
         });
+
         it('should warn and disable progress if the user is already enrolled',
            function() {
                var peopleResult = {};
@@ -505,6 +552,7 @@ describe('Unit testing PeopleController', function() {
                expect(scope.searchInProgress).toBe(false);
            }
         );
+
         it('should warn and disable progress if the user is not found',
            function() {
                var peopleResult = {
@@ -523,6 +571,7 @@ describe('Unit testing PeopleController', function() {
                expect(scope.searchInProgress).toBe(false);
            }
         );
+
         it('should call addUserToCourse if one result is found', function() {
             var peopleResult = {
                 data: {
@@ -543,6 +592,7 @@ describe('Unit testing PeopleController', function() {
                         {user_id: 456, role_id: 123}]);
             expect(scope.searchInProgress).toBe(true);
         })
+
         it('should show choices and disable progress for multiple results',
            function() {
                var peopleResult = {
@@ -564,5 +614,86 @@ describe('Unit testing PeopleController', function() {
            }
         );
     });
-    describe('lookup', function() {});
+
+    describe('lookup', function() {
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'lookup test',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            spyOn(scope, 'handleLookupResults');
+        });
+
+        it('queries by email when appropriate', function() {
+            var searchTerm = 'bob_dobbs@harvard.edu';
+            var peopleURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'email_address': searchTerm});
+            };
+            var memberURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'profile.email_address': searchTerm});
+            };
+
+            scope.lookup(searchTerm);
+            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
+            $httpBackend.expectGET(memberURLValidate).respond(200, '');
+            $httpBackend.flush(2);
+        });
+
+        it('queries by user id when appropriate', function() {
+            var searchTerm = 'bobdobbs';
+            var peopleURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'univ_id': searchTerm});
+            };
+            var memberURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'user_id': searchTerm});
+            };
+
+            scope.lookup(searchTerm);
+            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
+            $httpBackend.expectGET(memberURLValidate).respond(200, '');
+            $httpBackend.flush(2);
+        });
+
+        it('logs errors from the people endpoint', function() {
+            var searchTerm = 'bob_dobbs@harvard.edu';
+            var peopleURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'email_address': searchTerm});
+            };
+            var memberURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'profile.email_address': searchTerm});
+            };
+            spyOn(scope, 'handleAjaxError');
+            scope.lookup('bob_dobbs@harvard.edu');
+            $httpBackend.expectGET(peopleURLValidate).respond(500, '');
+            $httpBackend.expectGET(memberURLValidate).respond(200, '');
+            $httpBackend.flush(2);
+            expect(scope.handleAjaxError.calls.count()).toEqual(1);
+        });
+
+        it('logs errors from the course people endpoint', function() {
+            var searchTerm = 'bob_dobbs@harvard.edu';
+            var peopleURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'email_address': searchTerm});
+            };
+            var memberURLValidate = function(uri) {
+                return validateURIHasParameters(
+                           uri, {'profile.email_address': searchTerm});
+            };
+            spyOn(scope, 'handleAjaxError');
+            scope.lookup('bob_dobbs@harvard.edu');
+            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
+            $httpBackend.expectGET(memberURLValidate).respond(500, '');
+            $httpBackend.flush(2);
+            expect(scope.handleAjaxError.calls.count()).toEqual(1);
+        });
+    });
 });
