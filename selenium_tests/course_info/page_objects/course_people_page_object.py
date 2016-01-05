@@ -1,17 +1,22 @@
 from selenium.webdriver.common.by import By
 from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
-from selenium.webdriver.support.select import Select
+# from selenium.webdriver.support.select  Select
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "BTN_Add_People_Search")
+    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20299916')]")
+    TEST_PERSON_EXISTS_ON_PAGE = (By.XPATH, "//td[contains(text(), '30833767')]")
+    ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "addPeopleBtn")
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ADD_TO_COURSE_BUTTON = (By.ID, "BTN_Add_People_Course")
-    ROLES_DROPDOWN_LIST = (By.ID, "LIST_Roles")
-    PEOPLE_TABLE = (By.ID, "TBL_people")
-    PEOPLE_ROWS = (By.TAG_NAME, "tr")
+    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
+    ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
+    ALERT_SUCCESS = By.ID, "success-alert"
+    ALERT_SUCCESS_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
 
     @classmethod
     def TD_TEXT_XPATH(cls, search_text):
@@ -41,69 +46,37 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def search_for_a_user(self, user_id):
-        # Click "Add People" button
+    def find_test_person_on_page(self):
+        element = self.find_element(*Locators.TEST_PERSON_ON_PAGE)
+        return element
+
+    def find_test_person_exists_on_page(self):
+        element = self.find_element(*Locators.TEST_PERSON_EXISTS_ON_PAGE)
+        return element
+
+    def search_and_add_user(self, user_id, role):
+        # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_BUTTON).click()
         # Clear Textbox
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).clear()
         # Enter user to search on
-        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(
-            user_id)
-
-    def add_user_to_course(self, user_id, role):
-        # Click "Add People" button
-        self.search_for_a_user(user_id)
+        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
         # Select role
-        select_role = self.select_role(role, user_id)
-        #  Add user to course
-        if select_role:
-            self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
-        else:
-            return False
+        self.select_role_type(role)
 
-    def select_role(self, role_visible_text=None, user_id=None):
-        """ Select role for user, return true if visible, else return false """
-
-        # Get the role dropdown as instance of Select class
-        if user_id:
-            user_role_select = self._driver.find_element_by_css_selector(
-                '[data-selenium-user-id=%s]' % user_id)
-        else:
-            try:
-                user_role_select = self.find_element(
-                    *Locators.ROLES_DROPDOWN_LIST)
-            except NoSuchElementException:
-                try:
-                    self.focus_on_tool_frame()
-                    user_role_select = self.find_element(
-                        *Locators.ROLES_DROPDOWN_LIST)
-                except:
-                    return False
-
-        selenium_select = Select(user_role_select)
-
+        # Click 'Add to course' course button
         try:
-            if role_visible_text:
-                selenium_select.select_by_visible_text(role_visible_text)
-            else:
-                # Default to this value if no role is passed in
-                selenium_select.select_by_index(1)
-        except:
+            self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+            WebDriverWait(self._driver, 60).until\
+                (EC.presence_of_element_located((By.ID, "success-alert")))
+
+        except TimeoutException:
             return False
 
-        return True
+    def select_role_type(self, role):
+        """ select a role from the roles dropdown """
+        self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
+        self.find_element(By.LINK_TEXT, role).click()
 
-    def find_user_added_on_page(self, user_id):
-        user_table_id = self.find_element(*Locators.PEOPLE_TABLE)
-        rows = user_table_id.find_elements(*Locators.PEOPLE_ROWS)
-        match_found = False
-
-        for row in rows:
-            row_user = row.find_element(By.TAG_NAME, "td")[
-                2]  # find univ_id to match on
-            if row_user == user_id:  # break, if match is found
-                match_found = True
-                break
-
-        if not match_found:
-            return False
+    def find_success_message(self):
+        self.find_element(*Locators.ALERT_SUCCESS_PERSON)

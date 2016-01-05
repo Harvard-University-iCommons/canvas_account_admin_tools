@@ -27,7 +27,7 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.course_info_parent_page.get(cls.TOOL_URL)
         login_page = PinLoginPageObject(cls.driver)
         if login_page.is_loaded():
-            login_page.login_huid(cls.USERNAME, cls.PASSWORD)
+            login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
 

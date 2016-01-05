@@ -6,6 +6,9 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object import
 
 class Locators(object):
     # List of WebElements found on course search page
+    COURSE_LINK_TEXT = "Latin Paleography and Manuscript Culture: Seminar"
+    COURSE_ID_LINK = (By.LINK_TEXT, COURSE_LINK_TEXT)
+
     COURSE_INSTANCE_TABLE = (By.ID, "courseInstanceDT")
     COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
@@ -78,6 +81,11 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
+    def select_course_id_link(self):
+        self.focus_on_tool_frame()
+        self.find_element(*Locators.COURSE_ID_LINK).click()
+        self._driver.implicitly_wait(30)
+
     def select_course(self, cid=None, title=None):
         self.focus_on_tool_frame()
         if cid:
@@ -86,3 +94,10 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
             self.find_element((By.LINK_TEXT, title)).click()
         else:
             raise RuntimeError('select_course() requires cid or title')
+        # TO-DO: change this to explicit wait
+        self._driver.implicitly_wait(30)
+
+    def select_a_course_on_page(self):
+        self.focus_on_tool_frame()
+        self.select_course_id()
+
