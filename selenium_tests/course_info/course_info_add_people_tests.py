@@ -3,10 +3,13 @@ import unittest
 from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object import AccountAdminDashboardPage
 from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
+from selenium_tests.course_info.page_objects.course_people_page_object import \
+    CoursePeoplePageObject
 
 COURSE_INSTANCE_ID = '347547'
 COURSE_USER_ID = "30833767"
 USER_ROLE = "Teacher"
+
 
 class CourseInfoAddTest(CourseInfoBaseTestCase):
 
@@ -25,10 +28,11 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         search_page.submit_search(COURSE_INSTANCE_ID)
 
         # click on course link to view list of people in course
-        search_page.select_course_id()
+        search_page.select_course(cid=COURSE_INSTANCE_ID)
 
         # search for a user
-        search_page.search_for_a_user(COURSE_USER_ID)
+        people_page = CoursePeoplePageObject(self.driver)
+        people_page.search_for_a_user(COURSE_USER_ID)
 
         # assert that user is found
         # TODO - look for tag uib-alert type=success or look up by univ_id
@@ -60,8 +64,3 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
 
         # assert that this person is in this course
         self.assertTrue(search_page.find_user_added_on_page(COURSE_USER_ID))
-
-
-if __name__ == "__main__":
-    unittest.main()
-

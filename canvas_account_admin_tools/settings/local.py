@@ -27,6 +27,17 @@ SELENIUM_CONFIG = {
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
       'relative_url': 'accounts/1/external_tools/20',
+      'test_course': {
+         'cid': '339331',
+         'term': 'Spring',
+         'title': 'Latin Paleography and Manuscript Culture: Seminar',
+         'school': 'Divinity School',
+         'type': 'Only courses without sites',
+         'year': '2014',
+      },
+      'test_user': {
+         'user_id': '20299916'
+      }
    },
    'run_locally': True,
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),

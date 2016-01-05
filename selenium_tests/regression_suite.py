@@ -9,7 +9,8 @@ from django.conf import settings
 pwd = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(pwd, '..')))
 if not os.getenv('DJANGO_SETTINGS_MODULE'):
-    os.putenv('DJANGO_SETTINGS_MODULE', 'icommons_tools.settings.local')
+    os.putenv('DJANGO_SETTINGS_MODULE',
+              'canvas_account_admin_tools.settings.local')
 
 # developing test cases is easier with text test runner, lets us drop into pdb
 if settings.SELENIUM_CONFIG.get('use_htmlrunner', True):
