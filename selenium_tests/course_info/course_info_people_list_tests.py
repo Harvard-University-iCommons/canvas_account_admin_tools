@@ -14,7 +14,9 @@ class CourseInfoPeopleListTest(CourseInfoBaseTestCase):
         """verify the people search functionality"""
         search_page = CourseSearchPageObject(self.driver)
 
-        course = settings.SELENIUM_CONFIG['course_info_tool']['test_course']
+        test_settings = settings.SELENIUM_CONFIG['course_info_tool']
+        course = test_settings['test_course']
+        user = test_settings['test_users']['existing']
 
         self.search_for_course(
             type=course['type'], school=course['school'], term=course['term'],
@@ -23,7 +25,6 @@ class CourseInfoPeopleListTest(CourseInfoBaseTestCase):
         # click on course link to view list of people in course
         search_page.select_course(cid=course['cid'])
 
-        user = settings.SELENIUM_CONFIG['course_info_tool']['test_user']
         people_page = CoursePeoplePageObject(self.driver)
         # assert that an expected enrollment is present
         self.assertTrue(people_page.is_loaded())

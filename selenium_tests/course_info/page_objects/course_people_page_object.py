@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
-# from selenium.webdriver.support.select  Select
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -9,14 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    TEST_PERSON_ON_PAGE = (By.XPATH, "//td[contains(text(), '20299916')]")
-    TEST_PERSON_EXISTS_ON_PAGE = (By.XPATH, "//td[contains(text(), '30833767')]")
     ADD_PEOPLE_SEARCH_BUTTON = (By.ID, "addPeopleBtn")
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
-    ALERT_SUCCESS = By.ID, "success-alert"
     ALERT_SUCCESS_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
+    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
 
     @classmethod
     def TD_TEXT_XPATH(cls, search_text):
@@ -45,14 +41,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         except NoSuchElementException:
             return False
         return True
-
-    def find_test_person_on_page(self):
-        element = self.find_element(*Locators.TEST_PERSON_ON_PAGE)
-        return element
-
-    def find_test_person_exists_on_page(self):
-        element = self.find_element(*Locators.TEST_PERSON_EXISTS_ON_PAGE)
-        return element
 
     def search_and_add_user(self, user_id, role):
         # Click "Add People" button to open the dialog
