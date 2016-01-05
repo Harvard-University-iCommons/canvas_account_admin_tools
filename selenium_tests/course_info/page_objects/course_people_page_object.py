@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support.ui import WebDriverWait
 
 
 class Locators(object):
@@ -41,7 +40,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
     def search_and_add_user(self, user_id, role):
         # Click "Add People" button to open the dialog
-        self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+        self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).clear()
         # Enter user to search on
@@ -50,7 +49,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.select_role_type(role)
 
         # Click 'Add to course' course button
-        self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
+        self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
 
     def select_role_type(self, role):
         """ select a role from the roles dropdown """
@@ -58,6 +57,9 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.find_element(By.LINK_TEXT, role).click()
 
     def add_was_successful(self):
-        # loading the results can take a long time, so explicitly wait longer
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
-            *Locators.ALERT_SUCCESS_PERSON).is_displayed())
+        # Verify success text
+        try:
+            self.find_element(*Locators.ALERT_SUCCESS_PERSON)
+        except NoSuchElementException:
+            return False
+        return True
