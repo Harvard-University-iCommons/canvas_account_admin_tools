@@ -21,19 +21,15 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         self.search_for_course(
             type=course['type'], school=course['school'], term=course['term'],
             year=course['year'], search_term=course['cid'])
-        self.driver.save_screenshot('image0.jpeg')
 
         # click on course link to view list of people in course
         search_page.select_course(cid=course['cid'])
-        self.driver.save_screenshot('image1.jpeg')
 
         # search for a user and add user to course
         people_page.search_and_add_user(new_user['user_id'], new_user['role'])
-        self.driver.save_screenshot('image2.jpeg')
 
         # assert that user is found
         self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
-        self.driver.save_screenshot('image3.jpeg')
+
         # Verify success text
         self.assertTrue(people_page.add_was_successful())
-        self.driver.save_screenshot('image4.jpeg')
