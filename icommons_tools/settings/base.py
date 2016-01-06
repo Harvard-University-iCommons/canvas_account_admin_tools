@@ -349,7 +349,7 @@ CANVAS_SHOPPING = {
 }
 
 EXCLUDE_COURSES = {
-    'allowed_group': 'IcGroup:359',
+    'allowed_group': 'IcGroup:358',
 }
 
 COURSE_CONCLUDE_TOOL = {
