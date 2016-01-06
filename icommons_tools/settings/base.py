@@ -348,6 +348,10 @@ CANVAS_SHOPPING = {
     'ROOT_ACCOUNT': '1',
 }
 
+EXCLUDE_COURSES = {
+    'allowed_group': 'IcGroup:359',
+}
+
 COURSE_CONCLUDE_TOOL = {
     'allowed_groups': {
         'IcGroup:193': ['hds'],

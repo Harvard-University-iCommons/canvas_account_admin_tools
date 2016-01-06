@@ -5,7 +5,7 @@ DEBUG = True
 
 CRISPY_FAIL_SILENTLY = False
 
-SECRET_KEY = 'changeme'
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key')
 
 ALLOWED_HOSTS = ['*']
 
