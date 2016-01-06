@@ -190,11 +190,6 @@ class ExcludeCoursesFromViewing(GroupMembershipRequiredMixin, LoginRequiredMixin
         term_id = self.kwargs['term_id']
         return self.model.objects.filter(sync_to_canvas=True, term_id=term_id).all()
 
-    def get_context_data(self, **kwargs):
-        context = super(ExcludeCoursesFromViewing, self).get_context_data(**kwargs)
-
-        return context
-
     def post(self, request, *args, **kwargs):
         """
         Process AJAX requests from the exclude_courses.html template.
