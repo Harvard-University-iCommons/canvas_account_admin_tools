@@ -1,15 +1,16 @@
 import unittest
 from django.conf import settings
 
-from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
-from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
-from selenium_tests.course_info.page_objects.course_people_page_object import \
-    CoursePeoplePageObject
+from selenium_tests.course_info.course_info_base_test_case \
+    import CourseInfoBaseTestCase
+from selenium_tests.course_info.page_objects.course_info_search_page_object \
+    import CourseSearchPageObject
+from selenium_tests.course_info.page_objects.course_people_page_object \
+    import CoursePeoplePageObject
 
 
 class CourseInfoAddTest(CourseInfoBaseTestCase):
 
-    @unittest.skip("repetitive adding of the same user is not allowed and delete function is not in place yet")
     def test_search_and_add_person(self):
         """verify the person  search and add functionality"""
 
@@ -31,10 +32,31 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         people_page.search_and_add_user(new_user['user_id'], new_user['role'])
 
         # assert that user is found on page.
-        # Note: If the course has a lot of people enrolled, results are paginated and it's possible that
-        # user may not be on the initial page. So this  may change based on data changing
+        # Note: If the course has a lot of people enrolled, results are
+        # paginated and it's possible that user may not be on the initial
+        # page. So this  may change based on data changing
 
         self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
 
         # Assert that the  success text is displayed
         self.assertTrue(people_page.add_was_successful())
+
+
+    def test_remove_person(self):
+
+        """Removes a user from course using the Admin Console"""
+        people_page = CoursePeoplePageObject(self.driver)
+        test_settings = settings.SELENIUM_CONFIG['course_info_tool']
+        new_user = test_settings['test_users']['new']
+
+        # asserts that test is on people page and to-be-removed user is on page
+        self.assertTrue(people_page.is_loaded())
+        self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
+
+        # deletes user and confirms that delete is successful
+        people_page.delete_user(new_user['user_id'])
+        self.assertTrue(people_page.delete_was_successful())
+
+
+if __name__ == "__main__":
+    unittest.main()
