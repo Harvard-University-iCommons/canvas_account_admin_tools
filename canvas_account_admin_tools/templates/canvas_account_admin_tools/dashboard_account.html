@@ -4,68 +4,75 @@
 
 {% block stylesheets %}
 <link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+  <style>
+    button {
+        width: 20em;
+        margin-top: 1em;
+    }
+  </style>
 {% endblock stylesheets %}
 
 {% block content %}
-<header>
-    <div class="row lti-header">
-        <h1>Administration Tasks</h1>
-    </div>
-</header>
 
-<main>
+    <header>
+      <nav class="ng-scope">
+        <h3>Admin Console</h3>
+      </nav>
+    </header>
+
     {% if has_manage_courses %}
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <h3>Manage Courses</h3>
-                <div class="list-group">
-                    {% if canvas_site_creator %}
-                    <a href="{{ canvas_site_creator }}" class="list-group-item active" target="_parent">
-                        <h4 class="list-group-item-heading">Canvas Site Creator</h4>
-                        <p class="list-group-item-text">Create Canvas sites for one or multiple courses</p>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+
+      {% if canvas_site_creator %}
+        <div class="btn-group col-md-4">
+          <a href="{{ canvas_site_creator }}" class="list-group-item active" target="_parent">
+              <h4 class="list-group-item-heading">Canvas Site Creator</h4>
+              <p class="list-group-item-text">Create Canvas sites for one or multiple courses</p>
+          </a>
         </div>
-    </div>
+      {% endif %}
+
     {% endif %}
+
     {% if has_manage_account %}
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <h3>Manage My Account</h3>
-                <div class="list-group">
-                    {% if conclude_courses %}
-                    <a href="{{ conclude_courses }}" class="list-group-item active" target="_blank">
-                        <h4 class="list-group-item-heading">Conclude Courses</h4>
-                        <p class="list-group-item-text">Change conclusion dates for a selected course</p>
-                    </a>
-                    {% endif %}
-                    {% if lti_tools_usage %}
-                    <a href="{{ lti_tools_usage }}" class="list-group-item active" target="_parent">
-                        <h4 class="list-group-item-heading">LTI Tools Usage Report</h4>
-                        <p class="list-group-item-text">See which LTI tools are installed in your account</p>
-                    </a>
-                    {% endif %}
-                    {% if courses_in_this_account %}
-                    <a href="{{ courses_in_this_account }}" class="list-group-item active" target="_parent">
-                        <h4 class="list-group-item-heading">Courses in this Account</h4>
-                        <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
-                    </a>
-                    {% endif %}
-                    {% if course_info %}
-                    <a href="{% url 'course_info:index' %}" class="list-group-item active">
-                        <h4 class="list-group-item-heading">Course Information</h4>
-                        <p class="list-group-item-text">Search for course information</p>
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
+
+      {% if conclude_courses %}
+        <div class="btn-group col-md-4">
+          <button type="link" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" class="list-group-item active" target="_blank">
+              <h4 class="list-group-item-heading">Conclude Courses</h4>
+              <p class="list-group-item-text">Change conclusion dates <br>for a selected course</p>
+          </button>
         </div>
-    </div>
+      {% endif %}
+
+      {% if lti_tools_usage %}
+        <div class="btn-group col-md-4">
+          <button type="link" class="btn btn-primary list-group-item active" href="{{ lti_tools_usage }}" class="list-group-item active" target="_parent">
+              <h4 class="list-group-item-heading">LTI Tools Usage Report</h4>
+              <p class="list-group-item-text">See which LTI tools are installed in your account</p>
+          </button>
+        </div>
+      {% endif %}
+
+      {% if courses_in_this_account %}
+        <div class="btn-group col-md-4">
+          <button type="link" class="btn btn-primary list-group-item active" href="{{ courses_in_this_account }}" class="list-group-item active" target="_parent">
+              <h4 class="list-group-item-heading">Courses in this Account</h4>
+              <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
+          </button>
+        </div>
+      {% endif %}
+
+      {% if course_info %}
+        <div class="btn-group col-md-4">
+          <button type="link" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}" class="list-group-item active" target="_parent">
+              <h4 class="list-group-item-heading">Course Information</h4>
+              <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
+          </button>
+        </div>
+      {% endif %}
+
     {% endif %}
+
     {% if not has_manage_courses and not has_manage_account %}
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -75,5 +82,4 @@
         </div>
     </div>
     {% endif %}
-</main>
 {% endblock content %}
