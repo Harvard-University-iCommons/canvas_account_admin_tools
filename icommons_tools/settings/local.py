@@ -5,7 +5,7 @@ DEBUG = True
 
 CRISPY_FAIL_SILENTLY = False
 
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key')
+SECRET_KEY = '$9$s(^-=2p+u_9bl9k%to#(55ji8lx9k'
 
 ALLOWED_HOSTS = ['*']
 
