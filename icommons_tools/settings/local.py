@@ -5,7 +5,7 @@ DEBUG = True
 
 CRISPY_FAIL_SILENTLY = False
 
-SECRET_KEY = 'changeme'
+SECRET_KEY = '$9$s(^-=2p+u_9bl9k%to#(55ji8lx9k'
 
 ALLOWED_HOSTS = ['*']
 
@@ -31,6 +31,8 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
+dictConfig(LOGGING)
+
 SELENIUM_CONFIG = {
     'project_base_url': 'https://icommons-tools.dev.tlt.harvard.edu/',
     'course_conclusion': {
@@ -49,6 +51,13 @@ SELENIUM_CONFIG = {
     'selenium_password': SECURE_SETTINGS.get('selenium_password'),
     'selenium_username': SECURE_SETTINGS.get('selenium_user'),
     'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
-}
+    'term_tool_base_url': SECURE_SETTINGS.get('term_tool_base_url'),
+    'term_tool_relative_url': SECURE_SETTINGS.get('term_tool_relative_url'),
+    'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
+    'course_shopping': {
+        'user_HUID': SECURE_SETTINGS.get('shopping_user_HUID'),
+        'user_password': SECURE_SETTINGS.get('shopping_user_password'),
+        'relative_url': 'courses/81',
+    },
 
-dictConfig(LOGGING)
+}

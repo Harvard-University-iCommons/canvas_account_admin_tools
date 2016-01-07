@@ -276,7 +276,7 @@ Tool specific settings below
 """
 
 # Base url for canvas, default to harvard iCommons instance
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.icommons.harvard.edu')
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.dev.tlt.harvard.edu')
 
 HUEY = {
     'backend': 'huey.backends.redis_backend',
@@ -346,6 +346,10 @@ TERM_TOOL = {
 CANVAS_SHOPPING = {
     'SHOPPER_ROLE': 'Shopper',
     'ROOT_ACCOUNT': '1',
+}
+
+EXCLUDE_COURSES = {
+    'allowed_group': 'IcGroup:358',
 }
 
 COURSE_CONCLUDE_TOOL = {
