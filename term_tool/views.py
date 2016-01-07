@@ -1,6 +1,7 @@
 import json
 import logging
-
+from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods import (courses)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,9 +10,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import generic
 from django_datatables_view.base_datatable_view import BaseDatatableView
-from canvas_sdk.methods import (courses)
-from canvas_sdk.exceptions import CanvasAPIError
-
+from icommons_common.auth.decorators import group_membership_restriction
+from icommons_common.auth.views import GroupMembershipRequiredMixin
 from icommons_common.auth.views import LoginRequiredMixin
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import (School, CourseInstance)
@@ -19,7 +19,6 @@ from icommons_common.models import Term
 
 from term_tool.forms import (CreateTermForm, EditTermForm)
 from util import util
-
 
 logger = logging.getLogger(__name__)
 
@@ -174,12 +173,14 @@ class TermCreateView(LoginRequiredMixin, TermActionMixin, generic.edit.CreateVie
 
 
 @login_required
+@group_membership_restriction(allowed_groups=settings.EXCLUDE_COURSES.get('allowed_group', ''))
 def exclude_courses(request, term_id, school_id):
     return render(request, 'term_tool/exclude_courses.html',
                   {'term_id': term_id, 'school_id': school_id})
 
 
-class ExcludeCoursesFromViewing(LoginRequiredMixin, BaseDatatableView):
+class ExcludeCoursesFromViewing(GroupMembershipRequiredMixin, LoginRequiredMixin, BaseDatatableView):
+    allowed_groups = settings.EXCLUDE_COURSES.get('allowed_group', '')
     model = CourseInstance
     columns = ['course_instance_id', 'short_title', 'title', 'exclude_from_shopping']
     order_columns = columns
