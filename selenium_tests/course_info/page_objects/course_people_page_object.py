@@ -7,9 +7,9 @@ class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
-    ALERT_SUCCESS_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
+    ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
-    ALERT_DELETE_PERSON = (By.XPATH, '//p[contains(.,"removed")]')
+    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"removed")]')
     # DELETE_USER_ICON = TBD depending on how remove icons gets implemented
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"OK")]')
 
@@ -62,7 +62,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
     def add_was_successful(self):
         # Verify success text
         try:
-            self.find_element(*Locators.ALERT_SUCCESS_PERSON)
+            self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON)
         except NoSuchElementException:
             return False
         return True
@@ -70,7 +70,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
     def delete_was_successful(self):
         # Verify delete text
         try:
-            self.find_element(*Locators.ALERT_DELETE_PERSON)
+            self.find_element(*Locators.ALERT_SUCCESS_DELETE_PERSON)
         except NoSuchElementException:
             return False
         return True
