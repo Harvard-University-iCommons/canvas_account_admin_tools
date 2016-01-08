@@ -1,12 +1,13 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
-from selenium_tests.account_admin.page_objects.account_admin_base_page_object import AccountAdminBasePage
+from selenium_tests.account_admin.page_objects.account_admin_base_page_object \
+    import AccountAdminBasePage
 
 
 class AccountAdminDashboardPageLocators(object):
     PAGE_TITLE = (By.CSS_SELECTOR, "h1")
-    COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Course Information")
+    COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Find Course")
 
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
@@ -26,7 +27,7 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         except NoSuchElementException:
             return False
 
-        if title and 'Administration Tasks' in title.get_attribute('textContent'):
+        if title and 'Admin Console' in title.get_attribute('textContent'):
             return True
         else:
             raise RuntimeError(
@@ -35,11 +36,13 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
             )
 
     def get_page_title(self):
-        element = self.find_element(*AccountAdminDashboardPageLocators.PAGE_TITLE)
+        element = self.find_element(
+            *AccountAdminDashboardPageLocators.PAGE_TITLE)
         return element
 
     def get_course_info_link(self):
-        element = self.find_element(*AccountAdminDashboardPageLocators.COURSE_INFO_LINK)
+        element = self.find_element(
+            *AccountAdminDashboardPageLocators.COURSE_INFO_LINK)
         return element
 
     def select_course_info_link(self):
@@ -47,7 +50,8 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         select the course info link element and click it
         """
         self.focus_on_tool_frame()
-        self.find_element(*AccountAdminDashboardPageLocators.COURSE_INFO_LINK).click()
+        self.find_element(
+            *AccountAdminDashboardPageLocators.COURSE_INFO_LINK).click()
 
     def is_course_info_block_present(self):
         """
