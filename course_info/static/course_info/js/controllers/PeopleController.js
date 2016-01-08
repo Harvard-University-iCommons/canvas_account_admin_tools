@@ -119,6 +119,8 @@
             }
         };
         $scope.confirmRemove = function(membership) {
+            // creates a new remove user confirmation modal, and
+            // stashes this membership object on the modal's child scope.
             var modalInstance = $uibModal.open({
                 controller: function($scope, membership) {
                     $scope.membership = membership;
@@ -130,6 +132,8 @@
                 },
                 templateUrl: 'partials/remove-course-membership-confirmation.html',
             });
+
+            // if they confirm, then do the work
             modalInstance.result.then($scope.removeMembership);
         };
         $scope.disableAddUserButton = function(){
@@ -173,12 +177,6 @@
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error getting data from ' + config.url + ': ' + status +
                        ' ' + statusText + ': ' + JSON.stringify(data));
-        };
-        $scope.handleRemoveResults = function(membership) {
-            var success = membership; // TODO - copy to avoid stomping the original?
-            success.searchTerm = membership.user_id;
-            success.action = 'removed from';
-            $scope.successes.push(success);
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -278,16 +276,22 @@
                                       ['api/course/v2/course_instances/' +
                                        $scope.courseInstanceId +
                                        '/people/' + membership.user_id]);
-            var params = {
-                role_id: membership.role.role_id,
-                user_id: membership.user_id,
+            var config = {
+                data: {
+                    role_id: membership.role.role_id,
+                    user_id: membership.user_id,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             };
-            $scope.handleRemoveResults(membership);
-
-            return;
-            $http.delete(courseMemberURL, {params: params})
+            $http.delete(courseMemberURL, config)
                  .success(function() {
-                     $scope.handleRemoveResults(membership);
+                     var success = membership; // TODO - copy to avoid stomping the original?
+                     success.searchTerm = membership.user_id;
+                     success.action = 'removed from';
+                     $scope.successes.push(success);
+                     $scope.dtInstance.reloadData()
                  })
                  .error($scope.handleAjaxError) // TODO - real error handling
                  ;
