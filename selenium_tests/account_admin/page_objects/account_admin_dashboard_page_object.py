@@ -7,7 +7,7 @@ from selenium_tests.account_admin.page_objects.account_admin_base_page_object \
 
 class AccountAdminDashboardPageLocators(object):
     PAGE_TITLE = (By.CSS_SELECTOR, "h1")
-    COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Find Course")
+    COURSE_INFO_LINK = (By.PARTIAL_LINK_TEXT, "Find Course Info")
 
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
