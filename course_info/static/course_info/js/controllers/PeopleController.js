@@ -3,7 +3,7 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log) {
+                              djangoUrl, $http, $q, $log, $uibModal) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -42,6 +42,7 @@
                 $http.get(url, {params: {user_id: user.user_id}})
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
+                        data.results[0].action = 'added to';
                         $scope.successes.push(data.results[0]);
                         $scope.dtInstance.reloadData();
                     })
@@ -117,6 +118,20 @@
                 return b.active - a.active;
             }
         };
+        $scope.confirmRemove = function(membership) {
+            var modalInstance = $uibModal.open({
+                controller: function($scope, membership) {
+                    $scope.membership = membership;
+                },
+                resolve: {
+                    membership: function() {
+                        return membership;
+                    },
+                },
+                templateUrl: 'partials/remove-course-membership-confirmation.html',
+            });
+            modalInstance.result.then($scope.removeMembership);
+        };
         $scope.disableAddUserButton = function(){
             if ($scope.searchInProgress) {
                 return true;
@@ -131,7 +146,7 @@
                 return true;
             }
         };
-        $scope.filterResults = function(searchResults){
+        $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
             var resultsDict = {};
 
@@ -158,6 +173,12 @@
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error getting data from ' + config.url + ': ' + status +
                        ' ' + statusText + ': ' + JSON.stringify(data));
+        };
+        $scope.handleRemoveResults = function(membership) {
+            var success = membership; // TODO - copy to avoid stomping the original?
+            success.searchTerm = membership.user_id;
+            success.action = 'removed from';
+            $scope.successes.push(success);
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -186,7 +207,7 @@
                 $scope.searchInProgress = false;
             }
             else {
-                var filteredResults = $scope.filterResults(
+                var filteredResults = $scope.filterSearchResults(
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
@@ -214,7 +235,7 @@
         };
         $scope.lookup = function(searchTerm) {
             // first the general people lookup
-            var peopleUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+            var peopleURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/people/']);
             var peopleParams = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
@@ -222,12 +243,12 @@
             } else {
                 peopleParams.univ_id = searchTerm;
             }
-            var peoplePromise = $http.get(peopleUrl, {params: peopleParams,
+            var peoplePromise = $http.get(peopleURL, {params: peopleParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
 
             // then the course membership lookup
-            var memberUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+            var memberURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
@@ -240,13 +261,36 @@
                 memberParams.user_id = searchTerm;
             }
 
-            var memberPromise = $http.get(memberUrl, {params: memberParams,
+            var memberPromise = $http.get(memberURL, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
 
             // wait until they're both done, handle the combined results
             $q.all([peoplePromise, memberPromise])
                 .then($scope.handleLookupResults);
+        };
+        $scope.removeMembership = function(membership) {
+            // the call stack to get here is a little weird.  we register
+            // this as the success callback on a promise hung off the
+            // $uibModal instance.
+            var courseMemberURL = djangoUrl.reverse(
+                                      'icommons_rest_api_proxy',
+                                      ['api/course/v2/course_instances/' +
+                                       $scope.courseInstanceId +
+                                       '/people/' + membership.user_id]);
+            var params = {
+                role_id: membership.role.role_id,
+                user_id: membership.user_id,
+            };
+            $scope.handleRemoveResults(membership);
+
+            return;
+            $http.delete(courseMemberURL, {params: params})
+                 .success(function() {
+                     $scope.handleRemoveResults(membership);
+                 })
+                 .error($scope.handleAjaxError) // TODO - real error handling
+                 ;
         };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -255,6 +299,27 @@
         $scope.renderName = function(data, type, full, meta) {
             return full.profile.name_last + ', ' + full.profile.name_first;
         };
+        $scope.renderRemove = function(data, type, full, meta) {
+            // TODO - maybe make this a directive?  the isolate scope
+            //        in a directive complicates things.  anything has
+            //        to be better than this mess, though.
+            var registrarFed = /^.*feed$/.test(full.source);
+            var cell = '<div class="text-center">';
+            if (!registrarFed) {
+                cell += '<a href="" ng-click="confirmRemove(' +
+                        'dtInstance.DataTable.data()[' + meta.row + '])">';
+            }
+            cell += '<i class="fa fa-trash-o"';
+            if (registrarFed) {
+                cell += ' style="color: #ccc;"';
+            }
+            cell += '></i>';
+            if (!registrarFed) {
+                cell += '</a>';
+            }
+            cell += '</div>';
+            return cell;
+        }
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         };
@@ -382,6 +447,12 @@
                 data: 'source',
                 render: $scope.renderSource,
                 title: 'Source',
+            },
+            {
+                data: '',
+                render: $scope.renderRemove,
+                title: 'Remove',
+                // TODO - flag as not sortable
             },
         ];
     }

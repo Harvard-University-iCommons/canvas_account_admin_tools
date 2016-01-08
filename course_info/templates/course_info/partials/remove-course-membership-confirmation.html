@@ -1,0 +1,24 @@
+{% verbatim %}
+<div class="modal-header">
+	<button type="button" class="close" ng-click="$dismiss('cancel')">&times;</button>
+	<h4 class="modal-title">Confirm Remove User</h4>
+</div>
+<div class="modal-body">
+  <p>Are you sure you want to remove</p>
+  <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em; margin-bottom:1em;">
+    {{ membership.profile.name_last }}, {{ membership.profile.name_first }}
+    <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.profile.univ_id }}
+    <strong>Enrolled as {{ membership.role.role_name }}</strong>
+  </div>
+  <p>from this course?</p>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left"
+          ng-click="$dismiss('cancel')">
+    Cancel
+  </button>
+  <button type="button" class="btn btn-primary" ng-click="$close(membership)">
+    Yes, Remove User
+  </button>
+</div>
+{% endverbatim %}

@@ -11,30 +11,6 @@
 <main class="float=left col=60">
 <div class="container-fluid">
   <!-- begin add people interface -->
-
-  <!-- begin remove person confirmation modal -->
-  <div class="modal fade" id="removePersonConfirmationModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Confirm Remove User</h4>
-        </div>
-        <div class="modal-body">
-          <p>Are you sure you want to remove Haagenson, Patrick 
-          <span class="label label-danger">HUID</span>
-          12345678 
-          <strong>Enrolled as a Student</strong> from this course?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">Yes, Remove User</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- end remove person confirmation modal -->
-
   <!-- begin add person expand-o-widget -->
   <div role="tabpanel" class="tab-pane active fade in active" id="people">
     <br />
@@ -201,23 +177,25 @@
   </div>
   <!-- begin add person expand-o-widget -->
 
-  <!-- add successful alerts -->
+  <!-- begin success alerts -->
   <uib-alert ng-repeat="person in successes" type="success"
                                              close="closeAlert('successes', $index)" class="col-md-12">
-    <p><strong>{{ person.searchTerm }}</strong> was just added to this course:</p>
+    <p><strong>{{ person.searchTerm }}</strong> was just {{ person.action }} this course:</p>
     <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
       {{ person.profile.name_last }}, {{ person.profile.name_first }}
       <badge role="{{ person.profile.role_type_cd }}"></badge> {{ person.profile.univ_id }}
       <strong>Enrolled as {{ person.role.role_name }}</strong>
     </div>
   </uib-alert>
+  <!-- end success alerts -->
 
-  <!-- partial failure warning alerts -->
+  <!-- begin partial failure warning alerts -->
   <uib-alert ng-repeat="partial in partialFailures" type="warning"
                                                     close="closeAlert('partialFailures', $index)" class="col-md-12">
     <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
     <p>{{ partial.text }}</p>
   </uib-alert>
+  <!-- end partial failure warning alerts -->
 
   <!-- end add people interface -->
 
