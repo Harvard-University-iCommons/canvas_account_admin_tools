@@ -175,8 +175,8 @@
             return filteredResults;
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
-            $log.error('Error getting data from ' + config.url + ': ' + status +
-                       ' ' + statusText + ': ' + JSON.stringify(data));
+            $log.error('Error attempting to ' + config.method + ' ' + config.url +
+                       ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -281,9 +281,6 @@
                     role_id: membership.role.role_id,
                     user_id: membership.user_id,
                 },
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             };
             $http.delete(courseMemberURL, config)
                  .success(function() {
@@ -311,7 +308,8 @@
             var cell = '<div class="text-center">';
             if (!registrarFed) {
                 cell += '<a href="" ng-click="confirmRemove(' +
-                        'dtInstance.DataTable.data()[' + meta.row + '])">';
+                        'dtInstance.DataTable.data()[' + meta.row + '])" ' +
+                        'data-sisid="' + full.user_id + '">';
             }
             cell += '<i class="fa fa-trash-o"';
             if (registrarFed) {

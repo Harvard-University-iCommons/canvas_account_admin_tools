@@ -1,6 +1,9 @@
 {% verbatim %}
 <div class="modal-header">
-	<button type="button" class="close" ng-click="$dismiss('cancel')">&times;</button>
+	<button type="button" class="close" ng-click="$dismiss('cancel')"
+          id="modalClose">
+    &times;
+  </button>
 	<h4 class="modal-title">Confirm Remove User</h4>
 </div>
 <div class="modal-body">
@@ -14,10 +17,11 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default pull-left"
-          ng-click="$dismiss('cancel')">
+          id="modalCancel" ng-click="$dismiss('cancel')">
     Cancel
   </button>
-  <button type="button" class="btn btn-primary" ng-click="$close(membership)">
+  <button type="button" class="btn btn-primary" ng-click="$close(membership)"
+          id="modalConfirm">
     Yes, Remove User
   </button>
 </div>
