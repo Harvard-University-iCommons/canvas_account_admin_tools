@@ -1,6 +1,6 @@
 {% verbatim %}
 <nav>
-  <h1>Find Course</h1>
+  <h3><a onclick="window.history.go(-2); return false;">Admin Console</a> > Find Course</h3>
 </nav>
 
 <main class="float-left col-60">
@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div class="input-group">
+    <div class="input-group" style="margin-top: 1em; width: 60%">
       <input type="text" class="form-control" ng-model="queryString"
             ng-keypress="searchCourseInstances($event)"
             placeholder="Search by course code, SIS or Canvas course ID, course title">
