@@ -494,8 +494,8 @@
             },
             {
                 data: '',
-                render: $scope.renderRemove,
                 orderable: false,
+                render: $scope.renderRemove,
                 title: 'Remove',
             },
         ];
