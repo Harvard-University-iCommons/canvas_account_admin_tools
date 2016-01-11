@@ -1,3 +1,4 @@
+// TODO - split out add/remove into separate controllers?
 (function() {
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
@@ -50,7 +51,7 @@
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-                        $scope.partialFailures.push({
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
                                 'we received an error trying to retrieve ' +
@@ -72,14 +73,14 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        $scope.partialFailures.push({
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
                         });
                         handlePostSuccess();
                     }
                     else {
-                        $scope.warnings.push({
+                        $scope.addWarnings.push({
                             type: 'addFailed',
                             searchTerm: searchTerm,
                         });
@@ -196,7 +197,7 @@
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile
-                $scope.warnings.push({
+                $scope.addWarnings.push({
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
@@ -209,7 +210,7 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.warnings.push({
+                    $scope.addWarnings.push({
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
                     });
@@ -281,17 +282,58 @@
                     role_id: membership.role.role_id,
                     user_id: membership.user_id,
                 },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             };
             $http.delete(courseMemberURL, config)
-                 .success(function() {
-                     var success = membership; // TODO - copy to avoid stomping the original?
-                     success.searchTerm = membership.user_id;
-                     success.action = 'removed from';
-                     $scope.successes.push(success);
-                     $scope.dtInstance.reloadData()
-                 })
-                 .error($scope.handleAjaxError) // TODO - real error handling
-                 ;
+                .success(function(data, status, headers, config, statusText) {
+                    var success = membership; // TODO - copy to avoid stomping the original?
+                    success.searchTerm = membership.profile.name_last +
+                                         ', ' + membership.profile.name_first;
+                    success.action = 'removed from';
+                    $scope.successes.push(success);
+                    $scope.dtInstance.reloadData()
+                })
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+
+                    var failure = membership; // TODO - copy to avoid stomping the original?
+                    var reloadData = false; // for some partial failures we need to reload
+                    switch(status) {
+                        case 404:
+                            switch (data.detail) {
+                                case 'User not found.':
+                                    failure.type = 'noSuchUser';
+                                    break;
+                                case 'Course instance not found.':
+                                    failure.type = 'noSuchCourse';
+                                    break;
+                                default:
+                                    failure.type = 'unexpected404';
+                                    break;
+                            }
+                            break;
+
+                        case 500:
+                            if (data.detail == 'User could not be removed from Canvas.') {
+                                failure.type = 'canvasError';
+                                reloadData = true;
+                            }
+                            else {
+                                failure.type = 'serverError';
+                            }
+                            break;
+
+                        default:
+                            failure.type = 'unknown';
+                            break;
+                    }
+                    $scope.removeFailures.push(failure);
+                    if (reloadData) {
+                        $scope.dtInstance.reloadData();
+                    }
+                });
         };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -348,8 +390,10 @@
         };
 
         // now actually init the controller
+        $scope.addPartialFailures = [];
+        $scope.addWarnings = [];
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.partialFailures = [];
+        $scope.removeFailures = [];
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
@@ -371,7 +415,6 @@
         $scope.selectedRole = $scope.roles[0];
         $scope.setTitle($routeParams.courseInstanceId);
         $scope.successes = [];
-        $scope.warnings = [];
 
         // configure the datatable
         $scope.dtInstance = null;

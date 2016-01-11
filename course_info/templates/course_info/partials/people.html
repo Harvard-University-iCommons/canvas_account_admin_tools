@@ -69,36 +69,40 @@
           to find someone's official email address.
         </div>
 
-        <!-- warning alerts -->
-        <uib-alert ng-repeat="warning in warnings" type="warning"
-                                                   close="closeAlert('warnings', $index)" class="col-md-12">
-          <!-- user was already enrolled -->
-          <div ng-if="warning.type == 'alreadyInCourse'">
-            <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
-            <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
-            <div ng-repeat="membership in warning.memberships"
-                 style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
-              {{ getProfileFullName(membership.profile) }}
-              <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
-              <strong>Enrolled as {{ membership.role.role_name }}</strong>
+        <!-- begin add warning alerts -->
+        <uib-alert ng-repeat="warning in addWarnings" type="warning"
+                   close="closeAlert('addWarnings', $index)" class="col-md-12">
+          <div ng-switch on="warning.type">
+            <!-- user was already enrolled -->
+            <div ng-switch-when="alreadyInCourse">
+              <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
+              <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
+              <div ng-repeat="membership in warning.memberships"
+                   style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
+                {{ getProfileFullName(membership.profile) }}
+                <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
+                <strong>Enrolled as {{ membership.role.role_name }}</strong>
+              </div>
+            </div>
+
+            <!-- search term didn't find a user -->
+            <div ng-switch-when="notFound">
+              <p>
+              <i class="fa fa-warning"></i>
+              {{ warning.searchTerm }} was not found. Please check the email or Harvard University ID and try again.
+              </p>
+            </div>
+
+            <!-- server error when attempting to add the user -->
+            <div ng-switch-when="addFailed">
+              <p><strong>{{ warning.searchTerm }}</strong> could not be added to this course at this time.</p>
+              <p>Please try again.</p>
             </div>
           </div>
-
-          <!-- search term didn't find a user -->
-          <div ng-if="warning.type == 'notFound'">
-            <p>
-            <i class="fa fa-warning"></i>
-            {{ warning.searchTerm }} was not found. Please check the email or Harvard University ID and try again.
-            </p>
-          </div>
-
-          <div ng-if="warning.type == 'addFailed'">
-            <p><strong>{{ warning.searchTerm }}</strong> could not be added to this course at this time.</p>
-            <p>Please try again.</p>
-          </div>
         </uib-alert>
+        <!-- end add warning alerts -->
 
-        <!-- choose between multiple hits -->
+        <!-- begin choose between multiple search hits -->
         <div ng-show="searchResults.length > 1">
           <div class="row col-md-12">
             <h4>Some of the information you entered matches more than one record.</h4>
@@ -139,6 +143,7 @@
             </div>
           </form>
         </div>
+        <!-- end choose between multiple search hits -->
 
         <div class="col-md-12 row">
           <div class="col-md-2">
@@ -163,11 +168,11 @@
         </div>
 
         <div class="col-md-8 col-md-offset-2 hidden" style="padding-top: 1em"
-                                                     ng-class="{'hidden': !searchInProgress}">
+             ng-class="{'hidden': !searchInProgress}">
           <div class="progress">
             <div class="progress-bar progress-bar-success progress-bar-striped active"
                  role="progressbar" aria-valuenow="100" aria-valuemin="0"
-                                                        aria-valuemax="100" style="width: 100%;">
+                 aria-valuemax="100" style="width: 100%;">
               <span class="sr-only">Search in progress</span>
             </div>
           </div>
@@ -179,7 +184,7 @@
 
   <!-- begin success alerts -->
   <uib-alert ng-repeat="person in successes" type="success"
-                                             close="closeAlert('successes', $index)" class="col-md-12">
+             close="closeAlert('successes', $index)" class="col-md-12">
     <p><strong>{{ person.searchTerm }}</strong> was just {{ person.action }} this course:</p>
     <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
       {{ person.profile.name_last }}, {{ person.profile.name_first }}
@@ -189,13 +194,50 @@
   </uib-alert>
   <!-- end success alerts -->
 
-  <!-- begin partial failure warning alerts -->
-  <uib-alert ng-repeat="partial in partialFailures" type="warning"
-                                                    close="closeAlert('partialFailures', $index)" class="col-md-12">
+  <!-- begin add partial failure warning alerts -->
+  <uib-alert ng-repeat="partial in addPartialFailures" type="warning"
+             close="closeAlert('addPartialFailures', $index)" class="col-md-12">
     <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
     <p>{{ partial.text }}</p>
   </uib-alert>
-  <!-- end partial failure warning alerts -->
+  <!-- end add partial failure warning alerts -->
+
+  <!-- begin remove failure warning alerts -->
+  <uib-alert ng-repeat="failure in removeFailures" type="warning"
+             close="closeAlert('removeFailures', $index)" class="col-md-12">
+    <div ng-switch on="failure.type">
+      <div ng-switch-when="noSuchUser">
+        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        has already been removed from this course.
+      </div>
+      <div ng-switch-when="noSuchCourse">
+        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        cannot be removed from this course because it no longer exists.
+      </div>
+      <div ng-switch-when="serverError">
+        There was a problem removing <strong>{{ failure.profile.name_last }},
+        {{ failure.profile.name_first }}</strong> from the database.  Please
+        try again.  If the error persists, please contact your local school
+        support staff.
+      </div>
+      <div ng-switch-when="canvasError">
+        There was a problem removing <strong>{{ failure.profile.name_last }},
+        {{ failure.profile.name_first }}</strong> from the Canvas site.  If the
+        error persists, please contact your local school support staff.
+      </div>
+      <div ng-switch-default>
+        There was a problem removing <strong>{{ failure.profile.name_last }},
+        {{ failure.profile.name_first }}</strong>.  Please try again.  If the
+        error persists, please contact your local school support staff.
+      </div>
+    </div>
+    <div style="border-style: solid; border-width: 1px 0px 1px 0px; border-color: #ccc; padding:.5em; margin-top:1em;">
+      {{ failure.profile.name_last }}, {{ failure.profile.name_first }}
+      <badge role="{{ failure.profile.role_type_cd }}"></badge> {{ failure.profile.univ_id }}
+      <strong>Enrolled as {{ failure.role.role_name }}</strong>
+    </div>
+  </uib-alert>
+  <!-- end remove failure warning alerts -->
 
   <!-- end add people interface -->
 
