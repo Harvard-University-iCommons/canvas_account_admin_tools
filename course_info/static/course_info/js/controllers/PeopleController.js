@@ -483,7 +483,10 @@
                 render: $scope.renderId,
                 title: 'ID',
             },
-            {data: 'role.role_name', title: 'Role'},
+            {
+                data: 'role.role_name',
+                title: 'Role'
+            },
             {
                 data: 'source',
                 render: $scope.renderSource,
@@ -492,8 +495,8 @@
             {
                 data: '',
                 render: $scope.renderRemove,
+                orderable: false,
                 title: 'Remove',
-                // TODO - flag as not sortable
             },
         ];
     }
