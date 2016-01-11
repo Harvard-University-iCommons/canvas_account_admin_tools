@@ -1,9 +1,10 @@
+// TODO - split out add/remove into separate controllers?
 (function() {
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log) {
+                              djangoUrl, $http, $q, $log, $uibModal) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -42,6 +43,7 @@
                 $http.get(url, {params: {user_id: user.user_id}})
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
+                        data.results[0].action = 'added to';
                         $scope.successes.push(data.results[0]);
                         $scope.dtInstance.reloadData();
                     })
@@ -49,7 +51,7 @@
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-                        $scope.partialFailures.push({
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
                                 'we received an error trying to retrieve ' +
@@ -71,14 +73,14 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        $scope.partialFailures.push({
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
                         });
                         handlePostSuccess();
                     }
                     else {
-                        $scope.warnings.push({
+                        $scope.addWarnings.push({
                             type: 'addFailed',
                             searchTerm: searchTerm,
                         });
@@ -117,6 +119,24 @@
                 return b.active - a.active;
             }
         };
+        $scope.confirmRemove = function(membership) {
+            // creates a new remove user confirmation modal, and
+            // stashes this membership object on the modal's child scope.
+            var modalInstance = $uibModal.open({
+                controller: function($scope, membership) {
+                    $scope.membership = membership;
+                },
+                resolve: {
+                    membership: function() {
+                        return membership;
+                    },
+                },
+                templateUrl: 'partials/remove-course-membership-confirmation.html',
+            });
+
+            // if they confirm, then do the work
+            modalInstance.result.then($scope.removeMembership);
+        };
         $scope.disableAddUserButton = function(){
             if ($scope.searchInProgress) {
                 return true;
@@ -131,7 +151,7 @@
                 return true;
             }
         };
-        $scope.filterResults = function(searchResults){
+        $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
             var resultsDict = {};
 
@@ -156,8 +176,8 @@
             return filteredResults;
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
-            $log.error('Error getting data from ' + config.url + ': ' + status +
-                       ' ' + statusText + ': ' + JSON.stringify(data));
+            $log.error('Error attempting to ' + config.method + ' ' + config.url +
+                       ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
@@ -177,7 +197,7 @@
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile
-                $scope.warnings.push({
+                $scope.addWarnings.push({
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
@@ -186,11 +206,11 @@
                 $scope.searchInProgress = false;
             }
             else {
-                var filteredResults = $scope.filterResults(
+                var filteredResults = $scope.filterSearchResults(
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.warnings.push({
+                    $scope.addWarnings.push({
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
                     });
@@ -214,7 +234,7 @@
         };
         $scope.lookup = function(searchTerm) {
             // first the general people lookup
-            var peopleUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+            var peopleURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/people/']);
             var peopleParams = {page_size: 100};
             if ($scope.isEmailAddress(searchTerm)) {
@@ -222,12 +242,12 @@
             } else {
                 peopleParams.univ_id = searchTerm;
             }
-            var peoplePromise = $http.get(peopleUrl, {params: peopleParams,
+            var peoplePromise = $http.get(peopleURL, {params: peopleParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
 
             // then the course membership lookup
-            var memberUrl = djangoUrl.reverse('icommons_rest_api_proxy',
+            var memberURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
@@ -240,13 +260,81 @@
                 memberParams.user_id = searchTerm;
             }
 
-            var memberPromise = $http.get(memberUrl, {params: memberParams,
+            var memberPromise = $http.get(memberURL, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
 
             // wait until they're both done, handle the combined results
             $q.all([peoplePromise, memberPromise])
                 .then($scope.handleLookupResults);
+        };
+        $scope.removeMembership = function(membership) {
+            // the call stack to get here is a little weird.  we register
+            // this as the success callback on a promise hung off the
+            // $uibModal instance.
+            var courseMemberURL = djangoUrl.reverse(
+                                      'icommons_rest_api_proxy',
+                                      ['api/course/v2/course_instances/' +
+                                       $scope.courseInstanceId +
+                                       '/people/' + membership.user_id]);
+            var config = {
+                data: {
+                    role_id: membership.role.role_id,
+                    user_id: membership.user_id,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            $http.delete(courseMemberURL, config)
+                .success(function(data, status, headers, config, statusText) {
+                    var success = membership; // TODO - copy to avoid stomping the original?
+                    success.searchTerm = membership.profile.name_last +
+                                         ', ' + membership.profile.name_first;
+                    success.action = 'removed from';
+                    $scope.successes.push(success);
+                    $scope.dtInstance.reloadData()
+                })
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+
+                    var failure = membership; // TODO - copy to avoid stomping the original?
+                    var reloadData = false; // for some partial failures we need to reload
+                    switch(status) {
+                        case 404:
+                            switch (data.detail) {
+                                case 'User not found.':
+                                    failure.type = 'noSuchUser';
+                                    reloadData = true;
+                                    break;
+                                case 'Course instance not found.':
+                                    failure.type = 'noSuchCourse';
+                                    break;
+                                default:
+                                    failure.type = 'unexpected404';
+                                    break;
+                            }
+                            break;
+
+                        case 500:
+                            if (data.detail == 'User could not be removed from Canvas.') {
+                                failure.type = 'canvasError';
+                                reloadData = true;
+                            }
+                            else {
+                                failure.type = 'serverError';
+                            }
+                            break;
+
+                        default:
+                            failure.type = 'unknown';
+                            break;
+                    }
+                    $scope.removeFailures.push(failure);
+                    if (reloadData) {
+                        $scope.dtInstance.reloadData();
+                    }
+                });
         };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.profile.role_type_cd 
@@ -255,6 +343,23 @@
         $scope.renderName = function(data, type, full, meta) {
             return full.profile.name_last + ', ' + full.profile.name_first;
         };
+        $scope.renderRemove = function(data, type, full, meta) {
+            // TODO - maybe make this a directive?  the isolate scope
+            //        in a directive complicates things.  anything has
+            //        to be better than this mess, though.
+            var registrarFed = /^.*feed$/.test(full.source);
+            var iconClass = registrarFed ? 'fa-trash-disabled' : '';
+            var icon = '<i class="fa fa-trash-o ' + iconClass + '"></i>';
+            var linkOpen = '';
+            if (!registrarFed) {
+                linkOpen = '<a href="" ng-click="confirmRemove(' +
+                           'dtInstance.DataTable.data()[' + meta.row + '])" ' +
+                           'data-sisid="' + full.user_id + '">';
+            }
+            var linkClose = registrarFed ? '' : '</a>';
+            return '<div class="text-center">' +
+                       linkOpen + icon + linkClose + '</div>';
+        }
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         };
@@ -281,8 +386,10 @@
         };
 
         // now actually init the controller
+        $scope.addPartialFailures = [];
+        $scope.addWarnings = [];
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.partialFailures = [];
+        $scope.removeFailures = [];
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
@@ -304,7 +411,6 @@
         $scope.selectedRole = $scope.roles[0];
         $scope.setTitle($routeParams.courseInstanceId);
         $scope.successes = [];
-        $scope.warnings = [];
 
         // configure the datatable
         $scope.dtInstance = null;
@@ -377,11 +483,20 @@
                 render: $scope.renderId,
                 title: 'ID',
             },
-            {data: 'role.role_name', title: 'Role'},
+            {
+                data: 'role.role_name',
+                title: 'Role'
+            },
             {
                 data: 'source',
                 render: $scope.renderSource,
                 title: 'Source',
+            },
+            {
+                data: '',
+                orderable: false,
+                render: $scope.renderRemove,
+                title: 'Remove',
             },
         ];
     }
