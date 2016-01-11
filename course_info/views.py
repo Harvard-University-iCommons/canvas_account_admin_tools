@@ -5,7 +5,7 @@ from operator import itemgetter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-
+from django.core.urlresolvers import reverse
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 
@@ -21,9 +21,13 @@ logger = logging.getLogger(__name__)
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
 
+    # get the url to the dashboard to use in the breadcrumb nav
+    dashboard_url = reverse('dashboard_account')
+
     # prep context data, used to fill filter dropdowns with data targeted
     # to the lti launch's user.
     context = {
+        'dashboard_url': dashboard_url,
         'schools': _get_schools_context(canvas_user_id),
     }
     return render(request, 'course_info/index.html', context)
