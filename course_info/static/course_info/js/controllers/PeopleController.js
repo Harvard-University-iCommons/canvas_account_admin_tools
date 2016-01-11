@@ -305,6 +305,7 @@
                             switch (data.detail) {
                                 case 'User not found.':
                                     failure.type = 'noSuchUser';
+                                    reloadData = true;
                                     break;
                                 case 'Course instance not found.':
                                     failure.type = 'noSuchCourse';
