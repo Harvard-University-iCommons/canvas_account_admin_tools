@@ -18,7 +18,8 @@
                     //
                     // window.globals.append_resource_link_id function added by
                     // django_auth_lti/js/resource_link_id.js
-                    if (config.url !== 'template/alert/alert.html') {
+                    if (!(config.url.startsWith('template/alert/') ||
+                                config.url.startsWith('template/modal/'))) {
                         config.url = window.globals.append_resource_link_id(config.url);
                     }
                     return config;
