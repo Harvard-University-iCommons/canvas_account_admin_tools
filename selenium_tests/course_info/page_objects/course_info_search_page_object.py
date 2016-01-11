@@ -12,7 +12,7 @@ class Locators(object):
     COURSE_INSTANCE_TABLE = (By.ID, "courseInstanceDT")
     COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
-    PAGE_TITLE = (By.XPATH, '//h1[text()="Find Course"]')
+    PAGE_TITLE = (By.XPATH, '//h3[contains(.,"Admin Console > Find Course")]')
     SEARCH_BUTTON = (By.XPATH, '//button[contains(.,"Search")]')
     SELECT_COURSE_TYPE_DROPDOWN = (By.ID, "dropdownMenuSites")
     SELECT_SCHOOL_DROPDOWN = (By.ID, "dropdownMenuSchools")

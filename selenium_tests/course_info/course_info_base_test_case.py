@@ -34,6 +34,8 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
 
+        self.driver.save_screenshot('CourseInfoBaseTestCase.setUp-0.png')
+
         # initialize
         parent_page = AccountAdminDashboardPage(self.driver)
         # navigate to course info page

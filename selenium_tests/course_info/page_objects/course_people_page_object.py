@@ -9,9 +9,13 @@ class Locators(object):
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
     ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
-    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"removed")]')
-    # DELETE_USER_ICON = TBD depending on how remove icons gets implemented
-    DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"OK")]')
+    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
+    DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
+
+    @classmethod
+    def DELETE_USER_ICON (cls, sis_user_id):
+        """ returns a locator for the delete person link for sis_user_id """
+        return By.CSS_SELECTOR, "a[data-sisID='{}']".format(sis_user_id)
 
     @classmethod
     def TD_TEXT_XPATH(cls, search_text):
@@ -61,6 +65,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
     def add_was_successful(self):
         # Verify success text
+        # todo: this does not check _which_ add was successful...
         try:
             self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON)
         except NoSuchElementException:
@@ -69,6 +74,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
     def delete_was_successful(self):
         # Verify delete text
+        # todo: this does not check _which_ delete was successful...
         try:
             self.find_element(*Locators.ALERT_SUCCESS_DELETE_PERSON)
         except NoSuchElementException:
@@ -77,22 +83,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
     def delete_user(self, user_id):
         """ Deletes  user from a course through the admin console and confirms
-        delete in modal window"""
-        self.find_delete_icon_for_user(user_id).click()
+        delete in modal window """
+        self.find_element(*Locators.DELETE_USER_ICON(user_id)).click()
         self.find_element(*Locators.DELETE_USER_CONFIRM).click()
-
-
-    def find_delete_icon_for_user(self, user_id):
-        """This locates the WebElement for the delete icon for a specific user"""
-        # TBD - working on assumption - this depends on how the remove icon is
-        # implemented
-
-        # delete_icon_loc = (By.CSS_SELECTOR, "li[data-sisID='%s'] a" % int(
-        # user_id))
-
-        try:
-            delete_user_element = self.find_element(*delete_icon_loc)
-        except NoSuchElementException:
-            return None
-
-        return delete_user_element
