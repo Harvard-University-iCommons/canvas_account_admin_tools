@@ -14,15 +14,6 @@ class AccountAdminIsDasboardLoadedTest(AccountAdminBaseTestCase):
         dashboard_page = AccountAdminDashboardPage(self.driver)
         self.assertTrue(dashboard_page.is_loaded())
 
-    def test_is_course_info_link_present(self):
-        """
-        Check that Course Info link is loaded by checking against Link text
-        """
-        page = AccountAdminDashboardPage(self.driver)
-
-        # verify that the course info block is present
-        self.assertTrue(page.is_course_info_block_present())
-
 
 if __name__ == "__main__":
     unittest.main()
