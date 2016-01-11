@@ -14,3 +14,8 @@ div.row div.col-mid-12 button.center-block {
 div.progress div.progress-bar {
     width: 100%;
 }
+
+.btn-group {
+  margin-top: 1em;
+}
+
