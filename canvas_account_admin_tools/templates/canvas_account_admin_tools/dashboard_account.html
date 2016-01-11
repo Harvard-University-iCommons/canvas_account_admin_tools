@@ -4,18 +4,12 @@
 
 {% block stylesheets %}
 <link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
-  <style>
-    a.btn {
-        width: 20em;
-        margin-top: 1em;
-    }
-  </style>
 {% endblock stylesheets %}
 
 {% block content %}
 
     <header>
-      <nav class="ng-scope">
+      <nav>
         <h3>Admin Console</h3>
       </nav>
     </header>
@@ -23,7 +17,7 @@
     {% if has_manage_courses %}
 
       {% if canvas_site_creator %}
-        <div class="btn-group col-md-4">
+        <div class="list-group col-md-4">
           <a href="{{ canvas_site_creator }}" class="list-group-item active" target="_parent">
               <h4 class="list-group-item-heading">Canvas Site Creator</h4>
               <p class="list-group-item-text">Create Canvas sites for one or multiple courses</p>
@@ -36,7 +30,7 @@
     {% if has_manage_account %}
 
       {% if conclude_courses %}
-        <div class="btn-group col-md-4">
+        <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" class="list-group-item active" target="_blank">
               <h4 class="list-group-item-heading">Conclude Courses</h4>
               <p class="list-group-item-text">Change conclusion dates <br>for a selected course</p>
@@ -45,7 +39,7 @@
       {% endif %}
 
       {% if lti_tools_usage %}
-        <div class="btn-group col-md-4">
+        <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{{ lti_tools_usage }}" class="list-group-item active" target="_parent">
               <h4 class="list-group-item-heading">LTI Tools Usage Report</h4>
               <p class="list-group-item-text">See which LTI tools are installed in your account</p>
@@ -54,7 +48,7 @@
       {% endif %}
 
       {% if courses_in_this_account %}
-        <div class="btn-group col-md-4">
+        <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{{ courses_in_this_account }}" class="list-group-item active" target="_parent">
               <h4 class="list-group-item-heading">Courses in this Account</h4>
               <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
@@ -63,7 +57,7 @@
       {% endif %}
 
       {% if course_info %}
-        <div class="btn-group col-md-4">
+        <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}" class="list-group-item active">
               <h4 class="list-group-item-heading">Find Course Info</h4>
               <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
