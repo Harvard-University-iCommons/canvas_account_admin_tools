@@ -347,22 +347,17 @@
             //        in a directive complicates things.  anything has
             //        to be better than this mess, though.
             var registrarFed = /^.*feed$/.test(full.source);
-            var cell = '<div class="text-center">';
+            var iconClass = registrarFed ? 'fa-trash-disabled' : '';
+            var icon = '<i class="fa fa-trash-o ' + iconClass + '"></i>';
+            var linkOpen = '';
             if (!registrarFed) {
-                cell += '<a href="" ng-click="confirmRemove(' +
-                        'dtInstance.DataTable.data()[' + meta.row + '])" ' +
-                        'data-sisid="' + full.user_id + '">';
+                linkOpen = '<a href="" ng-click="confirmRemove(' +
+                           'dtInstance.DataTable.data()[' + meta.row + '])" ' +
+                           'data-sisid="' + full.user_id + '">';
             }
-            cell += '<i class="fa fa-trash-o"';
-            if (registrarFed) {
-                cell += ' style="color: #ccc;"';
-            }
-            cell += '></i>';
-            if (!registrarFed) {
-                cell += '</a>';
-            }
-            cell += '</div>';
-            return cell;
+            var linkClose = registrarFed ? '' : '</a>';
+            return '<div class="text-center">' +
+                       linkOpen + icon + linkClose + '</div>';
         }
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
