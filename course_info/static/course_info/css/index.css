@@ -40,3 +40,7 @@ div#directoryLink {
 div#progressBarOuterWrapper {
     padding-top: 1em;
 }
+
+.btn-group {
+  margin-top: 1em;
+}
