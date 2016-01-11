@@ -96,9 +96,9 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'partialFailures', 'roles',
+            ['dtColumns', 'dtOptions', 'addPartialFailures', 'roles',
              'searchInProgress', 'searchResults', 'searchTerm', 'selectedResult',
-             'selectedRole', 'successes', 'warnings'].forEach(function(scopeAttr) {
+             'selectedRole', 'successes', 'addWarnings'].forEach(function(scopeAttr) {
                 var thing = scope[scopeAttr];
                 expect(thing).not.toBeUndefined();
                 expect(thing).not.toBeNull();
@@ -274,11 +274,11 @@ describe('Unit testing PeopleController', function() {
             });
         });
 
-        describe('filterResults', function() {
+        describe('filterSearchResults', function() {
             // NOTE: relies on compareRoles() working properly.  mocking
             //       its results wasn't worth it.
             it('should not blow up on empty input', function() {
-                expect(scope.filterResults([])).toEqual([]);
+                expect(scope.filterSearchResults([])).toEqual([]);
             });
 
             it('should return one role per univ_id', function() {
@@ -289,7 +289,7 @@ describe('Unit testing PeopleController', function() {
                     {univ_id: 456, active: 1, prime_role_indicator: ''},
                     {univ_id: 789, active: 0, prime_role_indicator: 'Y'},
                 ];
-                var filtered = scope.filterResults(searchResults);
+                var filtered = scope.filterSearchResults(searchResults);
                 var uniq = {};
                 filtered.forEach(function(r) { uniq[r.univ_id] = true; });
                 var filteredIds = Object.keys(uniq);
@@ -306,8 +306,9 @@ describe('Unit testing PeopleController', function() {
         describe('handleAjaxError', function() {
             it('should log an error', function() {
                 var expectedMessage = 
-                    "Error getting data from https://tea.pot: 418 I'm a teapot: {}";
-                scope.handleAjaxError({}, 418, {}, {url: 'https://tea.pot'},
+                    "Error attempting to GET https://tea.pot: 418 I'm a teapot: {}";
+                scope.handleAjaxError({}, 418, {},
+                                      {method: 'GET', url: 'https://tea.pot'},
                                       "I'm a teapot");
                 expect($log.error.logs).toEqual([[expectedMessage]]);
             });
@@ -437,6 +438,7 @@ describe('Unit testing PeopleController', function() {
             var expectedSuccess = 
                 JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
             expectedSuccess.searchTerm = searchTerm;
+            expectedSuccess.action = 'added to';
 
             // mock out the datatable so we can verify that it gets reloaded
             scope.dtInstance = {reloadData: function(){}};
@@ -465,6 +467,7 @@ describe('Unit testing PeopleController', function() {
                var expectedSuccess =
                    JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
                expectedSuccess.searchTerm = searchTerm;
+               expectedSuccess.action = 'added to';
                var expectedPartialFailure = {
                    searchTerm: searchTerm,
                    text: partialFailureResponse.detail,
@@ -486,7 +489,7 @@ describe('Unit testing PeopleController', function() {
 
                // check to see if it's reacting correctly
                expect(scope.successes).toEqual([expectedSuccess]);
-               expect(scope.partialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.addPartialFailures).toEqual([expectedPartialFailure]);
                expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
            }
         );
@@ -500,7 +503,7 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.flush(1);
 
             expect(scope.handleAjaxError.calls.count()).toEqual(1);
-            expect(scope.warnings).toEqual([{type: 'addFailed',
+            expect(scope.addWarnings).toEqual([{type: 'addFailed',
                                              searchTerm: searchTerm}]);
         });
 
@@ -520,14 +523,14 @@ describe('Unit testing PeopleController', function() {
                $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
                $httpBackend.flush(2);
 
-               expect(scope.partialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.addPartialFailures).toEqual([expectedPartialFailure]);
                expect(scope.handleAjaxError.calls.count()).toEqual(1);
            }
         );
     });
 
     describe('handleLookupResults', function() {
-        // NOTE: relies on filterResults() working properly.  mocking
+        // NOTE: relies on filterSearchResults() working properly.  mocking
         //       its results wasn't worth it.
         beforeEach(function() {
             var ci = {
@@ -556,7 +559,7 @@ describe('Unit testing PeopleController', function() {
                };
 
                scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.warnings).toEqual([expectedWarning]);
+               expect(scope.addWarnings).toEqual([expectedWarning]);
                expect(scope.searchInProgress).toBe(false);
            }
         );
@@ -575,7 +578,7 @@ describe('Unit testing PeopleController', function() {
 
                scope.searchTerm = 'bob_dobbs@harvard.edu';
                scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.warnings).toEqual([expectedWarning]);
+               expect(scope.addWarnings).toEqual([expectedWarning]);
                expect(scope.searchInProgress).toBe(false);
            }
         );
@@ -613,7 +616,7 @@ describe('Unit testing PeopleController', function() {
                    config: {searchTerm: 'bob_dobbs@harvard.edu'},
                };
                var memberResult = {data: {results: []}};
-               var filteredResults = scope.filterResults(
+               var filteredResults = scope.filterSearchResults(
                                          peopleResult.data.results);
 
                scope.handleLookupResults([peopleResult, memberResult]);
