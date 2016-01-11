@@ -2,7 +2,9 @@
 
 <nav>
   <h3>
-    <a ng-href="{{ dashboardUrl }}">Admin Console</a> > <a href="#/">Find Course</a>
+    {% endverbatim %}
+    <h3><a href="{% url 'dashboard_account' %}">Admin Console</a> > <a href="#/">Find Course</a> </h3>
+    {% verbatim %}
     <small><i class="fa fa-chevron-right"></i></small>
     People in {{ title }}
   </h3>

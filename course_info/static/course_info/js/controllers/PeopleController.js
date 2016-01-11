@@ -4,7 +4,6 @@
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
                               djangoUrl, $http, $q, $log) {
-        $scope.dashboardUrl = window.globals.dashboardUrl;
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',

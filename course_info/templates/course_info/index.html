@@ -43,7 +43,6 @@
     <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
     {% include 'django_auth_lti/resource_link_id.html' %}
     <script>
-      window.globals.dashboardUrl = '{{ dashboard_url | safe }}';
       window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
       window.schoolOptions = {{ schools | safe }};
     </script>

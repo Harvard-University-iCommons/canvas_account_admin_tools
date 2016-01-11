@@ -6,7 +6,6 @@
     
     app.controller('SearchController', ['$scope', '$http', '$timeout', '$document', '$window', 'djangoUrl', 'courseInstances',
         function($scope, $http, $timeout, $document, $window, djangoUrl, courseInstances){
-            $scope.dashboardUrl = window.globals.dashboardUrl;
             $scope.searchInProgress = false;
             $scope.queryString = '';
             $scope.showDataTable = false;
