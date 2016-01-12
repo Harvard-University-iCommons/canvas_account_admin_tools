@@ -122,7 +122,7 @@
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
-            var modalInstance = $uibModal.open({
+            $scope.confirmRemoveModalInstance = $uibModal.open({
                 controller: function($scope, membership) {
                     $scope.membership = membership;
                 },
@@ -135,7 +135,11 @@
             });
 
             // if they confirm, then do the work
-            modalInstance.result.then($scope.removeMembership);
+            $scope.confirmRemoveModalInstance.result
+                .then($scope.removeMembership)
+                .finally(function() {
+                    $scope.confirmRemoveModalInstance = null;
+                });
         };
         $scope.disableAddUserButton = function(){
             if ($scope.searchInProgress) {
@@ -388,6 +392,7 @@
         // now actually init the controller
         $scope.addPartialFailures = [];
         $scope.addWarnings = [];
+        $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
         $scope.removeFailures = [];
         $scope.roles = [
