@@ -8,14 +8,11 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
 from ims_lti_py.tool_config import ToolConfig
-
 from canvas_account_admin_tools.models import ExternalTool
-
 from proxy.views import proxy_view
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
+
+from lti_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +52,7 @@ def lti_launch(request):
 
 
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def dashboard_account(request):
     custom_canvas_account_id = request.LTI['custom_canvas_account_id']
@@ -64,10 +61,6 @@ def dashboard_account(request):
         ExternalTool.CANVAS_SITE_CREATOR,
         custom_canvas_account_id
     )
-
-    manage_courses = [
-        canvas_site_creator,
-    ]
 
     conclude_courses = settings.CONCLUDE_COURSES_URL
     lti_tools_usage = ExternalTool.objects.get_external_tool_url_by_name_and_canvas_account_id(
@@ -79,27 +72,16 @@ def dashboard_account(request):
         custom_canvas_account_id
     )
 
-    # todo: confirm what conditions need to be met for course_info to be available
-    course_info = True
-    manage_account = [
-        conclude_courses,
-        lti_tools_usage,
-        courses_in_this_account,
-        course_info
-    ]
-
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'has_manage_courses': any(manage_courses),
-        'has_manage_account': any(manage_account),
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
         'courses_in_this_account': courses_in_this_account,
-        'course_info': course_info
     })
 
 
 @login_required
+@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 def icommons_rest_api_proxy(request, path):
     request_args = {
         'headers': {

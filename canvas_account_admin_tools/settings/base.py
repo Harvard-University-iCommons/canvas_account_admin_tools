@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'icommons_common',
+    'lti_permissions',
     'icommons_ui',
     'proxy',
     'canvas_account_admin_tools',
@@ -259,3 +260,5 @@ CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
 ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://localhost:8000')
 ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
+
+PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
