@@ -23,6 +23,18 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
     cache_key = CACHE_KEY_ACCOUNTS_BY_USER.format(canvas_user_id)
     school_accounts = cache.get(cache_key)
     if school_accounts is None:
+
+        # get all accounts
+        all_canvas_accounts = get_all_list_data(
+            SDK_CONTEXT,
+            get_sub_accounts_of_account,
+            settings.ICOMMONS_COMMON['CANVAS_ROOT_ACCOUNT_ID'],
+            recursive=True)
+
+        # filter so we only have the school accounts
+        all_school_accounts = {a['id']: a for a in all_canvas_accounts
+                               if (a.get('sis_account_id') or '').startswith('school')}
+
         # retrieve accounts this user is directly associated with
         assigned_accounts = get_all_list_data(SDK_CONTEXT, list_accounts,
                                               as_user_id=canvas_user_id)
@@ -33,26 +45,15 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
         for account in assigned_accounts:
             admins = get_all_list_data(SDK_CONTEXT, list_account_admins,
                                        account['id'], user_id=canvas_user_id)
+
             if allowed_roles.intersection({a['role'] for a in admins}):
                 allowed_accounts[account['id']] = account
 
-        # now that we know which accounts pass the permissions tests, pull in
-        # their child accounts
-        all_accounts = {}
-        for id_ in sorted(allowed_accounts):
-            if id_ in all_accounts:
-                # we've already found this account and its children by way of
-                # a parent account.  no need to check for this account again.
-                continue
+        # filter out the accounts where the user does not have the proper permissions
+        school_accounts = []
+        for k, v in all_school_accounts.iteritems():
+            if k in allowed_accounts.keys():
+                school_accounts.append(v)
 
-            all_accounts[id_] = allowed_accounts[id_]
-            subaccounts = get_all_list_data(
-                              SDK_CONTEXT, get_sub_accounts_of_account, id_,
-                              recursive=True, as_user_id=canvas_user_id)
-            all_accounts.update({s['id']: s for s in subaccounts})
-
-        # filter down to just school accounts
-        school_accounts = filter(lambda a: (a.get('sis_account_id') or '').startswith('school'),
-                                 all_accounts.values())
         cache.set(cache_key, school_accounts)
     return school_accounts
