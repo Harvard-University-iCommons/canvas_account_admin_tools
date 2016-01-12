@@ -27,7 +27,7 @@ function validateURIHasParameters(uri, params) {
 
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
-        $httpBackend, $window, $log;
+        $httpBackend, $window, $log, $uibModal;
     var controller, scope;
     var courseInstanceId = 1234567890;
     var courseInstanceURL =
@@ -39,7 +39,8 @@ describe('Unit testing PeopleController', function() {
     beforeEach(function() {
         module('CourseInfo');
         inject(function(_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
-                        _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_) {
+                        _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
+                        _$uibModal_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
@@ -49,6 +50,7 @@ describe('Unit testing PeopleController', function() {
             $httpBackend = _$httpBackend_;
             $window = _$window_;
             $log = _$log_;
+            $uibModal = _$uibModal_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -174,6 +176,29 @@ describe('Unit testing PeopleController', function() {
             var data = '';
             var result = scope.renderSource(data, undefined, undefined, undefined);
             expect(result).toEqual('Manually Added');
+        });
+
+        it('renderRemove for registrar-fed', function() {
+            var full = {source: 'fasfeed', user_id: '1234567890'};
+            var meta = {row: 1};
+            var result = scope.renderRemove(undefined, undefined, full, meta);
+            var expectedResult = '<div class="text-center">' +
+                                 '<i class="fa fa-trash-o fa-trash-disabled">' +
+                                 '</i></div>';
+            expect(result).toEqual(expectedResult);
+        });
+
+        it('renderRemove for manual', function() {
+            var full = {source: 'peopletool', user_id: '9876543210'};
+            var meta = {row: 2};
+            var result = scope.renderRemove(undefined, undefined, full, meta);
+            var expectedResult = '<div class="text-center">' +
+                                 '<a href="" ng-click="confirmRemove(' +
+                                 'dtInstance.DataTable.data()[2])" ' +
+                                 'data-sisid="9876543210">' +
+                                 '<i class="fa fa-trash-o ">' +
+                                 '</i></a></div>';
+            expect(result).toEqual(expectedResult);
         });
     });
 
