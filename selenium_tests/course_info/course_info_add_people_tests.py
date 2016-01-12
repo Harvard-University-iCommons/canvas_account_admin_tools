@@ -38,6 +38,11 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
 
         # search for a user and add user to course
         self.assertTrue(people_page.is_loaded())
+
+        # assert that the success message is not already loaded on the page
+        self.assertFalse(people_page.add_was_successful())
+
+        # add user to role
         people_page.search_and_add_user(new_user['user_id'], new_user['role'])
 
         self.driver.save_screenshot('test_search_and_add_person-1.png')
@@ -52,6 +57,7 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
         # Assert that the success text is displayed
         self.assertTrue(people_page.add_was_successful())
 
+
     def test_remove_person(self):
         """ Removes a user from course using the Admin Console """
 
@@ -65,9 +71,12 @@ class CourseInfoAddTest(CourseInfoBaseTestCase):
 
         self.driver.save_screenshot('test_remove_person-1.png')
 
-        # asserts that test is on people page and to-be-removed user is on page
+        # asserts test user is on people page and to-be-removed user is on page
         self.assertTrue(people_page.is_loaded())
         self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
+
+        # asserts that the delete confirmation text is not already on the page
+        self.assertFalse(people_page.delete_was_successful())
 
         # deletes user and confirms that delete is successful
         people_page.delete_user(new_user['user_id'])

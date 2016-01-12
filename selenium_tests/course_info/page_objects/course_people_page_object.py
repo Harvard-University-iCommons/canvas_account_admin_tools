@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
-from selenium_tests.course_info.page_objects.course_info_base_page_object import CourseInfoBasePageObject
+from selenium_tests.course_info.page_objects.course_info_base_page_object \
+    import CourseInfoBasePageObject
 from selenium.common.exceptions import NoSuchElementException
 
 
