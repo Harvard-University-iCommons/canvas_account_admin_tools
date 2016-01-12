@@ -250,6 +250,7 @@ ICOMMONS_COMMON = {
     'CANVAS_API_HEADERS': {
         'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
     },
+    'CANVAS_ROOT_ACCOUNT_ID': 1,
 }
 
 CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(

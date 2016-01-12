@@ -12,6 +12,8 @@ from ims_lti_py.tool_config import ToolConfig
 from canvas_account_admin_tools.models import ExternalTool
 from proxy.views import proxy_view
 
+from django_auth_lti import const
+from django_auth_lti.decorators import lti_role_required
 from lti_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,7 @@ def lti_launch(request):
 
 
 @login_required
+@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def dashboard_account(request):
@@ -81,6 +84,7 @@ def dashboard_account(request):
 
 
 @login_required
+@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 def icommons_rest_api_proxy(request, path):
     request_args = {

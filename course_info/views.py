@@ -8,12 +8,14 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from lti_permissions.decorators import lti_permission_required
 from course_info.canvas import get_administered_school_accounts
-
+from django_auth_lti import const
+from django_auth_lti.decorators import lti_role_required
 
 logger = logging.getLogger(__name__)
 
 
 @login_required
+@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def index(request):
@@ -28,6 +30,7 @@ def index(request):
 
 
 @login_required
+@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def partials(request, path):
