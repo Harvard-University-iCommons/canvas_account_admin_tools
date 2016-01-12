@@ -1,7 +1,9 @@
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
-from selenium.common.exceptions import NoSuchElementException
 
 
 class Locators(object):
@@ -39,10 +41,22 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         return True
 
     def is_person_on_page(self, lookup_text):
-        """ looks up a person on page by name or user id """
+        """ looks up a person on in the people list by name or user id """
         try:
             self.find_element(*Locators.TD_TEXT_XPATH(lookup_text))
         except NoSuchElementException:
+            return False
+        return True
+
+    def is_person_removed_from_list(self, lookup_text):
+        """
+        verifies that a person is absent from the people list by name or
+        user id
+        """
+        try:
+            WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+                *Locators.TD_TEXT_XPATH(lookup_text)).is_displayed())
+        except TimeoutException:
             return False
         return True
 
