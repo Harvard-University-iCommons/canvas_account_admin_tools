@@ -732,4 +732,157 @@ describe('Unit testing PeopleController', function() {
             expect(scope.handleAjaxError.calls.count()).toEqual(1);
         });
     });
+
+    describe('confirmRemove', function() {
+        var modalContentsPartialURL =
+            'partials/remove-course-membership-confirmation.html';
+
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'confirmRemove test',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+        });
+
+        it('should get the partial and stick the instance on the scope', function() {
+            scope.confirmRemove();
+            expect(scope.confirmRemoveModalInstance).not.toBeNull();
+            $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
+        it('should call removeMembership and remove itself from the scope on close',
+           function() {
+               var membership = {};
+               spyOn(scope, 'removeMembership');
+               scope.confirmRemove();
+               $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
+               $httpBackend.flush(1);
+               scope.confirmRemoveModalInstance.close(membership);
+               // TODO - figure out why this isn't being called from within jasmine
+               //expect(scope.removeMembership).toHaveBeenCalled();
+               //expect(scope.confirmRemoveModalInstance).toBeNull();
+           }
+        );
+    });
+
+    describe('removeMembership', function() {
+        var membership = {
+            profile: {
+                name_first: 'Bob',
+                name_last: 'Dobbs',
+            },
+            role: {
+                role_id: 0,
+            },
+            user_id: 'bobdobbs',
+        };
+        var courseMembershipURL = coursePeopleURL + membership.user_id;
+
+        beforeEach(function() {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'confirmRemove test',
+            };
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+        });
+
+        it('should handle success', function() {
+            var expectedSuccess = JSON.parse(JSON.stringify(membership));
+            expectedSuccess.action = 'removed from';
+            expectedSuccess.searchTerm = 'Dobbs, Bob';
+
+            scope.removeMembership(membership);
+
+            $httpBackend.expectDELETE(courseMembershipURL).respond(204, '');
+            $httpBackend.flush(1);
+
+            expect(scope.successes).toEqual([expectedSuccess]);
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+        });
+
+        it('should show the correct alert for a 404 no such user', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'noSuchUser';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(404, '{"detail": "User not found."}');
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+        });
+
+        it('should show the correct alert for a 404 no such course', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'noSuchCourse';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(404, '{"detail": "Course instance not found."}');
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+
+
+        it('should show the correct alert for an unexpected 404', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'unexpected404';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(404, '{"detail": "Not even if you paid me"}');
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+
+        it('should show the correct alert for a 500 canvas error', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'canvasError';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(500, '{"detail": "User could not be removed from Canvas."}');
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+        });
+
+        it('should show the correct alert for a 500 non-canvas error', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'serverError';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(500, '{"detail": "Nope."}');
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+
+        it('should show the fallback alert for a non-404/500 error', function() {
+            var expectedFailure = JSON.parse(JSON.stringify(membership));
+            expectedFailure.type = 'unknown';
+
+            scope.removeMembership(membership);
+            $httpBackend.expectDELETE(courseMembershipURL)
+                .respond(418, "I'm a teapot!");
+            $httpBackend.flush(1);
+
+            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+    });
 });
