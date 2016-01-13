@@ -14,7 +14,6 @@
       </nav>
     </header>
 
-    {% if has_manage_courses %}
 
       {% if canvas_site_creator %}
         <div class="list-group col-md-4">
@@ -24,10 +23,6 @@
           </a>
         </div>
       {% endif %}
-
-    {% endif %}
-
-    {% if has_manage_account %}
 
       {% if conclude_courses %}
         <div class="list-group col-md-4">
@@ -56,24 +51,13 @@
         </div>
       {% endif %}
 
-      {% if course_info %}
         <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}" class="list-group-item active">
               <h4 class="list-group-item-heading">Find Course Info</h4>
               <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
           </a>
         </div>
-      {% endif %}
 
-    {% endif %}
 
-    {% if not has_manage_courses and not has_manage_account %}
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <p>There are no administration tools installed in this account.</p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+
 {% endblock content %}
