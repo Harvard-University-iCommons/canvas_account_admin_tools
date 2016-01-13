@@ -9,10 +9,8 @@ from selenium_tests.course_info.page_objects.course_people_page_object \
 
 
 class Locators(object):
-    COURSE_INSTANCE_TABLE = (By.ID, "courseInstanceDT")
     COURSE_RESULTS_TABLE = (By.ID, "courseInfoDT")
     COURSE_SEARCH_TEXTBOX = (By.XPATH, "//input[@type='text']")
-    PAGE_TITLE = (By.XPATH, '//h1[text()="Find Course"]')
     SEARCH_BUTTON = (By.XPATH, '//button[contains(.,"Search")]')
     SELECT_COURSE_TYPE_DROPDOWN = (By.ID, "dropdownMenuSites")
     SELECT_SCHOOL_DROPDOWN = (By.ID, "dropdownMenuSchools")
@@ -28,12 +26,16 @@ class Locators(object):
 class CourseSearchPageObject(CourseInfoBasePageObject):
 
     def is_loaded(self):
-        """ determine if the page loaded by validating the page title """
+        """
+        determine if the page loaded by checking whether course results table
+        is present (whether visible or not); page title is trickier, would need
+        complicated xpath (or changes to actual page elements to simplify this)
+        """
         # frame context stickiness is a bit flaky for some reason; make sure
         # we're in the tool_content frame context before checking for elements
         self.focus_on_tool_frame()
         try:
-            self.find_element(*Locators.PAGE_TITLE)
+            self.find_element(*Locators.COURSE_RESULTS_TABLE)
         except NoSuchElementException:
             return False
         return True
