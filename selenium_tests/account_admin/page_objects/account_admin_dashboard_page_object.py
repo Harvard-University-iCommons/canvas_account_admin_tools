@@ -6,7 +6,9 @@ from selenium_tests.account_admin.page_objects.account_admin_base_page_object \
 
 
 class AccountAdminDashboardPageLocators(object):
-    PAGE_TITLE = (By.XPATH, "//h3[contains(.,'Admin Console')]")
+    # if PAGE_TITLE uses contains() it will match for sub-pages as well, so
+    # use text() for exact match (should only match on dashboard page)
+    PAGE_TITLE = (By.XPATH, '//h3[text()="Admin Console"]')
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Find Course Info')]")
 
 
