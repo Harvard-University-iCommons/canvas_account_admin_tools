@@ -49,11 +49,16 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
             if allowed_roles.intersection({a['role'] for a in admins}):
                 allowed_accounts[account['id']] = account
 
-        # filter out the accounts where the user does not have the proper permissions
-        school_accounts = []
-        for k, v in all_school_accounts.iteritems():
-            if k in allowed_accounts.keys():
-                school_accounts.append(v)
+        # if they're allowed on the root account, they're allowed everywhere
+        if settings.ICOMMONS_COMMON['CANVAS_ROOT_ACCOUNT_ID'] in allowed_accounts:
+            school_accounts = all_school_accounts.values()
+        else:
+            # filter out the accounts where the user does not have the proper
+            # permissions
+            school_accounts = [acct for id_, acct in all_school_accounts.iteritems()
+                                   if id_ in allowed_accounts]
 
+        logger.debug(u'%s has access to %s', canvas_user_id,
+                     [a['sis_account_id'] for a in school_accounts])
         cache.set(cache_key, school_accounts)
     return school_accounts
