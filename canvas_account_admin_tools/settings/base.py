@@ -34,11 +34,17 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_auth_lti',
     'icommons_common',
+    'lti_permissions',
     'icommons_ui',
+    'proxy',
     'canvas_account_admin_tools',
+    'course_info',
+    'djangular',
 )
 
 MIDDLEWARE_CLASSES = (
+    # NOTE - djangular needs to be the first item in this list
+    'djangular.middleware.DjangularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -236,7 +242,24 @@ CANVAS_SDK_SETTINGS = {
     'session_inactivity_expiration_time_secs': 50,
 }
 
+ICOMMONS_COMMON = {
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', None),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
+    'CANVAS_API_BASE_URL': CANVAS_URL + '/api/v1',
+    'CANVAS_API_HEADERS': {
+        'Authorization': 'Bearer ' + SECURE_SETTINGS.get('canvas_token', 'canvas_token_missing_from_config')
+    },
+    'CANVAS_ROOT_ACCOUNT_ID': 1,
+}
+
 CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'conclude_courses_url',
     'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
 )
+
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://localhost:8000')
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
+ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
+
+PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'

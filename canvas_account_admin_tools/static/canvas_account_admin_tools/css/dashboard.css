@@ -2,3 +2,12 @@
     background-image: linear-gradient(to bottom, #4e84c4 0%, #3b71b1 100%);
     background-repeat: repeat-x;
 }
+
+/*
+UI comment - style needed to get buttons of similar width and to wrap with elegance and grace. This will be resolved with a new Bootstrap v4 style
+*/
+a.btn {
+    width: 20em;
+    margin-top: 1em;
+}
+

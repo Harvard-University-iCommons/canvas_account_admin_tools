@@ -1,0 +1,46 @@
+table.dataTable thead .sorting.sorting_disabled {
+    background-image: none;
+}
+
+div.btn-toolbar div.input-group {
+    width: 56%;
+}
+
+div.row div.col-mid-12 button.center-block {
+    width: 15%;
+    min-width: 15%;
+}
+
+div.progress div.progress-bar {
+    width: 100%;
+}
+
+i.fa-trash-disabled {
+    color: #ccc;
+}
+
+div.course-membership-entry {
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 1px 0px 1px 0px;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    padding: .5em;
+}
+
+ul#privacyDropdown {
+    padding: 1em;
+    width: 30em;
+}
+
+div#directoryLink {
+    margin-bottom: 1em;
+}
+
+div#progressBarOuterWrapper {
+    padding-top: 1em;
+}
+
+.btn-group {
+  margin-top: 1em;
+}
