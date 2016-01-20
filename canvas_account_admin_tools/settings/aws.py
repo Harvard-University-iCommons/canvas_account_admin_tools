@@ -19,6 +19,9 @@ EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 
+CONCLUDE_COURSES_URL = SECURE_SETTINGS['conclude_courses_url']
+
+# make sure dictConfig(LOGGING) stays at the bottom of the file
 dictConfig(LOGGING)
 
-CONCLUDE_COURSES_URL = SECURE_SETTINGS['conclude_courses_url']
+
