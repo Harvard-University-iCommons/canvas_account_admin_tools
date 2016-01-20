@@ -253,11 +253,6 @@ ICOMMONS_COMMON = {
     'CANVAS_ROOT_ACCOUNT_ID': 1,
 }
 
-CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
-    'conclude_courses_url',
-    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
-)
-
 ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://localhost:8000')
 ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
