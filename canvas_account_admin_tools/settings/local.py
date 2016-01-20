@@ -57,3 +57,8 @@ SELENIUM_CONFIG = {
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
 }
+
+CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
+    'conclude_courses_url',
+    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
+)
