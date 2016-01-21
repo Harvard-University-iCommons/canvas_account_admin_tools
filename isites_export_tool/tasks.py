@@ -25,8 +25,8 @@ def process_job(site_keyword):
                 '%s@%s' % (settings.EXPORT_TOOL['ssh_user'], settings.EXPORT_TOOL['ssh_hostname']),
                 "-i",
                 settings.EXPORT_TOOL['ssh_private_key'],
-                settings.EXPORT_TOOL['create_site_zip_cmd'],
-                "--keyword %s" % site_keyword],
+                settings.EXPORT_TOOL['export_site_cmd'],
+                "--keyword %s --print-keyword-results" % site_keyword],
             stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as cpe:
         logger.error("SSH Process Error({0}: {1}".format(cpe.returncode, cpe.output))

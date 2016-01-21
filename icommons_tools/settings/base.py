@@ -373,7 +373,7 @@ EXPORT_TOOL = {
     'ssh_user': 'icommons',
     'ssh_hostname': SECURE_SETTINGS.get('isites_export_ssh_hostname', 'tool2.isites.harvard.edu'),
     'ssh_private_key': '/home/deploy/.ssh/id_rsa',  # AWS user, so override for non-AWS envs
-    'create_site_zip_cmd': 'perl /u02/icommons/perlapps/iSitesAPI/scripts/export_site_files_s3.pl',
+    'export_site_cmd': 'DJANGO_SETTINGS_MODULE=canvas_course_admin_tools.settings.isites_export_tool /home/icommons/.virtualenvs/canvas_course_admin_tools/bin/python /u02/icommons/canvas_course_admin_tools/manage.py export_files',
     'archive_cutoff_time_in_hours': SECURE_SETTINGS.get('isites_export_archive_cutoff_time_in_hours', 48),
     # Default to running at the start of every hour
     'archive_task_crontab': {
