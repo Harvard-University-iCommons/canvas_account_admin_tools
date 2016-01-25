@@ -108,7 +108,7 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
-    describe('setTitle', function() {
+    describe('setCourseInstanceData', function() {
         var ci;
         beforeEach(function() {
             // if we want to pull the instance id from $routeParams, this has
@@ -116,13 +116,19 @@ describe('Unit testing PeopleController', function() {
             ci = {
                 course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
+                course :{
+                    school_id: 'ABC',
+                    registrar_code_display: '2222'
+                },
             };
         });
 
         it('should work when courseInstances has the course instance', function() {
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-            expect(scope.title).toEqual(ci.title);
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            //check one other additional metadata here  for sanity check
+            expect(scope.courseInstance['school']).toEqual(ci.course.school_id);
         });
 
         it('should work whenCourseInstances is empty', function() {
@@ -130,7 +136,54 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.expectGET(courseInstanceURL)
                         .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
-            expect(scope.title).toEqual(ci.title);
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual(ci.course.school_id);
+        });
+    });
+
+    describe('getFormattedCourseInstance', function() {
+        var ci;
+        beforeEach(function() {
+
+            ci = {
+                course_instance_id: '1234',
+                title: 'Test Title',
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                    }
+                ],
+                course :{
+                    school_id: 'ABC',
+                    registrar_code_display: '2222',
+                    course_id : '789',
+                },
+                term:{
+                    display_name: 'Summer 2015',
+                    academic_year : '2015',
+                },
+                primary_xlist_instances :[],
+            };
+        });
+
+        it('format the course instance data for the UI ', function() {
+            controller = $controller('PeopleController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
+            $httpBackend.flush(1);
+            var result = scope.getFormattedCourseInstance(ci);
+
+            expect(result['title']).toEqual(ci.title);
+            expect(result['school']).toEqual(ci.course.school_id);
+            expect(result['term']).toEqual(ci.term.display_name);
+            expect(result['year']).toEqual(ci.term.academic_year);
+            expect(result['cid']).toEqual(ci.course_instance_id);
+            expect(result['registrar_code_display']).toEqual(
+                ci.course.registrar_code_display+' ('+ci.course.course_id+')');
+            expect(result['sites']).toEqual('888');
+            expect(result['xlist_status']).toEqual('N/A');
+
         });
     });
 
