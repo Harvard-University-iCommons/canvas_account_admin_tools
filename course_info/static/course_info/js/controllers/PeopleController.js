@@ -44,21 +44,21 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
-                        $scope.clearAllMessages();
-                        $scope.successes.push(data.results[0]);
+                        $scope.success = null;
+                        $scope.success = data.results[0];
                         $scope.dtInstance.reloadData();
                     })
                     .error(function(data, status, headers, config, statusText) {
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-                        $scope.clearAllMessages();
-                        $scope.addPartialFailures.push({
+                        $scope.partialFailure = null;
+                        $scope.partialFailure = {
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
                                 'we received an error trying to retrieve ' +
                                 "the user's course details.",
-                        });
+                        };
                     })
                     .finally(function(){
                         $scope.clearSearchResults();
@@ -75,19 +75,19 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        $scope.clearAllMessages();
-                        $scope.addPartialFailures.push({
+                        $scope.partialFailure = null;
+                        $scope.partialFailure = {
                             searchTerm: searchTerm,
                             text: data.detail,
-                        });
+                        };
                         handlePostSuccess();
                     }
                     else {
-                        $scope.clearAllMessages();
-                        $scope.addWarnings.push({
+                        $scope.addWarning = null;
+                        $scope.addWarning = {
                             type: 'addFailed',
                             searchTerm: searchTerm,
-                        });
+                        };
                         $scope.clearSearchResults();
                         $scope.searchInProgress = false;
                     }
@@ -96,8 +96,8 @@
         $scope.clearSearchResults = function() {
             $scope.searchResults = [];
         };
-        $scope.closeAlert = function(source, index) {
-            $scope[source].splice(index, 1);
+        $scope.closeAlert = function(source) {
+            $scope[source] = null;
         };
         $scope.compareRoles = function(a, b) {
             /*
@@ -205,13 +205,13 @@
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile;
-                $scope.clearAllMessages();
-                $scope.addWarnings.push({
+                $scope.addWarning = null;
+                $scope.addWarning = {
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
-                });
+                };
                 $scope.searchInProgress = false;
             }
             else {
@@ -219,11 +219,11 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.clearAllMessages();
-                    $scope.addWarnings.push({
+                    $scope.addWarning = null;
+                    $scope.addWarning = {
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
-                    });
+                    };
                     $scope.searchInProgress = false;
                 }
                 else if (filteredResults.length == 1) {
@@ -302,8 +302,8 @@
                     success.searchTerm = membership.profile.name_last +
                                          ', ' + membership.profile.name_first;
                     success.action = 'removed from';
-                    $scope.clearAllMessages();
-                    $scope.successes.push(success);
+                    $scope.success = null;
+                    $scope.success = success;
                     $scope.dtInstance.reloadData()
                 })
                 .error(function(data, status, headers, config, statusText) {
@@ -341,8 +341,8 @@
                             failure.type = 'unknown';
                             break;
                     }
-                    $scope.clearAllMessages();
-                    $scope.removeFailures.push(failure);
+                    $scope.removeFailure = null;
+                    $scope.removeFailure = failure;
                     if (reloadData) {
                         $scope.dtInstance.reloadData();
                     }
@@ -396,23 +396,15 @@
                     .error($scope.handleAjaxError);
             }
         };
-        /* TLT-2349
-         * This method clears all messages. This method is called before a new message
-         * is added to any of the message lists contained 
-         */
-        $scope.clearAllMessages = function(){ 
-            $scope.addWarnings = [];
-            $scope.successes = []; 
-            $scope.addPartialFailures = [];
-            $scope.removeFailures = []; 
-        }; 
 
         // now actually init the controller
-        $scope.addPartialFailures = [];
-        $scope.addWarnings = [];
+        $scope.partialFailure = null;
+        $scope.addWarning = null;
+        $scope.success = null;
+        $scope.removeFailure = null;
+
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.removeFailures = [];
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
@@ -433,7 +425,7 @@
         $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
         $scope.setTitle($routeParams.courseInstanceId);
-        $scope.successes = [];
+
 
         // configure the datatable
         $scope.dtInstance = null;

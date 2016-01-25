@@ -74,15 +74,16 @@
         </div>
 
         <!-- begin add warning alerts -->
-        <uib-alert ng-repeat="warning in addWarnings" type="warning"
-                   close="closeAlert('addWarnings', $index)" class="col-md-12">
-          <div ng-switch on="warning.type">
+        <uib-alert ng-if="addWarning" type="warning"
+                   close="closeAlert('addWarning')" class="col-md-12">
+
+          <div ng-switch on="addWarning.type">
             <!-- user was already enrolled -->
             <div ng-switch-when="alreadyInCourse">
-              <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
-              <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
-              <div ng-repeat="membership in warning.memberships" class="course-membership-entry">
-                {{ warning.fullName }}
+              <p><strong>{{ addWarning.searchTerm }}</strong> was found in the course:</p>
+              <p>{{ addWarning.fullName }} has the following email/id and role associated with this course:</p>
+              <div ng-repeat="membership in addWarning.memberships" class="course-membership-entry">
+                {{ addWarning.fullName }}
                 <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
                 <strong>Enrolled as {{ membership.role.role_name }}</strong>
               </div>
@@ -90,17 +91,18 @@
 
             <!-- search term didn't find a user -->
             <div ng-switch-when="notFound">
-              <p>{{ warning.searchTerm }} was not found. Please check the email
+              <p>{{ addWarning.searchTerm }} was not found. Please check the email
               or Harvard University ID and try again.</p>
             </div>
 
             <!-- server error when attempting to add the user -->
             <div ng-switch-when="addFailed">
-              <p><strong>{{ warning.searchTerm }}</strong> could not be added to
+              <p><strong>{{ addWarning.searchTerm }}</strong> could not be added to
               this course at this time.</p>
               <p>Please try again.</p>
             </div>
           </div>
+
         </uib-alert>
         <!-- end add warning alerts -->
 
@@ -185,58 +187,58 @@
   <!-- end add person expand-o-widget -->
 
   <!-- begin success alerts -->
-  <uib-alert ng-repeat="person in successes" type="success"
-             close="closeAlert('successes', $index)" class="col-md-12">
-    <p><strong>{{ person.searchTerm }}</strong> was just {{ person.action }} this course:</p>
+  <uib-alert ng-if="success" type="success"
+             close="closeAlert('success')" class="col-md-12">
+    <p><strong>{{ success.searchTerm }}</strong> was just {{ success.action }} this course:</p>
     <div class="course-membership-entry">
-      {{ person.profile.name_last }}, {{ person.profile.name_first }}
-      <badge role="{{ person.profile.role_type_cd }}"></badge> {{ person.profile.univ_id }}
-      <strong>Enrolled as {{ person.role.role_name }}</strong>
+      {{ success.profile.name_last }}, {{ success.profile.name_first }}
+      <badge role="{{ success.profile.role_type_cd }}"></badge> {{ success.profile.univ_id }}
+      <strong>Enrolled as {{ success.role.role_name }}</strong>
     </div>
   </uib-alert>
   <!-- end success alerts -->
 
   <!-- begin add partial failure warning alerts -->
-  <uib-alert ng-repeat="partial in addPartialFailures" type="warning"
-             close="closeAlert('addPartialFailures', $index)" class="col-md-12">
-    <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
-    <p>{{ partial.text }}</p>
+  <uib-alert ng-if="partialFailure" type="warning"
+             close="closeAlert('partialFailure')" class="col-md-12">
+    <p>While adding <strong>{{ partialFailure.searchTerm }}</strong> to this course:</p>
+    <p>{{ partialFailure.text }}</p>
   </uib-alert>
   <!-- end add partial failure warning alerts -->
 
   <!-- begin remove failure warning alerts -->
-  <uib-alert ng-repeat="failure in removeFailures" type="warning"
-             close="closeAlert('removeFailures', $index)" class="col-md-12">
+  <uib-alert ng-if="removeFailure" type="warning"
+             close="closeAlert('removeFailure')" class="col-md-12">
     <div ng-switch on="failure.type">
       <div ng-switch-when="noSuchUser">
-        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
         has already been removed from this course.
       </div>
       <div ng-switch-when="noSuchCourse">
-        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
         cannot be removed from this course because it no longer exists.
       </div>
       <div ng-switch-when="serverError">
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the database.  Please
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+          {{ removeFailure.profile.name_first }}</strong> from the database.  Please
         try again.  If the error persists, please contact your local school
         support staff.
       </div>
       <div ng-switch-when="canvasError">
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the Canvas site.  If the
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+          {{ removeFailure.profile.name_first }}</strong> from the Canvas site.  If the
         error persists, please contact your local school support staff.
       </div>
       <div ng-switch-default>
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong>.  Please try again.  If the
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+          {{ removeFailure.profile.name_first }}</strong>.  Please try again.  If the
         error persists, please contact your local school support staff.
       </div>
     </div>
     <div class="course-membership-entry">
-      {{ failure.profile.name_last }}, {{ failure.profile.name_first }}
-      <badge role="{{ failure.profile.role_type_cd }}"></badge> {{ failure.profile.univ_id }}
-      <strong>Enrolled as {{ failure.role.role_name }}</strong>
+      {{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}
+      <badge role="{{ removeFailure.profile.role_type_cd }}"></badge> {{ removeFailure.profile.univ_id }}
+      <strong>Enrolled as {{ removeFailure.role.role_name }}</strong>
     </div>
   </uib-alert>
   <!-- end remove failure warning alerts -->
