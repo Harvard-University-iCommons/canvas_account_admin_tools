@@ -450,7 +450,6 @@
         $scope.searchTerm = '';
         $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
-        //modify this to setCourseInfo
         $scope.setCourseInstanceData($routeParams.courseInstanceId);
         $scope.successes = [];
 
