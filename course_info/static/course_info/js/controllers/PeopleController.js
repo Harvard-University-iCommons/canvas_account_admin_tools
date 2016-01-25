@@ -396,8 +396,9 @@
                     .error($scope.handleAjaxError);
             }
         };
-        /* this method clears all messages. This method is called before a new message
-         * is added to any of the message lists contained per TLT-2349
+        /* TLT-2349
+         * This method clears all messages. This method is called before a new message
+         * is added to any of the message lists contained 
          */
         $scope.clearAllMessages = function(){ 
             $scope.addWarnings = [];
