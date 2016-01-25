@@ -44,6 +44,7 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
+                        $scope.clearAllMessages();
                         $scope.successes.push(data.results[0]);
                         $scope.dtInstance.reloadData();
                     })
@@ -51,6 +52,7 @@
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
+                        $scope.clearAllMessages();
                         $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
@@ -73,6 +75,7 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
+                        $scope.clearAllMessages();
                         $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
@@ -80,6 +83,7 @@
                         handlePostSuccess();
                     }
                     else {
+                        $scope.clearAllMessages();
                         $scope.addWarnings.push({
                             type: 'addFailed',
                             searchTerm: searchTerm,
@@ -200,7 +204,8 @@
             // if the user is already in the course, show their current enrollment
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
-                var profile = memberResult.data.results[0].profile
+                var profile = memberResult.data.results[0].profile;
+                $scope.clearAllMessages();
                 $scope.addWarnings.push({
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
@@ -214,6 +219,7 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
+                    $scope.clearAllMessages();
                     $scope.addWarnings.push({
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
@@ -296,6 +302,7 @@
                     success.searchTerm = membership.profile.name_last +
                                          ', ' + membership.profile.name_first;
                     success.action = 'removed from';
+                    $scope.clearAllMessages();
                     $scope.successes.push(success);
                     $scope.dtInstance.reloadData()
                 })
@@ -334,6 +341,7 @@
                             failure.type = 'unknown';
                             break;
                     }
+                    $scope.clearAllMessages();
                     $scope.removeFailures.push(failure);
                     if (reloadData) {
                         $scope.dtInstance.reloadData();
@@ -388,6 +396,15 @@
                     .error($scope.handleAjaxError);
             }
         };
+        /* this method clears all messages. This method is called before a new message
+         * is added to any of the message lists contained per TLT-2349
+         */
+        $scope.clearAllMessages = function(){ 
+            $scope.addWarnings = [];
+            $scope.successes = []; 
+            $scope.addPartialFailures = [];
+            $scope.removeFailures = []; 
+        }; 
 
         // now actually init the controller
         $scope.addPartialFailures = [];
