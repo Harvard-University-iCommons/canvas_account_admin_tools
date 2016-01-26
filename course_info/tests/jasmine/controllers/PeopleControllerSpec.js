@@ -116,7 +116,7 @@ describe('Unit testing PeopleController', function() {
             ci = {
                 course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
-                course :{
+                course: {
                     school_id: 'abc',
                     registrar_code_display: '2222'
                 },
@@ -165,16 +165,16 @@ describe('Unit testing PeopleController', function() {
                         site_id: '888',
                     }
                 ],
-                course :{
+                course: {
                     school_id: 'ABC',
                     registrar_code_display: '2222',
                     course_id : '789',
                 },
-                term:{
+                term: {
                     display_name: 'Summer 2015',
                     academic_year : '2015',
                 },
-                primary_xlist_instances :[],
+                primary_xlist_instances:[],
             };
         });
 
