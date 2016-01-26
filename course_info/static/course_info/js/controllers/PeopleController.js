@@ -370,7 +370,7 @@
         $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
-        $scope.setCourseInstanceData = function(id) {
+        $scope.setCourseInstance = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
                 $scope.courseInstance = $scope.getFormattedCourseInstance(ci)
@@ -381,35 +381,43 @@
                               ['api/course/v2/course_instances/' + id + '/']);
                 $http.get(url)
                     .success(function(data, status, headers, config, statusText) {
-                        courseInstances.instances[data.course_instance_id] = data;
-                        $scope.courseInstance = $scope.getFormattedCourseInstance(data)
-
+                        //check if the right data was obtained before storing it
+                        if (data.course_instance_id === id){
+                            courseInstances.instances[data.course_instance_id] = data;
+                            $scope.courseInstance = $scope.getFormattedCourseInstance(data)
+                        }else{
+                            $log.error(' CourseInstance record mismatch for id :'
+                                + id +',  fetched record for :' +data.id);
+                        }
                     })
                     .error($scope.handleAjaxError);
             }
         };
 
         $scope.getFormattedCourseInstance = function(ci) {
+            // This is a helper function that formats the CourseInstance metadata
+            // and is combination of existing logic in
+            // Searchcontroller.courseInstanceToTable and Searchcontroller cell
+            // render functions.
             courseInstance = {};
             if (ci) {
                 courseInstance['title']= ci.title;
                 courseInstance['school'] = ci.course ?
-                    ci.course.school_id.toUpperCase() : '';
+                        ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
                 courseInstance['cid'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
-                ci.course.registrar_code_display +
-                ' (' + ci.course.course_id + ')'.trim() : '';
-
+                        ci.course.registrar_code_display +
+                        ' (' + ci.course.course_id + ')'.trim() : '';
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
-                    courseInstance['xlist_status'] = 'Primary';
+                        courseInstance['xlist_status'] = 'Primary';
                 } else if (ci.primary_xlist_instances &&
                     ci.primary_xlist_instances.length > 0) {
-                    courseInstance['xlist_status'] = 'Secondary';
+                        courseInstance['xlist_status'] = 'Secondary';
                 } else {
-                    courseInstance['xlist_status'] = 'N/A';
+                        courseInstance['xlist_status'] = 'N/A';
                 }
                 var sites = ci.sites || [];
                 var siteIds =[]
@@ -450,7 +458,7 @@
         $scope.searchTerm = '';
         $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
-        $scope.setCourseInstanceData($routeParams.courseInstanceId);
+        $scope.setCourseInstance($routeParams.courseInstanceId);
         $scope.successes = [];
 
         // configure the datatable
