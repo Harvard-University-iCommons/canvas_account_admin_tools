@@ -50,7 +50,9 @@
   </head>
 
   <body class="lti-tool" role="application" ng-app="CourseInfo">
-    <div ng-view>
+  <!-- UI comment - adding container-fluid so that the content of this iframe
+  doesn't get to touch the left nav. -->
+    <div ng-view calss="container-fluid">
     </div>
 
     <script src="{% static 'course_info/js/app.js' %}"></script>

@@ -108,7 +108,7 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
-    describe('setCourseInstanceData', function() {
+    describe('setCourseInstance', function() {
         var ci;
         beforeEach(function() {
             // if we want to pull the instance id from $routeParams, this has
@@ -117,7 +117,7 @@ describe('Unit testing PeopleController', function() {
                 course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
                 course :{
-                    school_id: 'ABC',
+                    school_id: 'abc',
                     registrar_code_display: '2222'
                 },
             };
@@ -128,7 +128,8 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
             expect(scope.courseInstance['title']).toEqual(ci.title);
             //check one other additional metadata here  for sanity check
-            expect(scope.courseInstance['school']).toEqual(ci.course.school_id);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
         });
 
         it('should work whenCourseInstances is empty', function() {
@@ -137,16 +138,26 @@ describe('Unit testing PeopleController', function() {
                         .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
             expect(scope.courseInstance['title']).toEqual(ci.title);
-            expect(scope.courseInstance['school']).toEqual(ci.course.school_id);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+        });
+
+        it('courseInstance whould not be set when CourseInstance doesnt match', function() {
+            //override the course_instance_id for ci
+            ci.course_instance_id = '1234'
+            controller = $controller('PeopleController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
+            $httpBackend.flush(1);
+            expect(scope.courseInstance).not.toBeDefined();
         });
     });
 
     describe('getFormattedCourseInstance', function() {
         var ci;
         beforeEach(function() {
-
             ci = {
-                course_instance_id: '1234',
+                course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
                 sites: [
                     {
@@ -168,21 +179,19 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('format the course instance data for the UI ', function() {
+            courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL)
-                        .respond(200, JSON.stringify(ci));
-            $httpBackend.flush(1);
-            var result = scope.getFormattedCourseInstance(ci);
 
-            expect(result['title']).toEqual(ci.title);
-            expect(result['school']).toEqual(ci.course.school_id);
-            expect(result['term']).toEqual(ci.term.display_name);
-            expect(result['year']).toEqual(ci.term.academic_year);
-            expect(result['cid']).toEqual(ci.course_instance_id);
-            expect(result['registrar_code_display']).toEqual(
-                ci.course.registrar_code_display+' ('+ci.course.course_id+')');
-            expect(result['sites']).toEqual('888');
-            expect(result['xlist_status']).toEqual('N/A');
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['cid']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code_display+' ('+ci.course.course_id+')');
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
 
         });
     });
