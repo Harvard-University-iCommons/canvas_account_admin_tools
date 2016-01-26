@@ -22,12 +22,12 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
 
 SELENIUM_CONFIG = {
    'account_admin': {
-      'relative_url': 'accounts/1/external_tools/20',
+      'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
       # 'relative_url': 'accounts/8/external_tools/9',  # local
-      'relative_url': 'accounts/8/external_tools/20',  # dev
+      'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
          'cid': '339331',
          'term': 'Spring',
