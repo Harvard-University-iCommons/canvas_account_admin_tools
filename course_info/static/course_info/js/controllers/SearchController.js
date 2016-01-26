@@ -105,6 +105,9 @@
             };
 
             $scope.courseInstanceToTable = function(course) {
+                // This logic is reused in PeopelController.getFormattedCourseInstance
+                // So any changes to data format need to be done in both places.
+                // TODO: Eventually move the reusable logic to a separate library
                 var cinfo = {};
                 cinfo['description'] = course.title;
                 cinfo['year'] = course.term ? course.term.academic_year : '';
