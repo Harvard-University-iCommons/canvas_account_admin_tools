@@ -166,7 +166,7 @@ describe('Unit testing PeopleController', function() {
                     }
                 ],
                 course: {
-                    school_id: 'ABC',
+                    school_id: 'abc',
                     registrar_code_display: '2222',
                     course_id : '789',
                 },
