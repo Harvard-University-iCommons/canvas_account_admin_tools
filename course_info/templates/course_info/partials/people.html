@@ -73,6 +73,7 @@
           to find someone's official email address.
         </div>
 
+
         <!-- begin add warning alerts -->
         <uib-alert ng-if="addWarning" type="warning"
                    close="closeAlert('addWarning')" class="col-md-12">
@@ -105,6 +106,7 @@
 
         </uib-alert>
         <!-- end add warning alerts -->
+
 
         <!-- begin choose between multiple search hits -->
         <div ng-show="searchResults.length > 1">
@@ -194,9 +196,16 @@
       {{ success.profile.name_last }}, {{ success.profile.name_first }}
       <badge role="{{ success.profile.role_type_cd }}"></badge> {{ success.profile.univ_id }}
       <strong>Enrolled as {{ success.role.role_name }}</strong>
+      <p ng-if="success.partialFailureSearchTerm">&nbsp;</p>
+      <uib-alert type="warning">
+        <p ng-if="success.partialFailureSearchTerm">while adding <strong>{{success.partialFailureSearchTerm}}
+        </strong>to this course:</p>
+        <p ng-if="success.partialFailureText">{{ success.partialFailureText }}</p>
+      </uib-alert>
     </div>
   </uib-alert>
   <!-- end success alerts -->
+
 
   <!-- begin add partial failure warning alerts -->
   <uib-alert ng-if="partialFailure" type="warning"
@@ -206,10 +215,11 @@
   </uib-alert>
   <!-- end add partial failure warning alerts -->
 
+
   <!-- begin remove failure warning alerts -->
   <uib-alert ng-if="removeFailure" type="warning"
              close="closeAlert('removeFailure')" class="col-md-12">
-    <div ng-switch on="failure.type">
+    <div ng-switch on="removeFailure.type">
       <div ng-switch-when="noSuchUser">
         <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
         has already been removed from this course.

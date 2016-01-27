@@ -10,7 +10,7 @@
             0: 'name',
             1: 'user_id',
             2: 'role__role_name',
-            3: 'source_manual_registrar',
+            3: 'source_manual_registrar'
         };
 
         // set up functions we'll be calling later
@@ -44,7 +44,16 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
-                        $scope.success = null;
+
+                        $scope.clearAlerts();
+                        if ($scope.hasPartialFailure) {
+                            data.results[0].partialFailureSearchTerm = $scope.partialFailureData.searchTerm;
+                            data.results[0].partialFailureText = 'There was a problem adding ' +
+                                    'the user to Canvas. ' +
+                                    'They have been added to our database and should ' +
+                                    'sync up with Canvas shortly.';
+                        }
+
                         $scope.success = data.results[0];
                         $scope.dtInstance.reloadData();
                     })
@@ -52,7 +61,8 @@
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-                        $scope.partialFailure = null;
+
+                        //$scope.clearAlerts();
                         $scope.partialFailure = {
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
@@ -75,15 +85,20 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        $scope.partialFailure = null;
-                        $scope.partialFailure = {
+                        //$scope.clearAlerts();
+                        $scope.hasPartialFailure = true;
+                        $scope.partialFailureData = {
                             searchTerm: searchTerm,
                             text: data.detail,
                         };
+                        //$scope.partialFailure = {
+                        //    searchTerm: searchTerm,
+                        //    text: data.detail,
+                        //};
                         handlePostSuccess();
                     }
                     else {
-                        $scope.addWarning = null;
+                        $scope.clearAlerts();
                         $scope.addWarning = {
                             type: 'addFailed',
                             searchTerm: searchTerm,
@@ -91,6 +106,7 @@
                         $scope.clearSearchResults();
                         $scope.searchInProgress = false;
                     }
+
                 });
         };
         $scope.clearSearchResults = function() {
@@ -205,7 +221,7 @@
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
                 var profile = memberResult.data.results[0].profile;
-                $scope.addWarning = null;
+                $scope.clearAlerts();
                 $scope.addWarning = {
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
@@ -219,7 +235,7 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.addWarning = null;
+                    $scope.clearAlerts();
                     $scope.addWarning = {
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
@@ -302,7 +318,7 @@
                     success.searchTerm = membership.profile.name_last +
                                          ', ' + membership.profile.name_first;
                     success.action = 'removed from';
-                    $scope.success = null;
+                    $scope.clearAlerts();
                     $scope.success = success;
                     $scope.dtInstance.reloadData()
                 })
@@ -341,7 +357,7 @@
                             failure.type = 'unknown';
                             break;
                     }
-                    $scope.removeFailure = null;
+                    $scope.clearAlerts();
                     $scope.removeFailure = failure;
                     if (reloadData) {
                         $scope.dtInstance.reloadData();
@@ -395,6 +411,13 @@
                     })
                     .error($scope.handleAjaxError);
             }
+        };
+
+        $scope.clearAlerts = function(){
+            $scope.partialFailure = null;
+            $scope.addWarning = null;
+            $scope.success = null;
+            $scope.removeFailure = null;
         };
 
         // now actually init the controller
