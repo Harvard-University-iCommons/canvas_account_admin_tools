@@ -244,19 +244,17 @@
       </div>
       <div ng-switch-when="serverError">
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the database.  Please
-        try again.  If the error persists, please contact your local school
-        support staff.
+        {{ failure.profile.name_first }}</strong> from the database. Please
+        try again.
       </div>
       <div ng-switch-when="canvasError">
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the Canvas site.  If the
-        error persists, please contact your local school support staff.
+        {{ failure.profile.name_first }}</strong> from the Canvas site. Please
+        try again.
       </div>
       <div ng-switch-default>
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong>.  Please try again.  If the
-        error persists, please contact your local school support staff.
+        {{ failure.profile.name_first }}</strong>. Please try again.
       </div>
     </div>
     <div class="course-membership-entry">
