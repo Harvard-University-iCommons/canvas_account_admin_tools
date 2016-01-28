@@ -44,3 +44,7 @@ div#progressBarOuterWrapper {
 .btn-group {
   margin-top: 1em;
 }
+
+table.course-info-table {
+    margin-top: 1em;
+}
