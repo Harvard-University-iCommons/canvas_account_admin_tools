@@ -420,13 +420,14 @@
                         courseInstance['xlist_status'] = 'N/A';
                 }
                 var sites = ci.sites || [];
-                var siteIds =[]
-                sites.forEach(function (site) {
-                    site.site_id = site.external_id;
-                    if (site.site_id.indexOf('http') === 0) {
-                        site.site_id = site.site_id.substr(site.site_id.lastIndexOf('/')+1);
+                var siteIds = sites.filter(function(site) {
+                    return site.external_id;
+                }).map(function(site) {
+                    var siteId = site.external_id;
+                    if (siteId.indexOf('http') === 0) {
+                        siteId = siteId.substr(siteId.lastIndexOf('/')+1);
                     }
-                    siteIds.push(site.site_id)
+                    return siteId;
                 });
                 courseInstance['sites']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
             }

@@ -239,8 +239,11 @@
                         {
                             orderable: false,
                             render: function(data, type, row, meta) {
-                                if (row.sites.length > 0) {
-                                    var sites = row.sites.map(function(site) {
+                                var validSites = row.sites.filter(function(site) {
+                                    return site.course_site_url;
+                                });
+                                if (validSites.length > 0) {
+                                    var sites = validSites.map(function(site) {
                                         return '<a href="' + site.course_site_url
                                                    + '" target="_parent">'
                                                    + site.site_id + '</a>';
