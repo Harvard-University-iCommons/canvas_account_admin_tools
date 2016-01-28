@@ -382,7 +382,7 @@
                 $http.get(url)
                     .success(function(data, status, headers, config, statusText) {
                         //check if the right data was obtained before storing it
-                        if (data.course_instance_id === id){
+                        if (data.course_instance_id == id){
                             courseInstances.instances[data.course_instance_id] = data;
                             $scope.courseInstance = $scope.getFormattedCourseInstance(data)
                         }else{
