@@ -514,7 +514,7 @@
                     previous: '',
                 },
             },
-            lengthMenu: [ 10, 25, 50, 75, 100 ],
+            lengthMenu: [10, 25, 50, 100],
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
             sAjaxDataProp: 'data',
