@@ -2,7 +2,7 @@
 
 <nav>
     {% endverbatim %}
-    <h3><a href="{% url 'dashboard_account' %}">Admin Console</a> > Find Course </h3>
+    <h3><a href="{% url 'dashboard_account' %}">Admin Console</a> > Find Course Info</h3>
     {% verbatim %}
 </nav>
 
@@ -69,7 +69,7 @@
     <div class="input-group" style="margin-top: 1em; width: 60%">
       <input type="text" class="form-control" ng-model="queryString"
             ng-keypress="searchCourseInstances($event)"
-            placeholder="Search by course code, SIS or Canvas course ID, course title">
+            placeholder="Search by course title, associated site in Canvas, course code, or SIS/Course Instance ID">
     </div>
   </div>
 
@@ -111,7 +111,7 @@
           <th class="sorting" tabindex="0">Academic Term&nbsp;&nbsp;</th>
           <th class="sorting" tabindex="0">Associated Site&nbsp;&nbsp;</th>
           <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
-          <th class="sorting" tabindex="0">Course Instance ID&nbsp;&nbsp;</th>
+          <th class="sorting" tabindex="0">SIS/Course Instance ID&nbsp;&nbsp;</th>
           <th class="sorting" tabindex="0">Cross Listing&nbsp;&nbsp;</th>
         </thead>
       </table>
