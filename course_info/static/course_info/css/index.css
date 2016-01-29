@@ -57,3 +57,10 @@ table.course-info-table {
     /* pad add people button and its expand-o-widget equally */
     margin-bottom: 20px;
 }
+
+.bring-forward {
+    /* hack to ensure some page regions can be interacted with when partially
+    occluded by other regions (e.g. so privacy disclaimer button can be clicked
+    despite the div to the left of it spilling over into its page space) */
+    z-index: 10;
+}
