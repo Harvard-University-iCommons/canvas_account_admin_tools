@@ -50,6 +50,7 @@ table.dataTable thead .sorting.sorting_disabled {
 }
 
 table.course-info-table {
+    border: solid 1px #ccc;
     margin-top: 1em;
 }
 
