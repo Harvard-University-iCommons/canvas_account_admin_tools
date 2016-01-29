@@ -1,3 +1,10 @@
+.bring-forward {
+    /* hack to ensure some page regions can be interacted with when partially
+    occluded by other regions (e.g. so privacy disclaimer button can be clicked
+    despite the div to the left of it spilling over into its page space) */
+    z-index: 10;
+}
+
 .btn-group {
   margin-top: 1em;
 }
@@ -36,6 +43,11 @@ i.fa-trash-disabled {
     color: #ccc;
 }
 
+#people {
+    /* pad add people button and its expand-o-widget equally */
+    margin-bottom: 20px;
+}
+
 #privacyDropdown {
     padding: 1em;
     width: 30em;
@@ -52,16 +64,4 @@ table.dataTable thead .sorting.sorting_disabled {
 table.course-info-table {
     border: solid 1px #ccc;
     margin-top: 1em;
-}
-
-#people {
-    /* pad add people button and its expand-o-widget equally */
-    margin-bottom: 20px;
-}
-
-.bring-forward {
-    /* hack to ensure some page regions can be interacted with when partially
-    occluded by other regions (e.g. so privacy disclaimer button can be clicked
-    despite the div to the left of it spilling over into its page space) */
-    z-index: 10;
 }
