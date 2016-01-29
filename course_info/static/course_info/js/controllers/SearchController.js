@@ -87,7 +87,7 @@
                 sites: $scope.filterOptions.sites[0],
                 terms: $scope.filterOptions.terms[0],
                 // default to current year
-                years: $scope.filterOptions.years[2]
+                years: $scope.filterOptions.years[0]
             };
 
             $scope.enableColumnSorting = function(toggle) {
@@ -215,7 +215,8 @@
                     dom: '<<t>ip>',
                     language: {
                         info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                        emptyTable: 'There are no courses to display.',
+                        emptyTable: 'Your search didn’t generate any results.' +
+                        ' Please check your search criteria and try again.',
                         // datatables-bootstrap js adds glyphicons, so remove
                         // default Previous/Next text and don't add &laquo; or
                         // &raquo; as in that case the chevrons will be repeated
