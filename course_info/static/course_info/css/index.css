@@ -1,9 +1,33 @@
-table.dataTable thead .sorting.sorting_disabled {
-    background-image: none;
+.bring-forward {
+    /* hack to ensure some page regions can be interacted with when partially
+    occluded by other regions (e.g. so privacy disclaimer button can be clicked
+    despite the div to the left of it spilling over into its page space) */
+    z-index: 10;
+}
+
+.btn-group {
+  margin-top: 1em;
+}
+
+#directoryLink {
+    margin-bottom: 1em;
 }
 
 div.btn-toolbar div.input-group {
     width: 56%;
+}
+
+div.course-membership-entry {
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 1px 0 1px 0;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    padding: .5em;
+}
+
+div.progress div.progress-bar {
+    width: 100%;
 }
 
 div.row div.col-mid-12 button.center-block {
@@ -11,40 +35,33 @@ div.row div.col-mid-12 button.center-block {
     min-width: 15%;
 }
 
-div.progress div.progress-bar {
-    width: 100%;
+h3.breadcrumbs {
+    line-height: 1.5em;
 }
 
 i.fa-trash-disabled {
     color: #ccc;
 }
 
-div.course-membership-entry {
-    border-color: #ccc;
-    border-style: solid;
-    border-width: 1px 0px 1px 0px;
-    margin-bottom: 1em;
-    margin-top: 1em;
-    padding: .5em;
+#people {
+    /* pad add people button and its expand-o-widget equally */
+    margin-bottom: 20px;
 }
 
-ul#privacyDropdown {
+#privacyDropdown {
     padding: 1em;
     width: 30em;
 }
 
-div#directoryLink {
-    margin-bottom: 1em;
-}
-
-div#progressBarOuterWrapper {
+#progressBarOuterWrapper {
     padding-top: 1em;
 }
 
-.btn-group {
-  margin-top: 1em;
+table.dataTable thead .sorting.sorting_disabled {
+    background-image: none;
 }
 
 table.course-info-table {
+    border: solid 1px #ccc;
     margin-top: 1em;
 }
