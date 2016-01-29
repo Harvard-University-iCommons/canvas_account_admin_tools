@@ -1,9 +1,10 @@
 {% verbatim %}
 
 <nav>
-  <h3>
+  <h3 class="breadcrumbs">
     {% endverbatim %}
-    <h3><a href="{% url 'dashboard_account' %}">Admin Console</a> > <a href="#/">Find Course Info</a>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    &gt; <a href="#/">Find Course Info</a>
     {% verbatim %}
     <small><i class="fa fa-chevron-right"></i></small>
     People in {{courseInstance.title}}
@@ -17,9 +18,9 @@
   <div class="col-md-12">
       <div id="courseInfoDT_wrapper" class="dataTables_wrapper form-inline no-footer">
         <!-- UI comment - inline style for a table border until table-box makes it to Bootrsap 4 -->
-        <table id="courseInfoDT" class="display dataTable" cellspacing="0"
+        <table id="courseInfoDT" class="display dataTable course-info-table"
                role="grid" aria-describedby="courseInfoDT_info"
-               style="width: 978px; border: solid 1px #ccc; margin-top: 1em;">
+               cellspacing="0">
           <tbody>
             <tr role="row" class="odd">
               <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
@@ -51,9 +52,11 @@
 
           <div class="col-md-6">
             <div class="form-group">
-              <label class="sr-only" for="emailHUID">Enter Harvard University ID or email addresses</label>
+              <label class="sr-only" for="emailHUID">
+                Enter Harvard University ID or email address
+              </label>
               <input class="form-control" id="emailHUID"
-                     placeholder="Enter Harvard University ID or email addresses"
+                     placeholder="Enter Harvard University ID or email address"
                      ng-model="searchTerm" ng-disabled="searchResults.length > 1">
             </div>
           </div>
@@ -78,7 +81,7 @@
             </ul>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4 bring-forward">
             <button type="button" class="btn btn-default dropdown-toggle pull-right"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fa fa-info-circle"></i> Privacy Disclaimer <span class="caret"></span>
@@ -241,19 +244,17 @@
       </div>
       <div ng-switch-when="serverError">
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the database.  Please
-        try again.  If the error persists, please contact your local school
-        support staff.
+        {{ failure.profile.name_first }}</strong> from the database. Please
+        try again.
       </div>
       <div ng-switch-when="canvasError">
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the Canvas site.  If the
-        error persists, please contact your local school support staff.
+        {{ failure.profile.name_first }}</strong> from the Canvas site. Please
+        try again.
       </div>
       <div ng-switch-default>
         There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong>.  Please try again.  If the
-        error persists, please contact your local school support staff.
+        {{ failure.profile.name_first }}</strong>. Please try again.
       </div>
     </div>
     <div class="course-membership-entry">

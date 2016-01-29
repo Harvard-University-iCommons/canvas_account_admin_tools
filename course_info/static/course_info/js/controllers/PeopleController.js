@@ -382,7 +382,7 @@
                 $http.get(url)
                     .success(function(data, status, headers, config, statusText) {
                         //check if the right data was obtained before storing it
-                        if (data.course_instance_id === id){
+                        if (data.course_instance_id == id){
                             courseInstances.instances[data.course_instance_id] = data;
                             $scope.courseInstance = $scope.getFormattedCourseInstance(data)
                         }else{
@@ -514,7 +514,7 @@
                     previous: '',
                 },
             },
-            lengthChange: false,
+            lengthMenu: [10, 25, 50, 100],
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
             sAjaxDataProp: 'data',
