@@ -215,7 +215,7 @@
                     dom: '<<t>ip>',
                     language: {
                         info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                        emptyTable: 'Your search didn’t generate any results.' +
+                        emptyTable: 'Your search didn&apos;t generate any results.' +
                         ' Please check your search criteria and try again.',
                         // datatables-bootstrap js adds glyphicons, so remove
                         // default Previous/Next text and don't add &laquo; or
