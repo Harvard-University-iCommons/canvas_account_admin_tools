@@ -87,7 +87,7 @@
                 sites: $scope.filterOptions.sites[0],
                 terms: $scope.filterOptions.terms[0],
                 // default to current year
-                years: $scope.filterOptions.years[2]
+                years: $scope.filterOptions.years[0]
             };
 
             $scope.enableColumnSorting = function(toggle) {
@@ -105,6 +105,9 @@
             };
 
             $scope.courseInstanceToTable = function(course) {
+                // This logic is reused in PeopelController.getFormattedCourseInstance
+                // So any changes to data format need to be done in both places.
+                // TODO: Eventually move the reusable logic to a separate library
                 var cinfo = {};
                 cinfo['description'] = course.title;
                 cinfo['year'] = course.term ? course.term.academic_year : '';
@@ -212,7 +215,8 @@
                     dom: '<<t>ip>',
                     language: {
                         info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                        emptyTable: 'There are no courses to display.',
+                        emptyTable: 'Your search didn&apos;t generate any results.' +
+                        ' Please check your search criteria and try again.',
                         // datatables-bootstrap js adds glyphicons, so remove
                         // default Previous/Next text and don't add &laquo; or
                         // &raquo; as in that case the chevrons will be repeated
@@ -228,7 +232,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/people/' + row.cid;
-                                return '<a href="' + url + '">' + row.description + '</a>';
+                                return '<a href="' + url + '" target="_blank">' + row.description + '</a>';
                             },
                         },
                         {data: 'year'},
@@ -239,7 +243,7 @@
                                 if (row.sites.length > 0) {
                                     var sites = row.sites.map(function(site) {
                                         return '<a href="' + site.course_site_url
-                                                   + '" target="_parent">'
+                                                   + '" target="_blank">'
                                                    + site.site_id + '</a>';
                                     });
                                     return sites.join(', ');

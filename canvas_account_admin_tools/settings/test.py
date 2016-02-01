@@ -1,20 +1,8 @@
 from .local import *
 
-DATABASE_APPS_MAPPING = {
-    'auth': 'default',
-    'canvas_account_admin_tools': 'default',
-    'contenttypes': 'default',
-    'course_info': 'default',
-    'django_auth_lti': 'default',
-    'icommons_common': 'default',
-    'icommons_ui': 'default',
-    'messages': 'default',
-    'proxy': 'default',
-    'sessions': 'default',
-    'staticfiles': 'default',
-}
-
-DATABASE_MIGRATION_WHITELIST = ['default']
+# so that the CourseSchemaDatabaseRouter doesn't look for a non-existent
+# termtool database connection
+DATABASE_ROUTERS = []
 
 # Make tests faster by using sqlite3
 DATABASES = {

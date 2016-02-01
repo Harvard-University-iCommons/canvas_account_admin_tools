@@ -10,7 +10,7 @@
             0: 'name',
             1: 'user_id',
             2: 'role__role_name',
-            3: 'source_manual_registrar'
+            3: 'source_manual_registrar',
         };
 
         // set up functions we'll be calling later
@@ -44,31 +44,19 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
-
-                        $scope.clearAlerts();
-                        if ($scope.hasPartialFailure) {
-                            data.results[0].partialFailureSearchTerm = $scope.partialFailureData.searchTerm;
-                            data.results[0].partialFailureText = 'There was a problem adding ' +
-                                    'the user to Canvas. ' +
-                                    'They have been added to our database and should ' +
-                                    'sync up with Canvas shortly.';
-                        }
-
-                        $scope.success = data.results[0];
+                        $scope.successes.push(data.results[0]);
                         $scope.dtInstance.reloadData();
                     })
                     .error(function(data, status, headers, config, statusText) {
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-
-                        //$scope.clearAlerts();
-                        $scope.partialFailure = {
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
                                 'we received an error trying to retrieve ' +
                                 "the user's course details.",
-                        };
+                        });
                     })
                     .finally(function(){
                         $scope.clearSearchResults();
@@ -85,35 +73,27 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        //$scope.clearAlerts();
-                        $scope.hasPartialFailure = true;
-                        $scope.partialFailureData = {
+                        $scope.addPartialFailures.push({
                             searchTerm: searchTerm,
                             text: data.detail,
-                        };
-                        //$scope.partialFailure = {
-                        //    searchTerm: searchTerm,
-                        //    text: data.detail,
-                        //};
+                        });
                         handlePostSuccess();
                     }
                     else {
-                        $scope.clearAlerts();
-                        $scope.addWarning = {
+                        $scope.addWarnings.push({
                             type: 'addFailed',
                             searchTerm: searchTerm,
-                        };
+                        });
                         $scope.clearSearchResults();
                         $scope.searchInProgress = false;
                     }
-
                 });
         };
         $scope.clearSearchResults = function() {
             $scope.searchResults = [];
         };
-        $scope.closeAlert = function(source) {
-            $scope[source] = null;
+        $scope.closeAlert = function(source, index) {
+            $scope[source].splice(index, 1);
         };
         $scope.compareRoles = function(a, b) {
             /*
@@ -220,14 +200,13 @@
             // if the user is already in the course, show their current enrollment
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
-                var profile = memberResult.data.results[0].profile;
-                $scope.clearAlerts();
-                $scope.addWarning = {
+                var profile = memberResult.data.results[0].profile
+                $scope.addWarnings.push({
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
-                };
+                });
                 $scope.searchInProgress = false;
             }
             else {
@@ -235,11 +214,10 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.clearAlerts();
-                    $scope.addWarning = {
+                    $scope.addWarnings.push({
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
-                    };
+                    });
                     $scope.searchInProgress = false;
                 }
                 else if (filteredResults.length == 1) {
@@ -318,8 +296,7 @@
                     success.searchTerm = membership.profile.name_last +
                                          ', ' + membership.profile.name_first;
                     success.action = 'removed from';
-                    $scope.clearAlerts();
-                    $scope.success = success;
+                    $scope.successes.push(success);
                     $scope.dtInstance.reloadData()
                 })
                 .error(function(data, status, headers, config, statusText) {
@@ -357,8 +334,7 @@
                             failure.type = 'unknown';
                             break;
                     }
-                    $scope.clearAlerts();
-                    $scope.removeFailure = failure;
+                    $scope.removeFailures.push(failure);
                     if (reloadData) {
                         $scope.dtInstance.reloadData();
                     }
@@ -394,40 +370,75 @@
         $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
-        $scope.setTitle = function(id) {
+        $scope.setCourseInstance = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
-                $scope.title = ci.title;
+                $scope.courseInstance = $scope.getFormattedCourseInstance(ci)
             }
             else {
-                $scope.title = '';
                 var url = djangoUrl.reverse(
                               'icommons_rest_api_proxy',
                               ['api/course/v2/course_instances/' + id + '/']);
                 $http.get(url)
                     .success(function(data, status, headers, config, statusText) {
-                        courseInstances.instances[data.course_instance_id] = data;
-                        $scope.title = data.title;
+                        //check if the right data was obtained before storing it
+                        if (data.course_instance_id == id){
+                            courseInstances.instances[data.course_instance_id] = data;
+                            $scope.courseInstance = $scope.getFormattedCourseInstance(data)
+                        }else{
+                            $log.error(' CourseInstance record mismatch for id :'
+                                + id +',  fetched record for :' +data.id);
+                        }
                     })
                     .error($scope.handleAjaxError);
             }
         };
 
-        $scope.clearAlerts = function(){
-            $scope.partialFailure = null;
-            $scope.addWarning = null;
-            $scope.success = null;
-            $scope.removeFailure = null;
+        $scope.getFormattedCourseInstance = function(ci) {
+            // This is a helper function that formats the CourseInstance metadata
+            // and is combination of existing logic in
+            // Searchcontroller.courseInstanceToTable and Searchcontroller cell
+            // render functions.
+            courseInstance = {};
+            if (ci) {
+                courseInstance['title']= ci.title;
+                courseInstance['school'] = ci.course ?
+                        ci.course.school_id.toUpperCase() : '';
+                courseInstance['term'] = ci.term ? ci.term.display_name : '';
+                courseInstance['year'] = ci.term ? ci.term.academic_year : '';
+                courseInstance['cid'] = ci.course_instance_id;
+                courseInstance['registrar_code_display'] = ci.course ?
+                        ci.course.registrar_code_display +
+                        ' (' + ci.course.course_id + ')'.trim() : '';
+                if (ci.secondary_xlist_instances &&
+                    ci.secondary_xlist_instances.length > 0) {
+                        courseInstance['xlist_status'] = 'Primary';
+                } else if (ci.primary_xlist_instances &&
+                    ci.primary_xlist_instances.length > 0) {
+                        courseInstance['xlist_status'] = 'Secondary';
+                } else {
+                        courseInstance['xlist_status'] = 'N/A';
+                }
+                var sites = ci.sites || [];
+                var siteIds =[]
+                sites.forEach(function (site) {
+                    site.site_id = site.external_id;
+                    if (site.site_id.indexOf('http') === 0) {
+                        site.site_id = site.site_id.substr(site.site_id.lastIndexOf('/')+1);
+                    }
+                    siteIds.push(site.site_id)
+                });
+                courseInstance['sites']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
+            }
+            return courseInstance;
         };
 
         // now actually init the controller
-        $scope.partialFailure = null;
-        $scope.addWarning = null;
-        $scope.success = null;
-        $scope.removeFailure = null;
-
+        $scope.addPartialFailures = [];
+        $scope.addWarnings = [];
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
+        $scope.removeFailures = [];
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
@@ -447,8 +458,8 @@
         $scope.searchTerm = '';
         $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
-        $scope.setTitle($routeParams.courseInstanceId);
-
+        $scope.setCourseInstance($routeParams.courseInstanceId);
+        $scope.successes = [];
 
         // configure the datatable
         $scope.dtInstance = null;
@@ -503,7 +514,7 @@
                     previous: '',
                 },
             },
-            lengthChange: false,
+            lengthMenu: [10, 25, 50, 100],
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
             sAjaxDataProp: 'data',
