@@ -7,6 +7,7 @@
 </nav>
 
 <main class="float-left col-60">
+  <div class="center-block" style="max-width:60%;" >
   <div class="btn-toolbar" role="toolbar" aria-label="...">
     <div class="btn-group" role="group" aria-label="...">
       <div class="dropdown">
@@ -66,7 +67,7 @@
       </div>
     </div>
 
-    <div class="input-group" style="margin-top: 1em; width: 60%">
+    <div class="center-block search-input">
       <input type="text" class="form-control" ng-model="queryString"
             ng-keypress="searchCourseInstances($event)"
             placeholder="Search by course title, associated site in Canvas, course code, or SIS/Course Instance ID">
@@ -117,5 +118,7 @@
       </table>
     </div>
   </p>
+  </div>
 </main>
+
 {% endverbatim %}
