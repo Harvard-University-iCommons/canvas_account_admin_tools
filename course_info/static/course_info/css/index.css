@@ -9,6 +9,7 @@
   margin-top: 1em;
 }
 
+
 #directoryLink {
     margin-bottom: 1em;
 }
@@ -33,6 +34,10 @@ div.progress div.progress-bar {
 div.row div.col-mid-12 button.center-block {
     width: 15%;
     min-width: 15%;
+}
+
+div.search-input{
+  margin-top: 4em;
 }
 
 h3.breadcrumbs {
