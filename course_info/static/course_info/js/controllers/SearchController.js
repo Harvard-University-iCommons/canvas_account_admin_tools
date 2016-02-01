@@ -232,7 +232,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/people/' + row.cid;
-                                return '<a href="' + url + '">' + row.description + '</a>';
+                                return '<a href="' + url + '" target="_blank">' + row.description + '</a>';
                             },
                         },
                         {data: 'year'},
@@ -243,7 +243,7 @@
                                 if (row.sites.length > 0) {
                                     var sites = row.sites.map(function(site) {
                                         return '<a href="' + site.course_site_url
-                                                   + '" target="_parent">'
+                                                   + '" target="_blank">'
                                                    + site.site_id + '</a>';
                                     });
                                     return sites.join(', ');
