@@ -44,19 +44,32 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
-                        $scope.successes.push(data.results[0]);
+
+                        // if there was a partial error, specifically if there was
+                        // an error adding the user to the Canvas course (we caught
+                        // a Canvas API error). The user has been added to the
+                        // coursemanager db, but could not be added to Canvas.
+                        // In this case it's possible that the user will be addded
+                        // during the next Canvas sync. We let the user know about
+                        // the partial failure and that it may correct itself.
+                        if($scope.partialFailureData){
+                            data.results[0].partialFailureData = $scope.partialFailureData
+                        }
+
+                        $scope.success = data.results[0];
                         $scope.dtInstance.reloadData();
                     })
                     .error(function(data, status, headers, config, statusText) {
                         // log it, then display a warning
                         $scope.handleAjaxError(data, status, headers, config,
                                 statusText);
-                        $scope.addPartialFailures.push({
+                        $scope.clearMessages();
+                        $scope.addPartialFailure = {
                             searchTerm: searchTerm,
                             text: 'Add to course seemed to succeed, but ' +
                                 'we received an error trying to retrieve ' +
                                 "the user's course details.",
-                        });
+                        };
                     })
                     .finally(function(){
                         $scope.clearSearchResults();
@@ -73,17 +86,18 @@
                             (data.detail.indexOf('Canvas API error details') != -1)) {
                         // partial success, where we enrolled in the coursemanager
                         // db, but got an error trying to enroll in canvas
-                        $scope.addPartialFailures.push({
+                        $scope.partialFailureData = {
                             searchTerm: searchTerm,
-                            text: data.detail,
-                        });
+                            text: data.detail
+                        };
                         handlePostSuccess();
                     }
                     else {
-                        $scope.addWarnings.push({
+                        $scope.clearMessages();
+                        $scope.addWarning = {
                             type: 'addFailed',
                             searchTerm: searchTerm,
-                        });
+                        };
                         $scope.clearSearchResults();
                         $scope.searchInProgress = false;
                     }
@@ -92,8 +106,8 @@
         $scope.clearSearchResults = function() {
             $scope.searchResults = [];
         };
-        $scope.closeAlert = function(source, index) {
-            $scope[source].splice(index, 1);
+        $scope.closeAlert = function(source) {
+            $scope[source] = null;
         };
         $scope.compareRoles = function(a, b) {
             /*
@@ -200,13 +214,14 @@
             // if the user is already in the course, show their current enrollment
             if (memberResult.data.results.length > 0) {
                 // just pick the first one to find the name
-                var profile = memberResult.data.results[0].profile
-                $scope.addWarnings.push({
+                var profile = memberResult.data.results[0].profile;
+                $scope.clearMessages();
+                $scope.addWarning = {
                     type: 'alreadyInCourse',
                     fullName: profile.name_last + ', ' + profile.name_first,
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
-                });
+                };
                 $scope.searchInProgress = false;
             }
             else {
@@ -214,10 +229,11 @@
                                           peopleResult.data.results);
                 if (filteredResults.length == 0) {
                     // didn't find any people for the search term
-                    $scope.addWarnings.push({
+                    $scope.clearMessages();
+                    $scope.addWarning = {
                         type: 'notFound',
                         searchTerm: peopleResult.config.searchTerm,
-                    });
+                    };
                     $scope.searchInProgress = false;
                 }
                 else if (filteredResults.length == 1) {
@@ -296,7 +312,8 @@
                     success.searchTerm = membership.profile.name_last +
                                          ', ' + membership.profile.name_first;
                     success.action = 'removed from';
-                    $scope.successes.push(success);
+                    $scope.clearMessages();
+                    $scope.success = success;
                     $scope.dtInstance.reloadData()
                 })
                 .error(function(data, status, headers, config, statusText) {
@@ -334,7 +351,8 @@
                             failure.type = 'unknown';
                             break;
                     }
-                    $scope.removeFailures.push(failure);
+                    $scope.clearMessages();
+                    $scope.removeFailure = failure;
                     if (reloadData) {
                         $scope.dtInstance.reloadData();
                     }
@@ -433,12 +451,18 @@
             return courseInstance;
         };
 
+        $scope.clearMessages = function(){
+
+        }
+
         // now actually init the controller
-        $scope.addPartialFailures = [];
-        $scope.addWarnings = [];
+        $scope.addPartialFailure = null;
+        $scope.partialFailureData = null;
+        $scope.addWarning = null;
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
-        $scope.removeFailures = [];
+        $scope.removeFailure = null;
+
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
             {roleId: 0, roleName: 'Student'},
@@ -459,7 +483,7 @@
         $scope.selectedResult = {id: undefined};
         $scope.selectedRole = $scope.roles[0];
         $scope.setCourseInstance($routeParams.courseInstanceId);
-        $scope.successes = [];
+        $scope.success = null;
 
         // configure the datatable
         $scope.dtInstance = null;

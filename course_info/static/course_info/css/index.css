@@ -70,3 +70,7 @@ table.course-info-table {
     border: solid 1px #ccc;
     margin-top: 1em;
 }
+
+#success-partial-failure-text-id {
+    color: #ac2925;
+}
