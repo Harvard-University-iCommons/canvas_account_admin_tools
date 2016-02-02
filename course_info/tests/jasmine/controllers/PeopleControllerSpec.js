@@ -436,14 +436,13 @@ describe('Unit testing PeopleController', function() {
 
         describe('clearMessages', function(){
             it('should set all messages to null', function(){
-                scope.partialFailureData = 'data for partial failure';
                 scope.addPartialFailure = 'There has been a failure';
                 scope.addWarning = 'There has been an error';
                 scope.success = 'User added';
                 scope.removeFailure = 'Error removing user';
 
                 scope.clearMessages();
-                ['success', 'addWarning', 'addPartialFailure',
+                ['success', 'addWarning',
                     'partialFailureData', 'removeFailure'].forEach(function(scopeAttr) {
                     var thing = scope[scopeAttr];
                     expect(thing).toBeNull();
