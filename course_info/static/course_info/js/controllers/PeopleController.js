@@ -37,6 +37,8 @@
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/course_instances/'
                                          + $scope.courseInstanceId + '/people/']);
+            $scope.clearMessages();
+            $scope.partialFailureData = null;
 
             // called on actual post success, and on error-but-partial-success
             var handlePostSuccess = function() {
@@ -108,6 +110,9 @@
         };
         $scope.closeAlert = function(source) {
             $scope[source] = null;
+            if($scope.partialFailureData){
+                $scope.partialFailureData = null;
+            }
         };
         $scope.compareRoles = function(a, b) {
             /*
@@ -452,7 +457,7 @@
         };
 
         $scope.clearMessages = function(){
-            $scope.partialFailureData = null;
+            //$scope.partialFailureData = null;
             $scope.addPartialFailure = null;
             $scope.removeFailure = null;
             $scope.addWarning = null;
