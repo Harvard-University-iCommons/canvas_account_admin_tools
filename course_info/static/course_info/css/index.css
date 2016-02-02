@@ -38,6 +38,7 @@ div.row div.col-mid-12 button.center-block {
 
 div.search-input{
   margin-top: 1em;
+  max-width:60%;
 }
 
 h3.breadcrumbs {
