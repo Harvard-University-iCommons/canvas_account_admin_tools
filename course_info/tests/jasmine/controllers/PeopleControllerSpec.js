@@ -97,13 +97,20 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance).toBeNull();
         });
 
+        it('should set all message vars to null', function(){
+            ['success', 'addWarning',
+                'addPartialFailure', 'removeFailure'].forEach(function(scopeAttr) {
+                var thing = scope[scopeAttr];
+                expect(thing).toBeNull();
+            });
+        });
+
         it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'partialFailure', 'roles',
-             'searchInProgress', 'searchResults', 'searchTerm', 'selectedResult',
-             'selectedRole', 'success', 'addWarning'].forEach(function(scopeAttr) {
+            ['dtColumns', 'dtOptions', 'roles', 'searchInProgress',
+                'searchResults', 'searchTerm', 'selectedResult',
+                'selectedRole'].forEach(function(scopeAttr) {
                 var thing = scope[scopeAttr];
                 expect(thing).not.toBeUndefined();
-                //expect(thing).not.toBeNull();
             });
         });
     });
@@ -426,6 +433,23 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.selectedRole).toEqual(role);
             });
         });
+
+        describe('clearMessages', function(){
+            it('should set all messages to null', function(){
+                scope.partialFailureData = 'data for partial failure';
+                scope.addPartialFailure = 'There has been a failure';
+                scope.addWarning = 'There has been an error';
+                scope.success = 'User added';
+                scope.removeFailure = 'Error removing user';
+
+                scope.clearMessages();
+                ['success', 'addWarning', 'addPartialFailure',
+                    'partialFailureData', 'removeFailure'].forEach(function(scopeAttr) {
+                    var thing = scope[scopeAttr];
+                    expect(thing).toBeNull();
+                });
+            });
+        });
     });
 
     describe('addUser', function() {
@@ -548,12 +572,14 @@ describe('Unit testing PeopleController', function() {
                };
                var expectedSuccess =
                    JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-               expectedSuccess.searchTerm = searchTerm;
-               expectedSuccess.action = 'added to';
-               var expectedPartialFailure = {
+
+               var partialFailureData = {
                    searchTerm: searchTerm,
                    text: partialFailureResponse.detail,
                };
+               expectedSuccess.searchTerm = searchTerm;
+               expectedSuccess.action = 'added to';
+               expectedSuccess.partialFailureData = partialFailureData;
 
                // mock out the datatable so we can verify that it gets reloaded
                scope.dtInstance = {reloadData: function(){}};
@@ -571,7 +597,7 @@ describe('Unit testing PeopleController', function() {
 
                // check to see if it's reacting correctly
                expect(scope.success).toEqual(expectedSuccess);
-               expect(scope.partialFailure).toEqual(expectedPartialFailure);
+               //expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
                expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
            }
         );
@@ -605,7 +631,7 @@ describe('Unit testing PeopleController', function() {
                $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
                $httpBackend.flush(2);
 
-               expect(scope.partialFailure).toEqual(expectedPartialFailure);
+               expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
                expect(scope.handleAjaxError.calls.count()).toEqual(1);
            }
         );
