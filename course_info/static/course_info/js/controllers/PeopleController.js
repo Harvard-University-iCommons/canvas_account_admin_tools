@@ -110,9 +110,7 @@
         };
         $scope.closeAlert = function(source) {
             $scope[source] = null;
-            if($scope.partialFailureData){
-                $scope.partialFailureData = null;
-            }
+            $scope.partialFailureData = null;
         };
         $scope.compareRoles = function(a, b) {
             /*
