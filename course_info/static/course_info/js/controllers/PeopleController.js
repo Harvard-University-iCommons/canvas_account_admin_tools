@@ -452,8 +452,12 @@
         };
 
         $scope.clearMessages = function(){
-
-        }
+            $scope.partialFailureData = null;
+            $scope.addPartialFailure = null;
+            $scope.removeFailure = null;
+            $scope.addWarning = null;
+            $scope.success = null;
+        };
 
         // now actually init the controller
         $scope.addPartialFailure = null;
