@@ -457,7 +457,6 @@
         };
 
         $scope.clearMessages = function(){
-            //$scope.partialFailureData = null;
             $scope.addPartialFailure = null;
             $scope.removeFailure = null;
             $scope.addWarning = null;
