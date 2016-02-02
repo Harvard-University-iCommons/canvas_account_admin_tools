@@ -44,7 +44,7 @@
                     .success(function(data, status, headers, config, statusText) {
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
-
+                        $scope.clearMessages();
                         // if there was a partial error, specifically if there was
                         // an error adding the user to the Canvas course (we caught
                         // a Canvas API error). The user has been added to the
