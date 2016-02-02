@@ -597,7 +597,6 @@ describe('Unit testing PeopleController', function() {
 
                // check to see if it's reacting correctly
                expect(scope.success).toEqual(expectedSuccess);
-               //expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
                expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
            }
         );
