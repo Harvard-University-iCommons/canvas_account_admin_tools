@@ -368,6 +368,12 @@
         $scope.renderName = function(data, type, full, meta) {
             return full.profile.name_last + ', ' + full.profile.name_first;
         };
+        // hotfix added to address TA role name
+        // will be addressed with a database change as soon as
+        // devops determines viability of change
+        $scope.renderRole = function(data, type, full, meta) {
+            return /^Teaching Fellow$/.test(data) ? 'TA' : data;
+        };
         $scope.renderRemove = function(data, type, full, meta) {
             // TODO - maybe make this a directive?  the isolate scope
             //        in a directive complicates things.  anything has
@@ -478,7 +484,7 @@
             {roleId: 1, roleName: 'Course Head'},
             {roleId: 2, roleName: 'Faculty'},
             {roleId: 12, roleName: 'Teaching Staff'},
-            {roleId: 5, roleName: 'Teaching Fellow'},
+            {roleId: 5, roleName: 'TA'},
             {roleId: 11, roleName: 'Course Support Staff'},
             {roleId: 7, roleName: 'Designer'},
             {roleId: 15, roleName: 'Observer'},
@@ -551,6 +557,8 @@
             searching: false,
             serverSide: true,
         };
+
+        // see hotfix note above for renderRole
         $scope.dtColumns = [
             {
                 data: '',
@@ -564,6 +572,7 @@
             },
             {
                 data: 'role.role_name',
+                render: $scope.renderRole,
                 title: 'Role'
             },
             {
