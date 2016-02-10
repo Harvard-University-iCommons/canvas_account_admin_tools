@@ -42,6 +42,9 @@
             var handlePostSuccess = function() {
                 $http.get(url, {params: {user_id: user.user_id}})
                     .success(function(data, status, headers, config, statusText) {
+                        if ( data.results[0].role.role_name == "Teaching Fellow") {
+                            data.results[0].role.role_name = "TA";
+                        }
                         data.results[0].searchTerm = searchTerm;
                         data.results[0].action = 'added to';
                         $scope.successes.push(data.results[0]);
@@ -122,6 +125,11 @@
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
+
+             if ( membership.role.role_name == "Teaching Fellow") {
+                membership.role.role_name = "TA";
+             }
+
             $scope.confirmRemoveModalInstance = $uibModal.open({
                 controller: function($scope, membership) {
                     $scope.membership = membership;
@@ -186,6 +194,10 @@
         $scope.handleLookupResults = function(results) {
             var peopleResult = results[0];
             var memberResult = results[1];
+            //
+            if ( memberResult.data.results.length > 0 && memberResult.data.results[0].role.role_name == "Teaching Fellow") {
+                memberResult.data.results[0].role.role_name = "TA";
+            }
 
             // TODO - implement and use generalized logic that will follow any
             //        "next" links in the rest api response.  note that the api
