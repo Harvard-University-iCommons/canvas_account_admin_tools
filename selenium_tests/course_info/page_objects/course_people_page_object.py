@@ -11,9 +11,10 @@ class Locators(object):
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
     ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
-    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
+    PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
+    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
 
     @classmethod
     def DELETE_USER_ICON (cls, sis_user_id):
@@ -62,6 +63,8 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+        WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+            *Locators.PROGRESS_BAR).is_displayed())
 
     def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
@@ -87,7 +90,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         return True
 
     def delete_user(self, user_id):
-        """ Deletes  user from a course through the admin console and confirms
+        """ Deletes user from a course through the admin console and confirms
         delete in modal window """
         self.find_element(*Locators.DELETE_USER_ICON(user_id)).click()
         self.find_element(*Locators.DELETE_USER_CONFIRM).click()
