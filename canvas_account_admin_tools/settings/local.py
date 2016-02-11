@@ -41,11 +41,6 @@ SELENIUM_CONFIG = {
             'role_id': '9',
             'user_id': '20299916'
          },
-         'new': {
-            'role': 'Teacher',
-            'role_id': '9',
-            'user_id': '30833767'
-         }
       }
    },
    'icommons_rest_api': {

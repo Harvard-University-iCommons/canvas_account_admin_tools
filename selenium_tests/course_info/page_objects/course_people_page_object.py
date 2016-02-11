@@ -28,17 +28,7 @@ class Locators(object):
 
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
-
-    def is_loaded(self):
-        """ page is loaded if add people button is present """
-        # frame context stickiness is a bit flaky for some reason; make sure
-        # we're in the tool_content frame context before checking for elements
-        self.focus_on_tool_frame()
-        try:
-            self.find_element(*Locators.ADD_PEOPLE_BUTTON)
-        except NoSuchElementException:
-            return False
-        return True
+    page_loaded_locator = Locators.ADD_PEOPLE_BUTTON
 
     def is_person_on_page(self, lookup_text):
         """ looks up a person on in the people list by name or user id """

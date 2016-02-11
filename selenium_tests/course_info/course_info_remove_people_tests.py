@@ -2,7 +2,7 @@ from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
-class RemovePeopleTest(CourseInfoBaseTestCase):
+class RemovePeopleTests(CourseInfoBaseTestCase):
 
     def test_remove_person(self):
         """ Removes a user from course using the Admin Console """
