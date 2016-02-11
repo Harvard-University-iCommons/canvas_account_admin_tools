@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^icommons_rest_api/(?P<path>.*)$', views.icommons_rest_api_proxy, name='icommons_rest_api_proxy'),
     url(r'^account_dashboard$', views.dashboard_account, name='dashboard_account'),
     url(r'^course_info/', include('course_info.urls', namespace='course_info')),
+    url(r'^cross_list_courses/', include('cross_list_courses.urls', namespace='cross_list_courses')),
+
 ]
