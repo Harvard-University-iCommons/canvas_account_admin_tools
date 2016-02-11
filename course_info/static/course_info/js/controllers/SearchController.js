@@ -232,7 +232,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/people/' + row.cid;
-                                return '<a href="' + url + '" target="_blank">' + row.description + '</a>';
+                                return '<a href="' + url + '">' + row.description + '</a>';
                             },
                         },
                         {data: 'year'},

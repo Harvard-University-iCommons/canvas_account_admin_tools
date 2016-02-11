@@ -36,9 +36,9 @@ div.row div.col-mid-12 button.center-block {
     min-width: 15%;
 }
 
-div.search-input{
+div.search-input-group {
   margin-top: 1em;
-  max-width:60%;
+  max-width:80%;
 }
 
 h3.breadcrumbs {
