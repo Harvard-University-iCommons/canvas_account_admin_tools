@@ -43,3 +43,9 @@ class AddPeopleTests(CourseInfoBaseTestCase):
 
         # Assert that the success text is displayed
         self.assertTrue(self.people_page.add_was_successful())
+
+        # clean up (avoid cluttering the course if multiple different
+        # test users are used)
+        self.api.remove_user(self.test_settings['test_course']['cid'],
+                             test_user, role_id)
+

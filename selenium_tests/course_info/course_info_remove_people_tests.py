@@ -1,5 +1,3 @@
-from django.conf import settings
-
 from ddt import ddt, data, unpack
 from selenium_common.base_test_case import get_xl_data
 
@@ -8,8 +6,7 @@ from selenium_tests.course_info.course_info_base_test_case \
 
 
 @ddt
-class RemovePeopleTest(CourseInfoBaseTestCase):
-
+class RemovePeopleTests(CourseInfoBaseTestCase):
 
     @data(*get_xl_data(TEST_USERS_WITH_ROLES))
     @unpack

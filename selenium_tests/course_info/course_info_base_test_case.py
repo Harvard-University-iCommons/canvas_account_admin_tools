@@ -17,6 +17,7 @@ from selenium_tests.course_info.page_objects.course_people_page_object \
 TEST_USERS_WITH_ROLES = join(dirname(abspath(__file__)),
     'test_data', 'admin_console_roles.xlsx')
 
+
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
 
     people_page = None
