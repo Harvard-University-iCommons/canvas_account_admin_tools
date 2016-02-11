@@ -28,6 +28,10 @@ class RemovePeopleTests(CourseInfoBaseTestCase):
         self._load_test_course()
 
         # asserts test user is on people page and to-be-removed user is on page
+        # Note: If the course has a lot of people enrolled, results are
+        # paginated and it's possible that user may not be on the initial
+        # page.
+
         self.assertTrue(self.people_page.is_person_on_page(test_user))
 
         # asserts that the delete confirmation text is not already on the page

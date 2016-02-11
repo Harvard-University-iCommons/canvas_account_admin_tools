@@ -29,4 +29,7 @@ class PeopleListTests(CourseInfoBaseTestCase):
 
         # assert that an expected enrollment is present
         self.assertTrue(self.people_page.is_loaded())
+        # Note: If the course has a lot of people enrolled, results are
+        # paginated and it's possible that user may not be on the initial
+        # page.
         self.assertTrue(self.people_page.is_person_on_page(user['user_id']))
