@@ -1,31 +1,32 @@
-from django.conf import settings
-
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
-from selenium_tests.course_info.page_objects.course_info_search_page_object \
-    import CourseSearchPageObject
-from selenium_tests.course_info.page_objects.course_people_page_object \
-    import CoursePeoplePageObject
 
 
-class CourseInfoPeopleListTest(CourseInfoBaseTestCase):
+class PeopleListTests(CourseInfoBaseTestCase):
 
     def test_people_list_page_loaded(self):
         """verify the people search functionality"""
-        search_page = CourseSearchPageObject(self.driver)
 
-        test_settings = settings.SELENIUM_CONFIG['course_info_tool']
-        course = test_settings['test_course']
-        user = test_settings['test_users']['existing']
+        course = self.test_settings['test_course']
+        user = self.test_settings['test_users']['existing']
+
+        # Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool
+        # environment (because of shared cache interactions)
+
+        # ensure person is in course using API before searching for them in UI
+        # 1. remove ALL roles/enrollments for the test user in this course
+        #    to ensure no incidental data causes conflict when we try to add
+        # 2. add via API the role we want to test searching for in the UI
+        self.api.remove_user(course['cid'], user['user_id'])
+        self.api.add_user(course['cid'], user['user_id'], user['role_id'])
 
         self.search_for_course(
             type=course['type'], school=course['school'], term=course['term'],
             year=course['year'], search_term=course['cid'])
 
         # click on course link to view list of people in course
-        search_page.select_course(cid=course['cid'])
+        self.search_page.select_course(cid=course['cid'])
 
-        people_page = CoursePeoplePageObject(self.driver)
         # assert that an expected enrollment is present
-        self.assertTrue(people_page.is_loaded())
-        self.assertTrue(people_page.is_person_on_page(user['user_id']))
+        self.assertTrue(self.people_page.is_loaded())
+        self.assertTrue(self.people_page.is_person_on_page(user['user_id']))
