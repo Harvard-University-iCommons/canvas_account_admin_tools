@@ -76,10 +76,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
     def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
-        self._driver.save_screenshot ('click_dropdown.png')
         self.find_element(By.LINK_TEXT, canvas_role).click()
-        self._driver.save_screenshot ('click_on_role.png')
-
 
     def add_was_successful(self):
         # Verify success text
