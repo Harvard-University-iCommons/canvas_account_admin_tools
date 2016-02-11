@@ -2,7 +2,7 @@ from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
 from selenium_tests.course_info.course_info_base_test_case \
-    import TEST_USERS_WITH_ROLES
+    import TEST_USERS_WITH_ROLES_PATH
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
@@ -10,7 +10,7 @@ from selenium_tests.course_info.course_info_base_test_case \
 @ddt
 class AddPeopleTests(CourseInfoBaseTestCase):
 
-    @data(*get_xl_data(TEST_USERS_WITH_ROLES))
+    @data(*get_xl_data(TEST_USERS_WITH_ROLES_PATH))
     @unpack
     def test_add_person(self, test_case_id, test_user, canvas_role, role_id):
         """ verify the person search and add functionality """

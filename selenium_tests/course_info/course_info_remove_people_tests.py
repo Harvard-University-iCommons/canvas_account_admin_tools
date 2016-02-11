@@ -2,13 +2,13 @@ from ddt import ddt, data, unpack
 from selenium_common.base_test_case import get_xl_data
 
 from selenium_tests.course_info.course_info_base_test_case \
-    import CourseInfoBaseTestCase, TEST_USERS_WITH_ROLES
+    import CourseInfoBaseTestCase, TEST_USERS_WITH_ROLES_PATH
 
 
 @ddt
 class RemovePeopleTests(CourseInfoBaseTestCase):
 
-    @data(*get_xl_data(TEST_USERS_WITH_ROLES))
+    @data(*get_xl_data(TEST_USERS_WITH_ROLES_PATH))
     @unpack
     def test_remove_person(self, test_case_id, test_user, canvas_role, role_id):
         """ Removes a user from course using the Admin Console """
