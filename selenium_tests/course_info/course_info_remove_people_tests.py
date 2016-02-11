@@ -10,6 +10,7 @@ from selenium_tests.course_info.course_info_base_test_case \
 @ddt
 class RemovePeopleTest(CourseInfoBaseTestCase):
 
+
     @data(*get_xl_data(TEST_USERS_WITH_ROLES))
     @unpack
     def test_remove_person(self, test_case_id, test_user, canvas_role, role_id):
