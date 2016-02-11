@@ -1,6 +1,7 @@
 import os
 import requests
 from django.conf import settings
+from os.path import abspath, dirname, join
 from urlparse import urljoin
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
@@ -11,6 +12,10 @@ from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_obje
 from selenium_tests.course_info.page_objects.course_info_search_page_object \
     import CourseSearchPageObject
 
+
+# Common files used for all Manage People test cases
+TEST_USERS_WITH_ROLES = join(dirname(abspath(__file__)),
+    'test_data', 'admin_console_roles.xlsx')
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
 

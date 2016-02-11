@@ -60,7 +60,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def search_and_add_user(self, user_id, role):
+    def search_and_add_user(self, user_id, canvas_role):
         # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
@@ -68,15 +68,18 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         # Enter user to search on
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
         # Select role
-        self.select_role_type(role)
+        self.select_role_type(canvas_role)
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
 
-    def select_role_type(self, role):
+    def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
-        self.find_element(By.LINK_TEXT, role).click()
+        self._driver.save_screenshot ('click_dropdown.png')
+        self.find_element(By.LINK_TEXT, canvas_role).click()
+        self._driver.save_screenshot ('click_on_role.png')
+
 
     def add_was_successful(self):
         # Verify success text
