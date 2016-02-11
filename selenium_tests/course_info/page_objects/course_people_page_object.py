@@ -73,10 +73,10 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
 
-    def select_role_type(self, role):
-        """ select a role from the roles dropdown """
+    def select_role_type(self, canvas_role):
+        """ select a canvas_role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
-        self.find_element(By.LINK_TEXT, role).click()
+        self.find_element(By.LINK_TEXT, canvas_role).click()
 
     def add_was_successful(self):
         # Verify success text
