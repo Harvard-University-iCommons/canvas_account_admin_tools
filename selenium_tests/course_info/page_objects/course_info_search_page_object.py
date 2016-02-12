@@ -24,21 +24,7 @@ class Locators(object):
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
-
-    def is_loaded(self):
-        """
-        determine if the page loaded by checking whether course results table
-        is present (whether visible or not); page title is trickier, would need
-        complicated xpath (or changes to actual page elements to simplify this)
-        """
-        # frame context stickiness is a bit flaky for some reason; make sure
-        # we're in the tool_content frame context before checking for elements
-        self.focus_on_tool_frame()
-        try:
-            self.find_element(*Locators.COURSE_RESULTS_TABLE)
-        except NoSuchElementException:
-            return False
-        return True
+    page_loaded_locator = Locators.COURSE_RESULTS_TABLE
 
     def is_course_displayed(self, cid=None, title=None):
         # todo: this could be refactored along with select_course()
