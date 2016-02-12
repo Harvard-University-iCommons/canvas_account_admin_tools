@@ -11,9 +11,10 @@ class Locators(object):
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
     ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
     ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
-    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
+    PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
+    ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
 
     @classmethod
     def DELETE_USER_ICON (cls, sis_user_id):
@@ -28,17 +29,7 @@ class Locators(object):
 
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
-
-    def is_loaded(self):
-        """ page is loaded if add people button is present """
-        # frame context stickiness is a bit flaky for some reason; make sure
-        # we're in the tool_content frame context before checking for elements
-        self.focus_on_tool_frame()
-        try:
-            self.find_element(*Locators.ADD_PEOPLE_BUTTON)
-        except NoSuchElementException:
-            return False
-        return True
+    page_loaded_locator = Locators.ADD_PEOPLE_BUTTON
 
     def is_person_on_page(self, lookup_text):
         """ looks up a person on in the people list by name or user id """
@@ -60,7 +51,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def search_and_add_user(self, user_id, role):
+    def search_and_add_user(self, user_id, canvas_role):
         # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
@@ -68,15 +59,17 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         # Enter user to search on
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
         # Select role
-        self.select_role_type(role)
+        self.select_role_type(canvas_role)
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+        WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+            *Locators.PROGRESS_BAR).is_displayed())
 
-    def select_role_type(self, role):
+    def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
-        self.find_element(By.LINK_TEXT, role).click()
+        self.find_element(By.LINK_TEXT, canvas_role).click()
 
     def add_was_successful(self):
         # Verify success text
@@ -97,7 +90,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         return True
 
     def delete_user(self, user_id):
-        """ Deletes  user from a course through the admin console and confirms
+        """ Deletes user from a course through the admin console and confirms
         delete in modal window """
         self.find_element(*Locators.DELETE_USER_ICON(user_id)).click()
         self.find_element(*Locators.DELETE_USER_CONFIRM).click()
