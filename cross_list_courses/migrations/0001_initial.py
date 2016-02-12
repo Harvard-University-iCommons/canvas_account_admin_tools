@@ -11,11 +11,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            sql = "INSERT INTO lti_permissions_ltipermission "
+            sql="INSERT INTO lti_permissions_ltipermission "
                   "(permission, school_id, canvas_role, allow) "
                   "VALUES ('cross_listing', '*', 'AccountAdmin', TRUE),"
+                  "('cross_listing', '*', 'Account admin', TRUE),"
                   "('cross_listing', '*', 'Account Admin', TRUE);",
-            reverse_sql='delete  from lti_permissions_ltipermission where permission="cross_listing"',
+            reverse_sql="delete  from lti_permissions_ltipermission where permission='cross_listing';",
         ),
     ]
 

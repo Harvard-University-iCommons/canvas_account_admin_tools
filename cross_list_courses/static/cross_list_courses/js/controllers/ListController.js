@@ -9,12 +9,11 @@
 
             $scope.dtInstance = null;
 
-            $scope.formatCourse= function(course_instance) {
-                return course_instance.course.school_id.toUpperCase()+
-                                ' '+course_instance.course.registrar_code+
-                                '-'+course_instance.term.display_name+
-                                '-'+course_instance.course_instance_id;
-
+            $scope.formatCourse = function(course_instance) {
+                return course_instance.course.school_id.toUpperCase() +
+                                ' ' + course_instance.course.registrar_code +
+                                '-' + course_instance.term.display_name +
+                                '-' + course_instance.course_instance_id;
             };
 
             $scope.dtOptions = {
@@ -25,6 +24,7 @@
                     var queryParams = {
                         offset: data.start,
                         limit: data.length,
+                        ordering: '-last_modified_date',
                         include: 'course_instance',
                     };
 
@@ -52,13 +52,8 @@
                         },
                     });
                 },
-                createdRow: function( row, data, dataIndex ) {
-                    // to use angular directives within the rendered datatable,
-                    // we have to compile those elements ourselves.  joy.
-                    $compile(angular.element(row).contents())($scope);
-                },
                 language: {
-                    emptyTable: 'There are no cross listed courses  to display.',
+                    emptyTable: 'There are no cross listed courses to display.',
                     info: 'Showing _START_ to _END_ of _TOTAL_ course mappings',
                     infoEmpty: 'Showing 0 to 0 of 0 course mappings',
                     paginate: {
@@ -72,27 +67,28 @@
                 sAjaxDataProp: 'data',
                 searching: false,
                 serverSide: true,
+                ordering: false,
             };
-
 
             $scope.dtColumns = [
                 {
                     data: null,
                     render: function(data, type, row) {
-
-                        if (data.primary_course_instance ) {
+                        if (data.primary_course_instance) {
                              return $scope.formatCourse(data.primary_course_instance);
                         } else {
                             return 'N/A';
                         }
                     },
                     title: 'Primary',
+                    bSortable: false,
                 },
                 {
                     data: null,
                     render: function(data, type, full, meta) {
-
-                        if (data.secondary_course_instance ) {
+                        //TODO: explore refactoring the render code that is
+                        // duplicated for both columns
+                        if (data.secondary_course_instance) {
                             return $scope.formatCourse(data.secondary_course_instance);
 
                         } else {
