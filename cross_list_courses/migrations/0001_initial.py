@@ -12,7 +12,6 @@ def load_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     print("\n\n---------------")
-    # print(migrations.Migration.get_apps())
     print(migrations.Migration)
 
     dependencies = [
@@ -20,7 +19,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            sql='INSERT INTO lti_permissions_ltipermission (permission, school_id, canvas_role, allow) VALUES("cross_listing", "*", "Account Observer", FALSE)',
+            # sql='INSERT INTO lti_permissions_ltipermission (permission, school_id, canvas_role, allow) VALUES("cross_listing", "*", "Account Observer", FALSE)',
+            sql = "INSERT INTO lti_permissions_ltipermission "
+                  "(permission, school_id, canvas_role, allow) "
+                  "VALUES ('cross_listing', '*', 'AccountAdmin', TRUE),"
+                  "('cross_listing', '*', 'Account Admin', TRUE);",
             reverse_sql='delete  from lti_permissions_ltipermission where permission="cross_listing"',
         ),
     ]
