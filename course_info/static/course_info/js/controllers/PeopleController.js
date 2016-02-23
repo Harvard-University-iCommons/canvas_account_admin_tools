@@ -149,7 +149,8 @@
 
             // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
             // a more perm solution is being discussed, but will invlove talking to the schools.
-            if ( membership.role.role_name == "Teaching Fellow") {
+            if (membership && membership.role &&
+                    membership.role.role_name == "Teaching Fellow") {
                 membership.role.role_name = "TA";
             }
 
@@ -220,7 +221,9 @@
 
             // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
             // a more perm solution is being discussed, but will invlove talking to the schools.
-            if ( memberResult.data.results.length > 0 && memberResult.data.results[0].role.role_name == "Teaching Fellow") {
+            if (memberResult.data.results.length > 0 &&
+                    memberResult.data.results[0].role &&
+                    memberResult.data.results[0].role.role_name == "Teaching Fellow") {
                 memberResult.data.results[0].role.role_name = "TA";
             }
 

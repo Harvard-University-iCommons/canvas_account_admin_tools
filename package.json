@@ -10,13 +10,12 @@
     "angular-ui-bootstrap": "^0.14.3",
     "datatables.net": "^1.10.9",
     "datatables.net-bs": "^1.10.9",
-    "jasmine-core": "~2.3",
+    "jasmine-core": "^2.4.1",
     "jquery": "^2.1.4",
-    "karma": "~0.13",
-    "karma-jasmine": "~0.3.6",
+    "karma": "^0.13.21",
+    "karma-jasmine": "^0.3.7",
     "karma-jasmine-jquery": "^0.1.1",
-    "karma-phantomjs-launcher": "~0.2",
-    "phantomjs": "^1.9.18",
-    "phantomjs-bin": "^1.0.1"
+    "karma-phantomjs-launcher": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.4"
   }
 }
