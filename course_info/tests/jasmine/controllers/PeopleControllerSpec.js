@@ -842,9 +842,9 @@ describe('Unit testing PeopleController', function() {
                $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
                $httpBackend.flush(1);
                scope.confirmRemoveModalInstance.close(membership);
-               // TODO - figure out why this isn't being called from within jasmine
-               //expect(scope.removeMembership).toHaveBeenCalled();
-               //expect(scope.confirmRemoveModalInstance).toBeNull();
+               scope.$digest();  // resolves confirmRemoveModalInstance result
+               expect(scope.removeMembership).toHaveBeenCalled();
+               expect(scope.confirmRemoveModalInstance).toBeNull();
            }
         );
     });
