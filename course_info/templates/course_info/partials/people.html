@@ -1,23 +1,47 @@
 {% verbatim %}
 
 <nav>
-  <h3>
+  <h3 class="breadcrumbs">
     {% endverbatim %}
-    <h3><a href="{% url 'dashboard_account' %}">Admin Console</a> > <a href="#/">Find Course</a>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    &gt; <a href="#/">Find Course Info</a>
     {% verbatim %}
     <small><i class="fa fa-chevron-right"></i></small>
-    People in {{ title }}
+    People in {{courseInstance.title}}
   </h3>
 </nav>
 
 
 <main class="float=left col=60">
 <div class="container-fluid">
+
+  <div class="col-md-12">
+      <div id="courseInfoDT_wrapper" class="dataTables_wrapper form-inline no-footer">
+        <!-- UI comment - inline style for a table border until table-box makes it to Bootrsap 4 -->
+        <table id="courseInfoDT" class="display dataTable course-info-table"
+               role="grid" aria-describedby="courseInfoDT_info"
+               cellspacing="0">
+          <tbody>
+            <tr role="row" class="odd">
+              <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.cid}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  </div>
+
   <!-- begin add people interface -->
   <!-- begin add person expand-o-widget -->
-  <div role="tabpanel" class="tab-pane active fade in active" id="people">
+  <div role="tabpanel" class="tab-pane active fade in active col-md-12" id="people">
     <br />
-    <button id="addPeopleBtn" class="btn btn-default" type="button"
+    <button id="addPeopleBtn" class="btn btn-primary" type="button"
             data-toggle="collapse" data-target="#addPeopleDialog"
             aria-expanded="false" aria-controls="addPeopleDialog">
        Add People <span class="caret"></span>
@@ -28,9 +52,11 @@
 
           <div class="col-md-6">
             <div class="form-group">
-              <label class="sr-only" for="emailHUID">Enter Harvard University ID or email addresses</label>
+              <label class="sr-only" for="emailHUID">
+                Enter Harvard University ID or email address
+              </label>
               <input class="form-control" id="emailHUID"
-                     placeholder="Enter Harvard University ID or email addresses"
+                     placeholder="Enter Harvard University ID or email address"
                      ng-model="searchTerm" ng-disabled="searchResults.length > 1">
             </div>
           </div>
@@ -55,7 +81,7 @@
             </ul>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-4 bring-forward">
             <button type="button" class="btn btn-default dropdown-toggle pull-right"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fa fa-info-circle"></i> Privacy Disclaimer <span class="caret"></span>
@@ -74,15 +100,15 @@
         </div>
 
         <!-- begin add warning alerts -->
-        <uib-alert ng-repeat="warning in addWarnings" type="warning"
-                   close="closeAlert('addWarnings', $index)" class="col-md-12">
-          <div ng-switch on="warning.type">
+        <uib-alert ng-if="addWarning" type="warning"
+                   close="closeAlert('addWarning')" class="col-md-12">
+          <div ng-switch on="addWarning.type">
             <!-- user was already enrolled -->
             <div ng-switch-when="alreadyInCourse">
-              <p><strong>{{ warning.searchTerm }}</strong> was found in the course:</p>
-              <p>{{ warning.fullName }} has the following email/id and role associated with this course:</p>
-              <div ng-repeat="membership in warning.memberships" class="course-membership-entry">
-                {{ warning.fullName }}
+              <p><strong>{{ addWarning.searchTerm }}</strong> was found in the course:</p>
+              <p>{{ addWarning.fullName }} has the following email/id and role associated with this course:</p>
+              <div ng-repeat="membership in addWarning.memberships" class="course-membership-entry">
+                {{ addWarning.fullName }}
                 <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
                 <strong>Enrolled as {{ membership.role.role_name }}</strong>
               </div>
@@ -90,13 +116,13 @@
 
             <!-- search term didn't find a user -->
             <div ng-switch-when="notFound">
-              <p>{{ warning.searchTerm }} was not found. Please check the email
+              <p>{{ addWarning.searchTerm }} was not found. Please check the email
               or Harvard University ID and try again.</p>
             </div>
 
             <!-- server error when attempting to add the user -->
             <div ng-switch-when="addFailed">
-              <p><strong>{{ warning.searchTerm }}</strong> could not be added to
+              <p><strong>{{ addWarning.searchTerm }}</strong> could not be added to
               this course at this time.</p>
               <p>Please try again.</p>
             </div>
@@ -185,58 +211,65 @@
   <!-- end add person expand-o-widget -->
 
   <!-- begin success alerts -->
-  <uib-alert ng-repeat="person in successes" type="success"
-             close="closeAlert('successes', $index)" class="col-md-12">
-    <p><strong>{{ person.searchTerm }}</strong> was just {{ person.action }} this course:</p>
+  <uib-alert ng-if="success" type="success"
+             close="closeAlert('success')" class="col-md-12">
+    <p><strong>{{ success.searchTerm }}</strong> was just {{ success.action }} this course:</p>
     <div class="course-membership-entry">
-      {{ person.profile.name_last }}, {{ person.profile.name_first }}
-      <badge role="{{ person.profile.role_type_cd }}"></badge> {{ person.profile.univ_id }}
-      <strong>Enrolled as {{ person.role.role_name }}</strong>
+      {{ success.profile.name_last }}, {{ success.profile.name_first }}
+      <badge role="{{ success.profile.role_type_cd }}"></badge> {{ success.profile.univ_id }}
+      <strong>Enrolled as {{ success.role.role_name }}</strong>
     </div>
+
+    <div id="success-partial-failure-text-id" ng-if="success.partialFailureData" type="warning">
+        An partial error occured while adding <strong>{{ success.partialFailureData.searchTerm }}</strong> to this course.
+        It's possible that this error will be corrected when the next Canvas sync occurs, check back in 5 minutes.
+        if <strong>{{ success.partialFailureData.searchTerm }}</strong> is still not in the course, please contact Canvas support.
+        <span class="hidden">{{ success.partialFailureData.text }}</span>
+    </div>
+
+
   </uib-alert>
   <!-- end success alerts -->
 
   <!-- begin add partial failure warning alerts -->
-  <uib-alert ng-repeat="partial in addPartialFailures" type="warning"
-             close="closeAlert('addPartialFailures', $index)" class="col-md-12">
-    <p>While adding <strong>{{ partial.searchTerm }}</strong> to this course:</p>
-    <p>{{ partial.text }}</p>
+  <uib-alert ng-if="addPartialFailure" type="warning"
+             close="closeAlert('addPartialFailure')" class="col-md-12">
+    <p>While adding <strong>{{ addPartialFailure.searchTerm }}</strong> to this course:</p>
+    <p>{{ addPartialFailure.text }}</p>
   </uib-alert>
   <!-- end add partial failure warning alerts -->
 
   <!-- begin remove failure warning alerts -->
-  <uib-alert ng-repeat="failure in removeFailures" type="warning"
-             close="closeAlert('removeFailures', $index)" class="col-md-12">
+  <uib-alert ng-if="removeFailure" type="warning"
+             close="closeAlert('removeFailure')" class="col-md-12">
     <div ng-switch on="failure.type">
       <div ng-switch-when="noSuchUser">
-        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
         has already been removed from this course.
       </div>
       <div ng-switch-when="noSuchCourse">
-        <strong>{{ failure.profile.name_last }}, {{ failure.profile.name_first }}</strong>
+        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
         cannot be removed from this course because it no longer exists.
       </div>
       <div ng-switch-when="serverError">
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the database.  Please
-        try again.  If the error persists, please contact your local school
-        support staff.
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+        {{ removeFailure.profile.name_first }}</strong> from the database. Please
+        try again.
       </div>
       <div ng-switch-when="canvasError">
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong> from the Canvas site.  If the
-        error persists, please contact your local school support staff.
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+        {{ removeFailure.profile.name_first }}</strong> from the Canvas site. Please
+        try again.
       </div>
       <div ng-switch-default>
-        There was a problem removing <strong>{{ failure.profile.name_last }},
-          {{ failure.profile.name_first }}</strong>.  Please try again.  If the
-        error persists, please contact your local school support staff.
+        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
+        {{ removeFailure.profile.name_first }}</strong>. Please try again.
       </div>
     </div>
     <div class="course-membership-entry">
-      {{ failure.profile.name_last }}, {{ failure.profile.name_first }}
-      <badge role="{{ failure.profile.role_type_cd }}"></badge> {{ failure.profile.univ_id }}
-      <strong>Enrolled as {{ failure.role.role_name }}</strong>
+      {{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}
+      <badge role="{{ removeFailure.profile.role_type_cd }}"></badge> {{ removeFailure.profile.univ_id }}
+      <strong>Enrolled as {{ removeFailure.role.role_name }}</strong>
     </div>
   </uib-alert>
   <!-- end remove failure warning alerts -->
@@ -244,8 +277,6 @@
   <!-- end add people interface -->
 
   <!-- begin course membership interface -->
-  <h3>People in {{title}}</h3>
-
   <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
          dt-instance="dtInstance" class="table table-striped table-hover">
   </table>

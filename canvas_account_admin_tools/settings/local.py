@@ -22,11 +22,12 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
 
 SELENIUM_CONFIG = {
    'account_admin': {
-      'relative_url': 'accounts/1/external_tools/20',
+      'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
-      'relative_url': 'accounts/1/external_tools/20',
+      # 'relative_url': 'accounts/8/external_tools/9',  # local
+      'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
          'cid': '339331',
          'term': 'Spring',
@@ -37,18 +38,22 @@ SELENIUM_CONFIG = {
       },
       'test_users': {
          'existing': {
+            'role_id': '9',
             'user_id': '20299916'
          },
-         'new': {
-            'role': 'Teacher',
-            'user_id': '30833767'
-         }
       }
+   },
+   'icommons_rest_api': {
+      'base_path': 'api/course/v2'
    },
    'run_locally': False,
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
-
 }
+
+CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
+    'conclude_courses_url',
+    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
+)

@@ -97,18 +97,25 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance).toBeNull();
         });
 
+        it('should set all message vars to null', function(){
+            ['success', 'addWarning',
+                'addPartialFailure', 'removeFailure'].forEach(function(scopeAttr) {
+                var thing = scope[scopeAttr];
+                expect(thing).toBeNull();
+            });
+        });
+
         it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'addPartialFailures', 'roles',
-             'searchInProgress', 'searchResults', 'searchTerm', 'selectedResult',
-             'selectedRole', 'successes', 'addWarnings'].forEach(function(scopeAttr) {
+            ['dtColumns', 'dtOptions', 'roles', 'searchInProgress',
+                'searchResults', 'searchTerm', 'selectedResult',
+                'selectedRole'].forEach(function(scopeAttr) {
                 var thing = scope[scopeAttr];
                 expect(thing).not.toBeUndefined();
-                expect(thing).not.toBeNull();
             });
         });
     });
 
-    describe('setTitle', function() {
+    describe('setCourseInstance', function() {
         var ci;
         beforeEach(function() {
             // if we want to pull the instance id from $routeParams, this has
@@ -116,13 +123,20 @@ describe('Unit testing PeopleController', function() {
             ci = {
                 course_instance_id: $routeParams.courseInstanceId,
                 title: 'Test Title',
+                course: {
+                    school_id: 'abc',
+                    registrar_code_display: '2222'
+                },
             };
         });
 
         it('should work when courseInstances has the course instance', function() {
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-            expect(scope.title).toEqual(ci.title);
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            //check one other additional metadata here  for sanity check
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
         });
 
         it('should work whenCourseInstances is empty', function() {
@@ -130,7 +144,62 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.expectGET(courseInstanceURL)
                         .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
-            expect(scope.title).toEqual(ci.title);
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+        });
+
+        it('courseInstance whould not be set when CourseInstance doesnt match', function() {
+            //override the course_instance_id for ci
+            ci.course_instance_id = '1234'
+            controller = $controller('PeopleController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
+            $httpBackend.flush(1);
+            expect(scope.courseInstance).not.toBeDefined();
+        });
+    });
+
+    describe('getFormattedCourseInstance', function() {
+        var ci;
+        beforeEach(function() {
+            ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Title',
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                    }
+                ],
+                course: {
+                    school_id: 'abc',
+                    registrar_code_display: '2222',
+                    course_id : '789',
+                },
+                term: {
+                    display_name: 'Summer 2015',
+                    academic_year : '2015',
+                },
+                primary_xlist_instances:[],
+            };
+        });
+
+        it('format the course instance data for the UI ', function() {
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['cid']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code_display+' ('+ci.course.course_id+')');
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
+
         });
     });
 
@@ -224,22 +293,17 @@ describe('Unit testing PeopleController', function() {
 
         describe('closeAlert', function() {
             it('should work when an alert is present', function() {
-                scope.testAlerts = [{}];  // contents don't matter
-                scope.closeAlert('testAlerts', 0);
-                expect(scope.testAlerts).toEqual([]);
+                scope.testAlerts = 'This is a test';  // contents don't matter
+                scope.closeAlert('testAlerts');
+                expect(scope.testAlerts).toBeNull();
             });
             
             it('should not blow up when no alert is present', function() {
-                scope.testAlerts = [];
-                scope.closeAlert('testAlerts', 0);
-                expect(scope.testAlerts).toEqual([]);
+                scope.testAlerts = null;
+                scope.closeAlert('testAlerts');
+                expect(scope.testAlerts).toBeNull();
             });
 
-            it('should only remove the index requested', function() {
-                scope.testAlerts = [1, 2, 3];
-                scope.closeAlert('testAlerts', 1);
-                expect(scope.testAlerts).toEqual([1,3]);
-            });
         });
 
         describe('compareRoles', function() {
@@ -369,6 +433,22 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.selectedRole).toEqual(role);
             });
         });
+
+        describe('clearMessages', function(){
+            it('should set all messages to null', function(){
+                scope.addPartialFailure = 'There has been a failure';
+                scope.addWarning = 'There has been an error';
+                scope.success = 'User added';
+                scope.removeFailure = 'Error removing user';
+
+                scope.clearMessages();
+                ['success', 'addWarning',
+                    'partialFailureData', 'removeFailure'].forEach(function(scopeAttr) {
+                    var thing = scope[scopeAttr];
+                    expect(thing).toBeNull();
+                });
+            });
+        });
     });
 
     describe('addUser', function() {
@@ -480,7 +560,7 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.flush(2);
 
             // check to see if it's reacting correctly
-            expect(scope.successes).toEqual([expectedSuccess]);
+            expect(scope.success).toEqual(expectedSuccess);
             expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
         });
 
@@ -491,12 +571,14 @@ describe('Unit testing PeopleController', function() {
                };
                var expectedSuccess =
                    JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-               expectedSuccess.searchTerm = searchTerm;
-               expectedSuccess.action = 'added to';
-               var expectedPartialFailure = {
+
+               var partialFailureData = {
                    searchTerm: searchTerm,
                    text: partialFailureResponse.detail,
                };
+               expectedSuccess.searchTerm = searchTerm;
+               expectedSuccess.action = 'added to';
+               expectedSuccess.partialFailureData = partialFailureData;
 
                // mock out the datatable so we can verify that it gets reloaded
                scope.dtInstance = {reloadData: function(){}};
@@ -513,8 +595,7 @@ describe('Unit testing PeopleController', function() {
                $httpBackend.flush(2);
 
                // check to see if it's reacting correctly
-               expect(scope.successes).toEqual([expectedSuccess]);
-               expect(scope.addPartialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.success).toEqual(expectedSuccess);
                expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
            }
         );
@@ -528,8 +609,8 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.flush(1);
 
             expect(scope.handleAjaxError.calls.count()).toEqual(1);
-            expect(scope.addWarnings).toEqual([{type: 'addFailed',
-                                             searchTerm: searchTerm}]);
+            expect(scope.addWarning).toEqual({type: 'addFailed',
+                                             searchTerm: searchTerm});
         });
 
         it('should handle a failure to get user enrollment after an apparent add success',
@@ -548,7 +629,7 @@ describe('Unit testing PeopleController', function() {
                $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
                $httpBackend.flush(2);
 
-               expect(scope.addPartialFailures).toEqual([expectedPartialFailure]);
+               expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
                expect(scope.handleAjaxError.calls.count()).toEqual(1);
            }
         );
@@ -584,7 +665,7 @@ describe('Unit testing PeopleController', function() {
                };
 
                scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarnings).toEqual([expectedWarning]);
+               expect(scope.addWarning).toEqual(expectedWarning);
                expect(scope.searchInProgress).toBe(false);
            }
         );
@@ -603,7 +684,7 @@ describe('Unit testing PeopleController', function() {
 
                scope.searchTerm = 'bob_dobbs@harvard.edu';
                scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarnings).toEqual([expectedWarning]);
+               expect(scope.addWarning).toEqual(expectedWarning);
                expect(scope.searchInProgress).toBe(false);
            }
         );
@@ -802,7 +883,7 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.expectDELETE(courseMembershipURL).respond(204, '');
             $httpBackend.flush(1);
 
-            expect(scope.successes).toEqual([expectedSuccess]);
+            expect(scope.success).toEqual(expectedSuccess);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
@@ -815,7 +896,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(404, '{"detail": "User not found."}');
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
@@ -828,7 +909,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(404, '{"detail": "Course instance not found."}');
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
         });
 
@@ -842,7 +923,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(404, '{"detail": "Not even if you paid me"}');
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
         });
 
@@ -855,7 +936,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(500, '{"detail": "User could not be removed from Canvas."}');
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
@@ -868,7 +949,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(500, '{"detail": "Nope."}');
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
         });
 
@@ -881,7 +962,7 @@ describe('Unit testing PeopleController', function() {
                 .respond(418, "I'm a teapot!");
             $httpBackend.flush(1);
 
-            expect(scope.removeFailures).toEqual([expectedFailure]);
+            expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
         });
     });

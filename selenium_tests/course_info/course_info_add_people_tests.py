@@ -1,40 +1,51 @@
-import unittest
-from django.conf import settings
+from ddt import ddt, data, unpack
 
-from selenium_tests.course_info.course_info_base_test_case import CourseInfoBaseTestCase
-from selenium_tests.course_info.page_objects.course_info_search_page_object import CourseSearchPageObject
-from selenium_tests.course_info.page_objects.course_people_page_object import \
-    CoursePeoplePageObject
+from selenium_common.base_test_case import get_xl_data
+from selenium_tests.course_info.course_info_base_test_case \
+    import TEST_USERS_WITH_ROLES_PATH
+from selenium_tests.course_info.course_info_base_test_case \
+    import CourseInfoBaseTestCase
 
 
-class CourseInfoAddTest(CourseInfoBaseTestCase):
+@ddt
+class AddPeopleTests(CourseInfoBaseTestCase):
 
-    @unittest.skip("repetitive adding of the same user is not allowed and delete function is not in place yet")
-    def test_search_and_add_person(self):
-        """verify the person  search and add functionality"""
+    @data(*get_xl_data(TEST_USERS_WITH_ROLES_PATH))
+    @unpack
+    def test_add_person(self, test_case_id, test_user, canvas_role, role_id):
+        """ verify the person search and add functionality """
 
-        search_page = CourseSearchPageObject(self.driver)
-        people_page = CoursePeoplePageObject(self.driver)
+        # Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool
+        # environment (because of shared cache interactions)
 
-        test_settings = settings.SELENIUM_CONFIG['course_info_tool']
-        course = test_settings['test_course']
-        new_user = test_settings['test_users']['new']
+        # ensure person is not in course before attempting to add using API;
+        # remove ALL roles/enrollments for the test user in this course
+        # to ensure no incidental data causes conflict when we try to add
+        self.api.remove_user(self.test_settings['test_course']['cid'],
+                             test_user)
 
-        self.search_for_course(
-            type=course['type'], school=course['school'], term=course['term'],
-            year=course['year'], search_term=course['cid'])
-
-        # click on course link to view list of people in course
-        search_page.select_course(cid=course['cid'])
+        self._load_test_course()
 
         # search for a user and add user to course
-        people_page.search_and_add_user(new_user['user_id'], new_user['role'])
+        self.assertTrue(self.people_page.is_loaded())
+
+        # assert that the success message is not already loaded on the page
+        self.assertFalse(self.people_page.add_was_successful())
+
+        # add user to role
+        self.people_page.search_and_add_user(test_user, canvas_role)
 
         # assert that user is found on page.
-        # Note: If the course has a lot of people enrolled, results are paginated and it's possible that
-        # user may not be on the initial page. So this  may change based on data changing
+        # Note: If the course has a lot of people enrolled, results are
+        # paginated and it's possible that user may not be on the initial
+        # page. So this may change based on data changing
+        self.assertTrue(self.people_page.is_person_on_page(test_user))
 
-        self.assertTrue(people_page.is_person_on_page(new_user['user_id']))
+        # Assert that the success text is displayed
+        self.assertTrue(self.people_page.add_was_successful())
 
-        # Assert that the  success text is displayed
-        self.assertTrue(people_page.add_was_successful())
+        # clean up (avoid cluttering the course if multiple different
+        # test users are used)
+        self.api.remove_user(self.test_settings['test_course']['cid'],
+                             test_user, role_id)
+
