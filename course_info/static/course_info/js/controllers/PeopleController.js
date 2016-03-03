@@ -211,6 +211,20 @@
             // return the filtered list
             return filteredResults;
         };
+        $scope.getProfileFullName = function(profile) {
+            if (profile) {
+                return profile.name_last + ', ' + profile.name_first;
+            } else {
+                return '';
+            }
+        };
+        $scope.getProfileRoleTypeCd = function (profile) {
+            if (profile) {
+                return profile.role_type_cd;
+            } else {
+                return '';
+            }
+        };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
                        ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
@@ -244,7 +258,7 @@
                 $scope.clearMessages();
                 $scope.addWarning = {
                     type: 'alreadyInCourse',
-                    fullName: profile.name_last + ', ' + profile.name_first,
+                    fullName: $scope.getProfileFullName(profile),
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 };
@@ -335,8 +349,8 @@
             $http.delete(courseMemberURL, config)
                 .success(function(data, status, headers, config, statusText) {
                     var success = membership; // TODO - copy to avoid stomping the original?
-                    success.searchTerm = membership.profile.name_last +
-                                         ', ' + membership.profile.name_first;
+                    success.searchTerm = $scope.getProfileFullName(membership.profile)
+                        || membership.user_id;
                     success.action = 'removed from';
                     $scope.clearMessages();
                     $scope.success = success;
@@ -385,11 +399,16 @@
                 });
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="' + full.profile.role_type_cd 
-                   + '"></badge> ' + full.user_id;
+            if (full.profile) {
+                return '<badge ng-cloak role="'
+                    + $scope.getProfileRoleTypeCd(full.profile)
+                    + '"></badge> ' + full.user_id;
+            } else {
+                return '<badge ng-cloak role=""></badge> ' + full.user_id;
+            }
         };
         $scope.renderName = function(data, type, full, meta) {
-            return full.profile.name_last + ', ' + full.profile.name_first;
+            return $scope.getProfileFullName(full.profile) || full.user_id;
         };
         // hotfix added to address TA role name
         // will be addressed with a database change as soon as
