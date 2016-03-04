@@ -403,25 +403,24 @@ describe('Unit testing PeopleController', function() {
             });
         });
 
-        describe('isEmailAddress', function() {
-            // TODO - steal test addresses from real email parsing library?
-            // all valid addresses, should return true
-            [{description: 'simple email address', testString: 'bob_dobbs@harvard.edu'},
-             {description: 'email address with long domain',
-              testString: 'bob_dobbs@very.specific.server.harvard.edu'},
+        describe('isUnivID', function() {
+            // all valid IDs, should return true
+            [{description: 'numbers', testString: '12345678'},
+             {description: 'letters', testString: 'abcdefgh'},
+             {description: 'alphanumeric', testString: 'a1b2c3d4'},
             ].forEach(function(test) {
                 it('should return true for ' + test.description, function() {
-                    expect(scope.isEmailAddress(test.testString)).toBe(true);
+                    expect(scope.isUnivID(test.testString)).toBe(true);
                 });
             });
 
-            // not addresses, should return false
-            [{description: 'series of digits', testString: '123456789'},
-             {description: '@ but no .', testString: 'bob_dobbs@harvard'},
-             {description: '. but no @', testString: 'bob_dobbs.harvard.edu'},
+            // not valid IDs, should return false
+            [{description: 'has @', testString: '1234@678'},
+             {description: 'too short', testString: '1234567'},
+             {description: 'too long', testString: 'abcdefghi'},
             ].forEach(function(test) {
                 it('should return false for ' + test.description, function() {
-                    expect(scope.isEmailAddress(test.testString)).toBe(false);
+                    expect(scope.isUnivID(test.testString)).toBe(false);
                 });
             });
         });
