@@ -287,21 +287,25 @@
                 }
             }
         };
-        $scope.isEmailAddress = function(searchTerm) {
-            // TODO - better regex
-            var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
+        $scope.isHUID = function(searchTerm) {
+            var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
         };
         $scope.lookup = function(searchTerm) {
+            var peopleParams = {page_size: 100};
+            var memberParams = {page_size: 100};
+
+            if ($scope.isHUID(searchTerm)) {
+                peopleParams.univ_id = searchTerm;
+                memberParams.user_id = searchTerm;
+            } else {
+                peopleParams.email_address = searchTerm;
+                memberParams['profile.email_address'] = searchTerm;
+            }
+
             // first the general people lookup
             var peopleURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/people/']);
-            var peopleParams = {page_size: 100};
-            if ($scope.isEmailAddress(searchTerm)) {
-                peopleParams.email_address = searchTerm;
-            } else {
-                peopleParams.univ_id = searchTerm;
-            }
             var peoplePromise = $http.get(peopleURL, {params: peopleParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
@@ -311,15 +315,6 @@
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
-
-
-            var memberParams = {page_size: 100};
-            if ($scope.isEmailAddress(searchTerm)) {
-                memberParams['profile.email_address'] = searchTerm;
-            } else {
-                memberParams.user_id = searchTerm;
-            }
-
             var memberPromise = $http.get(memberURL, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
