@@ -287,7 +287,7 @@
                 }
             }
         };
-        $scope.isHUID = function(searchTerm) {
+        $scope.isUnivID = function(searchTerm) {
             var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
         };
@@ -295,7 +295,7 @@
             var peopleParams = {page_size: 100};
             var memberParams = {page_size: 100};
 
-            if ($scope.isHUID(searchTerm)) {
+            if ($scope.isUnivID(searchTerm)) {
                 peopleParams.univ_id = searchTerm;
                 memberParams.user_id = searchTerm;
             } else {
