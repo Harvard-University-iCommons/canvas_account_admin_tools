@@ -222,7 +222,7 @@
              close="closeAlert('success')" class="col-md-12">
     <p><strong>{{ success.searchTerm }}</strong> was just {{ success.action }} this course:</p>
     <div class="course-membership-entry">
-      {{ getFullName(success.profile) }}
+      {{ getProfileFullName(success.profile) }}
       <badge role="{{ getProfileRoleTypeCd(success.profile) }}"></badge> {{ success.user_id }}
       <strong>Enrolled as {{ success.role.role_name }}</strong>
     </div>
