@@ -161,8 +161,10 @@
                 resolve: {
                     membership: function() {
                         return membership;
-                    },
+                    }
                 },
+                // allows template to refer to parent scope's getProfileFullName
+                scope: $scope,
                 templateUrl: 'partials/remove-course-membership-confirmation.html',
             });
 
