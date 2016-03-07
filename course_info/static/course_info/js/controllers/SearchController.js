@@ -156,7 +156,8 @@
                             $scope.searchInProgress = true;
                         });
                         $scope.enableColumnSorting(false);
-                        var queryParameters = {};
+                        var queryParameters = {
+                            exclude_from_isites: 0};
                         if ($scope.queryString.trim() != '') {
                             queryParameters.search = $scope.queryString.trim();
                         }
