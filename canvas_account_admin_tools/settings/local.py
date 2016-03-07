@@ -3,6 +3,11 @@ from logging.config import dictConfig
 
 ALLOWED_HOSTS = ['*']
 
+DEBUG = True  # Always run in debug mode locally
+
+#  Dummy secret key value for testing and local usage
+SECRET_KEY = "q9frwftd7&)vn9zonjy2&vgmq1i9csn20+f0r5whb%%u-mzm_i"
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')

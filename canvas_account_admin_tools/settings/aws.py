@@ -4,6 +4,12 @@ from logging.config import dictConfig
 # tlt hostnames
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = SECURE_SETTINGS['django_secret_key']
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS['enable_debug']
+
 # AWS Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
@@ -23,5 +29,3 @@ CONCLUDE_COURSES_URL = SECURE_SETTINGS['conclude_courses_url']
 
 # make sure dictConfig(LOGGING) stays at the bottom of the file
 dictConfig(LOGGING)
-
-
