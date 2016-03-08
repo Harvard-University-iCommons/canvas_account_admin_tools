@@ -156,7 +156,10 @@
                             $scope.searchInProgress = true;
                         });
                         $scope.enableColumnSorting(false);
-                        var queryParameters = {};
+                        //filter the sites flagged to be excluded(get only ones
+                        // with exclude_from_isites set to 0)
+                        var queryParameters = {
+                            exclude_from_isites: 0};
                         if ($scope.queryString.trim() != '') {
                             queryParameters.search = $scope.queryString.trim();
                         }
