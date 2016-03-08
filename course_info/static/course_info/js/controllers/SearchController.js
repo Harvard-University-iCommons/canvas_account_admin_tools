@@ -156,7 +156,7 @@
                             $scope.searchInProgress = true;
                         });
                         $scope.enableColumnSorting(false);
-                        //filter the sites flagged to be excluded(exclude_from_isites set to 1)
+                        //filter the sites flagged to be excluded(get only ones with exclude_from_isites set to 0)
                         var queryParameters = {
                             exclude_from_isites: 0};
                         if ($scope.queryString.trim() != '') {
