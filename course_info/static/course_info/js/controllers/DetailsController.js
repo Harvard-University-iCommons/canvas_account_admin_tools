@@ -1,4 +1,6 @@
-// TODO - split out add/remove into separate controllers?
+
+// TODO - this is pretty much a copy of the people controller with some mods.
+// TODO - this still needs a lot of clean up, we don't need everything in here
 
 (function() {
     var app = angular.module('CourseInfo');
