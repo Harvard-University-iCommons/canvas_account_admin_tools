@@ -1,0 +1,205 @@
+{% verbatim %}
+
+<nav>
+    <h3 class="breadcrumbs">
+        {% endverbatim %}
+        <a href="{% url 'dashboard_account' %}">Admin Console</a>
+        &gt; <a href="#/">Find Course Info</a>
+        {% verbatim %}
+        <small><i class="fa fa-chevron-right"></i></small>
+        People in {{courseInstance.title}}
+    </h3>
+</nav>
+
+<main class="float=left col=60">
+    <div class="container-fluid">
+
+        <ul class="list-group">
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Course Code: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.registrar_code_display }}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Cross Listing: </strong>
+                    </div>
+                    <div class="col-md-10">
+                        <span ng-show="courseInstance.xlist_status == 'Primary'" class="label label-info">Primary</span>
+                        <span ng-show="courseInstance.xlist_status == 'Secondary'" class="label label-info">Secondary</span>
+                    </div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Term: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.term}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>SIS/Course Instance ID: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.course_instance_id}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Course Title: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.title}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Short Title: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.short_title}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Subtitle: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.sub_title}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Description: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.description}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Notes: </strong>
+                    </div>
+                    <div class="col-md-10">
+                        {{courseInstance.notes}}
+                    </div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Instructors (display): </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.instructors_display}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>People: </strong>
+                    </div>
+                    <div class="col-md-10"><a href="#/people/{{courseInstance.cid}}">people</a></div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Location: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.location}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Meeting Time: </strong>
+                    </div>
+                    <div class="col-md-10">{{courseInstance.meeting_time}}</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Department: </strong>
+                    </div>
+                    <div class="col-md-10">Romance Languages and Literatures</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Course Group: </strong>
+                    </div>
+                    <div class="col-md-10">Portuguese</div>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Associated Official and Unofficial Site(s): </strong>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="list-group">
+                            <div class="list-group-item list-group-sub-item" ng-repeat="site in courseInstance.sites">
+
+                                <div class="label label-primary col-md-1">Official</div>
+
+                                <div class="col-md-11"><a href="{{site.course_site_url}}"
+                                                          target="_blank">{{site.course_site_url}}</a>
+                                </div>
+                            </div>
+                            <!--<div class="list-group-item list-group-sub-item">-->
+                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
+                                <!--<div class="col-md-11"><a href="http://isites.harvard.edu/icb/icb.do?keyword=k96235"-->
+                                                          <!--target="_blank">http://isites.harvard.edu/icb/icb.do?keyword=k96235</a>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                            <!--<div class="list-group-item list-group-sub-item">-->
+                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
+                                <!--<div class="col-md-11"><a href="https://wordpress.org/showcase/harvard-gazette-online/"-->
+                                                          <!--target="_blank">https://wordpress.org/showcase/harvard-gazette-online/</a>-->
+                                <!--</div>-->
+                            <!--</div>-->
+                        </div>
+                    </div>
+
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-2">
+                        <strong>Conclusion Date: </strong>
+                    </div>
+                    <div class="col-md-10">&nbsp;</div>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+</main>
+
+{% endverbatim %}

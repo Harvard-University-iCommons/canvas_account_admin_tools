@@ -32,6 +32,10 @@
                 templateUrl: 'partials/search.html',
                 controller: 'SearchController',
             })
+            .when('/details/:courseInstanceId', {
+                templateUrl: 'partials/details.html',
+                controller: 'DetailsController',
+            })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
                 controller: 'PeopleController',
