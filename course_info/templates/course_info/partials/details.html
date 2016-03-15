@@ -7,7 +7,7 @@
         &gt; <a href="#/">Find Course Info</a>
         {% verbatim %}
         <small><i class="fa fa-chevron-right"></i></small>
-        People in {{courseInstance.title}}
+        Details for {{courseInstance.title}}
     </h3>
 </nav>
 
@@ -30,9 +30,10 @@
                     <div class="col-md-2">
                         <strong>Cross Listing: </strong>
                     </div>
-                    <div class="col-md-10">
-                        <span ng-show="courseInstance.xlist_status == 'Primary'" class="label label-info">Primary</span>
-                        <span ng-show="courseInstance.xlist_status == 'Secondary'" class="label label-info">Secondary</span>
+                    <div class="col-md-10" ng-switch on="courseInstance.xlist_status">
+                        <span ng-switch-when="Primary" class="label label-info">Primary</span>
+                        <span ng-switch-when="Secondary" class="label label-info">Secondary {{courseInstance.xlist_status}}</span>
+                        <span ng-switch-default class="label label-info">N/A</span>
                     </div>
                 </div>
             </li>
@@ -60,7 +61,7 @@
                     <div class="col-md-2">
                         <strong>Course Title: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.title}}</div>
+                    <div class="col-md-10" ng-bind-html="courseInstance.title"></div>
                 </div>
             </li>
 
@@ -69,7 +70,7 @@
                     <div class="col-md-2">
                         <strong>Short Title: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.short_title}}</div>
+                    <div class="col-md-10" ng-bind-html="courseInstance.short_title"></div>
                 </div>
             </li>
 
@@ -78,7 +79,7 @@
                     <div class="col-md-2">
                         <strong>Subtitle: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.sub_title}}</div>
+                    <div class="col-md-10" ng-bind-html="courseInstance.sub_title"></div>
                 </div>
             </li>
 
@@ -87,7 +88,7 @@
                     <div class="col-md-2">
                         <strong>Description: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.description}}</div>
+                    <div class="col-md-10" ng-bind-html="courseInstance.description"></div>
                 </div>
             </li>
 
@@ -96,9 +97,7 @@
                     <div class="col-md-2">
                         <strong>Notes: </strong>
                     </div>
-                    <div class="col-md-10">
-                        {{courseInstance.notes}}
-                    </div>
+                    <div class="col-md-10" ng-bind-html="courseInstance.notes"></div>
                 </div>
             </li>
 
@@ -152,7 +151,7 @@
                     <div class="col-md-2">
                         <strong>Course Group: </strong>
                     </div>
-                    <div class="col-md-10">Portuguese</div>
+                    <div class="col-md-10">todo</div>
                 </div>
             </li>
 
@@ -167,22 +166,13 @@
 
                                 <div class="label label-primary col-md-1">Official</div>
 
+                                <!-- TO DO - honor the Official/Unofficial status of the course -->
+                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
+
                                 <div class="col-md-11"><a href="{{site.course_site_url}}"
                                                           target="_blank">{{site.course_site_url}}</a>
                                 </div>
                             </div>
-                            <!--<div class="list-group-item list-group-sub-item">-->
-                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
-                                <!--<div class="col-md-11"><a href="http://isites.harvard.edu/icb/icb.do?keyword=k96235"-->
-                                                          <!--target="_blank">http://isites.harvard.edu/icb/icb.do?keyword=k96235</a>-->
-                                <!--</div>-->
-                            <!--</div>-->
-                            <!--<div class="list-group-item list-group-sub-item">-->
-                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
-                                <!--<div class="col-md-11"><a href="https://wordpress.org/showcase/harvard-gazette-online/"-->
-                                                          <!--target="_blank">https://wordpress.org/showcase/harvard-gazette-online/</a>-->
-                                <!--</div>-->
-                            <!--</div>-->
                         </div>
                     </div>
 

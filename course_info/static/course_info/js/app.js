@@ -34,7 +34,7 @@
             })
             .when('/details/:courseInstanceId', {
                 templateUrl: 'partials/details.html',
-                controller: 'DetailsController',
+                controller: 'DetailsController as dc',
             })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
