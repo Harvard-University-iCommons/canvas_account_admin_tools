@@ -126,8 +126,7 @@
                 });
                 if (course.course) {
                     cinfo['code'] = (course.course.registrar_code_display
-                        || course.course.registrar_code
-                        + ' (' + course.course.course_id + ')').trim();
+                        || course.course.registrar_code).trim();
                     cinfo['school'] = course.course.school_id.toUpperCase();
                 } else {
                     cinfo['code'] = '';

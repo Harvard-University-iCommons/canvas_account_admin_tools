@@ -465,7 +465,7 @@
             // and is combination of existing logic in
             // Searchcontroller.courseInstanceToTable and Searchcontroller cell
             // render functions.
-            courseInstance = {};
+            var courseInstance = {};
             if (ci) {
                 courseInstance['title']= ci.title;
                 courseInstance['school'] = ci.course ?
@@ -474,8 +474,8 @@
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
                 courseInstance['cid'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
-                        ci.course.registrar_code_display +
-                        ' (' + ci.course.course_id + ')'.trim() : '';
+                        (ci.course.registrar_code_display
+                        || ci.course.registrar_code).trim() : '';
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
                         courseInstance['xlist_status'] = 'Primary';
@@ -486,7 +486,7 @@
                         courseInstance['xlist_status'] = 'N/A';
                 }
                 var sites = ci.sites || [];
-                var siteIds =[]
+                var siteIds =[];
                 sites.forEach(function (site) {
                     site.site_id = site.external_id;
                     if (site.site_id.indexOf('http') === 0) {
