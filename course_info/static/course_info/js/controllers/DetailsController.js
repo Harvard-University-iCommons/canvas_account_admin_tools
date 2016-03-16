@@ -25,7 +25,7 @@
                     //check if the right data was obtained before storing it
                     if (data.course_instance_id == id) {
                         courseInstances.instances[data.course_instance_id] = data;
-                        $scope.courseInstance = dc.getFormattedCourseInstance(data)
+                        dc.courseInstance = dc.getFormattedCourseInstance(data)
                     } else {
                         $log.error(' CourseInstance record mismatch for id :'
                             + id + ',  fetched record for :' + data.id);
@@ -35,7 +35,7 @@
         };
 
         dc.stripQuotes = function(str){
-            return str.trim().replace(new RegExp("^\"|\"$", "g"), "");
+            return str ? str.trim().replace(new RegExp("^\"|\"$", "g"), "") : undefined;
         };
 
         dc.getFormattedCourseInstance = function (ci) {
@@ -51,6 +51,7 @@
                     ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
+                courseInstance['departments'] = ci.course.departments;
                 courseInstance['cid'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
                 ci.course.registrar_code_display +
@@ -63,6 +64,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = dc.stripQuotes(ci.notes);
+                courseInstance['conclude_date'] = ci.conclude_date;
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -73,6 +75,7 @@
                 } else {
                     courseInstance['xlist_status'] = 'N/A';
                 }
+
                 courseInstance['sites'] = ci.sites;
             }
             return courseInstance;

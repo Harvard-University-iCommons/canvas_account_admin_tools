@@ -140,9 +140,9 @@
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-2">
-                        <strong>Department: </strong>
+                        <strong>Departments: </strong>
                     </div>
-                    <div class="col-md-10">Romance Languages and Literatures</div>
+                    <div class="col-md-10" ng-repeat="dept in departments">{{dept.name}}</div>
                 </div>
             </li>
 
@@ -184,7 +184,7 @@
                     <div class="col-md-2">
                         <strong>Conclusion Date: </strong>
                     </div>
-                    <div class="col-md-10">&nbsp;</div>
+                    <div class="col-md-10">{{courseInstance.conclude_date}}</div>
                 </div>
             </li>
 
