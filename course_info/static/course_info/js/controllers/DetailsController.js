@@ -52,6 +52,7 @@
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
                 courseInstance['departments'] = ci.course.departments;
+                courseInstance['course_groups'] = ci.course.course_groups;
                 courseInstance['cid'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
                 ci.course.registrar_code_display +

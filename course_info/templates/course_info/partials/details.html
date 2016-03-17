@@ -21,7 +21,7 @@
                     <div class="col-md-2">
                         <strong>Course Code: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.registrar_code_display }}</div>
+                    <div class="col-md-10">{{dc.courseInstance.registrar_code_display }}</div>
                 </div>
             </li>
 
@@ -30,9 +30,9 @@
                     <div class="col-md-2">
                         <strong>Cross Listing: </strong>
                     </div>
-                    <div class="col-md-10" ng-switch on="courseInstance.xlist_status">
+                    <div class="col-md-10" ng-switch on="dc.courseInstance.xlist_status">
                         <span ng-switch-when="Primary" class="label label-info">Primary</span>
-                        <span ng-switch-when="Secondary" class="label label-info">Secondary {{courseInstance.xlist_status}}</span>
+                        <span ng-switch-when="Secondary" class="label label-info">Secondary</span>
                         <span ng-switch-default class="label label-info">N/A</span>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                     <div class="col-md-2">
                         <strong>Term: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.term}}</div>
+                    <div class="col-md-10">{{dc.courseInstance.term}}</div>
                 </div>
             </li>
 
@@ -52,7 +52,7 @@
                     <div class="col-md-2">
                         <strong>SIS/Course Instance ID: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.course_instance_id}}</div>
+                    <div class="col-md-10">{{dc.courseInstance.course_instance_id}}</div>
                 </div>
             </li>
 
@@ -61,7 +61,7 @@
                     <div class="col-md-2">
                         <strong>Course Title: </strong>
                     </div>
-                    <div class="col-md-10" ng-bind-html="courseInstance.title"></div>
+                    <div class="col-md-10" ng-bind-html="dc.courseInstance.title"></div>
                 </div>
             </li>
 
@@ -70,7 +70,7 @@
                     <div class="col-md-2">
                         <strong>Short Title: </strong>
                     </div>
-                    <div class="col-md-10" ng-bind-html="courseInstance.short_title"></div>
+                    <div class="col-md-10" ng-bind-html="dc.courseInstance.short_title"></div>
                 </div>
             </li>
 
@@ -79,7 +79,7 @@
                     <div class="col-md-2">
                         <strong>Subtitle: </strong>
                     </div>
-                    <div class="col-md-10" ng-bind-html="courseInstance.sub_title"></div>
+                    <div class="col-md-10" ng-bind-html="dc.courseInstance.sub_title"></div>
                 </div>
             </li>
 
@@ -88,7 +88,7 @@
                     <div class="col-md-2">
                         <strong>Description: </strong>
                     </div>
-                    <div class="col-md-10" ng-bind-html="courseInstance.description"></div>
+                    <div class="col-md-10" ng-bind-html="dc.courseInstance.description"></div>
                 </div>
             </li>
 
@@ -97,7 +97,7 @@
                     <div class="col-md-2">
                         <strong>Notes: </strong>
                     </div>
-                    <div class="col-md-10" ng-bind-html="courseInstance.notes"></div>
+                    <div class="col-md-10" ng-bind-html="dc.courseInstance.notes"></div>
                 </div>
             </li>
 
@@ -106,7 +106,7 @@
                     <div class="col-md-2">
                         <strong>Instructors (display): </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.instructors_display}}</div>
+                    <div class="col-md-10">{{dc.courseInstance.instructors_display}}</div>
                 </div>
             </li>
 
@@ -115,7 +115,7 @@
                     <div class="col-md-2">
                         <strong>People: </strong>
                     </div>
-                    <div class="col-md-10"><a href="#/people/{{courseInstance.cid}}">people</a></div>
+                    <div class="col-md-10"><a href="#/people/{{dc.courseInstance.cid}}">people</a></div>
                 </div>
             </li>
 
@@ -124,7 +124,7 @@
                     <div class="col-md-2">
                         <strong>Location: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.location}}</div>
+                    <div class="col-md-10">{{dc.courseInstance.location}}</div>
                 </div>
             </li>
 
@@ -133,7 +133,7 @@
                     <div class="col-md-2">
                         <strong>Meeting Time: </strong>
                     </div>
-                    <div class="col-md-10">{{courseInstance.meeting_time}}</div>
+                    <div class="col-md-10">{{dc.courseInstance.meeting_time}}</div>
                 </div>
             </li>
 
@@ -142,16 +142,28 @@
                     <div class="col-md-2">
                         <strong>Departments: </strong>
                     </div>
-                    <div class="col-md-10" ng-repeat="dept in departments">{{dept.name}}</div>
+                    <div class="col-md-10" ng-repeat="dept in dc.courseInstance.departments">
+                         <div class="list-group" ng-if="dc.courseInstance.departments.length > 0">
+                            <div class="list-group-item list-group-sub-item" ng-repeat="dept in dc.courseInstance.departments">
+                                {{dept.name}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </li>
 
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-2">
-                        <strong>Course Group: </strong>
+                        <strong>Course Groups: </strong>
                     </div>
-                    <div class="col-md-10">todo</div>
+                    <div class="col-md-10">
+                        <div class="list-group">
+                            <div class="list-group-item list-group-sub-item" ng-repeat="group in dc.courseInstance.course_groups">
+                                {{group.name}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </li>
 
@@ -162,13 +174,9 @@
                     </div>
                     <div class="col-md-10">
                         <div class="list-group">
-                            <div class="list-group-item list-group-sub-item" ng-repeat="site in courseInstance.sites">
-
-                                <div class="label label-primary col-md-1">Official</div>
-
-                                <!-- TO DO - honor the Official/Unofficial status of the course -->
-                                <!--<div class="label label-default col-md-1">Unofficial</div>-->
-
+                            <div class="list-group-item list-group-sub-item" ng-repeat="site in dc.courseInstance.sites">
+                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'official'">Official</div>
+                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'unofficial'">Unofficial</div>
                                 <div class="col-md-11"><a href="{{site.course_site_url}}"
                                                           target="_blank">{{site.course_site_url}}</a>
                                 </div>
