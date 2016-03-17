@@ -15,30 +15,46 @@
                 ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
 
+        dc.handleLookupResults = function(results) {
+            var courseResult = results[0];
+            var peopleResult = results[1];
+
+            //check if the right data was obtained before storing it
+            if (courseResult.data.course_instance_id == dc.courseInstanceId) {
+                courseInstances.instances[courseResult.data.course_instance_id] = courseResult.data;
+                dc.courseInstance = dc.getFormattedCourseInstance(courseResult.data, peopleResult.data)
+            } else {
+                $log.error(' CourseInstance record mismatch for id :'
+                    + dc.courseInstanceId + ',  fetched record for :' + courseResult.data.id);
+            }
+        };
+
         dc.setCourseInstance = function (id) {
 
-            var url = djangoUrl.reverse(
+            var course_url = djangoUrl.reverse(
                 'icommons_rest_api_proxy',
                 ['api/course/v2/course_instances/' + id + '/']);
-            $http.get(url)
-                .success(function (data, status, headers, config, statusText) {
-                    //check if the right data was obtained before storing it
-                    if (data.course_instance_id == id) {
-                        courseInstances.instances[data.course_instance_id] = data;
-                        dc.courseInstance = dc.getFormattedCourseInstance(data)
-                    } else {
-                        $log.error(' CourseInstance record mismatch for id :'
-                            + id + ',  fetched record for :' + data.id);
-                    }
-                })
+
+            var people_url = djangoUrl.reverse(
+                'icommons_rest_api_proxy',
+                ['api/course/v2/course_instances/'
+                + id + '/people/']);
+
+            var coursePromise = $http.get(course_url)
                 .error($scope.handleAjaxError);
+
+            var peoplePromise = $http.get(people_url)
+                .error($scope.handleAjaxError);
+
+            $q.all([coursePromise, peoplePromise])
+                .then(dc.handleLookupResults);
         };
 
         dc.stripQuotes = function(str){
             return str ? str.trim().replace(new RegExp("^\"|\"$", "g"), "") : undefined;
         };
 
-        dc.getFormattedCourseInstance = function (ci) {
+        dc.getFormattedCourseInstance = function (ci, people) {
             // This is a helper function that formats the CourseInstance metadata
             // and is combination of existing logic in
             // Searchcontroller.courseInstanceToTable and Searchcontroller cell
@@ -78,6 +94,9 @@
                 }
 
                 courseInstance['sites'] = ci.sites;
+            }
+            if(people){
+                courseInstance['members'] = people.count;
             }
             return courseInstance;
         };

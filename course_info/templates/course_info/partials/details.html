@@ -115,7 +115,15 @@
                     <div class="col-md-2">
                         <strong>People: </strong>
                     </div>
-                    <div class="col-md-10"><a href="#/people/{{dc.courseInstance.cid}}">people</a></div>
+                    <div class="col-md-10">
+                        <a href="#/people/{{dc.courseInstance.cid}}">
+                            <ng-pluralize count="dc.courseInstance.members"
+                                          when="{'0': 'There are no people in the course.',
+                                'one': 'There is one person in the course.',
+                                'other': 'There are {} people in the course.'}">
+                            </ng-pluralize>
+                        </a>
+                    </div>
                 </div>
             </li>
 
