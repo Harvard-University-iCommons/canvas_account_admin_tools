@@ -186,11 +186,9 @@
                     </div>
                     <div class="col-md-10">
                         <div class="list-group">
-                            <div class="list-group-item list-group-sub-item" ng-repeat="site in dc.courseInstance.sites">
-                                <div ng-switch on="site.map_type">
-                                    <div class="label label-primary col-md-1" ng-switch-when="official">Official</div>
-                                    <div class="label label-primary col-md-1" ng-switch-when="unofficial">Unofficial</div>
-                                </div>
+                            <div class="list-group-item list-group-sub-item row" ng-repeat="site in dc.courseInstance.sites">
+                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'official'">Official</div>
+                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'unofficial'">Unofficial</div>
                                 <div class="col-md-11"><a href="{{site.course_site_url}}"
                                                           target="_blank">{{site.course_site_url}}</a>
                                 </div>
