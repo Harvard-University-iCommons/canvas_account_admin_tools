@@ -226,7 +226,7 @@ describe('Unit testing DetailsController', function () {
 
         });
 
-        it('should deal with no ci', function () {
+        it('should deal with an empty ci', function () {
             dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({}));

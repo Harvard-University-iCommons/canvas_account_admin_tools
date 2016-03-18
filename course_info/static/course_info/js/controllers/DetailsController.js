@@ -74,7 +74,7 @@
                 ' (' + ci.course.course_id + ')'.trim() : '';
                 courseInstance['description'] = dc.stripQuotes(ci.description);
                 courseInstance['short_title'] = dc.stripQuotes(ci.short_title);
-                courseInstance['sub_title'] = ci.sub_title ? ci.sub_title : '';
+                courseInstance['sub_title'] = ci.sub_title ? dc.stripQuotes(ci.sub_title) : '';
                 courseInstance['meeting_time'] = ci.meeting_time ? ci.meeting_time : '';
                 courseInstance['location'] = ci.location;
                 courseInstance['instructors_display'] = ci.instructors_display ? ci.instructors_display : '';
