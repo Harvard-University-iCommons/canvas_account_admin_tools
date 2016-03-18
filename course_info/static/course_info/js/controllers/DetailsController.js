@@ -51,6 +51,9 @@
         };
 
         dc.stripQuotes = function(str){
+            // soem fields are coming over with quotes around them and those quotes
+            // are being displayed in the html.
+            // This strips off double quotes from the begining and ending of fields
             return str ? str.trim().replace(new RegExp("^\"|\"$", "g"), "") : '';
         };
 
