@@ -47,6 +47,8 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.search_page = CourseSearchPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
 
+        cls.driver.maximize_window()
+
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
 
@@ -63,14 +65,19 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
     @classmethod
     def search_for_course(cls, type=None, school=None, term=None, year=None,
                           search_term=''):
+
         if type:
             cls.search_page.select_course_type(type)
-        if school:
-            cls.search_page.select_school(school)
+
         if term:
             cls.search_page.select_term(term)
         if year:
             cls.search_page.select_year(year)
+        cls.driver.save_screenshot("search1.jpeg")
+        if school:
+            cls.search_page.select_school(school)
+
+        cls.driver.save_screenshot("search2.jpeg")
         cls.search_page.submit_search(search_term)
 
     @classmethod

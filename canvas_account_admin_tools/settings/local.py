@@ -41,6 +41,10 @@ SELENIUM_CONFIG = {
          'type': 'Only courses without sites',
          'year': '2014',
       },
+      'test_course_with_null': {
+         'cid': '353457',
+         'school': 'Harvard College/GSAS',
+      },
       'test_users': {
          'existing': {
             'role_id': '9',

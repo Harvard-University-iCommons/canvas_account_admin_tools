@@ -1,7 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-
+import time
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 from selenium_tests.course_info.page_objects.course_people_page_object \
@@ -22,6 +22,15 @@ class Locators(object):
         """ returns a locator for a course detail link in the course table """
         return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
 
+    @classmethod
+    def COURSE_CODE_TEXT(cls, course_code_text):
+        """
+        returns a locator for course code display text in the table
+        :return:
+        """
+        # return By.CSS_SELECTOR, "text='selenium_test'"
+        print "//td[contains(text(),'%s')]" % course_code_text
+        return By.XPATH, "//td[contains(text(),'%s')]" % course_code_text
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.COURSE_RESULTS_TABLE
@@ -67,6 +76,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         search_textbox.send_keys(search_text)
         self.find_element(*Locators.SEARCH_BUTTON).click()
         # loading the results can take a long time, so explicitly wait longer
+        self._driver.save_screenshot("search3.jpeg")
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
@@ -81,3 +91,34 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         # loading the results can take a long time, so explicitly wait longer
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
+
+    def is_course_code_visible(self, course_code_text):
+        """
+        If a course has a defined registrar_code_display, then the
+        registrar_code_display should appear under the 'Course Code' column
+        If a course does not have a defined registrar_code_display
+        (i.e. if that field is null), then the registrar_code should appear
+        under the 'Course Code' column (TLT-2511)
+
+        :return: True if the length of the text is greater than 1
+                 False otherwise
+        """
+        element = self.find_element(*Locators.COURSE_CODE_TEXT(course_code_text))
+        if element.text > 0:
+            return True
+        return False
+
+    def get_text(self, course_code_text):
+        """
+        :return: The text in the web element in the course code column
+                 else return None
+        """
+        print "This is get_text {}".format(course_code_text)
+        self._driver.save_screenshot("search4.jpg")
+        time.sleep(5)
+        element = self.find_element(*Locators.COURSE_CODE_TEXT(course_code_text))
+        print "element is {}.  Text is {}".format(element, element.text)
+        if element.text > 0:
+            return element.text
+        else:
+            return None
