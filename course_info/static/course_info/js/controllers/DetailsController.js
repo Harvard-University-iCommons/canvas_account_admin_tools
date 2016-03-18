@@ -8,7 +8,9 @@
     function DetailsController($scope, $routeParams, courseInstances, $compile,
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
-        dc = this;
+        var dc = this;
+
+        var remove_quotes_regex = new RegExp("^\"|\"$", "g");
 
         dc.handleAjaxError = function (data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
@@ -50,12 +52,12 @@
                 .then(dc.handleLookupResults);
         };
 
-        dc.stripQuotes = function(str){
-            // soem fields are coming over with quotes around them and those quotes
-            // are being displayed in the html.
-            // This strips off double quotes from the begining and ending of fields
-            return str ? str.trim().replace(new RegExp("^\"|\"$", "g"), "") : '';
-        };
+        //dc.stripQuotes = function(str){
+        //    // soem fields are coming over with quotes around them and those quotes
+        //    // are being displayed in the html.
+        //    // This strips off double quotes from the begining and ending of fields
+        //    return str ? str.trim().replace(remove_quotes_regex, "") : '';
+        //};
 
         dc.getFormattedCourseInstance = function (ci, members) {
             // This is a helper function that formats the CourseInstance metadata
@@ -64,26 +66,26 @@
             // render functions.
             courseInstance = {};
             if (ci) {
-                courseInstance['title'] = dc.stripQuotes(ci.title);
-                courseInstance['school'] = ci.course ?
-                    ci.course.school_id.toUpperCase() : '';
-                courseInstance['term'] = ci.term ? ci.term.display_name : '';
-                courseInstance['year'] = ci.term ? ci.term.academic_year : '';
-                courseInstance['departments'] = ci.course.departments ? ci.course.departments : [];
-                courseInstance['course_groups'] = ci.course.course_groups ? ci.course.course_groups : [];
-                courseInstance['cid'] = ci.course_instance_id;
-                courseInstance['registrar_code_display'] = ci.course ?
-                ci.course.registrar_code_display +
-                ' (' + ci.course.course_id + ')'.trim() : '';
-                courseInstance['description'] = dc.stripQuotes(ci.description);
-                courseInstance['short_title'] = dc.stripQuotes(ci.short_title);
-                courseInstance['sub_title'] = ci.sub_title ? dc.stripQuotes(ci.sub_title) : '';
-                courseInstance['meeting_time'] = ci.meeting_time ? ci.meeting_time : '';
+                courseInstance['title'] = ci.title;
+                courseInstance['school'] = ci.course.school_id.toUpperCase();
+                courseInstance['term'] = ci.term.display_name;
+                courseInstance['year'] = ci.term.academic_year;
+                courseInstance['departments'] = ci.course.departments;
+                courseInstance['course_groups'] = ci.course.course_groups;
+
+                var registrar_code = ci.course.registrar_code_display ? ci.course.registrar_code_display : ci.course.registrar_code;
+
+                courseInstance['registrar_code_display'] = registrar_code + ' (' + ci.course.course_id + ')'.trim();
+
+                courseInstance['description'] = ci.description;
+                courseInstance['short_title'] = ci.short_title;
+                courseInstance['sub_title'] = ci.sub_title;
+                courseInstance['meeting_time'] = ci.meeting_time;
                 courseInstance['location'] = ci.location;
-                courseInstance['instructors_display'] = ci.instructors_display ? ci.instructors_display : '';
+                courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
-                courseInstance['notes'] = dc.stripQuotes(ci.notes);
-                courseInstance['conclude_date'] = ci.conclude_date ? ci.conclude_date : '';
+                courseInstance['notes'] = ci.notes;
+                courseInstance['conclude_date'] = ci.conclude_date;
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -95,9 +97,9 @@
                     courseInstance['xlist_status'] = 'N/A';
                 }
 
-                courseInstance['sites'] = ci.sites ? ci.sites : [];
+                courseInstance['sites'] = ci.sites;
             }
-            courseInstance['members'] = members.count ? members.count : 0;
+            courseInstance['members'] = members.count;
 
             return courseInstance;
         };

@@ -472,7 +472,7 @@
                         ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
-                courseInstance['cid'] = ci.course_instance_id;
+                courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
                         ci.course.registrar_code_display +
                         ' (' + ci.course.course_id + ')'.trim() : '';

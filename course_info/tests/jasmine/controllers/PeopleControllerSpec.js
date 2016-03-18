@@ -194,7 +194,7 @@ describe('Unit testing PeopleController', function() {
                     (ci.course.school_id.toUpperCase());
             expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
             expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
-            expect(scope.courseInstance['cid']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(scope.courseInstance['registrar_code_display']).toEqual(
                     ci.course.registrar_code_display+' ('+ci.course.course_id+')');
             expect(scope.courseInstance['sites']).toEqual('888');

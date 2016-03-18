@@ -59,7 +59,7 @@ describe('Unit testing DetailsController', function () {
 
     describe('setup', function () {
         beforeEach(function () {
-            controller = $controller('DetailsController', {$scope: scope});
+            dc = $controller('DetailsController', {$scope: scope});
         });
 
         afterEach(function () {
@@ -88,6 +88,10 @@ describe('Unit testing DetailsController', function () {
                 course: {
                     school_id: 'abc',
                     registrar_code_display: '2222'
+                },
+                term: {
+                    display_name: 'Summer 2015',
+                    academic_year: '2015',
                 }
             };
             members = {
@@ -105,7 +109,7 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['members']).toEqual(100);
         });
 
-        it('should work when CourseInstance returns invalid id', function () {
+        it('should log an error when CourseInstance returns an invalid id', function () {
             controller = $controller('DetailsController', {$scope: scope});
             ci.course_instance_id = 12345;
             spyOn($log, 'error');
@@ -113,35 +117,6 @@ describe('Unit testing DetailsController', function () {
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
             $httpBackend.flush(2);
             expect($log.error).toHaveBeenCalled();
-        });
-    });
-
-    describe('stripQuotes', function () {
-        var ci;
-        var members;
-        beforeEach(function () {
-            // if we want to pull the instance id from $routeParams, this has
-            // to be in a beforeEach(), can't be in a describe().
-            ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: '"Test Title"',
-                course: {
-                    school_id: 'abc',
-                    registrar_code_display: '2222'
-                }
-            };
-            members = {
-                count: 100
-            };
-        });
-
-        it('should strip the quotes from the string', function () {
-            controller = $controller('DetailsController', {$scope: scope});
-            result = dc.stripQuotes(ci.title);
-            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
-            $httpBackend.flush(2);
-            expect('Test Title').toEqual(result);
         });
     });
 
@@ -154,7 +129,7 @@ describe('Unit testing DetailsController', function () {
                 title: 'Test Title',
                 short_title: 'Test',
                 sub_title: 'Jasime is your friend',
-                description: '"<p>hello</p>"',
+                description: '<p>hello</p>',
                 sites: [
                     {
                         external_id: 'https://x.y.z/888',
@@ -204,7 +179,7 @@ describe('Unit testing DetailsController', function () {
             courseInstances.instances[ci.course_instance_id] = ci;
             dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
             $httpBackend.flush(2);
             expect(dc.courseInstance['title']).toEqual(ci.title);
             expect(dc.courseInstance['short_title']).toEqual(ci.short_title);
@@ -215,23 +190,25 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['course_groups']).toEqual(ci.course.course_groups);
             expect(dc.courseInstance['departments']).toEqual(ci.course.departments);
             expect(dc.courseInstance['year']).toEqual(ci.term.academic_year);
-            expect(dc.courseInstance['cid']).toEqual(ci.course_instance_id);
+            expect(dc.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(dc.courseInstance['registrar_code_display']).toEqual(
                 ci.course.registrar_code_display + ' (' + ci.course.course_id + ')');
             expect(dc.courseInstance['sites']).toEqual(ci.sites);
             expect(dc.courseInstance['xlist_status']).toEqual('N/A');
             expect(dc.courseInstance['description']).toEqual('<p>hello</p>');
             // members.count is not defined it should equal 0
-            expect(dc.courseInstance['members']).toEqual(0);
+            expect(dc.courseInstance['members']).toEqual(100);
 
         });
 
         it('should deal with an empty ci', function () {
             dc = $controller('DetailsController', {$scope: scope});
+            spyOn($log, 'error');
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({}));
             $httpBackend.flush(2);
             expect(dc.courseInstance).toEqual(undefined);
+            expect($log.error).toHaveBeenCalled();
         });
     });
 });
