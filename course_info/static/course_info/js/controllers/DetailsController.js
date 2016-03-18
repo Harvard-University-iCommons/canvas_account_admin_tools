@@ -9,7 +9,6 @@
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
-        var remove_quotes_regex = new RegExp("^\"|\"$", "g");
         dc.courseDetailsUpdateInProgress = false;
         dc.editable = false;
 
@@ -58,13 +57,6 @@
             $q.all([coursePromise, membersPromise])
                 .then(dc.handleLookupResults);
         };
-
-        //dc.stripQuotes = function(str){
-        //    // soem fields are coming over with quotes around them and those quotes
-        //    // are being displayed in the html.
-        //    // This strips off double quotes from the begining and ending of fields
-        //    return str ? str.trim().replace(remove_quotes_regex, "") : '';
-        //};
 
         dc.getFormattedCourseInstance = function (ci, members) {
             // This is a helper function that formats the CourseInstance metadata
