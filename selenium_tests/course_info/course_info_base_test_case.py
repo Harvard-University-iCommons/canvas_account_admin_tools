@@ -47,8 +47,6 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.search_page = CourseSearchPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
 
-        cls.driver.maximize_window()
-
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
 
