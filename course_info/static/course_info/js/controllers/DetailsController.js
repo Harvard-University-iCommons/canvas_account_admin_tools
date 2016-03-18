@@ -8,7 +8,9 @@
     function DetailsController($scope, $routeParams, courseInstances, $compile,
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
-        dc = this;
+        var dc = this;
+        dc.courseDetailsUpdateInProgress = false;
+        dc.editable = false;
 
         dc.handleAjaxError = function (data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
@@ -26,6 +28,12 @@
                     if (data.course_instance_id == id) {
                         courseInstances.instances[data.course_instance_id] = data;
                         dc.courseInstance = dc.getFormattedCourseInstance(data)
+                        // todo: comment
+                        // using 354962 for ILE testing
+                        var rc = data.course.registrar_code;
+                        dc.editable = (rc.startsWith('ILE-')
+                                       || rc.startsWith('SB-'));
+                        dc.resetForm();
                     } else {
                         $log.error(' CourseInstance record mismatch for id :'
                             + id + ',  fetched record for :' + data.id);
@@ -86,5 +94,39 @@
 
         dc.setCourseInstance($routeParams.courseInstanceId);
 
+        // todo - fix pristine?
+        dc.resetForm = function() {
+            dc.formDisplayData = angular.copy(dc.courseInstance);
+        };
+
+        // todo: data validation
+        dc.submitCourseDetailsForm = function() {
+            dc.courseDetailsUpdateInProgress = true;
+            var postData = {};
+            var url = djangoUrl.reverse('icommons_rest_a' +
+                'pi_proxy',
+                ['api/course/v2/course_instances/'
+                + dc.courseInstanceId + '/']);
+            var fields = [
+                'description',
+                'instructors_display',
+                'location',
+                'meeting_time',
+                'notes',
+                'short_title',
+                'sub_title',
+                'title'
+            ];
+            fields.forEach(function(field) {
+                postData[field] = dc.formDisplayData[field];
+            });
+
+            // todo: refactor and collapse, no longer need all these functions since they are single-line
+            $http.patch(url, postData)
+                .then($log, dc.handleAjaxError)
+                .finally( function courseDetailsUpdateNoLongerInProgress() {
+                    dc.courseDetailsUpdateInProgress = false;
+                });
+        }
     }
 })();

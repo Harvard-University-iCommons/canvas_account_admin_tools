@@ -14,6 +14,7 @@
 <main class="float=left col=60">
     <div class="container-fluid">
 
+      <form name="courseDetailsForm" class="form-horizontal" ng-controller="DetailsController as dc" ng-submit="dc.submitCourseDetailsForm()">
         <ul class="list-group">
 
             <li class="list-group-item">
@@ -57,11 +58,14 @@
             </li>
 
             <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-2">
-                        <strong>Course Title: </strong>
+                <div class="form-group">
+                    <label for="input-course-title" class="col-md-2 control-label">
+                        Course Title
+                    </label>
+                    <div class="col-md-10">
+                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.title" ng-show="dc.editable" />
+                      <span ng-bind-html="dc.courseInstance.title" ng-hide="dc.editable"></span>
                     </div>
-                    <div class="col-md-10" ng-bind-html="dc.courseInstance.title"></div>
                 </div>
             </li>
 
@@ -197,6 +201,29 @@
             </li>
 
         </ul>
+
+        <div class="form-group" ng-show="dc.editable">
+          <div class="col-md-12">
+            <a type="link" class="btn btn-default"
+               ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null"
+               ng-click="dc.resetForm()">
+              Reset
+            </a>
+            <button id="course-details-form-submit" type="submit"
+                    class="btn btn-primary pull-right"
+                    ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null">
+              <span ng-switch="dc.courseDetailsUpdateInProgress">
+                <span ng-switch-when="false">
+                  Submit
+                </span>
+                <span ng-switch-when="true">
+                  <i class="fa fa-refresh fa-spin"></i> Updating Course...
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
 </main>
 
