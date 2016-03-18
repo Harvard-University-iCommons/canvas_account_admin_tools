@@ -38,12 +38,14 @@ SELENIUM_CONFIG = {
          'term': 'Spring',
          'title': 'Latin Paleography and Manuscript Culture: Seminar',
          'school': 'Divinity School',
+         'registrar_code_display': '2223',
          'type': 'Only courses without sites',
          'year': '2014',
       },
       'test_course_with_null': {
          'cid': '353457',
          'school': 'Harvard College/GSAS',
+         'registrar_code_display': 'selenium_test',
       },
       'test_users': {
          'existing': {

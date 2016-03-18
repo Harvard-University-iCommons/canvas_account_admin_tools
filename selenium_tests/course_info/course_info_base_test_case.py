@@ -68,16 +68,12 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
 
         if type:
             cls.search_page.select_course_type(type)
-
+        if school:
+            cls.search_page.select_school(school)
         if term:
             cls.search_page.select_term(term)
         if year:
             cls.search_page.select_year(year)
-        cls.driver.save_screenshot("search1.jpeg")
-        if school:
-            cls.search_page.select_school(school)
-
-        cls.driver.save_screenshot("search2.jpeg")
         cls.search_page.submit_search(search_term)
 
     @classmethod

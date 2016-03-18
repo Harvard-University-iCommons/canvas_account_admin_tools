@@ -2,10 +2,6 @@ from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
-course_code_text = 'selenium_test'
-not_null_text = '2223'
-
-
 class CourseSearchTests(CourseInfoBaseTestCase):
 
     def test_course_search(self):
@@ -32,9 +28,8 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.driver.save_screenshot('display1.jpeg')
-
-        self.assertTrue(self.search_page.is_course_code_visible(course_code_text))
+        self.assertTrue(self.search_page.is_course_code_visible(
+            course['registrar_code_display']))
 
     def test_course_code_display_when_registrar_code_display_is_not_null(self):
         """
@@ -49,9 +44,8 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.driver.save_screenshot('display2.jpeg')
-
-        self.assertTrue(self.search_page.is_course_code_visible(course_code_text))
+        self.assertTrue(self.search_page.is_course_code_visible(
+            course['registrar_code_display']))
 
     def test_registrar_code_when_registrar_code_display_is_null(self):
         """
@@ -65,7 +59,10 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.assertEqual(self.search_page.get_text(course_code_text), course_code_text)
+        self.assertEqual(self.search_page.get_text(
+            course['registrar_code_display']),
+            course['registrar_code_display'],
+            "Registrar code display does not equal")
 
     def test_registrar_code_when_registrar_code_display_is_not_null(self):
         """
@@ -79,4 +76,7 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.assertEqual(self.search_page.get_text(not_null_text), not_null_text, "Text does not equal")
+        self.assertEqual(self.search_page.get_text(
+            course['registrar_code_display']),
+            course['registrar_code_display'],
+            "Registrar code display does not equal")

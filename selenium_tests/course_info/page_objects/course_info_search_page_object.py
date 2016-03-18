@@ -1,7 +1,7 @@
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-import time
+
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 from selenium_tests.course_info.page_objects.course_people_page_object \
@@ -26,11 +26,9 @@ class Locators(object):
     def COURSE_CODE_TEXT(cls, course_code_text):
         """
         returns a locator for course code display text in the table
-        :return:
         """
-        # return By.CSS_SELECTOR, "text='selenium_test'"
-        print "//td[contains(text(),'%s')]" % course_code_text
-        return By.XPATH, "//td[contains(text(),'%s')]" % course_code_text
+        return By.XPATH, \
+               "//td[contains(text(),'{}')]".format(course_code_text)
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.COURSE_RESULTS_TABLE
@@ -76,7 +74,6 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         search_textbox.send_keys(search_text)
         self.find_element(*Locators.SEARCH_BUTTON).click()
         # loading the results can take a long time, so explicitly wait longer
-        self._driver.save_screenshot("search3.jpeg")
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
@@ -103,7 +100,9 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         :return: True if the length of the text is greater than 1
                  False otherwise
         """
-        element = self.find_element(*Locators.COURSE_CODE_TEXT(course_code_text))
+        element = self.find_element(
+            *Locators.COURSE_CODE_TEXT(course_code_text))
+
         if element.text > 0:
             return True
         return False
@@ -113,11 +112,10 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         :return: The text in the web element in the course code column
                  else return None
         """
-        print "This is get_text {}".format(course_code_text)
-        self._driver.save_screenshot("search4.jpg")
-        time.sleep(5)
-        element = self.find_element(*Locators.COURSE_CODE_TEXT(course_code_text))
-        print "element is {}.  Text is {}".format(element, element.text)
+        # time.sleep(5)
+        element = self.find_element(
+            *Locators.COURSE_CODE_TEXT(course_code_text))
+
         if element.text > 0:
             return element.text
         else:
