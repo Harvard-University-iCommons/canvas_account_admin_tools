@@ -11,7 +11,7 @@
     </h3>
 </nav>
 
-<main class="float=left col=60">
+<main class="float-left col-60">
     <div class="container-fluid">
 
       <form name="courseDetailsForm" class="form-horizontal" ng-controller="DetailsController as dc" ng-submit="dc.submitCourseDetailsForm()">
@@ -119,7 +119,15 @@
                     <div class="col-md-2">
                         <strong>People: </strong>
                     </div>
-                    <div class="col-md-10"><a href="#/people/{{dc.courseInstance.cid}}">people</a></div>
+                    <div class="col-md-10">
+                        <a href="#/people/{{dc.courseInstance.course_instance_id}}">
+                            <ng-pluralize count="dc.courseInstance.members"
+                                          when="{'0': 'There are no people in the course.',
+                                'one': 'There is one person in the course.',
+                                'other': 'There are {} people in the course.'}">
+                            </ng-pluralize>
+                        </a>
+                    </div>
                 </div>
             </li>
 
@@ -179,8 +187,10 @@
                     <div class="col-md-10">
                         <div class="list-group">
                             <div class="list-group-item list-group-sub-item" ng-repeat="site in dc.courseInstance.sites">
-                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'official'">Official</div>
-                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'unofficial'">Unofficial</div>
+                                <div ng-switch on="site.map_type">
+                                    <div class="label label-primary col-md-1" ng-switch-when="official">Official</div>
+                                    <div class="label label-primary col-md-1" ng-switch-when="unofficial">Unofficial</div>
+                                </div>
                                 <div class="col-md-11"><a href="{{site.course_site_url}}"
                                                           target="_blank">{{site.course_site_url}}</a>
                                 </div>

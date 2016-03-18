@@ -174,7 +174,8 @@ describe('Unit testing PeopleController', function() {
                 ],
                 course: {
                     school_id: 'abc',
-                    registrar_code_display: '2222',
+                    registrar_code_display: '4x2',
+                    registrar_code: '2222',
                     course_id : '789',
                 },
                 term: {
@@ -185,8 +186,9 @@ describe('Unit testing PeopleController', function() {
             };
         });
 
-        it('format the course instance data for the UI ', function() {
+        it('formats the course instance data for the UI', function() {
             courseInstances.instances[ci.course_instance_id] = ci;
+
             controller = $controller('PeopleController', {$scope: scope});
 
             expect(scope.courseInstance['title']).toEqual(ci.title);
@@ -196,7 +198,24 @@ describe('Unit testing PeopleController', function() {
             expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
             expect(scope.courseInstance['cid']).toEqual(ci.course_instance_id);
             expect(scope.courseInstance['registrar_code_display']).toEqual(
-                    ci.course.registrar_code_display+' ('+ci.course.course_id+')');
+                    ci.course.registrar_code_display);
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
+        });
+        it('uses registrar_code if registrar_code_display is blank', function() {
+            courseInstances.instances[ci.course_instance_id] = angular.copy(ci);
+            courseInstances.instances[ci.course_instance_id].course.registrar_code_display = '';
+
+            controller = $controller('PeopleController', {$scope: scope});
+
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code);
             expect(scope.courseInstance['sites']).toEqual('888');
             expect(scope.courseInstance['xlist_status']).toEqual('N/A');
 

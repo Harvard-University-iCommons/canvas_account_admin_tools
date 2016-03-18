@@ -9,6 +9,7 @@
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
+        var remove_quotes_regex = new RegExp("^\"|\"$", "g");
         dc.courseDetailsUpdateInProgress = false;
         dc.editable = false;
 
@@ -17,62 +18,80 @@
                 ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
 
+        dc.handleLookupResults = function(results) {
+            var courseResult = results[0];
+            var membersResult = results[1];
+
+            //check if the right data was obtained before storing it
+            if (courseResult.data.course_instance_id == dc.courseInstanceId) {
+                courseInstances.instances[courseResult.data.course_instance_id] = courseResult.data;
+                dc.courseInstance = dc.getFormattedCourseInstance(courseResult.data, membersResult.data);
+                // todo: comment
+                // using 354962 for ILE testing
+                var rc = courseResult.data.course.registrar_code;
+                dc.editable = (rc.startsWith('ILE-')
+                               || rc.startsWith('SB-'));
+                dc.resetForm();
+            } else {
+                $log.error(' CourseInstance record mismatch for id :'
+                    + dc.courseInstanceId + ',  fetched record for :' + courseResult.data.id);
+            }
+        };
+
         dc.setCourseInstance = function (id) {
 
-            var url = djangoUrl.reverse(
+            var course_url = djangoUrl.reverse(
                 'icommons_rest_api_proxy',
                 ['api/course/v2/course_instances/' + id + '/']);
-            $http.get(url)
-                .success(function (data, status, headers, config, statusText) {
-                    //check if the right data was obtained before storing it
-                    if (data.course_instance_id == id) {
-                        courseInstances.instances[data.course_instance_id] = data;
-                        dc.courseInstance = dc.getFormattedCourseInstance(data)
-                        // todo: comment
-                        // using 354962 for ILE testing
-                        var rc = data.course.registrar_code;
-                        dc.editable = (rc.startsWith('ILE-')
-                                       || rc.startsWith('SB-'));
-                        dc.resetForm();
-                    } else {
-                        $log.error(' CourseInstance record mismatch for id :'
-                            + id + ',  fetched record for :' + data.id);
-                    }
-                })
-                .error($scope.handleAjaxError);
+
+            var members_url = djangoUrl.reverse(
+                'icommons_rest_api_proxy',
+                ['api/course/v2/course_instances/'
+                + id + '/people/']);
+
+            var coursePromise = $http.get(course_url)
+                .error(dc.handleAjaxError);
+
+            var membersPromise = $http.get(members_url)
+                .error(dc.handleAjaxError);
+
+            $q.all([coursePromise, membersPromise])
+                .then(dc.handleLookupResults);
         };
 
-        dc.stripQuotes = function(str){
-            return str ? str.trim().replace(new RegExp("^\"|\"$", "g"), "") : undefined;
-        };
+        //dc.stripQuotes = function(str){
+        //    // soem fields are coming over with quotes around them and those quotes
+        //    // are being displayed in the html.
+        //    // This strips off double quotes from the begining and ending of fields
+        //    return str ? str.trim().replace(remove_quotes_regex, "") : '';
+        //};
 
-        dc.getFormattedCourseInstance = function (ci) {
+        dc.getFormattedCourseInstance = function (ci, members) {
             // This is a helper function that formats the CourseInstance metadata
             // and is combination of existing logic in
             // Searchcontroller.courseInstanceToTable and Searchcontroller cell
             // render functions.
-
             courseInstance = {};
             if (ci) {
-                courseInstance['title'] = dc.stripQuotes(ci.title);
-                courseInstance['school'] = ci.course ?
-                    ci.course.school_id.toUpperCase() : '';
-                courseInstance['term'] = ci.term ? ci.term.display_name : '';
-                courseInstance['year'] = ci.term ? ci.term.academic_year : '';
+                courseInstance['title'] = ci.title;
+                courseInstance['school'] = ci.course.school_id.toUpperCase();
+                courseInstance['term'] = ci.term.display_name;
+                courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
                 courseInstance['course_groups'] = ci.course.course_groups;
-                courseInstance['cid'] = ci.course_instance_id;
-                courseInstance['registrar_code_display'] = ci.course ?
-                ci.course.registrar_code_display +
-                ' (' + ci.course.course_id + ')'.trim() : '';
-                courseInstance['description'] = dc.stripQuotes(ci.description);
-                courseInstance['short_title'] = dc.stripQuotes(ci.short_title);
+
+                var registrar_code = ci.course.registrar_code_display ? ci.course.registrar_code_display : ci.course.registrar_code;
+
+                courseInstance['registrar_code_display'] = registrar_code + ' (' + ci.course.course_id + ')'.trim();
+
+                courseInstance['description'] = ci.description;
+                courseInstance['short_title'] = ci.short_title;
                 courseInstance['sub_title'] = ci.sub_title;
                 courseInstance['meeting_time'] = ci.meeting_time;
                 courseInstance['location'] = ci.location;
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
-                courseInstance['notes'] = dc.stripQuotes(ci.notes);
+                courseInstance['notes'] = ci.notes;
                 courseInstance['conclude_date'] = ci.conclude_date;
 
                 if (ci.secondary_xlist_instances &&
@@ -87,6 +106,8 @@
 
                 courseInstance['sites'] = ci.sites;
             }
+            courseInstance['members'] = members.count;
+
             return courseInstance;
         };
 
