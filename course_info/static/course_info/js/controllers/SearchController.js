@@ -234,7 +234,7 @@
                         {
                             data: null,
                             render: function(data, type, row, meta) {
-                                var url = '#/people/' + row.cid;
+                                var url = '#/details/' + row.cid;
                                 return '<a href="' + url + '">' + row.description + '</a>';
                             },
                         },

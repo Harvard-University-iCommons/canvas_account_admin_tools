@@ -4,15 +4,17 @@
   <h3 class="breadcrumbs">
     {% endverbatim %}
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    &gt; <a href="#/">Find Course Info</a>
     {% verbatim %}
+    &gt; <a href="#/">Find Course Info</a>
+    &gt; <a href="#/details/{{courseInstance.cid}}">Details</a>
+
     <small><i class="fa fa-chevron-right"></i></small>
     People in {{courseInstance.title}}
   </h3>
 </nav>
 
 
-<main class="float=left col=60">
+<main class="float-left col-60">
 <div class="container-fluid">
 
   <div class="col-md-12">
@@ -29,7 +31,7 @@
               <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.cid}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
             </tr>
           </tbody>
