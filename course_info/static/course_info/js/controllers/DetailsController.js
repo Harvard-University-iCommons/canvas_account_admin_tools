@@ -144,7 +144,10 @@
 
             // todo: refactor and collapse, no longer need all these functions since they are single-line
             $http.patch(url, postData)
-                .then($log, dc.handleAjaxError)
+                .then(function finalizeCourseDetailsPatch(response) {
+                    // update Reset button
+                    $.extend(dc.courseInstance, postData);
+                }, dc.handleAjaxError)
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     dc.courseDetailsUpdateInProgress = false;
                 });
