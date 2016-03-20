@@ -34,8 +34,14 @@
         };
 
         dc.isCourseInstanceEditable = function(courseRegistrarCode) {
+            // TLT-2376: sandbox and ILE courses are editable, and are
+            // identified by their course (registrar) code
             return (courseRegistrarCode.startsWith('ILE-') ||
                     courseRegistrarCode.startsWith('SB-'));
+        };
+
+        dc.isDefined = function(obj) {
+            return (typeof obj === 'undefined');
         };
 
         dc.handleCourseInstanceResponse = function(response) {
@@ -46,8 +52,8 @@
                 // overwrite the members attribute of dc.courseInstance
                 $.extend(dc.courseInstance,
                     dc.getFormattedCourseInstance(response.data));
-                // todo: comment
-                // using 354962 for ILE testing
+                // TLT-2376: only sandbox and ILE courses are currently editable
+                // todo: remove this comment--using 354962 for ILE testing
                 var rc = response.data.course.registrar_code;
                 dc.editable = dc.isCourseInstanceEditable(rc);
                 dc.resetForm();
@@ -156,7 +162,6 @@
                 postData[field] = dc.formDisplayData[field];
             });
 
-            // todo: refactor and collapse, no longer need all these functions since they are single-line
             $http.patch(url, postData)
                 .then(function finalizeCourseDetailsPatch(response) {
                     // update Reset button
@@ -177,6 +182,7 @@
                 editable: '=', // can be < in angular 1.5
                 field: '@',
                 formValue: '=',
+                isLoading: '&',
                 label: '@',
                 modelValue: '=',
             },
@@ -185,10 +191,13 @@
   <div class="form-group"> \
     <label for="input-course-{{field}}" class="col-md-2"> \
       {{label}} \
+      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
     </label> \
     <div class="col-md-10"> \
-      <input type="text" class="form-control" id="input-course-{{field}}" ng-show="editable" ng-model="formValue"/> \
-      <span ng-hide="editable">{{modelValue}}</span> \
+      <div ng-hide="isLoading()"> \
+        <input type="text" class="form-control" id="input-course-{{field}}" ng-show="editable" ng-model="formValue"/> \
+        <span ng-hide="editable">{{modelValue}}</span> \
+      </div> \
     </div> \
   </div> \
 </li> \
@@ -201,6 +210,7 @@
             //templateUrl: 'directives/field_label_wrapper.html'
             scope: {
                 field: '@',
+                isLoading: '&',
                 label: '@',
             },
             transclude: true,
@@ -209,8 +219,10 @@
   <div class="form-group"> \
     <label for="input-course-{{field}}" class="col-md-2"> \
       {{label}} \
+      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
     </label> \
-    <div class="col-md-10" ng-transclude> \
+    <div class="col-md-10"> \
+      <div ng-hide="isLoading()" ng-transclude></div> \
     </div> \
   </div> \
 </li> \
