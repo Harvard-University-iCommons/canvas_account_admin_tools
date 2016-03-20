@@ -35,6 +35,7 @@
             .when('/details/:courseInstanceId', {
                 templateUrl: 'partials/details.html',
                 controller: 'DetailsController as dc',
+                //dependencies: ['directives/editable_field']
             })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',

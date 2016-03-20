@@ -7,227 +7,145 @@
         &gt; <a href="#/">Find Course Info</a>
         {% verbatim %}
         <small><i class="fa fa-chevron-right"></i></small>
-        Details for {{courseInstance.title}}
+        Details for {{dc.courseInstance.title}}
     </h3>
 </nav>
 
-<main class="float-left col-60">
-    <div class="container-fluid">
-
+<main>
       <form name="courseDetailsForm" class="form-horizontal" ng-submit="dc.submitCourseDetailsForm()">
         <ul class="list-group">
 
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                      Course Code
-                    </label>
-                    <div class="col-md-10">{{dc.courseInstance.registrar_code_display }}</div>
-                </div>
-            </li>
+            <hu-editable-field
+                editable="false"
+                form-value="dc.courseInstance.registrar_code_display"
+                model-value="dc.formDisplayData.registrar_code_display"
+                field="registrar_code_display"
+                label="Course Code"></hu-editable-field>
 
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                      Cross Listing
-                    </label>
-                    <div class="col-md-10" ng-switch on="dc.courseInstance.xlist_status">
-                        <span ng-switch-when="Primary" class="label label-info">Primary</span>
-                        <span ng-switch-when="Secondary" class="label label-info">Secondary</span>
-                        <span ng-switch-default class="label label-info">N/A</span>
-                    </div>
+            <hu-field-label-wrapper
+              field="xlist_status"
+              label="Cross listing">
+                <div ng-switch on="dc.courseInstance.xlist_status">
+                  <span ng-switch-when="Primary" class="label label-info">
+                    Primary </span>
+                  <span ng-switch-when="Secondary" class="label label-info">
+                    Secondary </span>
+                  <span ng-switch-default class="label label-info">N/A</span>
                 </div>
-            </li>
+            </hu-field-label-wrapper>
 
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                      Term
-                    </label>
-                    <div class="col-md-10">{{dc.courseInstance.term}}</div>
+            <hu-editable-field
+                editable="false"
+                form-value="dc.courseInstance.term"
+                model-value="dc.courseInstance.term"
+                field="term"
+                label="Term"></hu-editable-field>
+
+            <hu-editable-field
+                editable="false"
+                form-value="dc.courseInstance.course_instance_id"
+                model-value="dc.courseInstance.course_instance_id"
+                field="course_instance_id"
+                label="SIS/Course Instance ID"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.title"
+                model-value="dc.courseInstance.title"
+                field="title"
+                label="Course Title"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.short_title"
+                model-value="dc.courseInstance.short_title"
+                field="short_title"
+                label="Short Title"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.sub_title"
+                model-value="dc.courseInstance.sub_title"
+                field="sub_title"
+                label="Subtitle"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.description"
+                model-value="dc.courseInstance.description"
+                field="description"
+                label="Description"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.notes"
+                model-value="dc.courseInstance.notes"
+                field="notes"
+                label="Notes"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.instructors_display"
+                model-value="dc.courseInstance.instructors_display"
+                field="instructors_display"
+                label="Instructors (display)"></hu-editable-field>
+
+            <hu-field-label-wrapper field="people" label="People">
+              <a href="#/people/{{dc.courseInstance.course_instance_id}}">
+                <ng-pluralize count="dc.courseInstance.members"
+                              when="{'0': 'There are no people in the course.',
+                    'one': 'There is one person in the course.',
+                    'other': 'There are {} people in the course.'}">
+                </ng-pluralize>
+              </a>
+            </hu-field-label-wrapper>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.location"
+                model-value="dc.courseInstance.location"
+                field="location"
+                label="Location"></hu-editable-field>
+
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.meeting_time"
+                model-value="dc.courseInstance.meeting_time"
+                field="meeting_time"
+                label="Meeting time"></hu-editable-field>
+
+            <hu-field-label-wrapper field="departments" label="Departments">
+              <div class="row" ng-repeat="dept in dc.courseInstance.departments">
+                <div class="col-md-12"> {{dept.name}} </div>
+              </div>
+            </hu-field-label-wrapper>
+
+            <hu-field-label-wrapper field="course_groups" label="Course Groups">
+              <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
+                <div class="col-md-12"> {{group.name}} </div>
+              </div>
+            </hu-field-label-wrapper>
+
+            <hu-field-label-wrapper
+              field="sites"
+              label="Associated Official and Unofficial Site(s)">
+                <div class="row" ng-repeat="site in dc.courseInstance.sites">
+                  <div class="col-md-1">
+                    <span class="label label-primary" ng-if="site.map_type == 'official'">Official</span>
+                    <span class="label label-primary" ng-if="site.map_type == 'unofficial'">Unofficial</span>
+                  </div>
+                  <div class="col-md-11">
+                    <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
+                  </div>
                 </div>
-            </li>
+            </hu-field-label-wrapper>
 
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                      SIS/Course Instance ID
-                    </label>
-                    <div class="col-md-10">{{dc.courseInstance.course_instance_id}}</div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Course Title
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.title" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.title" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Short Title
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.short_title" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.short_title" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Subtitle
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.sub_title" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.sub_title" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Description
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.description" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.description" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Notes
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.notes" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.notes" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Instructors (display)
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.instructors_display" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.instructors_display" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        People
-                    </label>
-                    <div class="col-md-10">
-                        <a href="#/people/{{dc.courseInstance.course_instance_id}}">
-                            <ng-pluralize count="dc.courseInstance.members"
-                                          when="{'0': 'There are no people in the course.',
-                                'one': 'There is one person in the course.',
-                                'other': 'There are {} people in the course.'}">
-                            </ng-pluralize>
-                        </a>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Location
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.location" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.location" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Meeting Time
-                    </label>
-                    <div class="col-md-10">
-                      <input type="text" class="form-control" id="input-course-title" ng-model="dc.formDisplayData.meeting_time" ng-show="dc.editable" />
-                      <span ng-bind-html="dc.courseInstance.meeting_time" ng-hide="dc.editable"></span>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Departments
-                    </label>
-                    <div class="col-md-10" ng-repeat="dept in dc.courseInstance.departments">
-                         <div class="list-group" ng-if="dc.courseInstance.departments.length > 0">
-                            <div class="list-group-item list-group-sub-item" ng-repeat="dept in dc.courseInstance.departments">
-                                {{dept.name}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Course Groups
-                    </label>
-                    <div class="col-md-10">
-                        <div class="list-group">
-                            <div class="list-group-item list-group-sub-item" ng-repeat="group in dc.courseInstance.course_groups">
-                                {{group.name}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Associated Official and Unofficial Site(s)
-                    </label>
-                    <div class="col-md-10">
-                        <div class="list-group">
-                            <div class="list-group-item list-group-sub-item row" ng-repeat="site in dc.courseInstance.sites">
-                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'official'">Official</div>
-                                <div class="label label-primary col-md-1" ng-if="site.map_type == 'unofficial'">Unofficial</div>
-                                <div class="col-md-11"><a href="{{site.course_site_url}}"
-                                                          target="_blank">{{site.course_site_url}}</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </li>
-
-            <li class="list-group-item">
-                <div class="form-group">
-                    <label for="input-course-title" class="col-md-2 control-label">
-                        Conclusion Date
-                    </label>
-                    <div class="col-md-10">{{courseInstance.conclude_date}}</div>
-                </div>
-            </li>
+            <hu-editable-field
+                editable="dc.editable"
+                form-value="dc.formDisplayData.conclude_date"
+                model-value="dc.courseInstance.conclude_date"
+                field="conclude_date"
+                label="Conclusion Date"></hu-editable-field>
 
         </ul>
 
@@ -252,8 +170,8 @@
             </button>
           </div>
         </div>
+
       </form>
-    </div>
 </main>
 
 {% endverbatim %}
