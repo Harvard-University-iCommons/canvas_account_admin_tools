@@ -57,7 +57,8 @@
                                 text: tc.term_name + ' <span class="caret"></span>',
                             };
                         }));
-                    if (response.data.next !== '') {
+                    if (response.data.next && response.data.next !== '') {
+                        // API returns next=null if there are no more pages
                         console.log('Warning: Some terms missing from dropdown!');
                     }
                 }, function errorCallback(response) {
