@@ -13,7 +13,36 @@
 </nav>
 
 <main>
-      <form name="courseDetailsForm" class="form-horizontal" ng-if="dc.courseInstance.title" ng-submit="dc.submitCourseDetailsForm()">
+
+      <div id="alerts">
+        <div class="alert alert-success" role="alert"
+             id="alert-success-update-succeeded"
+             ng-if="dc.alerts.updateSucceeded && dc.alerts.updateSucceeded.show">
+          <p>
+            <i class="fa fa-check"></i>
+            Course instance updated.
+          </p>
+        </div>
+        <div class="alert alert-info" role="alert"
+             id="alert-info-form-reset"
+             ng-if="dc.alerts.formReset && dc.alerts.formReset.show">
+          <p>
+            <i class="fa fa-check"></i>
+            Course instance details reset.
+          </p>
+        </div>
+        <div class="alert alert-danger" role="alert"
+             id="alert-danger-update-failed"
+             ng-if="dc.alerts.updateFailed && dc.alerts.updateFailed.show">
+          <p>
+            <i class="fa fa-warning"></i>
+            The course instance could not be updated. Please try again.
+            Error details: {{ dc.alerts.updateFailed.details }}
+          </p>
+        </div>
+      </div>
+
+      <form name="courseDetailsForm" class="form-horizontal" ng-if="dc.courseInstance.title" ng-submit="dc.submitCourseDetailsForm(this)">
         <ul class="list-group">
 
             <hu-editable-field
@@ -177,7 +206,7 @@
           <div class="col-md-12">
             <a type="link" class="btn btn-default"
                ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null"
-               ng-click="dc.resetForm()">
+               ng-click="dc.resetFormFromUI()">
               Reset
             </a>
             <button id="course-details-form-submit" type="submit"

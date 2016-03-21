@@ -8,6 +8,7 @@
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
+        dc.alerts = {};
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
@@ -140,12 +141,29 @@
             dc.formDisplayData = angular.copy(dc.courseInstance);
         };
 
+        dc.resetFormFromUI = function() {
+            dc.resetForm();
+            dc.resetAlerts();
+            dc.alerts.formReset = {show:true};
+        };
+
+        dc.resetAlerts = function(scrollToAlerts) {
+            // reposition viewport at top of iframe so we can see
+            // notification messages
+            dc.alerts = {};  // reset any existing alerts
+            // scroll to top of form by default (i.e. if optional scrollToAlerts
+            // argument is not passed in); can disable by setting scrollToAlerts
+            // to false
+            if (scrollToAlerts || scrollToAlerts == null) {
+                scrollTo(0, 0);
+            }
+        };
+
         // todo: data validation
-        dc.submitCourseDetailsForm = function() {
+        dc.submitCourseDetailsForm = function(form) {
             dc.courseDetailsUpdateInProgress = true;
             var postData = {};
-            var url = djangoUrl.reverse('icommons_rest_a' +
-                'pi_proxy',
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
                 ['api/course/v2/course_instances/'
                 + dc.courseInstanceId + '/']);
             var fields = [
@@ -166,7 +184,15 @@
                 .then(function finalizeCourseDetailsPatch(response) {
                     // update Reset button
                     $.extend(dc.courseInstance, postData);
-                }, dc.handleAjaxError)
+                    dc.resetAlerts();
+                    dc.alerts.updateSucceeded = {show: true};
+                }, function cleanUpFailedCourseDetailsPatch(response) {
+                    dc.handleAjaxErrorResponse(response);
+                    dc.resetAlerts();
+                    dc.alerts.updateFailed = {
+                        show: true,
+                        details: (response.statusText || 'None')};
+                })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     dc.courseDetailsUpdateInProgress = false;
                 });
