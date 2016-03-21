@@ -221,11 +221,13 @@
         return {
             //templateUrl: 'directives/editable_field.html'
             scope: {
-                editable: '=', // can be < in angular 1.5
+                editable: '=', // can be < in angular 1.5;
+                               // if not provided, defaults to null/false
                 field: '@',
                 formValue: '=',
                 isLoading: '&',
                 label: '@',
+                maxlength: '@',
                 modelValue: '=',
             },
             template: ' \
@@ -237,7 +239,7 @@
     </label> \
     <div class="col-md-10"> \
       <div ng-hide="isLoading()"> \
-        <input type="text" class="form-control" id="input-course-{{field}}" ng-show="editable" ng-model="formValue"/> \
+        <input type="text" class="form-control" id="input-course-{{field}}" name="input-course-{{field}}" ng-show="editable" ng-model="formValue" maxlength="{{maxlength}}"/> \
         <span ng-hide="editable">{{modelValue}}</span> \
       </div> \
     </div> \
