@@ -8,7 +8,7 @@
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
-        dc.alerts = {};
+        dc.alerts = {form: {}, global: {}};
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
@@ -22,6 +22,11 @@
                     instances[dc.courseInstanceId]);
             }
             dc.fetchCourseInstanceDetails(dc.courseInstanceId);
+        };
+
+        dc.alertPresent = function(alertType, alertKey) {
+            return (dc.alerts[alertType][alertKey] &&
+                    dc.alerts[alertType][alertKey].show);
         };
 
         dc.handleAjaxErrorResponse = function(r) {
@@ -83,11 +88,22 @@
 
             $http.get(course_url)
                 .then(dc.handleCourseInstanceResponse,
-                    dc.handleAjaxErrorResponse);
+                    function cleanUpFailedCourseDetailsGet(response) {
+                        dc.handleAjaxErrorResponse(response);
+                        dc.resetGlobalAlerts();
+                        dc.alerts.global.fetchCourseInstanceFailed = {
+                            show: true,
+                            details: response.statusText || 'None'};
+                });
 
             $http.get(members_url)
                 .then(dc.handlePeopleResponse,
-                    dc.handleAjaxErrorResponse);
+                    function cleanUpFailedCourseMembersGet(response) {
+                        dc.handleAjaxErrorResponse(response);
+                        dc.alerts.form.fetchMembersFailed = {
+                            show: true,
+                            details: response.statusText || 'None'};
+                });
 
         };
 
@@ -143,14 +159,14 @@
 
         dc.resetFormFromUI = function() {
             dc.resetForm();
-            dc.resetAlerts();
-            dc.alerts.formReset = {show:true};
+            dc.resetGlobalAlerts();
+            dc.alerts.global.formReset = {show:true};
         };
 
-        dc.resetAlerts = function(scrollToAlerts) {
+        dc.resetGlobalAlerts = function(scrollToAlerts) {
             // reposition viewport at top of iframe so we can see
             // notification messages
-            dc.alerts = {};  // reset any existing alerts
+            dc.alerts.global = {};  // reset any existing global alerts
             // scroll to top of form by default (i.e. if optional scrollToAlerts
             // argument is not passed in); can disable by setting scrollToAlerts
             // to false
@@ -160,7 +176,7 @@
         };
 
         // todo: data validation
-        dc.submitCourseDetailsForm = function(form) {
+        dc.submitCourseDetailsForm = function() {
             dc.courseDetailsUpdateInProgress = true;
             var postData = {};
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
@@ -181,17 +197,17 @@
             });
 
             $http.patch(url, postData)
-                .then(function finalizeCourseDetailsPatch(response) {
+                .then(function finalizeCourseDetailsPatch() {
                     // update Reset button
                     $.extend(dc.courseInstance, postData);
-                    dc.resetAlerts();
-                    dc.alerts.updateSucceeded = {show: true};
+                    dc.resetGlobalAlerts();
+                    dc.alerts.global.updateSucceeded = {show: true};
                 }, function cleanUpFailedCourseDetailsPatch(response) {
                     dc.handleAjaxErrorResponse(response);
-                    dc.resetAlerts();
-                    dc.alerts.updateFailed = {
+                    dc.resetGlobalAlerts();
+                    dc.alerts.global.updateFailed = {
                         show: true,
-                        details: (response.statusText || 'None')};
+                        details: response.statusText || 'None'};
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     dc.courseDetailsUpdateInProgress = false;

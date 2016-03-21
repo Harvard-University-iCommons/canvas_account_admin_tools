@@ -17,7 +17,7 @@
       <div id="alerts">
         <div class="alert alert-success" role="alert"
              id="alert-success-update-succeeded"
-             ng-if="dc.alerts.updateSucceeded && dc.alerts.updateSucceeded.show">
+             ng-if="dc.alertPresent('global', 'updateSucceeded')">
           <p>
             <i class="fa fa-check"></i>
             Course instance updated.
@@ -25,7 +25,7 @@
         </div>
         <div class="alert alert-info" role="alert"
              id="alert-info-form-reset"
-             ng-if="dc.alerts.formReset && dc.alerts.formReset.show">
+             ng-if="dc.alertPresent('global', 'formReset')">
           <p>
             <i class="fa fa-check"></i>
             Course instance details reset.
@@ -33,11 +33,22 @@
         </div>
         <div class="alert alert-danger" role="alert"
              id="alert-danger-update-failed"
-             ng-if="dc.alerts.updateFailed && dc.alerts.updateFailed.show">
+             ng-if="dc.alertPresent('global', 'updateFailed')">
           <p>
             <i class="fa fa-warning"></i>
             The course instance could not be updated. Please try again.
-            Error details: {{ dc.alerts.updateFailed.details }}
+            Error details: {{ dc.alerts.global.updateFailed.details }}
+          </p>
+        </div>
+        <div class="alert alert-danger" role="alert"
+             id="alert-danger-fetch-course-instance-failed"
+             ng-if="dc.alertPresent('global', 'fetchCourseInstanceFailed')">
+          <p>
+            <i class="fa fa-warning"></i>
+            The course instance details could not be fetched from the server.
+            Please try again.
+            Error details:
+            {{ dc.alerts.global.fetchCourseInstanceFailed.details }}
           </p>
         </div>
       </div>
@@ -131,9 +142,25 @@
                 label="Instructors (display)"></hu-editable-field>
 
             <hu-field-label-wrapper
-                is-loading="dc.isDefined(dc.courseInstance.members)"
+                is-loading="dc.isDefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
                 field="people"
                 label="People">
+              <div class="alert alert-danger" role="alert"
+                   id="alert-danger-fetch-course-members-failed"
+                   ng-if="dc.alertPresent('form', 'fetchMembersFailed')">
+                <p>
+                  <i class="fa fa-warning"></i>
+                  Error looking up course members.
+                  Error details: {{ dc.alerts.form.fetchMembersFailed.details }}
+                </p>
+                <p>
+                  <a href="#/people/{{dc.courseInstance.course_instance_id}}"
+                     class="alert-link">
+                    Go to course people page.
+                  </a>
+                </p>
+              </div>
+
               <a href="#/people/{{dc.courseInstance.course_instance_id}}">
                 <ng-pluralize count="dc.courseInstance.members"
                               when="{'0': 'There are no people in the course.',
