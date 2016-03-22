@@ -8,6 +8,9 @@
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
+        // there are two kinds of alerts, global (which appear at the top of the
+        // page/form) and form-level (which appear next to a form label, inside
+        // the form, giving a field-level context to the message)
         dc.alerts = {form: {}, global: {}};
         dc.apiBase = 'api/course/v2/course_instances/';
         dc.apiProxy = 'icommons_rest_api_proxy';
@@ -31,6 +34,13 @@
                     dc.alerts[alertType][alertKey].show);
         };
 
+        dc.isUndefined = function(obj) {
+            // calling angular.isUndefined() directly from the directive
+            // does not seem to work; wrapping it in a function that is watched
+            // on the controller scope works as expected
+            return angular.isUndefined(obj);
+        };
+
         dc.handleAjaxErrorResponse = function(r) {
             dc.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
@@ -48,10 +58,6 @@
                     courseRegistrarCode.startsWith('SB-'));
         };
 
-        dc.isDefined = function(obj) {
-            return (typeof obj === 'undefined');
-        };
-
         dc.handleCourseInstanceResponse = function(response) {
             //check if the right data was obtained before storing it
             if (response.data.course_instance_id == dc.courseInstanceId) {
@@ -65,14 +71,13 @@
                 dc.editable = dc.isCourseInstanceEditable(rc);
                 dc.resetForm();
             } else {
-                $log.error(' CourseInstance record mismatch for id :'
-                    + dc.courseInstanceId + ',  fetched record for :'
+                $log.error('CourseInstance record mismatch for id :'
+                    + dc.courseInstanceId + ', instead received record for '
                     + response.data.id);
             }
         };
 
         dc.handlePeopleResponse = function(response) {
-            if (!dc.hasOwnProperty('courseInstance')) { }
             dc.courseInstance['members'] = response.data.count;
         };
 
@@ -88,16 +93,15 @@
                 .then(dc.handleCourseInstanceResponse,
                     function cleanUpFailedCourseDetailsGet(response) {
                         dc.handleAjaxErrorResponse(response);
-                        dc.resetGlobalAlerts();
-                        dc.alerts.global.fetchCourseInstanceFailed = {
-                            show: true,
-                            details: response.statusText || 'None'};
+                        dc.showNewGlobalAlert('fetchCourseInstanceFailed',
+                            response.statusText);
                 });
 
             $http.get(members_url)
                 .then(dc.handlePeopleResponse,
                     function cleanUpFailedCourseMembersGet(response) {
                         dc.handleAjaxErrorResponse(response);
+                        // field-level error, do not reset global alerts
                         dc.alerts.form.fetchMembersFailed = {
                             show: true,
                             details: response.statusText || 'None'};
@@ -156,25 +160,36 @@
 
         dc.resetFormFromUI = function() {
             dc.resetForm();
-            dc.resetGlobalAlerts();
+            dc.showNewGlobalAlert('formReset');
             dc.alerts.global.formReset = {show:true};
         };
 
-        dc.resetGlobalAlerts = function(scrollToAlerts) {
-            // reposition viewport at top of iframe so we can see
-            // notification messages
+        dc.resetGlobalAlerts = function() {
             dc.alerts.global = {};  // reset any existing global alerts
-            // scroll to top of form by default (i.e. if optional scrollToAlerts
-            // argument is not passed in); can disable by setting scrollToAlerts
-            // to false
-            if (scrollToAlerts || scrollToAlerts == null) {
-                scrollTo(0, 0);
-            }
+        };
+
+        dc.scrollToTopOfViewport = function() {
+            scrollTo(0, 0);  // scroll to top of form
+        };
+
+        dc.showNewGlobalAlert = function(alertKey, alertDetail) {
+            // reset any global alerts currently showing, reposition viewport at
+            // top of iframe so we can see notification messages, and show new
+            // alert, where param alertKey is the name/type of global alert and
+            // alertDetail is an optional way to provide more details to the
+            // user in the alert message box
+            dc.resetGlobalAlerts();
+            dc.scrollToTopOfViewport();
+            dc.alerts.global[alertKey] = {
+                show: true,
+                details: alertDetail || 'None'};
+
         };
 
         dc.submitCourseDetailsForm = function() {
+            // disables form, buttons
             dc.courseDetailsUpdateInProgress = true;
-            var postData = {};
+            var patchData = {};
             var url = djangoUrl.reverse(dc.apiProxy,
                 [dc.apiBase + dc.courseInstanceId + '/']);
             // we could also get these from editable properties on the DOM
@@ -189,23 +204,20 @@
                 'title'
             ];
             fields.forEach(function(field) {
-                postData[field] = dc.formDisplayData[field];
+                patchData[field] = dc.formDisplayData[field];
             });
 
-            $http.patch(url, postData)
+            $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch() {
-                    // update Reset button
-                    $.extend(dc.courseInstance, postData);
-                    dc.resetGlobalAlerts();
-                    dc.alerts.global.updateSucceeded = {show: true};
+                    // update form data so reset button will pick up changes
+                    angular.extend(dc.courseInstance, patchData);
+                    dc.showNewGlobalAlert('updateSucceeded');
                 }, function cleanUpFailedCourseDetailsPatch(response) {
                     dc.handleAjaxErrorResponse(response);
-                    dc.resetGlobalAlerts();
-                    dc.alerts.global.updateFailed = {
-                        show: true,
-                        details: response.statusText || 'None'};
+                    dc.showNewGlobalAlert('updateFailed', response.statusText);
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
+                    // re-enables form, buttons
                     dc.courseDetailsUpdateInProgress = false;
                 });
         };

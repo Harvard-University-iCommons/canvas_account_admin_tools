@@ -54,10 +54,10 @@
       </div>
 
       <form name="dc.courseDetailsForm" class="form-horizontal" ng-if="dc.courseInstance.title" ng-submit="dc.submitCourseDetailsForm(this)">
-        <ul class="list-group">
-
+        <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
+          <ul class="list-group">
             <hu-editable-input
-                is-loading="dc.isDefined(dc.courseInstance.registrar_code_display)"
+                is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
                 form-value="dc.courseInstance.registrar_code_display"
                 model-value="dc.formDisplayData.registrar_code_display"
                 field="registrar_code_display"
@@ -65,26 +65,25 @@
 
             <hu-field-label-wrapper
               field="xlist_status"
-              is-loading="dc.isDefined(dc.courseInstance.xlist_status)"
+              is-loading="dc.isUndefined(dc.courseInstance.xlist_status)"
               label="Cross listing">
-                <div ng-switch on="dc.courseInstance.xlist_status">
-                  <span ng-switch-when="Primary" class="label label-info">
-                    Primary </span>
-                  <span ng-switch-when="Secondary" class="label label-info">
-                    Secondary </span>
-                  <span ng-switch-default class="label label-info">N/A</span>
+                <div ng-switch on="dc.courseInstance.xlist_status"
+                     class="label label-info">
+                  <span ng-switch-when="Primary"> Primary </span>
+                  <span ng-switch-when="Secondary"> Secondary </span>
+                  <span ng-switch-default> N/A </span>
                 </div>
             </hu-field-label-wrapper>
 
             <hu-editable-input
-                is-loading="dc.isDefined(dc.courseInstance.term)"
+                is-loading="dc.isUndefined(dc.courseInstance.term)"
                 form-value="dc.courseInstance.term"
                 model-value="dc.courseInstance.term"
                 field="term"
                 label="Term"></hu-editable-input>
 
             <hu-editable-input
-                is-loading="dc.isDefined(dc.courseInstance.course_instance_id)"
+                is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
                 form-value="dc.courseInstance.course_instance_id"
                 model-value="dc.courseInstance.course_instance_id"
                 field="course_instance_id"
@@ -92,7 +91,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.title)"
+                is-loading="dc.isUndefined(dc.courseInstance.title)"
                 form-value="dc.formDisplayData.title"
                 model-value="dc.courseInstance.title"
                 maxlength="500"
@@ -101,7 +100,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.short_title)"
+                is-loading="dc.isUndefined(dc.courseInstance.short_title)"
                 form-value="dc.formDisplayData.short_title"
                 model-value="dc.courseInstance.short_title"
                 maxlength="200"
@@ -110,7 +109,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.sub_title)"
+                is-loading="dc.isUndefined(dc.courseInstance.sub_title)"
                 form-value="dc.formDisplayData.sub_title"
                 model-value="dc.courseInstance.sub_title"
                 maxlength="500"
@@ -119,7 +118,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.description)"
+                is-loading="dc.isUndefined(dc.courseInstance.description)"
                 form-value="dc.formDisplayData.description"
                 model-value="dc.courseInstance.description"
                 field="description"
@@ -127,7 +126,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.notes)"
+                is-loading="dc.isUndefined(dc.courseInstance.notes)"
                 form-value="dc.formDisplayData.notes"
                 model-value="dc.courseInstance.notes"
                 maxlength="2000"
@@ -136,7 +135,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.instructors_display)"
+                is-loading="dc.isUndefined(dc.courseInstance.instructors_display)"
                 form-value="dc.formDisplayData.instructors_display"
                 model-value="dc.courseInstance.instructors_display"
                 maxlength="4000"
@@ -144,7 +143,7 @@
                 label="Instructors (display)"></hu-editable-input>
 
             <hu-field-label-wrapper
-                is-loading="dc.isDefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
+                is-loading="dc.isUndefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
                 field="people"
                 label="People">
               <div class="alert alert-danger" role="alert"
@@ -175,7 +174,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.location)"
+                is-loading="dc.isUndefined(dc.courseInstance.location)"
                 form-value="dc.formDisplayData.location"
                 model-value="dc.courseInstance.location"
                 maxlength="500"
@@ -184,7 +183,7 @@
 
             <hu-editable-input
                 editable="dc.editable"
-                is-loading="dc.isDefined(dc.courseInstance.meeting_time)"
+                is-loading="dc.isUndefined(dc.courseInstance.meeting_time)"
                 form-value="dc.formDisplayData.meeting_time"
                 model-value="dc.courseInstance.meeting_time"
                 maxlength="1000"
@@ -192,7 +191,7 @@
                 label="Meeting time"></hu-editable-input>
 
             <hu-field-label-wrapper
-                is-loading="dc.isDefined(dc.courseInstance.departments)"
+                is-loading="dc.isUndefined(dc.courseInstance.departments)"
                 field="departments"
                 label="Departments">
               <div class="row" ng-repeat="dept in dc.courseInstance.departments">
@@ -201,7 +200,7 @@
             </hu-field-label-wrapper>
 
             <hu-field-label-wrapper
-                is-loading="dc.isDefined(dc.courseInstance.course_groups)"
+                is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
                 field="course_groups"
                 label="Course Groups">
               <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
@@ -210,7 +209,7 @@
             </hu-field-label-wrapper>
 
             <hu-field-label-wrapper
-                is-loading="dc.isDefined(dc.courseInstance.sites)"
+                is-loading="dc.isUndefined(dc.courseInstance.sites)"
                 field="sites"
                 label="Associated Official and Unofficial Site(s)">
                 <div class="row" ng-repeat="site in dc.courseInstance.sites">
@@ -225,13 +224,14 @@
             </hu-field-label-wrapper>
 
             <hu-editable-input
-                is-loading="dc.isDefined(dc.courseInstance.conclude_date)"
+                is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
                 form-value="dc.formDisplayData.conclude_date"
                 model-value="dc.courseInstance.conclude_date"
                 field="conclude_date"
                 label="Conclusion Date"></hu-editable-input>
 
-        </ul>
+          </ul>
+        </fieldset>
 
         <div class="form-group" ng-show="dc.editable">
           <div class="col-md-12">
