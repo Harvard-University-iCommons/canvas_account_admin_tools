@@ -56,12 +56,12 @@
       <form name="dc.courseDetailsForm" class="form-horizontal" ng-if="dc.courseInstance.title" ng-submit="dc.submitCourseDetailsForm(this)">
         <ul class="list-group">
 
-            <hu-editable-field
+            <hu-editable-input
                 is-loading="dc.isDefined(dc.courseInstance.registrar_code_display)"
                 form-value="dc.courseInstance.registrar_code_display"
                 model-value="dc.formDisplayData.registrar_code_display"
                 field="registrar_code_display"
-                label="Course Code"></hu-editable-field>
+                label="Course Code"></hu-editable-input>
 
             <hu-field-label-wrapper
               field="xlist_status"
@@ -76,72 +76,72 @@
                 </div>
             </hu-field-label-wrapper>
 
-            <hu-editable-field
+            <hu-editable-input
                 is-loading="dc.isDefined(dc.courseInstance.term)"
                 form-value="dc.courseInstance.term"
                 model-value="dc.courseInstance.term"
                 field="term"
-                label="Term"></hu-editable-field>
+                label="Term"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 is-loading="dc.isDefined(dc.courseInstance.course_instance_id)"
                 form-value="dc.courseInstance.course_instance_id"
                 model-value="dc.courseInstance.course_instance_id"
                 field="course_instance_id"
-                label="SIS/Course Instance ID"></hu-editable-field>
+                label="SIS/Course Instance ID"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.title)"
                 form-value="dc.formDisplayData.title"
                 model-value="dc.courseInstance.title"
                 maxlength="500"
                 field="title"
-                label="Course Title"></hu-editable-field>
+                label="Course Title"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.short_title)"
                 form-value="dc.formDisplayData.short_title"
                 model-value="dc.courseInstance.short_title"
                 maxlength="200"
                 field="short_title"
-                label="Short Title"></hu-editable-field>
+                label="Short Title"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.sub_title)"
                 form-value="dc.formDisplayData.sub_title"
                 model-value="dc.courseInstance.sub_title"
                 maxlength="500"
                 field="sub_title"
-                label="Subtitle"></hu-editable-field>
+                label="Subtitle"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.description)"
                 form-value="dc.formDisplayData.description"
                 model-value="dc.courseInstance.description"
                 field="description"
-                label="Description"></hu-editable-field>
+                label="Description"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.notes)"
                 form-value="dc.formDisplayData.notes"
                 model-value="dc.courseInstance.notes"
                 maxlength="2000"
                 field="notes"
-                label="Notes"></hu-editable-field>
+                label="Notes"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.instructors_display)"
                 form-value="dc.formDisplayData.instructors_display"
                 model-value="dc.courseInstance.instructors_display"
                 maxlength="4000"
                 field="instructors_display"
-                label="Instructors (display)"></hu-editable-field>
+                label="Instructors (display)"></hu-editable-input>
 
             <hu-field-label-wrapper
                 is-loading="dc.isDefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
@@ -172,23 +172,23 @@
               </a>
             </hu-field-label-wrapper>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.location)"
                 form-value="dc.formDisplayData.location"
                 model-value="dc.courseInstance.location"
                 maxlength="500"
                 field="location"
-                label="Location"></hu-editable-field>
+                label="Location"></hu-editable-input>
 
-            <hu-editable-field
+            <hu-editable-input
                 editable="dc.editable"
                 is-loading="dc.isDefined(dc.courseInstance.meeting_time)"
                 form-value="dc.formDisplayData.meeting_time"
                 model-value="dc.courseInstance.meeting_time"
                 maxlength="1000"
                 field="meeting_time"
-                label="Meeting time"></hu-editable-field>
+                label="Meeting time"></hu-editable-input>
 
             <hu-field-label-wrapper
                 is-loading="dc.isDefined(dc.courseInstance.departments)"
@@ -223,12 +223,12 @@
                 </div>
             </hu-field-label-wrapper>
 
-            <hu-editable-field
+            <hu-editable-input
                 is-loading="dc.isDefined(dc.courseInstance.conclude_date)"
                 form-value="dc.formDisplayData.conclude_date"
                 model-value="dc.courseInstance.conclude_date"
                 field="conclude_date"
-                label="Conclusion Date"></hu-editable-field>
+                label="Conclusion Date"></hu-editable-input>
 
         </ul>
 

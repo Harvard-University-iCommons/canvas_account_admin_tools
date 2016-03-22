@@ -1,14 +1,15 @@
 (function () {
-    var app = angular.module('CourseInfo');
-    app.controller('DetailsController', DetailsController);
-    app.directive('huEditableField', editableFieldDirective);
-    app.directive('huFieldLabelWrapper', fieldLabelWrapperDirective);
+    angular.module('CourseInfo')
+        .controller('DetailsController', DetailsController)
+        .directive('huEditableInput', editableInputDirective)
+        .directive('huFieldLabelWrapper', fieldLabelWrapperDirective);
 
     function DetailsController($scope, $routeParams, courseInstances, $compile,
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
 
         var dc = this;
         dc.alerts = {form: {}, global: {}};
+        dc.apiBase = 'api/course/v2/course_instances/';
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
@@ -78,13 +79,10 @@
         dc.fetchCourseInstanceDetails = function (id) {
 
             var course_url = djangoUrl.reverse(
-                'icommons_rest_api_proxy',
-                ['api/course/v2/course_instances/' + id + '/']);
+                'icommons_rest_api_proxy', [dc.apiBase + id + '/']);
 
             var members_url = djangoUrl.reverse(
-                'icommons_rest_api_proxy',
-                ['api/course/v2/course_instances/'
-                + id + '/people/']);
+                'icommons_rest_api_proxy', [dc.apiBase + id + '/people/']);
 
             $http.get(course_url)
                 .then(dc.handleCourseInstanceResponse,
@@ -182,8 +180,7 @@
             dc.courseDetailsUpdateInProgress = true;
             var postData = {};
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
-                ['api/course/v2/course_instances/'
-                + dc.courseInstanceId + '/']);
+                [dc.apiBase + dc.courseInstanceId + '/']);
             var fields = [
                 'description',
                 'instructors_display',
@@ -219,9 +216,8 @@
         dc.init();
     }
 
-    function editableFieldDirective() {
+    function editableInputDirective() {
         return {
-            //templateUrl: 'directives/editable_field.html'
             scope: {
                 editable: '=', // can be < in angular 1.5;
                                // if not provided, defaults to null/false
@@ -230,18 +226,20 @@
                 isLoading: '&',
                 label: '@',
                 maxlength: '@',
-                modelValue: '=',
+                modelValue: '='
             },
             template: ' \
 <li class="list-group-item"> \
   <div class="form-group"> \
     <label for="input-course-{{field}}" class="col-md-2"> \
       {{label}} \
-      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
     </label> \
     <div class="col-md-10"> \
+      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
       <div ng-hide="isLoading()"> \
-        <input type="text" class="form-control" id="input-course-{{field}}" name="input-course-{{field}}" ng-show="editable" ng-model="formValue" maxlength="{{maxlength}}"/> \
+        <input type="text" class="form-control" id="input-course-{{field}}" \
+               name="input-course-{{field}}" ng-show="editable" \
+               ng-model="formValue" maxlength="{{maxlength}}"/> \
         <span ng-hide="editable">{{modelValue}}</span> \
       </div> \
     </div> \
@@ -257,7 +255,7 @@
             scope: {
                 field: '@',
                 isLoading: '&',
-                label: '@',
+                label: '@'
             },
             transclude: true,
             template: ' \
@@ -265,9 +263,9 @@
   <div class="form-group"> \
     <label for="input-course-{{field}}" class="col-md-2"> \
       {{label}} \
-      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
     </label> \
     <div class="col-md-10"> \
+      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
       <div ng-hide="isLoading()" ng-transclude></div> \
     </div> \
   </div> \
