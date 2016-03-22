@@ -10,6 +10,7 @@
         var dc = this;
         dc.alerts = {form: {}, global: {}};
         dc.apiBase = 'api/course/v2/course_instances/';
+        dc.apiProxy = 'icommons_rest_api_proxy';
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
@@ -60,7 +61,6 @@
                 $.extend(dc.courseInstance,
                     dc.getFormattedCourseInstance(response.data));
                 // TLT-2376: only sandbox and ILE courses are currently editable
-                // todo: remove this comment--using 354962 for ILE testing
                 var rc = response.data.course.registrar_code;
                 dc.editable = dc.isCourseInstanceEditable(rc);
                 dc.resetForm();
@@ -78,11 +78,11 @@
 
         dc.fetchCourseInstanceDetails = function (id) {
 
-            var course_url = djangoUrl.reverse(
-                'icommons_rest_api_proxy', [dc.apiBase + id + '/']);
+            var course_url = djangoUrl.reverse(dc.apiProxy,
+                [dc.apiBase + id + '/']);
 
-            var members_url = djangoUrl.reverse(
-                'icommons_rest_api_proxy', [dc.apiBase + id + '/people/']);
+            var members_url = djangoUrl.reverse(dc.apiProxy,
+                [dc.apiBase + id + '/people/']);
 
             $http.get(course_url)
                 .then(dc.handleCourseInstanceResponse,
@@ -106,10 +106,8 @@
         };
 
         dc.getFormattedCourseInstance = function (ciData) {
-            // This is a helper function that formats the CourseInstance metadata
-            // and is combination of existing logic in
-            // Searchcontroller.courseInstanceToTable and Searchcontroller cell
-            // render functions.
+            // This is a helper function that formats the raw CourseInstance
+            // API response data for display in the UI
             var ci = ciData;  // shorten for brevity, preferable to `with()`
             var courseInstance = {};
             if (ci) {
@@ -152,7 +150,6 @@
             return courseInstance;
         };
 
-        // todo - fix pristine?
         dc.resetForm = function() {
             dc.formDisplayData = angular.copy(dc.courseInstance);
         };
@@ -175,12 +172,12 @@
             }
         };
 
-        // todo: data validation
         dc.submitCourseDetailsForm = function() {
             dc.courseDetailsUpdateInProgress = true;
             var postData = {};
-            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+            var url = djangoUrl.reverse(dc.apiProxy,
                 [dc.apiBase + dc.courseInstanceId + '/']);
+            // we could also get these from editable properties on the DOM
             var fields = [
                 'description',
                 'instructors_display',

@@ -57,7 +57,7 @@ describe('Unit testing DetailsController', function () {
         });
     });
 
-    describe('setup', function () {
+    describe('controller setup/initialization', function () {
         beforeEach(function () {
             dc = $controller('DetailsController', {$scope: scope});
         });
@@ -73,10 +73,13 @@ describe('Unit testing DetailsController', function () {
         it('should set the course instance id', function () {
             expect(dc.courseInstanceId).toEqual($routeParams.courseInstanceId);
         });
-
+        it('should populate the form immediately if course instance data is ' +
+            'available from the routeParams/previous screen, and then ' +
+            'continue to fetch course instance details to fill in missing ' +
+            'data');
     });
 
-    describe('setCourseInstance', function () {
+    describe('handleCourseInstanceResponse', function () {
         var ci;
         var members;
         beforeEach(function () {
@@ -99,7 +102,9 @@ describe('Unit testing DetailsController', function () {
             };
         });
 
-        it('should work when CourseInstance is empty', function () {
+        it('should fill in details from the course instance detail endpoint ' +
+            'when no course instance is provided by the ' +
+            'routeParams/previous screen', function () {
             var dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
@@ -109,6 +114,9 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['members']).toEqual(100);
         });
 
+        it('should override details from the course instance info provided ' +
+            'by the routeParams/previous screen with refreshed/updated data ' +
+            'from the course instance detail endpoint ');
         it('should log an error when CourseInstance returns an invalid id', function () {
             controller = $controller('DetailsController', {$scope: scope});
             ci.course_instance_id = 12345;
@@ -136,7 +144,7 @@ describe('Unit testing DetailsController', function () {
                         site_id: '888',
                         map_type: 'official'
                     },
-                     {
+                    {
                         external_id: 'https://x.y.z/999',
                         site_id: '999',
                         map_type: 'unofficial'
@@ -156,7 +164,7 @@ describe('Unit testing DetailsController', function () {
                             id: 2
                         }
                     ],
-                    departments : [
+                    departments: [
                         {
                             name: 'dept1',
                             id: 1
@@ -175,7 +183,7 @@ describe('Unit testing DetailsController', function () {
             };
         });
 
-        it('format the course instance data for the UI ', function () {
+        it('should format the course instance data for the UI ', function () {
             courseInstances.instances[ci.course_instance_id] = ci;
             dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
@@ -201,14 +209,52 @@ describe('Unit testing DetailsController', function () {
 
         });
 
-        it('should deal with an empty ci', function () {
-            dc = $controller('DetailsController', {$scope: scope});
-            spyOn($log, 'error');
-            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({}));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({}));
-            $httpBackend.flush(2);
-            expect(dc.courseInstance).toEqual(undefined);
-            expect($log.error).toHaveBeenCalled();
-        });
     });
+        
+    describe('fetchCourseInstanceDetails', function() {
+        it('should handle both successful responses even if they arrive ' +
+            'separately');
+        it('should still handle the course instance data even if the ' +
+            'member data fetch fails');
+    });
+
+    describe('submitCourseDetailsForm', function() {
+        it('should call backend with only the editable form fields');
+        it('should show a message if successful and update the local ' +
+            'course instance data');
+        it('should show a message if unsuccessful and not update the ' +
+            'local course instance data');
+    });
+
+    describe('editableInputDirective', function() {
+        it('should substitute the right stuff for id, name, and label');
+        it('should show an input element if called with editable=true ' +
+            'and the value should be equal to the form\'s copy of the ' +
+            'model data');
+        it('should show regular non-editable text if called with ' +
+            'editable=false or no editable attribute and show the model ' +
+            'value, not the form copy of the model value');
+        it('should show only show the label and the loading indicator ' +
+            'while loading, and hide the loading indicator when no ' +
+            'longer loading');
+    });
+
+    describe('fieldLabelWrapperDirective', function() {
+        it('should call backend with only the editable form fields');
+        it('should show a message if successful and update the local ' +
+            'course instance data');
+        it('should show a message if unsuccessful and not update the ' +
+            'local course instance data');
+    });
+
+    describe('end-to-end tests - form interaction', function() {
+        it('should reset all data when form is reset and show reset ' +
+            'message');
+        it('should call backend on submit');
+        it('should show editable fields and form interaction buttons for ' +
+            'an editable course instance');
+        it('should show non-editable fields for a typical course ' +
+            'instance and no form interaction buttons');
+    });
+
 });
