@@ -151,11 +151,10 @@
             $scope.initializeDatatable = function() {
                 $scope.dataTable = $('#courseInfoDT').DataTable({
                     serverSide: true,
-                    deferLoading: true,
                     ajax: function(data, callback, settings) {
-                        $scope.$apply(function(){
+                        $timeout(function(){
                             $scope.searchInProgress = true;
-                        });
+                        }, 0);
                         $scope.enableColumnSorting(false);
                         //filter the sites flagged to be excluded(get only ones
                         // with exclude_from_isites set to 0)
