@@ -130,7 +130,7 @@
                     ? ci.course.registrar_code_display
                     : ci.course.registrar_code;
 
-                courseInstance['registrar_code_display'] = registrarCode.trim() + ' (' + ci.course.course_id + ')';
+                courseInstance['registrar_code_display'] = registrarCode.trim();
 
                 courseInstance['description'] = ci.description;
                 courseInstance['short_title'] = ci.short_title;

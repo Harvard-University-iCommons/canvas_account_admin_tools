@@ -10,7 +10,7 @@ describe('Unit testing DetailsController', function () {
 
     var peopleURL =
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
-        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2Fpeople%2F';
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2Fpeople%2F&-source=xreg_map';
 
     // set up the test environment
     beforeEach(function () {
@@ -202,7 +202,7 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['year']).toEqual(ci.term.academic_year);
             expect(dc.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(dc.courseInstance['registrar_code_display']).toEqual(
-                ci.course.registrar_code_display + ' (' + ci.course.course_id + ')');
+                ci.course.registrar_code_display);
             expect(dc.courseInstance['sites']).toEqual(ci.sites);
             expect(dc.courseInstance['xlist_status']).toEqual('N/A');
             expect(dc.courseInstance['description']).toEqual('<p>hello</p>');
@@ -439,16 +439,71 @@ describe('Unit testing DetailsController', function () {
     });
 
     describe('editableInputDirective', function() {
-        it('should substitute the right stuff for id, name, and label');
+        var compile, scope, directiveElem;
+        beforeEach(function () {
+             inject(function($compile, $rootScope){
+                compile = $compile;
+                scope = $rootScope.$new();
+              });
+              directiveElem = getCompiledElement();
+        });
+
+        function getCompiledElement(){
+            var element = angular.element('<hu-editable-input ' +
+                    'editable="dc.editable"' +
+                    'is-loading="true"' +
+                    'form-value="tesValue"' +
+                    'model-value="testModelValue"' +
+                    'maxlength="500"' +
+                    'field="test-name"' +
+                'label="test label">' +
+                '</hu-editable-input>');
+            var compiledElement = compile(element)(scope);
+            scope.$digest();
+            return compiledElement;
+        }
+
+        it('should substitute the right stuff for id, name, and label', function(){
+            dc = $controller('DetailsController', {$scope: scope});
+            dc.editable = true;
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            var liElement = directiveElem.find('li');
+            expect(liElement.find('label').text().trim()).toBe('test label');
+            expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
+            expect(liElement.find('input').prop('maxlength')).toBe(500);
+        });
+
         it('should show an input element if called with editable=true ' +
             'and the value should be equal to the form\'s copy of the ' +
-            'model data');
+            'model data', function(){
+            dc = $controller('DetailsController', {$scope: scope});
+            //dc.editable = true;
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            var liElement = directiveElem.find('li');
+            expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
+        });
+
         it('should show regular non-editable text if called with ' +
             'editable=false or no editable attribute and show the model ' +
-            'value, not the form copy of the model value');
+            'value, not the form copy of the model value', function(){
+            dc = $controller('DetailsController', {$scope: scope});
+            dc.editable = false;
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            var liElement = directiveElem.find('li');
+            expect(liElement.find('input')).not.toBeVisible();
+        });
+
         it('should show only show the label and the loading indicator ' +
             'while loading, and hide the loading indicator when no ' +
-            'longer loading');
+            'longer loading', function(){
+
+        });
     });
 
     describe('fieldLabelWrapperDirective', function() {
