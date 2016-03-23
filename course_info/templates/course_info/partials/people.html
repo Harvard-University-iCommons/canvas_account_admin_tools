@@ -6,7 +6,7 @@
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     {% verbatim %}
     &gt; <a href="#/">Find Course Info</a>
-    &gt; <a href="#/details/{{courseInstance.cid}}">Details</a>
+    &gt; <a href="#/details/{{courseInstanceId}}">Details</a>
 
     <small><i class="fa fa-chevron-right"></i></small>
     People in {{courseInstance.title}}
@@ -19,8 +19,8 @@
 
   <div class="col-md-12">
       <div id="courseInfoDT_wrapper" class="dataTables_wrapper form-inline no-footer">
-        <!-- UI comment - inline style for a table border until table-box makes it to Bootrsap 4 -->
-        <table id="courseInfoDT" class="display dataTable course-info-table"
+        <table id="courseInfoDT"
+               class="display dataTable course-info-table table table-striped table-condensed"
                role="grid" aria-describedby="courseInfoDT_info"
                cellspacing="0">
           <tbody>
