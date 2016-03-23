@@ -25,7 +25,7 @@ class Locators(object):
     def TD_TEXT_XPATH(cls, search_text):
         """ returns a locator for a table cell element in the people table;
         search_text should be user's name, user_id, etc """
-        return By.XPATH, '//td[contains(text(), "{}")]'.format(search_text)
+        return By.XPATH, '//td[text()="{}")]'.format(search_text)
 
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):

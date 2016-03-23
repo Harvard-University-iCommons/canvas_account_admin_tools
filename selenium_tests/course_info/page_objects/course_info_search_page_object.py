@@ -20,15 +20,14 @@ class Locators(object):
     @classmethod
     def COURSE_LINK_HREF_CSS(cls, cid):
         """ returns a locator for a course detail link in the course table """
-        return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
+        return By.CSS_SELECTOR, 'a[href="#/details/{}"]'.format(cid)
 
     @classmethod
     def COURSE_CODE_TEXT(cls, course_code_text):
         """
         returns a locator for course code display text in the table
         """
-        return By.XPATH, \
-               "//td[contains(text(),'{}')]".format(course_code_text)
+        return By.XPATH, "//td[text()='{}']".format(course_code_text)
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.COURSE_RESULTS_TABLE
@@ -89,30 +88,11 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
 
-    def is_course_code_visible(self, course_code_text):
-        """
-        If a course has a defined registrar_code_display, then the
-        registrar_code_display should appear under the 'Course Code' column
-        If a course does not have a defined registrar_code_display
-        (i.e. if that field is null), then the registrar_code should appear
-        under the 'Course Code' column (TLT-2511)
-
-        :return: True if the length of the text is greater than 1
-                 False otherwise
-        """
-        element = self.find_element(
-            *Locators.COURSE_CODE_TEXT(course_code_text))
-
-        if element.text > 0:
-            return True
-        return False
-
     def get_text(self, course_code_text):
         """
         :return: The text in the web element in the course code column
                  else return None
         """
-        # time.sleep(5)
         element = self.find_element(
             *Locators.COURSE_CODE_TEXT(course_code_text))
 
