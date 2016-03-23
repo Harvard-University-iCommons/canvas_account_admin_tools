@@ -20,6 +20,7 @@ class CourseSearchTests(CourseInfoBaseTestCase):
     # If a course does not have a defined registrar_code_display in the db
     # (i.e. if that field is null), then the registrar_code should appear
     # under the 'Course Code' column (TLT-2511)
+    # https://jira.huit.harvard.edu/browse/TLT-2521
 
     def test_registrar_code_when_registrar_code_display_is_null(self):
         """
