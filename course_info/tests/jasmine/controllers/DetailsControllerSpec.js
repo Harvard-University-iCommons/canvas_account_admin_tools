@@ -295,7 +295,83 @@ describe('Unit testing DetailsController', function () {
     });
 
     describe('submitCourseDetailsForm', function() {
-        it('should call backend with only the editable form fields');
+        var ci;
+        var members;
+        beforeEach(function () {
+            ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Title',
+                short_title: 'Test',
+                sub_title: 'Jasime is your friend',
+                description: '<p>hello</p>',
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                        map_type: 'official'
+                    },
+                    {
+                        external_id: 'https://x.y.z/999',
+                        site_id: '999',
+                        map_type: 'unofficial'
+                    }
+                ],
+                course: {
+                    school_id: 'abc',
+                    registrar_code: 'ILE-2222',
+                    registrar_code_display: '2222',
+                    course_id: '789',
+                    course_groups: [
+                        {
+                            name: 'group one',
+                            id: 1
+                        },
+                        {
+                            name: 'group two',
+                            id: 2
+                        }
+                    ],
+                    departments: [
+                        {
+                            name: 'dept1',
+                            id: 1
+                        }
+                    ]
+                },
+                term: {
+                    display_name: 'Summer 2015',
+                    academic_year: '2015',
+                },
+                primary_xlist_instances: [],
+            };
+
+            members = {
+                count: 100
+            };
+        });
+
+        it('should call backend with only the editable form fields', function(){
+            courseInstances.instances[ci.course_instance_id] = ci;
+            dc = $controller('DetailsController', {$scope: scope});
+            spyOn(dc, 'showNewGlobalAlert');
+            dc.formDisplayData = {
+                'description': 'this is a test',
+                'instructors_display': 'test teacher',
+                'location': 'test room',
+                'meeting_time': 'test oclock',
+                'notes': 'test notes',
+                'short_title': 'test short title',
+                'sub_title': 'test sub title',
+                'title': 'test title'
+            };
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            dc.submitCourseDetailsForm();
+            $httpBackend.expectPATCH(courseInstanceURL).respond(201, JSON.stringify({status: "success"}));
+            $httpBackend.flush(1);
+            expect(dc.showNewGlobalAlert).toHaveBeenCalled();
+        });
         it('should show a message if successful and update the local ' +
             'course instance data');
         it('should show a message if unsuccessful and not update the ' +
