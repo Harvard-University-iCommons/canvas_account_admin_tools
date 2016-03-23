@@ -297,10 +297,21 @@ describe('Unit testing DetailsController', function () {
     describe('submitCourseDetailsForm', function() {
         var ci;
         var members;
+        var expectedPatchData = {
+                "description":"this is a test",
+                "instructors_display":"test teacher",
+                "location":"test room",
+                "meeting_time":"test oclock",
+                "notes":"test notes",
+                "short_title":"test short title",
+                "sub_title":"test sub title",
+                "title":"test title"
+            };
+
         beforeEach(function () {
             ci = {
                 course_instance_id: $routeParams.courseInstanceId,
-                title: 'Test Title',
+                title: 'Test Course Title',
                 short_title: 'Test',
                 sub_title: 'Jasime is your friend',
                 description: '<p>hello</p>',
@@ -364,18 +375,67 @@ describe('Unit testing DetailsController', function () {
                 'sub_title': 'test sub title',
                 'title': 'test title'
             };
+
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
             dc.submitCourseDetailsForm();
-            $httpBackend.expectPATCH(courseInstanceURL).respond(201, JSON.stringify({status: "success"}));
+            $httpBackend.expectPATCH(courseInstanceURL, expectedPatchData).respond(201, JSON.stringify({status: "success"}));
             $httpBackend.flush(1);
             expect(dc.showNewGlobalAlert).toHaveBeenCalled();
         });
+
         it('should show a message if successful and update the local ' +
-            'course instance data');
+            'course instance data', function(){
+            courseInstances.instances[ci.course_instance_id] = ci;
+            dc = $controller('DetailsController', {$scope: scope});
+            spyOn(dc, 'showNewGlobalAlert');
+            dc.formDisplayData = {
+                'description': 'this is a test',
+                'instructors_display': 'test teacher',
+                'location': 'test room',
+                'meeting_time': 'test oclock',
+                'notes': 'test notes',
+                'short_title': 'test short title',
+                'sub_title': 'test sub title',
+                'title': 'test title'
+            };
+
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            dc.submitCourseDetailsForm();
+            $httpBackend.expectPATCH(courseInstanceURL, expectedPatchData).respond(201, JSON.stringify({status: "success"}));
+            $httpBackend.flush(1);
+            expect(dc.showNewGlobalAlert).toHaveBeenCalled();
+            expect(dc.courseInstance['title']).toBe('test title');
+        });
+
         it('should show a message if unsuccessful and not update the ' +
-            'local course instance data');
+            'local course instance data', function(){
+            courseInstances.instances[ci.course_instance_id] = ci;
+            dc = $controller('DetailsController', {$scope: scope});
+            spyOn(dc, 'showNewGlobalAlert');
+            dc.formDisplayData = {
+                'description': 'this is a test',
+                'instructors_display': 'test teacher',
+                'location': 'test room',
+                'meeting_time': 'test oclock',
+                'notes': 'test notes',
+                'short_title': 'test short title',
+                'sub_title': 'test sub title',
+                'title': 'test title'
+            };
+
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+            dc.submitCourseDetailsForm();
+            $httpBackend.expectPATCH(courseInstanceURL, expectedPatchData).respond(500);
+            $httpBackend.flush(1);
+            expect(dc.showNewGlobalAlert).toHaveBeenCalledWith('updateFailed', '');
+            expect(dc.courseInstance['title']).not.toBe('test title');
+        });
     });
 
     describe('editableInputDirective', function() {
