@@ -150,6 +150,7 @@
             var request = null;
             $scope.initializeDatatable = function() {
                 $scope.dataTable = $('#courseInfoDT').DataTable({
+                    deferLoading: 999, // number doesn't matter because table hidden
                     serverSide: true,
                     ajax: function(data, callback, settings) {
                         $timeout(function(){
@@ -200,7 +201,10 @@
                                     recordsFiltered: data.count,
                                     data: processedData
                                 });
-                                $scope.showDataTable = true;
+                                $timeout(function() {
+                                    $scope.dataTable.columns.adjust();
+                                    $scope.showDataTable = true;
+                                }, 0);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 console.log(textStatus);
