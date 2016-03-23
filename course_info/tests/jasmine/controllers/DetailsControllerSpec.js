@@ -90,6 +90,7 @@ describe('Unit testing DetailsController', function () {
                 title: 'Test Title',
                 course: {
                     school_id: 'abc',
+                    registrar_code: 'ILE-2222',
                     registrar_code_display: '2222'
                 },
                 term: {
@@ -152,6 +153,7 @@ describe('Unit testing DetailsController', function () {
                 ],
                 course: {
                     school_id: 'abc',
+                    registrar_code: 'ILE-2222',
                     registrar_code_display: '2222',
                     course_id: '789',
                     course_groups: [
@@ -212,8 +214,71 @@ describe('Unit testing DetailsController', function () {
     });
         
     describe('fetchCourseInstanceDetails', function() {
+
+        var ci;
+        var members;
+        beforeEach(function () {
+            ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Title',
+                short_title: 'Test',
+                sub_title: 'Jasime is your friend',
+                description: '<p>hello</p>',
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                        map_type: 'official'
+                    },
+                    {
+                        external_id: 'https://x.y.z/999',
+                        site_id: '999',
+                        map_type: 'unofficial'
+                    }
+                ],
+                course: {
+                    school_id: 'abc',
+                    registrar_code: 'ILE-2222',
+                    registrar_code_display: '2222',
+                    course_id: '789',
+                    course_groups: [
+                        {
+                            name: 'group one',
+                            id: 1
+                        },
+                        {
+                            name: 'group two',
+                            id: 2
+                        }
+                    ],
+                    departments: [
+                        {
+                            name: 'dept1',
+                            id: 1
+                        }
+                    ]
+                },
+                term: {
+                    display_name: 'Summer 2015',
+                    academic_year: '2015',
+                },
+                primary_xlist_instances: [],
+            };
+
+            members = {
+                count: 100
+            };
+        });
+
         it('should handle both successful responses even if they arrive ' +
-            'separately');
+            'separately', function(){
+            courseInstances.instances[ci.course_instance_id] = ci;
+            dc = $controller('DetailsController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
+            $httpBackend.flush(2);
+        });
+
         it('should still handle the course instance data even if the ' +
             'member data fetch fails');
     });
