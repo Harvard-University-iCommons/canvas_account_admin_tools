@@ -513,15 +513,5 @@ describe('Unit testing DetailsController', function () {
         it('should show a message if unsuccessful and not update the ' +
             'local course instance data');
     });
-
-    describe('end-to-end tests - form interaction', function() {
-        it('should reset all data when form is reset and show reset ' +
-            'message');
-        it('should call backend on submit');
-        it('should show editable fields and form interaction buttons for ' +
-            'an editable course instance');
-        it('should show non-editable fields for a typical course ' +
-            'instance and no form interaction buttons');
-    });
-
+    
 });
