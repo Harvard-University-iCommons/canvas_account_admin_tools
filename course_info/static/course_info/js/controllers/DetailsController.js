@@ -89,6 +89,10 @@
             var members_url = djangoUrl.reverse(dc.apiProxy,
                 [dc.apiBase + id + '/people/']);
 
+            var membersQueryConfig = {
+                params: { '-source': 'xreg_map' }  // exclude xreg people
+            };
+
             $http.get(course_url)
                 .then(dc.handleCourseInstanceResponse,
                     function cleanUpFailedCourseDetailsGet(response) {
@@ -97,7 +101,7 @@
                             response.statusText);
                 });
 
-            $http.get(members_url)
+            $http.get(members_url, membersQueryConfig)
                 .then(dc.handlePeopleResponse,
                     function cleanUpFailedCourseMembersGet(response) {
                         dc.handleAjaxErrorResponse(response);
