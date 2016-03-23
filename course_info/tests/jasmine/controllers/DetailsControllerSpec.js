@@ -274,13 +274,24 @@ describe('Unit testing DetailsController', function () {
             'separately', function(){
             courseInstances.instances[ci.course_instance_id] = ci;
             dc = $controller('DetailsController', {$scope: scope});
+            spyOn(dc, 'handleCourseInstanceResponse');
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
             $httpBackend.flush(2);
+            expect(dc.courseInstance['title']).toEqual(ci.title);
+            expect( dc.courseInstance['members']).toEqual(members.count);
         });
 
         it('should still handle the course instance data even if the ' +
-            'member data fetch fails');
+            'member data fetch fails', function(){
+            courseInstances.instances[ci.course_instance_id] = ci;
+            dc = $controller('DetailsController', {$scope: scope});
+            spyOn(dc, 'handleCourseInstanceResponse');
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
+            $httpBackend.expectGET(peopleURL).respond(500);
+            $httpBackend.flush(2);
+            expect(dc.courseInstance['title']).toEqual(ci.title);
+        });
     });
 
     describe('submitCourseDetailsForm', function() {
