@@ -57,7 +57,8 @@
                                 text: tc.term_name + ' <span class="caret"></span>',
                             };
                         }));
-                    if (response.data.next !== '') {
+                    if (response.data.next && response.data.next !== '') {
+                        // API returns next=null if there are no more pages
                         console.log('Warning: Some terms missing from dropdown!');
                     }
                 }, function errorCallback(response) {
@@ -149,12 +150,12 @@
             var request = null;
             $scope.initializeDatatable = function() {
                 $scope.dataTable = $('#courseInfoDT').DataTable({
+                    deferLoading: 999, // number doesn't matter because table hidden
                     serverSide: true,
-                    deferLoading: true,
                     ajax: function(data, callback, settings) {
-                        $scope.$apply(function(){
+                        $timeout(function(){
                             $scope.searchInProgress = true;
-                        });
+                        }, 0);
                         $scope.enableColumnSorting(false);
                         //filter the sites flagged to be excluded(get only ones
                         // with exclude_from_isites set to 0)
@@ -200,7 +201,10 @@
                                     recordsFiltered: data.count,
                                     data: processedData
                                 });
-                                $scope.showDataTable = true;
+                                $timeout(function() {
+                                    $scope.dataTable.columns.adjust();
+                                    $scope.showDataTable = true;
+                                }, 0);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 console.log(textStatus);
