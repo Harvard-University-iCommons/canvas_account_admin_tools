@@ -451,8 +451,8 @@ describe('Unit testing DetailsController', function () {
         function getCompiledElement(){
             var element = angular.element('<hu-editable-input ' +
                     'editable="dc.editable"' +
-                    'is-loading="true"' +
-                    'form-value="tesValue"' +
+                    'is-loading="dc.isUndefined(dc.courseInstance.term)"' +
+                    'form-value="dc.courseInstance.term"' +
                     'model-value="testModelValue"' +
                     'maxlength="500"' +
                     'field="test-name"' +
@@ -465,7 +465,6 @@ describe('Unit testing DetailsController', function () {
 
         it('should substitute the right stuff for id, name, and label', function(){
             dc = $controller('DetailsController', {$scope: scope});
-            dc.editable = true;
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
@@ -479,7 +478,6 @@ describe('Unit testing DetailsController', function () {
             'and the value should be equal to the form\'s copy of the ' +
             'model data', function(){
             dc = $controller('DetailsController', {$scope: scope});
-            //dc.editable = true;
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
@@ -491,7 +489,6 @@ describe('Unit testing DetailsController', function () {
             'editable=false or no editable attribute and show the model ' +
             'value, not the form copy of the model value', function(){
             dc = $controller('DetailsController', {$scope: scope});
-            dc.editable = false;
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
@@ -499,10 +496,11 @@ describe('Unit testing DetailsController', function () {
             expect(liElement.find('input')).not.toBeVisible();
         });
 
-        it('should show only show the label and the loading indicator ' +
+        // skipping this test, can't seem to get it to work.
+        // we can revisit if needed.
+        xit('should only show the label and the loading indicator ' +
             'while loading, and hide the loading indicator when no ' +
             'longer loading', function(){
-
         });
     });
 
@@ -513,5 +511,5 @@ describe('Unit testing DetailsController', function () {
         it('should show a message if unsuccessful and not update the ' +
             'local course instance data');
     });
-    
+
 });
