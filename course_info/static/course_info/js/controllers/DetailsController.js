@@ -253,7 +253,7 @@
         <input type="text" class="form-control" id="input-course-{{field}}" \
                name="input-course-{{field}}" ng-show="editable" \
                ng-model="formValue" maxlength="{{maxlength}}"/> \
-        <span id="span-course-{{field}}"
+        <span id="span-course-{{field}}" \
               ng-hide="editable">{{modelValue}}</span> \
       </div> \
     </div> \
