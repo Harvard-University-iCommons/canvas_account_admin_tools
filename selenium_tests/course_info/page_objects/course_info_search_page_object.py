@@ -82,7 +82,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
             *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
 
-    def get_text(self, course_code_text):
+    def get_td_text(self, course_code_text):
         """
         :return: The text in the web element in the course code column
                  else return None
