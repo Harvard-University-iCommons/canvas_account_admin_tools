@@ -35,7 +35,7 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.assertEqual(self.search_page.get_text(
+        self.assertEqual(self.search_page.get_td_text(
             course['registrar_code']),
             course['registrar_code'],
             "Course Code does not match the expected registrar_code text: "
@@ -53,7 +53,7 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             school=course['school'],
             search_term=course['cid'])
 
-        self.assertEqual(self.search_page.get_text(
+        self.assertEqual(self.search_page.get_td_text(
             course['registrar_code_display']),
             course['registrar_code_display'],
             "Course Code does not match the expected "
