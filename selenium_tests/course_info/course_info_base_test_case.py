@@ -74,12 +74,17 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.search_page.submit_search(search_term)
 
     @classmethod
-    def _load_test_course(cls):
-        course = cls.test_settings['test_course']
+    def _load_test_course(cls, test_course_key=None):
+        """
+        Brings up the course details page for the course specified in the course
+        info test settings with the dict key `test_course_key`. If not present,
+        this will load 'test_course' by default.
+        """
+        course = cls.test_settings.get(test_course_key, 'test_course')
 
         cls.search_for_course(
             type=course['type'], school=course['school'], term=course['term'],
             year=course['year'], search_term=course['cid'])
 
-        # click on course link to view list of people in course
+        # click on course link to view course details
         cls.search_page.select_course(cid=course['cid'])
