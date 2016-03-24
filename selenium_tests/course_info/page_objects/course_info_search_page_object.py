@@ -20,7 +20,7 @@ class Locators(object):
     @classmethod
     def COURSE_LINK_HREF_CSS(cls, cid):
         """ returns a locator for a course detail link in the course table """
-        return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
+        return By.CSS_SELECTOR, 'a[href="#/details/{}"]'.format(cid)
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
