@@ -21,12 +21,6 @@ class Locators(object):
         """ returns a locator for the delete person link for sis_user_id """
         return By.CSS_SELECTOR, "a[data-sisID='{}']".format(sis_user_id)
 
-    @classmethod
-    def TD_TEXT_XPATH(cls, search_text):
-        """ returns a locator for a table cell element in the people table;
-        search_text should be user's name, user_id, etc """
-        return By.XPATH, '//td[text()="{}")]'.format(search_text)
-
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.ADD_PEOPLE_BUTTON
@@ -46,7 +40,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         """
         try:
             WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-                *Locators.TD_TEXT_XPATH(lookup_text)).is_displayed())
+                *self.TD_TEXT_XPATH(lookup_text)).is_displayed())
         except TimeoutException:
             return False
         return True

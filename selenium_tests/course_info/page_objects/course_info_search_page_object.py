@@ -22,12 +22,6 @@ class Locators(object):
         """ returns a locator for a course detail link in the course table """
         return By.CSS_SELECTOR, 'a[href="#/details/{}"]'.format(cid)
 
-    @classmethod
-    def COURSE_CODE_TEXT(cls, course_code_text):
-        """
-        returns a locator for course code display text in the table
-        """
-        return By.XPATH, "//td[text()='{}']".format(course_code_text)
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.COURSE_RESULTS_TABLE
@@ -94,7 +88,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
                  else return None
         """
         element = self.find_element(
-            *Locators.COURSE_CODE_TEXT(course_code_text))
+            *self.TD_TEXT_XPATH(course_code_text))
 
         if element.text > 0:
             return element.text
