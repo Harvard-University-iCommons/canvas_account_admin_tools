@@ -22,7 +22,7 @@ class CourseSearchTests(CourseInfoBaseTestCase):
     # under the 'Course Code' column (TLT-2511)
     # https://jira.huit.harvard.edu/browse/TLT-2521
 
-    def test_registrar_code_when_registrar_code_display_is_null(self):
+    def test_course_code_when_registrar_code_display_is_null(self):
         """
         Test when course has a registrar_code_display that is null in db.
         Expected result: Course Code will display the registrar_code
@@ -36,12 +36,12 @@ class CourseSearchTests(CourseInfoBaseTestCase):
             search_term=course['cid'])
 
         self.assertEqual(self.search_page.get_text(
-            course['registrar_code_display']),
-            course['registrar_code_display'],
-            "Registrar code display does not match the expected text: "
-            "{}".format(course['registrar_code_display']))
+            course['registrar_code']),
+            course['registrar_code'],
+            "Course Code does not match the expected registrar_code text: "
+            "{}".format(course['registrar_code']))
 
-    def test_registrar_code_when_registrar_code_display_is_not_null(self):
+    def test_course_code_when_registrar_code_display_is_not_null(self):
         """
         Test when course has a registrar_code_display that is not null in db.
         Expected result: Course Code will display the registrar_code_display
@@ -56,5 +56,6 @@ class CourseSearchTests(CourseInfoBaseTestCase):
         self.assertEqual(self.search_page.get_text(
             course['registrar_code_display']),
             course['registrar_code_display'],
-            "Registrar code display does not match the expected text: "
+            "Course Code does not match the expected "
+            "registrar_code_display text: "
             "{}".format(course['registrar_code_display']))

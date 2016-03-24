@@ -44,7 +44,7 @@ SELENIUM_CONFIG = {
       },
       'test_course_with_registrar_code_display_not_populated_in_db': {
          'cid': '353457',
-         'registrar_code_display': 'selenium_test',
+         'registrar_code': 'selenium_test',
          'school': 'Harvard College/GSAS',
       },
       'test_users': {
