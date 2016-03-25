@@ -7,6 +7,8 @@ from selenium_common.pin.page_objects.pin_login_page_object \
     import PinLoginPageObject
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object \
     import AccountAdminDashboardPage
+from selenium_tests.course_info.page_objects.course_info_detail_page_object \
+    import CourseInfoDetailPageObject
 from selenium_tests.course_info.page_objects.course_info_search_page_object \
     import CourseSearchPageObject
 from selenium_tests.course_info.page_objects.course_people_page_object \
@@ -20,6 +22,7 @@ TEST_USERS_WITH_ROLES_PATH = join(dirname(abspath(__file__)),
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
 
+    detail_page = None
     people_page = None
     search_page = None
     test_settings = None
@@ -44,8 +47,9 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
             
-        cls.search_page = CourseSearchPageObject(cls.driver)
+        cls.detail_page = CourseInfoDetailPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
+        cls.search_page = CourseSearchPageObject(cls.driver)
 
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()

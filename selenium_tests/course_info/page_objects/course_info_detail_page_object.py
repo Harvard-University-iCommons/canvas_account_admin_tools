@@ -5,6 +5,7 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
+    PEOPLE_LINK = (By.ID, "people-link")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
 
@@ -28,6 +29,9 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
     def get_input_field_value(self, field_name):
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
         return input.get_attribute('value')
+
+    def go_to_people_page(self):
+        self.find_element(*Locators.PEOPLE_LINK).click()
 
     def reset_form(self):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
