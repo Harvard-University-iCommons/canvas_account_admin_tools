@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
+
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
@@ -9,6 +11,7 @@ class Locators(object):
     PEOPLE_LINK = (By.ID, "people-link")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
+    SAVE_FORM_BUTTON = (By.ID, "course-details-form-submit")
 
     @classmethod
     def INPUT_BY_FIELD_NAME(cls, field_name):
@@ -33,11 +36,23 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
         return input.get_attribute('value')
 
+    def get_input_field(self, field_name):
+        self._wait_for_input_field_to_be_visible(field_name)
+        input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
+        return input
+
     def go_to_people_page(self):
         self.find_element(*Locators.PEOPLE_LINK).click()
 
     def reset_form(self):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
+
+    def is_locator_element_present(self, locator_element):
+        try:
+            self.find_element(locator_element)
+        except NoSuchElementException:
+            return False
+        return True
 
     def _wait_for_input_field_to_be_visible(self, field_name):
         # only want to access input elements once the values are loaded from the
