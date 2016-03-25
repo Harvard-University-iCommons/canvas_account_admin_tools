@@ -2,7 +2,14 @@ from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
+
 class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
+
+
+    def setUp(self):
+        super(CourseInfoDetailsEditTests, self).setUp()
+        self._load_test_course('test_course_SB_ILE')
+        self.assertTrue(self.detail_page.is_loaded())
 
 
     def test_edit_fields(self):
@@ -28,4 +35,27 @@ class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
         (capture original fields, edit, reset, verify against original)
         """
 
-        pass
+        original_field_values = {}
+        test_fields = [
+            'description',
+            'instructors_display',
+            'location',
+            'meeting_time',
+            'notes',
+            'short_title',
+            'sub_title',
+            'title'
+        ]
+
+        for f in test_fields:
+            original_field_values[f] = self.detail_page.get_input_field_value(f)
+            changed_text = '(changed) {}'.format(original_field_values[f])
+            self.detail_page.enter_text_in_input_field(f, changed_text)
+            self.assertEqual(self.detail_page.get_input_field_value(f),
+                             changed_text)
+
+        self.detail_page.reset_form()
+
+        for f in test_fields:
+            self.assertEqual(self.detail_page.get_input_field_value(f),
+                             original_field_values[f])

@@ -85,7 +85,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         element = self.find_element(
             *self.TD_TEXT_XPATH(course_code_text))
 
-        if element.text > 0:
+        if len(element.text.strip()) > 0:
             return element.text
         else:
             return None

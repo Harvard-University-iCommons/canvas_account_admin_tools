@@ -22,6 +22,7 @@ TEST_USERS_WITH_ROLES_PATH = join(dirname(abspath(__file__)),
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
 
+    detail_page = None
     people_page = None
     search_page = None
     test_settings = None
@@ -46,9 +47,9 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         else:
             print '(User {} already logged in to PIN)'.format(cls.USERNAME)
             
-        cls.search_page = CourseSearchPageObject(cls.driver)
+        cls.detail_page = CourseInfoDetailPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
-        cls.edit_page   = CourseInfoDetailPageObject(cls.driver)
+        cls.search_page = CourseSearchPageObject(cls.driver)
 
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
@@ -78,8 +79,14 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.search_page.submit_search(search_term)
 
     @classmethod
-    def _load_test_course(cls):
-        course = cls.test_settings['test_course']
+    def _load_test_course(cls, test_course_key=None):
+        """
+        Brings up the course details page for the course specified in the course
+        info test settings with the dict key `test_course_key`. If not present,
+        this will load 'test_course' by default.
+        """
+        course = cls.test_settings.get(test_course_key,
+                                       cls.test_settings['test_course'])
         user = cls.test_settings['test_users']['existing']
         cls.user = user['user_id']
 
@@ -97,10 +104,10 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
             type=course['type'], school=course['school'], term=course['term'],
             year=course['year'], search_term=course['cid'])
 
-        # click on course link to view list of people in course
+        # click on course link to view course details
         cls.search_page.select_course(cid=course['cid'])
         # scroll to the bottom to bring People link into view
         cls.driver.execute_script(
             "window.scrollTo(0, document.body.scrollHeight);")
         # from details page, click people page
-        cls.edit_page.get_people_link()
+        cls.detail_page.go_to_people_page()
