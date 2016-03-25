@@ -46,7 +46,7 @@ SELENIUM_CONFIG = {
         'index_page': 'course_conclusion/',
         'school': 'Divinity School'
     },
-    'run_locally': False,
+    'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
     'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
     'selenium_password': SECURE_SETTINGS.get('selenium_password'),
     'selenium_username': SECURE_SETTINGS.get('selenium_user'),
