@@ -26,7 +26,11 @@ class PeopleListTests(CourseInfoBaseTestCase):
 
         # click on course link to view list of people in course
         self.search_page.select_course(cid=course['cid'])
-
+        # scroll to the bottom to bring People link into view
+        self.driver.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
+        # from details page, click people page
+        self.edit_page.get_people_link()
         # assert that an expected enrollment is present
         self.assertTrue(self.people_page.is_loaded())
         # Note: If the course has a lot of people enrolled, results are

@@ -28,7 +28,8 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
     def is_person_on_page(self, lookup_text):
         """ looks up a person on in the people list by name or user id """
         try:
-            self.find_element(*Locators.TD_TEXT_XPATH(lookup_text))
+            WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+            *self.TD_TEXT_XPATH(lookup_text)).is_displayed())
         except NoSuchElementException:
             return False
         return True

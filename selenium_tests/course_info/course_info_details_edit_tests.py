@@ -1,13 +1,9 @@
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
-from selenium_tests.course_info.page_objects.course_info_detail_page_object \
-    import CourseInfoDetailPageObject
+
 
 class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.edit_page = CourseInfoDetailPageObject
 
     def test_edit_fields(self):
         """

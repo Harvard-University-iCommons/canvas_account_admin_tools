@@ -4,8 +4,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
-from selenium_tests.course_info.page_objects.course_people_page_object \
-    import Locators as CoursePeoplePageLocators
 
 
 class Locators(object):
@@ -78,9 +76,6 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
             self.find_element((By.LINK_TEXT, title)).click()
         else:
             raise RuntimeError('select_course() requires cid or title')
-        # loading the results can take a long time, so explicitly wait longer
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
-            *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
 
     def get_td_text(self, course_code_text):
         """

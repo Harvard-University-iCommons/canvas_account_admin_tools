@@ -11,6 +11,8 @@ from selenium_tests.course_info.page_objects.course_info_search_page_object \
     import CourseSearchPageObject
 from selenium_tests.course_info.page_objects.course_people_page_object \
     import CoursePeoplePageObject
+from selenium_tests.course_info.page_objects.course_info_detail_page_object \
+    import CourseInfoDetailPageObject
 
 
 # Common files used for all Manage People test cases
@@ -46,6 +48,7 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
             
         cls.search_page = CourseSearchPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
+        cls.edit_page   = CourseInfoDetailPageObject(cls.driver)
 
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
