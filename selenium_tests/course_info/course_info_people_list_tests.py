@@ -27,6 +27,8 @@ class PeopleListTests(CourseInfoBaseTestCase):
         # click on course link to view list of people in course
         self.search_page.select_course(cid=course['cid'])
 
+        self.detail_page.go_to_people_page()
+
         # assert that an expected enrollment is present
         self.assertTrue(self.people_page.is_loaded())
         # Note: If the course has a lot of people enrolled, results are
