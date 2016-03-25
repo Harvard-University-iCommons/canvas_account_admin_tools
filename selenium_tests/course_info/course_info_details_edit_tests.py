@@ -8,9 +8,11 @@ class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(CourseInfoDetailsEditTests, cls).setUpClass()
         cls.details_page = CourseInfoDetailPageObject(cls.driver)
 
     def setUp(self):
+        super(CourseInfoDetailsEditTests, self).setUp()
         self._load_test_course('test_course_SB_ILE')
         self.assertTrue(self.details_page.is_loaded())
 
@@ -50,14 +52,14 @@ class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
         ]
 
         for f in test_fields:
-            original_field_values[f] = self.details_page.get_input_field_text(f)
+            original_field_values[f] = self.details_page.get_input_field_value(f)
             changed_text = '(changed) {}'.format(original_field_values[f])
             self.details_page.enter_text_in_input_field(f, changed_text)
-            self.assertEqual(self.details_page.get_input_field_text(f),
+            self.assertEqual(self.details_page.get_input_field_value(f),
                              changed_text)
 
         self.details_page.reset_form()
 
         for f in test_fields:
-            self.assertEqual(self.details_page.get_input_field_text(f),
+            self.assertEqual(self.details_page.get_input_field_value(f),
                              original_field_values[f])

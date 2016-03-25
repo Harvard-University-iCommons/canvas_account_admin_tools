@@ -31,7 +31,7 @@ SELENIUM_CONFIG = {
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
-      # 'relative_url': 'accounts/8/external_tools/9',  # local
+      # 'relative_url': 'accounts/8/external_tools/68',  # local
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
          'cid': '339331',
