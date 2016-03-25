@@ -36,4 +36,6 @@ suite = unittest.defaultTestLoader.discover(
 )
 
 # run the suite
-runner.run(suite)
+result = runner.run(suite)
+if not result.wasSuccessful():
+    raise SystemExit(1)
