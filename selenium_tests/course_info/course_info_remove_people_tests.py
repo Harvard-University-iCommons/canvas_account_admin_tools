@@ -27,6 +27,8 @@ class RemovePeopleTests(CourseInfoBaseTestCase):
 
         self._load_test_course()
 
+        self.detail_page.go_to_people_page()
+
         # asserts test user is on people page and to-be-removed user is on page
         # Note: If the course has a lot of people enrolled, results are
         # paginated and it's possible that user may not be on the initial

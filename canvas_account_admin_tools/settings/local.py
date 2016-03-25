@@ -31,7 +31,7 @@ SELENIUM_CONFIG = {
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
-      # 'relative_url': 'accounts/8/external_tools/9',  # local
+      # 'relative_url': 'accounts/8/external_tools/68',  # local
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
          'cid': '339331',
@@ -40,6 +40,16 @@ SELENIUM_CONFIG = {
          'school': 'Divinity School',
          'type': 'Only courses without sites',
          'year': '2014',
+      },
+      # only SB/ILE courses support editing through the course info tool at the
+      # moment, so use this course for testing edit functionality
+      'test_course_SB_ILE': {
+         'cid': '354962',  # Canvas course 3591
+         'term': 'Spring',
+         'title': 'HDS Spring 2016',
+         'school': 'Divinity School',
+         'type': 'All courses',
+         'year': '2016',
       },
       'test_users': {
          'existing': {
