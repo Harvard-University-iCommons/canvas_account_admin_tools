@@ -26,6 +26,8 @@ class AddPeopleTests(CourseInfoBaseTestCase):
 
         self._load_test_course()
 
+        self.detail_page.go_to_people_page()
+
         # search for a user and add user to course
         self.assertTrue(self.people_page.is_loaded())
 

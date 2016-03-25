@@ -84,7 +84,8 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         info test settings with the dict key `test_course_key`. If not present,
         this will load 'test_course' by default.
         """
-        course = cls.test_settings.get(test_course_key, 'test_course')
+        course = cls.test_settings.get(test_course_key,
+                                       cls.test_settings['test_course'])
 
         cls.search_for_course(
             type=course['type'], school=course['school'], term=course['term'],
