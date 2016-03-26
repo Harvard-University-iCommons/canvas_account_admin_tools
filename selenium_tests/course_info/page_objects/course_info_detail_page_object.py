@@ -12,6 +12,8 @@ class Locators(object):
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
     SAVE_FORM_BUTTON = (By.ID, "course-details-form-submit")
+    # The class locator is unique to non-editable fields
+    NON_EDITABLE_FIELD_CLASS_NAME = (By.CLASS_NAME, "ng-binding")
 
     @classmethod
     def INPUT_BY_FIELD_NAME(cls, field_name):
@@ -20,6 +22,13 @@ class Locators(object):
         field name (e.g. title, sub_title, description)
         """
         return By.ID, 'input-course-{}'.format(field_name)
+
+    def INPUT_BY_FIELD_NAME_FOR_NON_EDITABLE_FIELDS(cls, field_name):
+        """
+        returns a locator for an span field for a course instance record
+        field name (e.g. title, sub_title, description)
+        """
+        return By.XPATH, ".//*[@id='span-course-{}']".format(field_name)
 
 
 class CourseInfoDetailPageObject(CourseInfoBasePageObject):
@@ -39,6 +48,14 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
     def get_input_field(self, field_name):
         self._wait_for_input_field_to_be_visible(field_name)
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
+        return input
+
+    def get_input_field_for_non_editable_fields(self, field_name):
+        self._wait_for_input_field_to_be_visible(field_name)
+        input = self.find_element(
+                *Locators.INPUT_BY_FIELD_NAME_FOR_NON_EDITABLE_FIELDS(
+                        field_name)
+        )
         return input
 
     def go_to_people_page(self):
