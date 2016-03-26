@@ -1,15 +1,15 @@
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
-from selenium_tests.course_info.page_objects.course_info_detail_page_object \
-    import CourseInfoDetailPageObject
 
 
 class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
+
 
     def setUp(self):
         super(CourseInfoDetailsEditTests, self).setUp()
         self._load_test_course('test_course_SB_ILE')
         self.assertTrue(self.detail_page.is_loaded())
+
 
     def test_edit_fields(self):
         """

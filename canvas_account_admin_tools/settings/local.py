@@ -37,9 +37,15 @@ SELENIUM_CONFIG = {
          'cid': '339331',
          'term': 'Spring',
          'title': 'Latin Paleography and Manuscript Culture: Seminar',
+         'registrar_code_display': '2223',
          'school': 'Divinity School',
          'type': 'Only courses without sites',
          'year': '2014',
+      },
+      'test_course_with_registrar_code_display_not_populated_in_db': {
+         'cid': '353457',
+         'registrar_code': 'selenium_test',
+         'school': 'Harvard College/GSAS',
       },
       # only SB/ILE courses support editing through the course info tool at the
       # moment, so use this course for testing edit functionality
