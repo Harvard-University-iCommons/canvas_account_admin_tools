@@ -1,7 +1,4 @@
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
@@ -9,7 +6,6 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
-
     PEOPLE_LINK = (By.ID, "people-link")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")

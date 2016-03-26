@@ -2,7 +2,6 @@ from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
-
 class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
 
 
