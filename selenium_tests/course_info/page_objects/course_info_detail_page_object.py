@@ -9,6 +9,7 @@ class Locators(object):
     PEOPLE_LINK = (By.ID, "people-link")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
+    SUBMIT_FORM_BUTTON = (By.ID, "course-details-form-submit")
 
     @classmethod
     def INPUT_BY_FIELD_NAME(cls, field_name):
@@ -38,6 +39,9 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
 
     def reset_form(self):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
+
+    def submit_form(self):
+        self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
 
     def _wait_for_input_field_to_be_visible(self, field_name):
         # only want to access input elements once the values are loaded from the
