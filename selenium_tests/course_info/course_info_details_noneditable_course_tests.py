@@ -1,5 +1,4 @@
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
@@ -27,28 +26,25 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
                           (Locators.SAVE_FORM_BUTTON), False)
 
 
-        #TODO: #1. update locators on details PO to find xpath details,
-        # # by ID isn't working for some reasons
-        # Non-Working locator:
-        # element = self.detail_page.get_input_field_for_non_editable_fields(
-        #             'registrar_code_display')
-
-
-        """
-        Every field element has a span/input id so the test needs to check on
-        the presence of a unique class element for non-editable fields.
+        """TLT-2523: Every field has a span/input id regardless of whether
+        the field is editable, so tests cannot rely on the presence of an
+        span/input id.  The tests are validating against a unique class
+        element for non-editable fields
         """
 
-        #TODO: #2. refactor "find elements" and reusable locators to the PO
-        #TODO: #3. loop through all the fields that are editable for this test
+        non_editable_fields = [
+        'term',
+        'registrar_code_display'
+        ]
+        # TODO: get the full list of fields to loop through
 
-        # WORKING TEST
-        # Tests that the specific field is non-editable
-        element = self.driver.find_element_by_xpath(
-            ".//*[@id='span-course-course_instance_id"
-            "']").find_elements(*Locators.NON_EDITABLE_FIELD_CLASS_NAME)
-        self.assertTrue(EC.presence_of_element_located(element))
+        # loops through each of the non-editable fields and looks for the
+        # unique class element associated with non-editable fields
+        for element in non_editable_fields:
+            field_element = self.driver.find_element(
+                *Locators.SPAN_ELEMENT_BY_FIELD_NAME(
+                element)).find_elements(
+                *Locators.NON_EDITABLE_FIELD_CLASS_NAME)
 
-
-
-
+        # verifies that the fields are non-editable
+        self.assertTrue(EC.presence_of_element_located(field_element))
