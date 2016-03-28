@@ -1,3 +1,4 @@
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
@@ -12,6 +13,8 @@ class Locators(object):
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
     SAVE_FORM_BUTTON = (By.ID, "course-details-form-submit")
+    SUBMIT_FORM_BUTTON = (By.ID, "course-details-form-submit")
+    SUBMIT_SUCCESS_MSG = (By.ID, "alert-success-update-succeeded")
 
     @classmethod
     def INPUT_BY_FIELD_NAME(cls, field_name):
@@ -64,6 +67,16 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         try:
             self.find_element(locator_element)
         except NoSuchElementException:
+
+    def submit_form(self):
+        self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
+
+    def submit_was_successful(self):
+        """ Returns true if the success message is shown after """
+        try:
+            WebDriverWait(self._driver, 10).until(lambda s: s.find_element(
+                *Locators.SUBMIT_SUCCESS_MSG).is_displayed())
+        except TimeoutException:
             return False
         return True
 
