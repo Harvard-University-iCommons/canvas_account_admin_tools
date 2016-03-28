@@ -29,23 +29,22 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
 
         """TLT-2523: Every field has a span/input id regardless of whether
         the field is editable, so tests cannot rely on the presence of an
-        span/input id.  The tests are validating against a unique class
+        span/input id.  The tests are validating against a class
         element for non-editable fields
         """
 
-        # The span element exists only there is a value in the field.
+        # NOTE: The span element exists only there is a value in the field.
         # Limitation:  Each of the fields of the test site is
         # populated with a value. When testing a new course, note that
         # tests may break if field values are null.
 
         non_editable_fields = [
         'course_instance_id',
-        # 'departments',
         'description',
         'instructors_display',
         'location',
         'meeting_time',
-        # 'notes',
+        'notes',
         'registrar_code_display',
         'sub_title',
         'term',
@@ -53,10 +52,11 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
         ]
 
         # loops through each of the non-editable fields and looks for the
-        # unique class element associated with non-editable fields
+        # unique class element associated with non-editable fields and also
+        # verifies that the field is not rendered as an input
         expected_class_name = "ng-binding"
         for element in non_editable_fields:
             self.assertEqual(self.detail_page.get_span_element_class(element),
                              expected_class_name)
-
-
+            self.assertFalse(
+                    self.detail_page.is_element_displayed_as_input_field(element))

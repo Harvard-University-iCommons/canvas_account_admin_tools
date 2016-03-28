@@ -46,6 +46,11 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
         return input.get_attribute('value')
 
+    def is_element_displayed_as_input_field(self, field_name):
+        is_displayed = self.find_element(*Locators.INPUT_BY_FIELD_NAME(
+                field_name)).is_displayed()
+        return is_displayed
+
     def get_span_element_class(self, field_name):
         span_element = self.find_element(
                 *Locators.SPAN_ELEMENT_BY_FIELD_NAME(field_name))
