@@ -10,7 +10,8 @@ describe('Unit testing DetailsController', function () {
 
     var peopleURL =
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
-        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2Fpeople%2F&-source=xreg_map';
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId +
+        '%2Fpeople%2F&-source=xreg_map';
 
     // set up the test environment
     beforeEach(function () {
