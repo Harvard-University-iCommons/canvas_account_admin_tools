@@ -46,10 +46,10 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
         return input.get_attribute('value')
 
-    def get_input_field(self, field_name):
-        self._wait_for_input_field_to_be_visible(field_name)
-        input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
-        return input
+    def get_span_element_class(self, field_name):
+        span_element = self.find_element(
+                *Locators.SPAN_ELEMENT_BY_FIELD_NAME(field_name))
+        return span_element.get_attribute('class')
 
     def go_to_people_page(self):
         self.find_element(*Locators.PEOPLE_LINK).click()
