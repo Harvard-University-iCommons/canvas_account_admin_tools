@@ -468,7 +468,6 @@ describe('Unit testing DetailsController', function () {
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
             var liElement = directiveElem.find('li');
-            console.log(liElement);
             expect(liElement.find('label').text().trim()).toBe('test label');
             expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
             expect(liElement.find('input').prop('name')).toBe('input-course-test-name');
