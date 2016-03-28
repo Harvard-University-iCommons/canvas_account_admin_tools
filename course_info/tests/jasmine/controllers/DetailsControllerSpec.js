@@ -274,7 +274,6 @@ describe('Unit testing DetailsController', function () {
             'separately', function(){
             courseInstances.instances[ci.course_instance_id] = ci;
             dc = $controller('DetailsController', {$scope: scope});
-            spyOn(dc, 'handleCourseInstanceResponse');
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify(ci));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify(members));
             $httpBackend.flush(2);
@@ -382,7 +381,7 @@ describe('Unit testing DetailsController', function () {
             dc.submitCourseDetailsForm();
             $httpBackend.expectPATCH(courseInstanceURL, expectedPatchData).respond(201, JSON.stringify({status: "success"}));
             $httpBackend.flush(1);
-            expect(dc.showNewGlobalAlert).toHaveBeenCalled();
+            expect(dc.showNewGlobalAlert).toHaveBeenCalledWith('updateSucceeded');
         });
 
         it('should show a message if successful and update the local ' +
@@ -407,7 +406,7 @@ describe('Unit testing DetailsController', function () {
             dc.submitCourseDetailsForm();
             $httpBackend.expectPATCH(courseInstanceURL, expectedPatchData).respond(201, JSON.stringify({status: "success"}));
             $httpBackend.flush(1);
-            expect(dc.showNewGlobalAlert).toHaveBeenCalled();
+            expect(dc.showNewGlobalAlert).toHaveBeenCalledWith('updateSucceeded');
             expect(dc.courseInstance['title']).toBe('test title');
         });
 
@@ -459,8 +458,7 @@ describe('Unit testing DetailsController', function () {
                 'label="test label">' +
                 '</hu-editable-input>');
             var compiledElement = compile(element)(scope);
-            //scope.$digest();
-            scope.$apply();
+            scope.$digest();
             return compiledElement;
         }
 
@@ -470,81 +468,29 @@ describe('Unit testing DetailsController', function () {
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
             var liElement = directiveElem.find('li');
+            console.log(liElement);
             expect(liElement.find('label').text().trim()).toBe('test label');
             expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
+            expect(liElement.find('input').prop('name')).toBe('input-course-test-name');
             expect(liElement.find('input').prop('maxlength')).toBe(500);
-        });
-
-        it('should show an input element if called with editable=true ' +
-            'and the value should be equal to the form\'s copy of the ' +
-            'model data', function(){
-            dc = $controller('DetailsController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.flush(2);
-            var liElement = directiveElem.find('li');
-            expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
         });
 
         // skipping this test as I'm pretty sure it's not
         // doing the right thing, I left the code so when we
         // revisit we can see what we tried to do. This will be
         // included in the tech debt item TLT-2539
-        xit('should show regular non-editable text if called with ' +
+        it('should show an input element if called with editable=true ' +
+            'and the value should be equal to the form\'s copy of the ' +
+            'model data');
+
+        // ditto comment above
+        it('should show regular non-editable text if called with ' +
             'editable=false or no editable attribute and show the model ' +
-            'value, not the form copy of the model value', function(){
-            dc = $controller('DetailsController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.flush(2);
-            var liElement = directiveElem.find('li');
-            console.log(liElement);
-            expect(liElement.find('input')).not.toBeVisible();
-        });
+            'value, not the form copy of the model value');
 
         // skipping the following test, they are tech debt in TLT-2539
-        xit('should only show the label and the loading indicator ' +
+        it('should only show the label and the loading indicator ' +
             'while loading, and hide the loading indicator when no ' +
-            'longer loading', function(){
-        });
+            'longer loading');
     });
-
-    describe('fieldLabelWrapperDirective', function() {
-        var compile, scope, directiveElem;
-        beforeEach(function () {
-             inject(function($compile, $rootScope){
-                compile = $compile;
-                scope = $rootScope.$new();
-              });
-              directiveElem = getCompiledElement();
-            scope = directiveElem.isolateScope();
-        });
-
-        function getCompiledElement(){
-            var element = angular.element('<hu-field-label-wrapper ' +
-                    'is-loading="dc.isUndefined(dc.courseInstance.term)"' +
-                    'field="test-name"' +
-                    'label="fieldLabelWrapperDirective test label">' +
-                '</hu-field-label-wrapper>');
-            var compiledElement = compile(element)(scope);
-            scope.$digest();
-            return compiledElement;
-        }
-
-        it('should display the correct value for label', function(){
-            dc = $controller('DetailsController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
-            $httpBackend.flush(2);
-            var elem = directiveElem.find('li');
-            expect(elem.find('label').text().trim()).toBe('fieldLabelWrapperDirective test label');
-        });
-        // skipping the following tests, they are tech debt in TLT-2539
-        xit('should call backend with only the editable form fields');
-        xit('should show a message if successful and update the local ' +
-            'course instance data');
-        xit('should show a message if unsuccessful and not update the ' +
-            'local course instance data');
-    });
-
 });
