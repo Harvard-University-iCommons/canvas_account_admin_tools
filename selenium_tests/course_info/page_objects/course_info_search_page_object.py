@@ -4,6 +4,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
+from selenium_tests.course_info.page_objects.course_info_detail_page_object \
+    import Locators as DetailsPageLocators
 
 
 class Locators(object):
@@ -76,16 +78,3 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
             self.find_element((By.LINK_TEXT, title)).click()
         else:
             raise RuntimeError('select_course() requires cid or title')
-
-    def get_td_text(self, course_code_text):
-        """
-        :return: The text in the web element in the course code column
-                 else return None
-        """
-        element = self.find_element(
-            *self.TD_TEXT_XPATH(course_code_text))
-
-        if len(element.text.strip()) > 0:
-            return element.text
-        else:
-            return None

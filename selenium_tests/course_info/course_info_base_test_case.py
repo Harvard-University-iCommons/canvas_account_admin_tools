@@ -7,12 +7,12 @@ from selenium_common.pin.page_objects.pin_login_page_object \
     import PinLoginPageObject
 from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object \
     import AccountAdminDashboardPage
+from selenium_tests.course_info.page_objects.course_info_detail_page_object \
+    import CourseInfoDetailPageObject
 from selenium_tests.course_info.page_objects.course_info_search_page_object \
     import CourseSearchPageObject
 from selenium_tests.course_info.page_objects.course_people_page_object \
     import CoursePeoplePageObject
-from selenium_tests.course_info.page_objects.course_info_detail_page_object \
-    import CourseInfoDetailPageObject
 
 
 # Common files used for all Manage People test cases
@@ -67,7 +67,6 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
     @classmethod
     def search_for_course(cls, type=None, school=None, term=None, year=None,
                           search_term=''):
-
         if type:
             cls.search_page.select_course_type(type)
         if school:
