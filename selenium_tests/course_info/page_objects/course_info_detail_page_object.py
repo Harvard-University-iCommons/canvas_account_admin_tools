@@ -12,11 +12,6 @@ class Locators(object):
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
     SAVE_FORM_BUTTON = (By.ID, "course-details-form-submit")
-    # The class locator is unique to non-editable fields, which will match
-    # this exact value.  Editable fields also contain a "ng-binding" but it
-    # is always accompanied by additional suffixes "ng-binding some_value",
-    # which is not an exact match.
-    NON_EDITABLE_FIELD_CLASS_NAME = (By.CLASS_NAME, "ng-binding")
 
     @classmethod
     def INPUT_BY_FIELD_NAME(cls, field_name):

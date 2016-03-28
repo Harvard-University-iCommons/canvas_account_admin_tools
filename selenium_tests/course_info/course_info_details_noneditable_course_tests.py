@@ -1,10 +1,7 @@
-from selenium.webdriver.support import expected_conditions as EC
-
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 from selenium_tests.course_info.page_objects.course_info_detail_page_object \
     import  Locators
-
 
 
 class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
@@ -26,14 +23,6 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
         self.assertEquals(self.detail_page.is_locator_element_present
                           (Locators.SAVE_FORM_BUTTON), False)
 
-        # The tests are validating against an exact match for the class
-        # attribute of non-editable fields
-        # (Editable fields also contain a "ng-binding" but it is always
-        # accompanied by additional suffixes "ng-binding some_value",
-        # which is not an exact match).
-
-        expected_class_name = "ng-binding"
-
         # The span element exists only there if is a value in the field.
         # Limitation:  Each of the fields of the test site is
         # populated with a value. When testing a new course, note that
@@ -52,11 +41,17 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
         'title'
         ]
 
-        # loops through each of the non-editable fields and looks for the
-        # exact class associated with non-editable fields and also
-        # verifies that the field is not rendered as an input element
+        # The tests are validating against an exact match for the class
+        # attribute of non-editable fields
+        # (Editable fields also contain a "ng-binding" but it is always
+        # accompanied by additional suffixes "ng-binding some_value",
+        # which is not an exact match).
+        expected_class_name = "ng-binding"
+
 
         for element in non_editable_fields:
+            # assert exact class associated with non-editable fields
+            # and also verifies that the field is not rendered as an input element
             self.assertEqual(self.detail_page.get_span_element_class(element),
                              expected_class_name)
             self.assertFalse(
