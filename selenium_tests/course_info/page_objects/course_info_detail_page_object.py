@@ -67,6 +67,8 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         try:
             self.find_element(locator_element)
         except NoSuchElementException:
+            return False
+        return True
 
     def submit_form(self):
         self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
