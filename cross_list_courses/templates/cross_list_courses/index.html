@@ -13,11 +13,11 @@
     <link rel="stylesheet" type="text/css"
           href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}"
           media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.11/datatables.min.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.11/media/css/jquery.dataTables.min.css' %}" media="screen"/>
 
     {% if debug %}
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.js' %}"></script>
-    <script src="{% static 'datatables-1.10.11/datatables.js' %}"></script>
+    <script src="{% static 'datatables-1.10.11/media/js/jquery.dataTables.js' %}"></script>
     <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular-route.js' %}"></script>
@@ -27,7 +27,7 @@
     <script src="{% static 'angular-datatables-0.5.3/dist/angular-datatables.js' %}"></script>
     {% else %}
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.min.js' %}"></script>
-    <script src="{% static 'datatables-1.10.11/datatables.min.js' %}"></script>
+    <script src="{% static 'datatables-1.10.11/media/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular.min.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular-route.min.js' %}"></script>

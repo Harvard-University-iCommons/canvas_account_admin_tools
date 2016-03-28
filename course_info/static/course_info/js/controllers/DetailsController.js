@@ -253,7 +253,8 @@
         <input type="text" class="form-control" id="input-course-{{field}}" \
                name="input-course-{{field}}" ng-show="editable" \
                ng-model="formValue" maxlength="{{maxlength}}"/> \
-        <span ng-hide="editable">{{modelValue}}</span> \
+        <span id="span-course-{{field}}" \
+              ng-hide="editable">{{modelValue}}</span> \
       </div> \
     </div> \
   </div> \
@@ -279,7 +280,7 @@
     </label> \
     <div class="col-md-10"> \
       <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
-      <div ng-hide="isLoading()" ng-transclude></div> \
+      <div id="transclude-course-{{field}}" ng-hide="isLoading()" ng-transclude></div> \
     </div> \
   </div> \
 </li> \

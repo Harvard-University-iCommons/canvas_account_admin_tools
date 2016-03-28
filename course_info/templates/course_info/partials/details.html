@@ -12,7 +12,7 @@
     </h3>
 </nav>
 
-<main>
+<main class="course-info-details-page">
 
       <div id="alerts">
         <div class="alert alert-success" role="alert"
@@ -156,14 +156,15 @@
                 </p>
                 <p>
                   <a href="#/people/{{dc.courseInstance.course_instance_id}}"
-                     id="people-link"
+                     id="people-error-link"
                      class="alert-link">
                     Go to course people page.
                   </a>
                 </p>
               </div>
 
-              <a href="#/people/{{dc.courseInstance.course_instance_id}}">
+              <a id="people-link"
+                 href="#/people/{{dc.courseInstance.course_instance_id}}">
                 <ng-pluralize count="dc.courseInstance.members"
                               when="{'0': 'There are no people in the course.',
                     'one': 'There is one person in the course.',
@@ -235,7 +236,7 @@
 
         <div class="form-group" ng-show="dc.editable">
           <div class="col-md-12">
-            <a type="link" class="btn btn-default"
+            <a type="link" class="btn btn-default" id="course-details-form-reset"
                ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null"
                ng-click="dc.resetFormFromUI()">
               Reset
