@@ -47,6 +47,7 @@ class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
                              new_field_values[f])
 
         self.detail_page.submit_form()
+        self.assertTrue(self.detail_page.submit_was_successful())
 
         # check values saved to database via API
 
