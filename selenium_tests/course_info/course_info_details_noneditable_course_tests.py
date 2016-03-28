@@ -32,9 +32,23 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
         element for non-editable fields
         """
 
+        # The span element exists only there is a value in the field.
+        # Limitation:  Each of the fields of the test site is
+        # populated with a value. When testing a new course, note that
+        # tests may break if field values are null.
+
         non_editable_fields = [
+        'course_instance_id',
+        'departments',
+        'description',
+        'instructors_display',
+        'location',
+        'meeting_time',
+        'notes',
+        'registrar_code_display',
+        'sub_title',
         'term',
-        'registrar_code_display'
+        'title'
         ]
         # TODO: get the full list of fields to loop through
 
