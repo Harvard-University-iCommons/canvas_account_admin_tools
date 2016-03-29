@@ -56,12 +56,6 @@ class CourseInfoDetailsEditTests(CourseInfoBaseTestCase):
         for f in self.editable_fields:
             self.assertEqual(api_data[f], new_field_values[f])
 
-    def test_regular_course_not_editable(self):
-        """
-        verify non-SB/ILE courses cannot be edited
-        """
-
-        pass
 
     def test_reset_form(self):
         """

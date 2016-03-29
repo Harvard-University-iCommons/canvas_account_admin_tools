@@ -1,3 +1,4 @@
+from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -36,11 +37,34 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         input = self.find_element(*Locators.INPUT_BY_FIELD_NAME(field_name))
         return input.get_attribute('value')
 
+    def is_element_displayed_as_input_field(self, field_name):
+        try:
+            is_displayed = self.find_element(*Locators.INPUT_BY_FIELD_NAME(
+                    field_name)).is_displayed()
+            return is_displayed
+        except NoSuchElementException:
+            return False
+
     def go_to_people_page(self):
         self.find_element(*Locators.PEOPLE_LINK).click()
 
     def reset_form(self):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
+
+    def is_locator_element_present(self, locator_element):
+        try:
+            self.find_element(locator_element)
+        except NoSuchElementException:
+            return False
+        return True
+
+    def verify_buttons_to_edit_page_are_present(self):
+
+        if (self.is_locator_element_present(Locators.RESET_FORM_BUTTON) and
+            self.is_locator_element_present(Locators.SUBMIT_FORM_BUTTON)):
+            return True
+        else:
+            return False
 
     def submit_form(self):
         self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()

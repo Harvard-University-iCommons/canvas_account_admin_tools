@@ -27,7 +27,7 @@ if settings.SELENIUM_CONFIG.get('use_htmlrunner', True):
     report_file_obj = file(os.path.join(report_file_path, report_name), 'wb')
     runner = HTMLTestRunner.HTMLTestRunner(
         stream=report_file_obj,
-        title='Canvas Account Admint Tools test suite report',
+        title='Canvas Account Admin Tools test suite report',
         description='Result of tests in {}'.format(__file__)
     )
 else:
