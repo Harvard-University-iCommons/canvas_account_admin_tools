@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
-    import Locators as BasePageObjectLocators
+    import Locators as CourseInfoBasePageObjectLocators
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 
@@ -41,7 +41,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         """
         try:
             WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-                *BasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
+                *CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
                 ).is_displayed())
         except TimeoutException:
             return False
