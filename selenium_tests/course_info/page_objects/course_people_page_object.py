@@ -3,6 +3,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
+    import Locators as BasePageObjectLocators
+from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 
 
@@ -21,23 +23,16 @@ class Locators(object):
         """ returns a locator for the delete person link for sis_user_id """
         return By.CSS_SELECTOR, "a[data-sisID='{}']".format(sis_user_id)
 
-    @classmethod
-    def TD_TEXT_XPATH(cls, search_text):
-        """ returns a locator for a table cell element in the people table;
-        search_text should be user's name, user_id, etc """
-        return By.XPATH, '//td[contains(text(), "{}")]'.format(search_text)
-
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.ADD_PEOPLE_BUTTON
 
     def is_person_on_page(self, lookup_text):
         """ looks up a person on in the people list by name or user id """
-        try:
-            self.find_element(*Locators.TD_TEXT_XPATH(lookup_text))
-        except NoSuchElementException:
-            return False
-        return True
+        element = self.get_cell_with_text(lookup_text)
+        if element is not None:
+            return True
+        return False
 
     def is_person_removed_from_list(self, lookup_text):
         """
@@ -46,7 +41,8 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         """
         try:
             WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-                *Locators.TD_TEXT_XPATH(lookup_text)).is_displayed())
+                *BasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
+                ).is_displayed())
         except TimeoutException:
             return False
         return True
