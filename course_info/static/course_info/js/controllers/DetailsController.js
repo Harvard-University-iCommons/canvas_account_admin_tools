@@ -1,7 +1,6 @@
 (function () {
     angular.module('CourseInfo')
-        .controller('DetailsController', DetailsController)
-        .directive('huFieldLabelWrapper', fieldLabelWrapperDirective);
+        .controller('DetailsController', DetailsController);
 
     function DetailsController($scope, $routeParams, courseInstances, $compile,
                                djangoUrl, $http, $q, $log, $uibModal, $sce) {
@@ -227,30 +226,4 @@
 
         dc.init();
     }
-
-    function fieldLabelWrapperDirective() {
-        return {
-            //templateUrl: 'directives/field_label_wrapper.html'
-            scope: {
-                field: '@',
-                isLoading: '&',
-                label: '@'
-            },
-            transclude: true,
-            template: ' \
-<li class="list-group-item"> \
-  <div class="form-group"> \
-    <label for="input-course-{{field}}" class="col-md-2"> \
-      {{label}} \
-    </label> \
-    <div class="col-md-10"> \
-      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
-      <div id="transclude-course-{{field}}" ng-hide="isLoading()" ng-transclude></div> \
-    </div> \
-  </div> \
-</li> \
-'
-        }
-    }
-
 })();
