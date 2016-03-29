@@ -12,7 +12,6 @@ class Locators(object):
     PEOPLE_LINK = (By.ID, "people-link")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
-    SAVE_FORM_BUTTON = (By.ID, "course-details-form-submit")
     SUBMIT_FORM_BUTTON = (By.ID, "course-details-form-submit")
     SUBMIT_SUCCESS_MSG = (By.ID, "alert-success-update-succeeded")
 
@@ -23,14 +22,6 @@ class Locators(object):
         field name (e.g. title, sub_title, description)
         """
         return By.ID, 'input-course-{}'.format(field_name)
-
-    @classmethod
-    def SPAN_ELEMENT_BY_FIELD_NAME(cls, field_name):
-        """
-        returns a locator for an span field for a course instance record
-        field name (e.g. title, sub_title, description)
-        """
-        return By.ID, 'span-course-{}'.format(field_name)
 
 
 class CourseInfoDetailPageObject(CourseInfoBasePageObject):
@@ -48,14 +39,12 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         return input.get_attribute('value')
 
     def is_element_displayed_as_input_field(self, field_name):
-        is_displayed = self.find_element(*Locators.INPUT_BY_FIELD_NAME(
-                field_name)).is_displayed()
-        return is_displayed
-
-    def get_span_element_class(self, field_name):
-        span_element = self.find_element(
-                *Locators.SPAN_ELEMENT_BY_FIELD_NAME(field_name))
-        return span_element.get_attribute('class')
+        try:
+            is_displayed = self.find_element(*Locators.INPUT_BY_FIELD_NAME(
+                    field_name)).is_displayed()
+            return is_displayed
+        except NoSuchElementException:
+            return False
 
     def go_to_people_page(self):
         self.find_element(*Locators.PEOPLE_LINK).click()
@@ -69,6 +58,14 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         except NoSuchElementException:
             return False
         return True
+
+    def verify_buttons_to_edit_page_are_present(self):
+
+        if (self.is_locator_element_present(Locators.RESET_FORM_BUTTON) and
+            self.is_locator_element_present(Locators.SUBMIT_FORM_BUTTON)):
+            return True
+        else:
+            return False
 
     def submit_form(self):
         self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
