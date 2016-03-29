@@ -855,6 +855,7 @@ describe('Unit testing PeopleController', function() {
                var membership = {};
                spyOn(scope, 'removeMembership');
                scope.confirmRemove();
+               scope.$digest();  // resolves modal instantiation
                scope.confirmRemoveModalInstance.close(membership);
                scope.$digest();  // resolves confirmRemoveModalInstance result
                expect(scope.removeMembership).toHaveBeenCalled();

@@ -170,9 +170,14 @@
 
             // if they confirm, then do the work
             $scope.confirmRemoveModalInstance.result
-                .then(function() {
-                    $scope.removeMembership();
-                })
+                .then(
+                    function modalSuccess(membership) {
+                        $scope.removeMembership(membership);
+                    },
+                    function modalFailure(failure) {
+                        $log.error('remove confirmation modal failure: ' + failure);
+                    }
+                )
                 .finally(function() {
                     $scope.confirmRemoveModalInstance = null;
                 });
