@@ -27,7 +27,7 @@ function validateURIHasParameters(uri, params) {
 
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
-        $httpBackend, $window, $log, $uibModal;
+        $httpBackend, $window, $log, $uibModal, $templateCache;
     var controller, scope;
     var courseInstanceId = 1234567890;
     var courseInstanceURL =
@@ -37,10 +37,12 @@ describe('Unit testing PeopleController', function() {
 
     // set up the test environment
     beforeEach(function() {
+        // load in the app and the templates-as-module
         module('CourseInfo');
+        module('templates');
         inject(function(_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
                         _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
-                        _$uibModal_) {
+                        _$uibModal_, _$templateCache_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
@@ -51,6 +53,7 @@ describe('Unit testing PeopleController', function() {
             $window = _$window_;
             $log = _$log_;
             $uibModal = _$uibModal_;
+            $templateCache = _$templateCache_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -833,9 +836,6 @@ describe('Unit testing PeopleController', function() {
     });
 
     describe('confirmRemove', function() {
-        var modalContentsPartialURL =
-            'partials/remove-course-membership-confirmation.html';
-
         beforeEach(function() {
             var ci = {
                 course_instance_id: $routeParams.courseInstanceId,
@@ -845,11 +845,9 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
 
-        it('should get the partial and stick the instance on the scope', function() {
+        it('should stick the instance on the scope', function() {
             scope.confirmRemove();
             expect(scope.confirmRemoveModalInstance).not.toBeNull();
-            $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
-            $httpBackend.flush(1);
         });
 
         it('should call removeMembership and remove itself from the scope on close',
@@ -857,8 +855,6 @@ describe('Unit testing PeopleController', function() {
                var membership = {};
                spyOn(scope, 'removeMembership');
                scope.confirmRemove();
-               $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
-               $httpBackend.flush(1);
                scope.confirmRemoveModalInstance.close(membership);
                scope.$digest();  // resolves confirmRemoveModalInstance result
                expect(scope.removeMembership).toHaveBeenCalled();

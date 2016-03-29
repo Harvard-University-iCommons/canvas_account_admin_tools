@@ -1,7 +1,6 @@
 (function () {
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController)
-        .directive('huEditableInput', editableInputDirective)
         .directive('huFieldLabelWrapper', fieldLabelWrapperDirective);
 
     function DetailsController($scope, $routeParams, courseInstances, $compile,
@@ -227,40 +226,6 @@
         };
 
         dc.init();
-    }
-
-    function editableInputDirective() {
-        return {
-            scope: {
-                editable: '=', // can be < in angular 1.5;
-                               // if not provided, defaults to null/false
-                field: '@',
-                formValue: '=',
-                isLoading: '&',
-                label: '@',
-                maxlength: '@',
-                modelValue: '='
-            },
-            template: ' \
-<li class="list-group-item"> \
-  <div class="form-group"> \
-    <label for="input-course-{{field}}" class="col-md-2"> \
-      {{label}} \
-    </label> \
-    <div class="col-md-10"> \
-      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span> \
-      <div ng-hide="isLoading()"> \
-        <input type="text" class="form-control" id="input-course-{{field}}" \
-               name="input-course-{{field}}" ng-show="editable" \
-               ng-model="formValue" maxlength="{{maxlength}}"/> \
-        <span id="span-course-{{field}}" \
-              ng-hide="editable">{{modelValue}}</span> \
-      </div> \
-    </div> \
-  </div> \
-</li> \
-'
-        }
     }
 
     function fieldLabelWrapperDirective() {

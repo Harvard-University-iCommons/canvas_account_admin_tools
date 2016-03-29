@@ -170,7 +170,9 @@
 
             // if they confirm, then do the work
             $scope.confirmRemoveModalInstance.result
-                .then($scope.removeMembership)
+                .then(function() {
+                    $scope.removeMembership();
+                })
                 .finally(function() {
                     $scope.confirmRemoveModalInstance = null;
                 });
