@@ -67,7 +67,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         search_textbox.send_keys(search_text)
         self.find_element(*Locators.SEARCH_BUTTON).click()
         # loading the results can take a long time, so explicitly wait longer
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+        WebDriverWait(self._driver, 45).until(lambda s: s.find_element(
             *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
     def select_course(self, cid=None, title=None):
