@@ -1,10 +1,12 @@
 describe('Unit testing BadgeDirective', function() {
     beforeEach(module('CourseInfo'));
+    beforeEach(module('templates'));
 
-    var $compile, $rootScope;
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    var $compile, $rootScope, $templateCache;
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$templateCache_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
+        $templateCache = _$templateCache_;
     }));
 
     // sanity check the test framework
