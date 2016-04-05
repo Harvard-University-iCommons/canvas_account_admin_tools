@@ -49,7 +49,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             login_page = PinLoginPageObject(cls.driver)
             # Verify if we need to logon
             if login_page.is_loaded():
-                login_page.login_huid(cls.username, cls.password)
+                login_page.login_xid(cls.username, cls.password)
             else:
                 raise RuntimeError(
                     'Could not determine if canvas main page loaded as'
