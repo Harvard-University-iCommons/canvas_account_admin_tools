@@ -27,7 +27,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             'canvas_base_url')
         cls.shopping_url = '{}{}'.format(
             cls.canvas_base_dev_url, shopping_data['relative_url'])
-        print 'shopping url: {}'.format(cls.shopping_url)
+        
         if not (cls.username and cls.password):
             missing_required_var = 'shopping user credentials'
 
@@ -48,7 +48,6 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
         if not cls.shopping_page.is_loaded():
             login_page = PinLoginPageObject(cls.driver)
             # Verify if we need to logon
-            cls.driver.save_screenshot('pic1')
             if login_page.is_loaded():
                 login_page.login_xid(cls.username, cls.password)
             else:
