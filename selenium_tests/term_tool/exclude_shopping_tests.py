@@ -14,7 +14,7 @@ class ExcludeShoppingTests(TermToolBaseTestCase):
     def test_tool_is_loaded(self):
         exclude_page = ShoppingExcludePageObject(self.driver)
         term_tool_url = '{}{}'.format(
-            settings.SELENIUM_CONFIG['term_tool_base_url'],
+            settings.SELENIUM_CONFIG['project_base_url'],
             settings.SELENIUM_CONFIG['exclude_courses_relative_url']
         )
         print term_tool_url

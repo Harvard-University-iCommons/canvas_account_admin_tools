@@ -20,7 +20,7 @@ class TermToolBaseTestCase(BaseSeleniumTestCase):
         cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
         cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
         cls.TERM_TOOL_URL = '{}{}'.format(
-            settings.SELENIUM_CONFIG['term_tool_base_url'],
+            settings.SELENIUM_CONFIG['project_base_url'],
             settings.SELENIUM_CONFIG['exclude_courses_relative_url']
         )
 

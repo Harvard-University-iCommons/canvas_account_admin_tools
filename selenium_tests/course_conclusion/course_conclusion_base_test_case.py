@@ -12,7 +12,7 @@ class CourseConclusionBaseTestCase(BaseSeleniumTestCase):
         cls.USERNAME = settings.SELENIUM_CONFIG['selenium_username']
         cls.PASSWORD = settings.SELENIUM_CONFIG['selenium_password']
         cls.BASE_URL = '{}{}'.format(
-            settings.SELENIUM_CONFIG['term_tool_base_url'],
+            settings.SELENIUM_CONFIG['project_base_url'],
             settings.SELENIUM_CONFIG['course_conclusion']['index_page'])
 
         pin_page = PinLoginPageObject(cls.driver)
