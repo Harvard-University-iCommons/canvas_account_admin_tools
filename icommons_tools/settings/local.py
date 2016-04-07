@@ -33,12 +33,20 @@ DEBUG_TOOLBAR_CONFIG = {
 
 dictConfig(LOGGING)
 
-ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
-ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS['icommons_rest_api_token']
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS['icommons_rest_api_host']
 
 SELENIUM_CONFIG = {
 
-    'canvas_base_url': SECURE_SETTINGS.get('canvas_url'),
+    'project_base_url': SECURE_SETTINGS['project_base_url'],
+    'canvas_base_url': SECURE_SETTINGS['canvas_url'],
+    'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
+    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
+
+    'selenium_grid_url': SECURE_SETTINGS['selenium_grid_url'],
+    'selenium_password': SECURE_SETTINGS['selenium_password'],
+    'selenium_username': SECURE_SETTINGS['selenium_user'],
+
     'debug': {
         'log_config': {
             'incremental': True,
@@ -48,12 +56,7 @@ SELENIUM_CONFIG = {
         },
         # 'screenshots_on_failure': True,
     },
-    'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
-    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),
-    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
-    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
-    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
-
+    
     'icommons_rest_api': {
         'base_path': 'api/course/v2'
     },
@@ -64,7 +67,7 @@ SELENIUM_CONFIG = {
         'relative_url': 'courses/3762',
     },
 
-    'project_base_url': SECURE_SETTINGS['project_base_url'],
+
     'exclude_courses_relative_url': 'term_tool/term/2601/colgsas/exclude_courses',
 
     'course_conclusion': {
