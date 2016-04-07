@@ -64,7 +64,7 @@ SELENIUM_CONFIG = {
         'relative_url': 'courses/3762',
     },
 
-    'project_base_url': SECURE_SETTINGS['term_tool_base_url'],
+    'project_base_url': SECURE_SETTINGS['project_base_url'],
     'exclude_courses_relative_url': 'term_tool/term/2601/colgsas/exclude_courses',
 
     'course_conclusion': {
