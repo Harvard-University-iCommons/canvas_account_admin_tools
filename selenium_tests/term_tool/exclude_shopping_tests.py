@@ -17,6 +17,5 @@ class ExcludeShoppingTests(TermToolBaseTestCase):
             settings.SELENIUM_CONFIG['project_base_url'],
             settings.SELENIUM_CONFIG['exclude_courses_relative_url']
         )
-        print term_tool_url
         exclude_page.get(term_tool_url)
         self.assertTrue(exclude_page.is_loaded())
