@@ -9,11 +9,11 @@ class CourseConclusionBaseTestCase(BaseSeleniumTestCase):
     @classmethod
     def setUpClass(cls):
         super(CourseConclusionBaseTestCase, cls).setUpClass()
-        cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
-        cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
+        cls.USERNAME = settings.SELENIUM_CONFIG['selenium_username']
+        cls.PASSWORD = settings.SELENIUM_CONFIG['selenium_password']
         cls.BASE_URL = '{}{}'.format(
-            settings.SELENIUM_CONFIG.get('project_base_url'),
-            settings.SELENIUM_CONFIG['course_conclusion'].get('index_page'))
+            settings.SELENIUM_CONFIG['project_base_url'],
+            settings.SELENIUM_CONFIG['course_conclusion']['index_page'])
 
         pin_page = PinLoginPageObject(cls.driver)
         pin_page.get(cls.BASE_URL)

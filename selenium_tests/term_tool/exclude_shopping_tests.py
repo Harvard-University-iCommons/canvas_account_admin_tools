@@ -1,4 +1,3 @@
-from urlparse import urljoin
 from django.conf import settings
 
 from selenium_tests.term_tool.term_tool_base_test_case \
@@ -14,8 +13,9 @@ class ExcludeShoppingTests(TermToolBaseTestCase):
 
     def test_tool_is_loaded(self):
         exclude_page = ShoppingExcludePageObject(self.driver)
-        term_tool_url = urljoin(
-                        settings.SELENIUM_CONFIG.get('project_base_url'),
-                        settings.SELENIUM_CONFIG.get('term_tool_relative_url'))
+        term_tool_url = '{}{}'.format(
+            settings.SELENIUM_CONFIG['project_base_url'],
+            settings.SELENIUM_CONFIG['exclude_courses_relative_url']
+        )
         exclude_page.get(term_tool_url)
         self.assertTrue(exclude_page.is_loaded())
