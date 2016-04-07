@@ -48,6 +48,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
         if not cls.shopping_page.is_loaded():
             login_page = PinLoginPageObject(cls.driver)
             # Verify if we need to logon
+            cls.driver.save_screenshot('pic1')
             if login_page.is_loaded():
                 login_page.login_xid(cls.username, cls.password)
             else:
@@ -58,4 +59,4 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
                 )
 
         # adding more time for the shopping banner to appear
-        cls.driver.implicitly_wait(30)
+        
