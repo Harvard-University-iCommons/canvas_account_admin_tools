@@ -33,8 +33,12 @@ DEBUG_TOOLBAR_CONFIG = {
 
 dictConfig(LOGGING)
 
-ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS['icommons_rest_api_token']
-ICOMMONS_REST_API_HOST = SECURE_SETTINGS['icommons_rest_api_host']
+'''
+these are needed for the selenium_common 1.4 package. They don't require
+values in secure.py for the current tests. 
+'''
+ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
+ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host')
 
 SELENIUM_CONFIG = {
 
@@ -56,7 +60,7 @@ SELENIUM_CONFIG = {
         },
         # 'screenshots_on_failure': True,
     },
-    
+
     'icommons_rest_api': {
         'base_path': 'api/course/v2'
     },
