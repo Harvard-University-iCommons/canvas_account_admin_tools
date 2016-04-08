@@ -10,6 +10,7 @@ class AccountAdminDashboardPageLocators(object):
     # use text() for exact match (should only match on dashboard page)
     PAGE_TITLE = (By.XPATH, '//h3[text()="Admin Console"]')
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Find Course Info')]")
+    CROSS_LISTING_DIV = (By.ID, "id-cross-listing-div")
 
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
@@ -24,6 +25,16 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
 
         try:
             self.find_element(*AccountAdminDashboardPageLocators.PAGE_TITLE)
+        except NoSuchElementException:
+            return False
+        return True
+
+    def cross_listing_button_is_displayed(self):
+        """
+        Verifies that the cross listing div is displayed or not
+        """
+        try:
+            self.find_element(*AccountAdminDashboardPageLocators.CROSS_LISTING_DIV)
         except NoSuchElementException:
             return False
         return True
