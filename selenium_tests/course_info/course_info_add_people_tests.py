@@ -51,3 +51,38 @@ class AddPeopleTests(CourseInfoBaseTestCase):
         self.api.remove_user(self.test_settings['test_course']['cid'],
                              test_user, role_id)
 
+
+    """Stubbing out additional tests for TLT-2574 - multiple_user_add"""
+
+    def test_multiple_add_success(self):
+        """
+        Test to see if multiple user add is successful -
+        do a variation by adding email and HUID
+        Confirm add
+        :return:
+        Success message on screen
+        Confirm ID has been added in table (possible issue with pagination)
+        """
+
+    # Common Errors when adding
+    def test_multiple_add_partial_failure_due_to_user_not_found(self):
+        """
+        Test multiple add where a user is not found (fake ID)
+        :return:
+        Failure message on screen that user is not found
+        """
+
+    def test_multiple_add_partial_failure_due_to_user_already_added (self):
+        """
+        Test multiple add where one user is already added
+        :return:
+        Failure message on screen that user is already added
+        """
+
+    def test_multiple_add_full_failure_no_user_gets_added(self):
+        """
+        Test multiple add where one user is already added
+        :return:
+        Failure message on screen that no ID is added
+        """
+ 
