@@ -15,6 +15,7 @@ from proxy.views import proxy_view
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_permissions.decorators import lti_permission_required
+from lti_permissions.verification import is_allowed
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,9 @@ def lti_launch(request):
 @require_http_methods(['GET'])
 def dashboard_account(request):
     custom_canvas_account_id = request.LTI['custom_canvas_account_id']
+    custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
+    canvas_user_id = request.LTI['custom_canvas_user_id']
+    custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
 
     canvas_site_creator = ExternalTool.objects.get_external_tool_url_by_name_and_canvas_account_id(
         ExternalTool.CANVAS_SITE_CREATOR,
@@ -75,11 +79,16 @@ def dashboard_account(request):
         custom_canvas_account_id
     )
 
+    cross_listing_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                          settings.PERMISSION_XLIST_TOOL,
+                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
         'courses_in_this_account': courses_in_this_account,
+        'cross_listing_allowed': cross_listing_is_allowed,
     })
 
 
