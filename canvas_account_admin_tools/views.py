@@ -79,6 +79,10 @@ def dashboard_account(request):
         custom_canvas_account_id
     )
 
+    """
+    Verify that the curernt user has permission to see the cross listing button
+    on the dashboard TLT-2569
+    """
     cross_listing_is_allowed = is_allowed(custom_canvas_membership_roles,
                                           settings.PERMISSION_XLIST_TOOL,
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
