@@ -12,3 +12,6 @@ class AccountAdminIsDasboardLoadedTest(AccountAdminBaseTestCase):
         # initialize
         dashboard_page = AccountAdminDashboardPage(self.driver)
         self.assertTrue(dashboard_page.is_loaded())
+        # The cross listing button should be displayed for the
+        # selenium user in this test
+        self.assertTrue(dashboard_page.cross_listing_button_is_displayed)
