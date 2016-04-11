@@ -417,6 +417,7 @@
                     success.searchTerm = $scope.getProfileFullName(membership.profile)
                         || membership.user_id;
                     success.type = 'remove';
+                    success.alertType = 'success';
                     $scope.clearMessages();
                     $scope.messages.success = success;
                     $scope.dtInstance.reloadData()
@@ -534,8 +535,19 @@
             $scope.operationInProgress = false;
             // use 'total_failures' to avoid stomping existing 'failures'
             $scope.tracking.total_failures = $scope.tracking.total - $scope.tracking.successes;
+            // figure out the alert type (ie. the color) here
+            var alertType = '';
+            if ($scope.tracking.successes == 0) {
+                alertType = 'danger';
+            }
+            else if ($scope.tracking.total_failures == 0) {
+                alertType = 'success';
+            }
+            else {
+                alertType = 'warning';
+            }
             // todo: .success for all ok, .warning for mixed, .danger for all failures
-            $scope.messages.success = {type: 'add'};
+            $scope.messages.success = {type: 'add', alertType: alertType};
             $scope.dtInstance.reloadData();
         };
         $scope.updateProgressBar = function(text) {
