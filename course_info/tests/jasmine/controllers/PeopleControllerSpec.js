@@ -109,7 +109,7 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'roles', 'searchInProgress',
+            ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
                 'searchResults', 'searchTerm', 'selectedResult',
                 'selectedRole'].forEach(function(scopeAttr) {
                 var thing = scope[scopeAttr];
@@ -357,31 +357,31 @@ describe('Unit testing PeopleController', function() {
             // the search field, on whether a lookup has returned multiple
             // results, and on whether any of those results have been selected
             it('should disable if a search is in progress', function() {
-                scope.searchInProgress = true;
-                expect(scope.disableAddUserButton()).toBe(true);
+                scope.operationInProgress = true;
+                expect(scope.disableAddToCourseButton()).toBe(true);
             });
             it('should enable if the search had multiple results and one is selected',
                function() {
                    scope.searchResults = [{}, {}]; // contents don't matter, only length
                    scope.selectedResult = {id: 123};
-                   expect(scope.disableAddUserButton()).toBe(false);
+                   expect(scope.disableAddToCourseButton()).toBe(false);
                }
             );
             it('should disable if the search had multiple results and none are selected',
                function() {
                    scope.searchResults = [{}]; // contents don't matter, only length
                    scope.selectedResult = {id: null};
-                   expect(scope.disableAddUserButton()).toBe(true);
+                   expect(scope.disableAddToCourseButton()).toBe(true);
                }
             );
             it('should enable if a search term has been entered and there are no results',
                function() {
                    scope.searchTerm = 'bob';
-                   expect(scope.disableAddUserButton()).toBe(false);
+                   expect(scope.disableAddToCourseButton()).toBe(false);
                }
             );
             it('should disable if there is no search term or results', function() {
-                expect(scope.disableAddUserButton()).toBe(true);
+                expect(scope.disableAddToCourseButton()).toBe(true);
             });
         });
 
@@ -487,7 +487,7 @@ describe('Unit testing PeopleController', function() {
         it('should call lookup if there are no search results', function() {
             scope.searchResults = [];
             scope.addUser('bob');
-            expect(scope.addUserToCourse.calls.count()).toEqual(0);
+            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
             expect(scope.lookup.calls.count()).toEqual(1);
             expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
         });
@@ -497,7 +497,7 @@ describe('Unit testing PeopleController', function() {
             scope.addUser('bob');
             expect($log.error.logs).toEqual(
                 [['Add user button pressed while we have a single search result']]);
-            expect(scope.addUserToCourse.calls.count()).toEqual(0);
+            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
             expect(scope.lookup.calls.count()).toEqual(0);
         });
 
@@ -505,7 +505,7 @@ describe('Unit testing PeopleController', function() {
            function() {
                scope.searchResults = [{}, {}];
                scope.addUser('bob');
-               expect(scope.addUserToCourse.calls.count()).toEqual(0);
+               expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
                expect(scope.lookup.calls.count()).toEqual(1);
                expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
            }
@@ -517,8 +517,8 @@ describe('Unit testing PeopleController', function() {
                scope.selectedResult = {id: 999};
                scope.selectedRole = {roleId: 888};
                scope.addUser('bob');
-               expect(scope.addUserToCourse.calls.count()).toEqual(1);
-               expect(scope.addUserToCourse.calls.argsFor(0)).toEqual(
+               expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
+               expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
                        ['bob', {user_id: scope.selectedResult.id,
                                 role_id: scope.selectedRole.roleId}]);
            }
@@ -550,13 +550,13 @@ describe('Unit testing PeopleController', function() {
             };
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-            scope.searchInProgress = true;
+            scope.operationInProgress = true;
             scope.searchResults = [{}];
         });
 
         afterEach(function() {
             // no matter what, we should end the search and clear the results.
-            expect(scope.searchInProgress).toBe(false);
+            expect(scope.operationInProgress).toBe(false);
             expect(scope.searchResults).toEqual([]);
         });
 
@@ -571,7 +571,7 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope.dtInstance, 'reloadData');
 
             // call it
-            scope.addUserToCourse(searchTerm, user);
+            scope.addNewMemberToCourse(searchTerm, user);
 
             // trigger the ajax calls
             $httpBackend.expectPOST(coursePeopleURL, user)
@@ -606,7 +606,7 @@ describe('Unit testing PeopleController', function() {
                spyOn(scope.dtInstance, 'reloadData');
 
                // call it
-               scope.addUserToCourse(searchTerm, user);
+               scope.addNewMemberToCourse(searchTerm, user);
 
                // trigger the ajax calls
                $httpBackend.expectPOST(coursePeopleURL, user)
@@ -624,7 +624,7 @@ describe('Unit testing PeopleController', function() {
         it('should warn on failure to add the user', function() {
             spyOn(scope, 'handleAjaxError');
 
-            scope.addUserToCourse(searchTerm, user);
+            scope.addNewMemberToCourse(searchTerm, user);
 
             $httpBackend.expectPOST(coursePeopleURL, user).respond(500, '');
             $httpBackend.flush(1);
@@ -643,7 +643,7 @@ describe('Unit testing PeopleController', function() {
                };
                spyOn(scope, 'handleAjaxError');
 
-               scope.addUserToCourse(searchTerm, user);
+               scope.addNewMemberToCourse(searchTerm, user);
 
                $httpBackend.expectPOST(coursePeopleURL, user)
                            .respond(201, JSON.stringify(user)); 
@@ -666,7 +666,7 @@ describe('Unit testing PeopleController', function() {
             };
             courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-            scope.searchInProgress = true;
+            scope.operationInProgress = true;
         });
 
         it('should warn and disable progress if the user is already enrolled',
@@ -687,7 +687,7 @@ describe('Unit testing PeopleController', function() {
 
                scope.handleLookupResults([peopleResult, memberResult]);
                expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.searchInProgress).toBe(false);
+               expect(scope.operationInProgress).toBe(false);
            }
         );
 
@@ -706,7 +706,7 @@ describe('Unit testing PeopleController', function() {
                scope.searchTerm = 'bob_dobbs@harvard.edu';
                scope.handleLookupResults([peopleResult, memberResult]);
                expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.searchInProgress).toBe(false);
+               expect(scope.operationInProgress).toBe(false);
            }
         );
 
@@ -724,11 +724,11 @@ describe('Unit testing PeopleController', function() {
 
             scope.selectedRole = {roleId: 123};
             scope.handleLookupResults([peopleResult, memberResult]);
-            expect(scope.addUserToCourse.calls.count()).toEqual(1);
-            expect(scope.addUserToCourse.calls.argsFor(0)).toEqual(
+            expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
+            expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
                        ['bob_dobbs@harvard.edu',
                         {user_id: 456, role_id: 123}]);
-            expect(scope.searchInProgress).toBe(true);
+            expect(scope.operationInProgress).toBe(true);
         })
 
         it('should show choices and disable progress for multiple results',
@@ -748,7 +748,7 @@ describe('Unit testing PeopleController', function() {
 
                scope.handleLookupResults([peopleResult, memberResult]);
                expect(scope.searchResults).toEqual(filteredResults);
-               expect(scope.searchInProgress).toBe(false);
+               expect(scope.operationInProgress).toBe(false);
            }
         );
     });
