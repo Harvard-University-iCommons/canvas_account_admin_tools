@@ -164,7 +164,7 @@
             $scope.removeFailure = null;
         };
         $scope.closeAlert = function(source) {
-            $scope[source] = null;
+            $scope.messages[source] = null;
             $scope.partialFailureData = null;
         };
         $scope.compareRoles = function(a, b) {
@@ -532,19 +532,10 @@
              add person operations are finished.
              */
             $scope.operationInProgress = false;
-            // todo: we could put this in the template, using scope vars for successes and failures
+            // use 'total_failures' to avoid stomping existing 'failures'
+            $scope.tracking.total_failures = $scope.tracking.total - $scope.tracking.successes;
             // todo: .success for all ok, .warning for mixed, .danger for all failures
-            var failures = $scope.tracking.total - $scope.tracking.successes;
-            var successMessage = (failures == 0) ? 'All ' : '';
-            if ($scope.tracking.successes > 0) {
-                successMessage += $scope.tracking.successes
-                    + ' people were added to the course. ';
-            }
-            if (failures > 0) {
-                successMessage += failures + ' people could not be added.';
-            }
-            $scope.messages.success = {type: 'add',
-                                       text: successMessage};
+            $scope.messages.success = {type: 'add'};
             $scope.dtInstance.reloadData();
         };
         $scope.updateProgressBar = function(text) {
