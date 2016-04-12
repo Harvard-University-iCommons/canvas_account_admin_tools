@@ -2,18 +2,19 @@ from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
 from selenium_tests.course_info.course_info_base_test_case \
-    import TEST_USERS_WITH_ROLES_PATH
+    import TEST_USERS_WITH_ROLES_PATH, ADD_MULTIPLE_USERS_PATH
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
 @ddt
-class AddPeopleTests(CourseInfoBaseTestCase):
+class SingleAddPeopleTests(CourseInfoBaseTestCase):
 
     @data(*get_xl_data(TEST_USERS_WITH_ROLES_PATH))
     @unpack
     def test_add_person(self, test_case_id, test_user, canvas_role, role_id):
-        """ verify the person search and add functionality """
+        """ verify the person search and add functionality for SINGLE-USER
+        add"""
 
         # Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool
         # environment (because of shared cache interactions)
@@ -52,37 +53,71 @@ class AddPeopleTests(CourseInfoBaseTestCase):
                              test_user, role_id)
 
 
-    """Stubbing out additional tests for TLT-2574 - multiple_user_add"""
+@ddt
+class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
-    def test_multiple_add_success(self):
-        """
-        Test to see if multiple user add is successful -
-        do a variation by adding email and HUID
-        Confirm add
-        :return:
-        Success message on screen
-        Confirm ID has been added in table (possible issue with pagination)
-        """
+    @data(*get_xl_data(ADD_MULTIPLE_USERS_PATH))
+    @unpack
+    def test_multi_add_unsuccessful(self, test_case_id, test_user,
+                                      canvas_role, role_id):
 
-    # Common Errors when adding
-    def test_multiple_add_partial_failure_due_to_user_not_found(self):
-        """
-        Test multiple add where a user is not found (fake ID)
-        :return:
-        Failure message on screen that user is not found
-        """
+        # This test is testing that ID are not successfully added.
 
-    def test_multiple_add_partial_failure_due_to_user_already_added (self):
-        """
-        Test multiple add where one user is already added
-        :return:
-        Failure message on screen that user is already added
-        """
+        self._load_test_course()
+        self.detail_page.go_to_people_page()
+        # verify that you are on the course's people's page
+        self.assertTrue(self.people_page.is_loaded())
 
-    def test_multiple_add_full_failure_no_user_gets_added(self):
-        """
-        Test multiple add where one user is already added
-        :return:
-        Failure message on screen that no ID is added
-        """
- 
+        # add TWO users to role
+        self.people_page.search_and_add_user(test_user, canvas_role)
+        self.driver.save_screenshot('people_add.png')
+
+        # Note: If the course has a lot of people enrolled, results are
+        # paginated and it's possible that user may not be on the initial
+        # page. So we are asserting the alert message instead
+
+        #debug
+        element = self.driver.find_element_by_id('alert-success').text
+        element1 = element.strip()
+        print element1
+
+        #TODO: this assert is failing here, could not find text on page (?)
+        self.assertTrue(self.people_page.add_was_unsuccessful())
+
+        # debug 
+        # self.driver.find_element_by_xpath('//p[contains(.,"could not be
+        # added.")]')
+
+
+    # def test_successful_multi_user_add self):
+    #     """
+    #     Test multiple add where add is successful
+    #     rest API call/cleanup for this one.
+    #    :return:
+    #     Failure message on screen that user is not found
+    #     """
+
+    # def test_multiple_add_partial_failure_due_to_user_not_found(self):
+    #     """
+    #     Test multiple add where a user is not found (fake ID)
+    #     No need to do rest API call/cleanup for this one.
+    #    :return:
+    #     Failure message on screen that user is not found
+    #     """
+    #
+    # def test_multiple_add_partial_failure_due_to_user_already_added (self):
+    #     """
+    #     Test multiple add where one user is already added
+    #     Need rest API cleanup for the partial success
+    #     :return:
+    #     Failure message on screen that user is already added
+    #     """
+    #
+    # def test_multiple_add_full_failure_no_user_gets_added(self):
+    #     """
+    #     Test multiple add where one user is already added
+    #     Need rest API cleanup for the partial success
+    #     :return:
+    #     Failure message on screen that no ID is added
+    #     """
+    #

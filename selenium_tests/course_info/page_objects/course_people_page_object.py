@@ -10,9 +10,12 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
-    ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
+    ADD_PEOPLE_SEARCH_TXT = (By.ID, 'emailHUID')
+    ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn-id')
+    ALERT_SUCCESS_ADD_PERSON_TEXT = (By.XPATH, '//p[contains(.,"were added")]')
+    ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
+    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//p[contains(.,"         2 '
+                                               'people could not be added.     ")]')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
@@ -71,7 +74,17 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         # Verify success text
         # todo: this does not check _which_ add was successful...
         try:
-            self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON)
+            self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON_TEXT)
+        except NoSuchElementException:
+            return False
+        return True
+
+    def add_was_unsuccessful(self):
+        # Verify success text
+        # todo: this does not check _which_ add was unsuccessful...
+        try:
+            self.focus_on_tool_frame()
+            self.find_element(*Locators.ALERT_UNSUCCESSFUL_ADD_PERSON)
         except NoSuchElementException:
             return False
         return True
