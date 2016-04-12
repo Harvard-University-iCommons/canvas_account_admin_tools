@@ -14,8 +14,8 @@ class Locators(object):
     ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn-id')
     ALERT_SUCCESS_ADD_PERSON_TEXT = (By.XPATH, '//p[contains(.,"were added")]')
     ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
-    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//p[contains(.,"         2 '
-                                               'people could not be added.     ")]')
+    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//div[contains(.,"could not be '
+                                               'added")]')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
@@ -83,7 +83,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         # Verify success text
         # todo: this does not check _which_ add was unsuccessful...
         try:
-            self.focus_on_tool_frame()
             self.find_element(*Locators.ALERT_UNSUCCESSFUL_ADD_PERSON)
         except NoSuchElementException:
             return False
