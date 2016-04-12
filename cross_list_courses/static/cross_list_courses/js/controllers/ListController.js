@@ -24,7 +24,7 @@
                     var queryParams = {
                         offset: data.start,
                         limit: data.length,
-                        ordering: '-last_modified_date',
+                        ordering: '-primary_course_instance__term__calendar_year',
                         include: 'course_instance',
                     };
 
