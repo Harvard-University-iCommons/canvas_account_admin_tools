@@ -57,9 +57,10 @@
               <label class="sr-only" for="emailHUID">
                 Enter Harvard University ID or email address
               </label>
-              <input class="form-control" id="emailHUID"
+              <textarea class="form-control" id="emailHUID"
                      placeholder="Enter Harvard University IDs or email addresses separated by commas or on separate lines"
-                     ng-model="searchTerms" ng-disabled="searchResults.length > 1">
+                     ng-model="searchTerms" ng-disabled="(searchResults.length > 1) || operationInProgress">
+              </textarea>
             </div>
           </div>
 
@@ -70,7 +71,7 @@
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    ng-disabled="searchTerms.length == 0"
+                    ng-disabled="(searchTerms.length == 0) || operationInProgress"
                     ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
             </button>
             <ul class="dropdown-menu" role="menu"
