@@ -14,96 +14,68 @@
         };
 
         // set up functions we'll be calling later
-        $scope.addPeopleToCourse = function(searchTerms) {
-            /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
-             and attempts to add people to the course who do not already have an
-             enrollment.
+        $scope.addNewMember = function(personResponse, members) {
+            /* Make a call to add the person to the course as a new member
+             if person is:
+             - not already in `members`
+             - not found in people lookup
+             - represented by more than one profile
+             Returns a promise representing the call made to add the new member
+             to the course, or null if the add was not attempted for one of the
+             reasons listed above.
              */
-            $scope.clearMessages();
-            $scope.operationInProgress = true;
-            var searchTermList = $scope.getSearchTermList(searchTerms);
-            $scope.tracking.total = searchTermList.length;
-            $scope.updateProgressBar('Looking up 1 of ' + $scope.tracking.total);
-            var memberPromise = $scope.lookupCourseMembers();
-            var peoplePromises = $scope.lookupPeople(searchTermList);
-
-            // wait until they're all done, handle the combined results
-            // todo: refactor-we don't have to wait on all lookups before adding
-            var promises = [memberPromise].concat(peoplePromises);
-            $q.all(promises).then(function addFetchedPeople(responses) {
-                var memberResponse = responses[0];
-                var peopleResponses = responses.slice(1);  // everything else
-                $scope.updateProgressBar();  // show that we're in 'add' phase
-                var membersByUserId = $scope.getMembersByUserId(
-                    memberResponse.data.results);
-                var addMemberResponses = $scope.addNewMembers(peopleResponses,
-                    membersByUserId);
-                $q.all(addMemberResponses).then($scope.showAddNewMemberResults);
-            });
-        };
-        $scope.addNewMembers = function(personLookupReponses, members) {
-            /* For every person in `personLookupReponses` (that was successfully
-             found), make a call to add the person to the course as a new member
-             if person is not already in `members`. Returns a list of promises
-             representing the calls made to add members to the course.
-             */
-            var addMemberResponses = [];
-
             // TODO - implement and use generalized logic that will follow any
             //        "next" links in the rest api response.  note that the api
             //        proxy doesn't rewrite the next urls.
-            personLookupReponses.forEach(function(response) {
-                if (response.next) {
-                    $log.warning('Received multiple pages of results from '
-                                 + response.config.url + ', only using one.');
-                }
-            });
+            if (personResponse.next) {
+                $log.warning('Received multiple pages of results from '
+                             + personResponse.config.url + ', only using one.');
+            }
 
-            personLookupReponses.forEach(function(personResponse) {
-                var filteredResults = $scope.filterSearchResults(
-                                          personResponse.data.results);
-                var searchTerm = personResponse.config.searchTerm;
-                if (filteredResults.length == 1) {
-                    var memberRecordsInCourse = members[filteredResults[0].univ_id];
-                    if (angular.isUndefined(memberRecordsInCourse)) {
-                        var name = $scope.getProfileFullName(filteredResults[0]);
-                        var postParams = {
-                            user_id: filteredResults[0].univ_id,
-                            role_id: $scope.selectedRole.roleId};
-                        addMemberResponses.push(
-                            $scope.addNewMemberToCourse(postParams, name,
-                                searchTerm));
-                    } else {
-                        // the user already has an enrollment in the course
-                        $scope.messages.warnings.push({
-                            type: 'alreadyInCourse',
-                            // just pick the first enrollment to find the name
-                            name: $scope.getProfileFullName(filteredResults[0]),
-                            memberships: memberRecordsInCourse,
-                            searchTerm: searchTerm
-                        });
-                        $scope.tracking.failures  += 1;
-                    }
-                } else if (filteredResults.length == 0) {
-                    // didn't find any people for the search term
+            var filteredResults = $scope.filterSearchResults(
+                                      personResponse.data.results);
+            var searchTerm = personResponse.config.searchTerm;
+            if (filteredResults.length == 1) {
+                var memberRecordsInCourse = members[filteredResults[0].univ_id];
+                if (angular.isUndefined(memberRecordsInCourse)) {
+                    var name = $scope.getProfileFullName(filteredResults[0]);
+                    var postParams = {
+                        user_id: filteredResults[0].univ_id,
+                        role_id: $scope.selectedRole.roleId};
+                    return $scope.addNewMemberToCourse(postParams, name,
+                            searchTerm);
+                } else {
+                    // the user already has an enrollment in the course
                     $scope.messages.warnings.push({
-                        type: 'notFound',
+                        type: 'alreadyInCourse',
+                        // just pick the first enrollment to find the name
+                        name: $scope.getProfileFullName(filteredResults[0]),
+                        memberships: memberRecordsInCourse,
                         searchTerm: searchTerm
                     });
                     $scope.tracking.failures  += 1;
-                } else {  // if (filteredResults.length > 1)
-                    // multiple profiles found for search term, do not add
-                    $scope.messages.warnings.push({
-                        type: 'multipleProfiles',
-                        searchTerm: personResponse.config.searchTerm,
-                        // just pick the first one to find the name
-                        name: $scope.getProfileFullName(filteredResults[0]),
-                        profiles: filteredResults
-                    });
-                    $scope.tracking.failures  += 1;
                 }
-            });
-            return addMemberResponses;
+            } else if (filteredResults.length == 0) {
+                // didn't find any people for the search term
+                $scope.messages.warnings.push({
+                    type: 'notFound',
+                    searchTerm: searchTerm
+                });
+                $scope.tracking.failures  += 1;
+            } else {  // if (filteredResults.length > 1)
+                // multiple profiles found for search term, do not add
+                $scope.messages.warnings.push({
+                    type: 'multipleProfiles',
+                    searchTerm: personResponse.config.searchTerm,
+                    // just pick the first one to find the name
+                    name: $scope.getProfileFullName(filteredResults[0]),
+                    profiles: filteredResults
+                });
+                $scope.tracking.failures  += 1;
+            }
+            $scope.updateProgressBar();  // handles failures
+            // todo: do we need to return a resolved or rejected promise here instead?
+            return null;  // no attempt made to add member
         };
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
@@ -153,6 +125,43 @@
 
             return $http.post(url, userPostParams)
                 .then(handlePostSuccess, handlePostError);
+        };
+        $scope.addPeopleToCourse = function(searchTerms) {
+            /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
+             and attempts to add people to the course who do not already have an
+             enrollment.
+             */
+            var membersByUserId = {};
+            $scope.clearMessages();
+            $scope.operationInProgress = true;
+            var searchTermList = $scope.getSearchTermList(searchTerms);
+            $scope.tracking.total = searchTermList.length;
+            $scope.updateProgressBar('Looking up ' + $scope.tracking.total
+                + ' people');
+            var memberPromise = $scope.lookupCourseMembers()
+                .then(function updateCourseMembers(memberResponse) {
+                    membersByUserId = $scope.getMembersByUserId(
+                        memberResponse.data.results);
+                    return memberResponse;
+                }, function courseMemberLookupFailed(memberResponse) {
+                    $scope.handleAjaxErrorResponse(memberResponse);
+                    // todo: how do we make this break the add chain?
+                    return $q.reject('Course member lookup failed');
+                });
+            var peoplePromises = $scope.lookupPeople(searchTermList);
+            var addNewMemberPromises = [];
+            peoplePromises.forEach(function setupAddPersonPromiseChain(personPromise) {
+                addNewMemberPromises.push(
+                    $q.all([memberPromise, personPromise])
+                        .then(function addFetchedPerson(responses) {
+                            var personResponse = responses[1];
+                            $scope.updateProgressBar();
+                            return $scope.addNewMember(personResponse, membersByUserId);
+                        })
+                    );
+                });
+            $q.all(addNewMemberPromises).then($scope.showAddNewMemberResults);
+
         };
         $scope.clearMessages = function() {
             $scope.messages = {progress: null, success: null, warnings: []};
@@ -335,15 +344,15 @@
                 .map(function(s){return s.trim()})
                 .filter(function(s){return s.length});
         };
+        $scope.handleAjaxError = function(data, status, headers, config, statusText) {
+            $log.error('Error attempting to ' + config.method + ' ' + config.url +
+                       ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
+        };
         $scope.handleAjaxErrorResponse = function(r) {
             // angular promise then() function returns a response object,
             // unpack for our old-style error handler
             $scope.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
-        };
-        $scope.handleAjaxError = function(data, status, headers, config, statusText) {
-            $log.error('Error attempting to ' + config.method + ' ' + config.url +
-                       ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
         $scope.isUnivID = function(searchTerm) {
             var re = /^[A-Za-z0-9]{8}$/;
@@ -382,9 +391,6 @@
                 var promise = $http.get(peopleURL, promiseConfig)
                     .then(function(response) {
                         $scope.tracking.lookupsCompleted += 1;
-                        $scope.updateProgressBar('Looking up '
-                            + ($scope.tracking.lookupsCompleted + 1) + ' of '
-                            + $scope.tracking.total );
                         return response;
                     });
                 peoplePromiseList.push(promise);
@@ -528,7 +534,7 @@
                     .error($scope.handleAjaxError);
             }
         };
-        $scope.showAddNewMemberResults = function(responses) {
+        $scope.showAddNewMemberResults = function(addNewMemberResponses) {
             /* Updates page with summary message and failure details after all
              add person operations are finished.
              */
