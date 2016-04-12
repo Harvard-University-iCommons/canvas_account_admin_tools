@@ -20,8 +20,9 @@ module.exports = function(config) {
       'node_modules/datatables.net/js/jquery.dataTables.js',
       'node_modules/datatables.net-bs/js/dataTables.bootstrap.js',
       'node_modules/angular-datatables/dist/angular-datatables.js',
-      'node_modules/angular-ui-bootstrap/ui-bootstrap-tpls.js',
-      'course_info/**/*.js'
+      'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+      'course_info/**/*.js',
+      'course_info/templates/course_info/partials/*.html',
     ],
 
 
@@ -33,6 +34,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      'course_info/templates/course_info/partials/*.html': ['ng-html2js'],
     },
 
 
@@ -61,13 +63,16 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    // NOTE: reenable PhantomJS once we've resolved its issue.  passes in chrome/ff.
-    //browsers: ['PhantomJS'],
-    browsers: [],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: false,
+
+    ngHtml2JsPreprocessor: {
+      moduleName: 'templates',
+      stripPrefix: 'course_info/templates/course_info/',
+    },
   });
 };

@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'proxy',
     'canvas_account_admin_tools',
     'course_info',
+    'cross_list_courses',
     'djangular',
 )
 
@@ -262,3 +263,5 @@ ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
+PERMISSION_XLIST_TOOL = 'cross_listing'
+

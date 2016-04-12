@@ -2,11 +2,13 @@
 
 describe('Unit testing SearchController', function() {
     beforeEach(module('CourseInfo'));
+    beforeEach(module('templates'));
 
-    var $controller, $window, $document, $httpBackend, $rootScope;
+    var $controller, $window, $document, $httpBackend, $rootScope, $templateCache;
     var scope, controller;
 
-    beforeEach(inject(function(_$controller_, _$window_, _$document_, _$httpBackend_, _$rootScope_) {
+    beforeEach(inject(function(_$controller_, _$window_, _$document_, 
+                               _$httpBackend_, _$rootScope_, _$templateCache_) {
         // The injector unwraps the underscores (_) from around
         // the parameter names when matching
         $controller = _$controller_;
@@ -14,6 +16,7 @@ describe('Unit testing SearchController', function() {
         $document = _$document_;
         $httpBackend = _$httpBackend_;
         $rootScope = _$rootScope_;
+        $templateCache = _$templateCache_;
 
         // this comes from django_auth_lti, just stub it out so that the $httpBackend
         // sanity checks in afterEach() don't fail

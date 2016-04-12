@@ -4,21 +4,23 @@
   <h3 class="breadcrumbs">
     {% endverbatim %}
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    &gt; <a href="#/">Find Course Info</a>
     {% verbatim %}
+    &gt; <a href="#/">Find Course Info</a>
+    &gt; <a href="#/details/{{courseInstanceId}}">Details</a>
+
     <small><i class="fa fa-chevron-right"></i></small>
     People in {{courseInstance.title}}
   </h3>
 </nav>
 
 
-<main class="float=left col=60">
+<main class="float-left col-60">
 <div class="container-fluid">
 
   <div class="col-md-12">
       <div id="courseInfoDT_wrapper" class="dataTables_wrapper form-inline no-footer">
-        <!-- UI comment - inline style for a table border until table-box makes it to Bootrsap 4 -->
-        <table id="courseInfoDT" class="display dataTable course-info-table"
+        <table id="courseInfoDT"
+               class="display dataTable course-info-table"
                role="grid" aria-describedby="courseInfoDT_info"
                cellspacing="0">
           <tbody>
@@ -29,7 +31,7 @@
               <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.cid}}</td>
+              <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
               <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
             </tr>
           </tbody>
@@ -102,14 +104,21 @@
         <!-- begin add warning alerts -->
         <uib-alert ng-if="addWarning" type="warning"
                    close="closeAlert('addWarning')" class="col-md-12">
-          <div ng-switch on="addWarning.type">
+          <div ng-switch="addWarning.type">
             <!-- user was already enrolled -->
             <div ng-switch-when="alreadyInCourse">
-              <p><strong>{{ addWarning.searchTerm }}</strong> was found in the course:</p>
-              <p>{{ addWarning.fullName }} has the following email/id and role associated with this course:</p>
-              <div ng-repeat="membership in addWarning.memberships" class="course-membership-entry">
+              <p>
+                <strong>{{ addWarning.searchTerm }}</strong> was found in
+                the course:
+              </p>
+              <p>{{ addWarning.fullName || addWarning.searchTerm}} has the
+                following email/id and role associated with this course:
+              </p>
+              <div ng-repeat="membership in addWarning.memberships"
+                   class="course-membership-entry">
                 {{ addWarning.fullName }}
-                <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.user_id }}
+                <badge role="{{ getProfileRoleTypeCd(membership.profile) }}">
+                </badge> {{ membership.user_id }}
                 <strong>Enrolled as {{ membership.role.role_name }}</strong>
               </div>
             </div>
@@ -215,8 +224,8 @@
              close="closeAlert('success')" class="col-md-12">
     <p><strong>{{ success.searchTerm }}</strong> was just {{ success.action }} this course:</p>
     <div class="course-membership-entry">
-      {{ success.profile.name_last }}, {{ success.profile.name_first }}
-      <badge role="{{ success.profile.role_type_cd }}"></badge> {{ success.profile.univ_id }}
+      {{ getProfileFullName(success.profile) }}
+      <badge role="{{ getProfileRoleTypeCd(success.profile) }}"></badge> {{ success.user_id }}
       <strong>Enrolled as {{ success.role.role_name }}</strong>
     </div>
 
@@ -242,33 +251,35 @@
   <!-- begin remove failure warning alerts -->
   <uib-alert ng-if="removeFailure" type="warning"
              close="closeAlert('removeFailure')" class="col-md-12">
-    <div ng-switch on="failure.type">
+    <div ng-switch="removeFailure.type">
       <div ng-switch-when="noSuchUser">
-        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
+        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
         has already been removed from this course.
       </div>
       <div ng-switch-when="noSuchCourse">
-        <strong>{{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}</strong>
+        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
         cannot be removed from this course because it no longer exists.
       </div>
       <div ng-switch-when="serverError">
-        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
-        {{ removeFailure.profile.name_first }}</strong> from the database. Please
-        try again.
+        There was a problem removing
+        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+        from the database. Please try again.
       </div>
       <div ng-switch-when="canvasError">
-        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
-        {{ removeFailure.profile.name_first }}</strong> from the Canvas site. Please
-        try again.
+        There was a problem removing
+        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+        from the Canvas site. Please try again.
       </div>
       <div ng-switch-default>
-        There was a problem removing <strong>{{ removeFailure.profile.name_last }},
-        {{ removeFailure.profile.name_first }}</strong>. Please try again.
+        There was a problem removing
+        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>.
+        Please try again.
       </div>
     </div>
     <div class="course-membership-entry">
-      {{ removeFailure.profile.name_last }}, {{ removeFailure.profile.name_first }}
-      <badge role="{{ removeFailure.profile.role_type_cd }}"></badge> {{ removeFailure.profile.univ_id }}
+      {{ getProfileFullName(removeFailure.profile) }}
+      <badge role="{{ getProfileRoleTypeCd(removeFailure.profile) }}">
+      </badge> {{ removeFailure.user_id }}
       <strong>Enrolled as {{ removeFailure.role.role_name }}</strong>
     </div>
   </uib-alert>

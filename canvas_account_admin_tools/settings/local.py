@@ -31,15 +31,31 @@ SELENIUM_CONFIG = {
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
-      # 'relative_url': 'accounts/8/external_tools/9',  # local
+      # 'relative_url': 'accounts/8/external_tools/68',  # local
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
          'cid': '339331',
          'term': 'Spring',
          'title': 'Latin Paleography and Manuscript Culture: Seminar',
+         'registrar_code_display': '2223',
          'school': 'Divinity School',
          'type': 'Only courses without sites',
          'year': '2014',
+      },
+      'test_course_with_registrar_code_display_not_populated_in_db': {
+         'cid': '353457',
+         'registrar_code': 'selenium_test',
+         'school': 'Harvard College/GSAS',
+      },
+      # only SB/ILE courses support editing through the course info tool at the
+      # moment, so use this course for testing edit functionality
+      'test_course_SB_ILE': {
+         'cid': '354962',  # Canvas course 3591
+         'term': 'Spring',
+         'title': 'HDS Spring 2016',
+         'school': 'Divinity School',
+         'type': 'All courses',
+         'year': '2016',
       },
       'test_users': {
          'existing': {
@@ -51,7 +67,7 @@ SELENIUM_CONFIG = {
    'icommons_rest_api': {
       'base_path': 'api/course/v2'
    },
-   'run_locally': False,
+   'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),

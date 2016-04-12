@@ -7,14 +7,13 @@
   <head>
     <meta name="viewport"
           content="width=device-width, initial-scale=1, user-scalable=no">
-    <link href="{% static 'favicon.ico' %}" rel="icon" type="image/x-icon">
+    <link href="/static/favicon.ico" rel="icon" type="image/x-icon">
     <link rel="stylesheet" type="text/css"
-                           href="{% static 'font-awesome-4.5.0/css/font-awesome.min.css' %}">
+          href="{% static 'font-awesome-4.5.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css"
-                           href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}"
-                           media="screen"/>
+          href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}"
+          media="screen"/>
     <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.11/media/css/jquery.dataTables.min.css' %}" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'course_info/css/index.css' %}">
 
     {% if debug %}
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.js' %}"></script>
@@ -37,29 +36,19 @@
     <script src="{% static 'djangular/js/django-angular.min.js' %}"></script>
     <script src="{% static 'angular-datatables-0.5.3/dist/angular-datatables.min.js' %}"></script>
     {% endif %}
-    {# fixes safari autocomplete issue #}
-    {# (see https://github.com/angular/angular.js/issues/1460) #}
-    <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
+  
     {% include 'django_auth_lti/resource_link_id.html' %}
-    <script>
-      window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
-      window.schoolOptions = {{ schools | safe }};
-    </script>
-    <title>Course Info</title>
+
+
+    <title>Cross-List Courses</title>
   </head>
 
-  <body class="lti-tool" role="application" ng-app="CourseInfo">
+
+  <body class="lti-tool" role="application" ng-app="CrossListCourses">
     <div ng-view class="container-fluid">
     </div>
 
-    <script src="{% static 'course_info/js/app.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/SearchController.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/PeopleController.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/DetailsController.js' %}"></script>
-    <script src="{% static 'course_info/js/services/CourseInstancesService.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/BadgeDirective.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuEditableInput.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuEditableTextarea.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuFieldLabelWrapper.js' %}"></script>
+    <script src="{% static 'cross_list_courses/js/app.js' %}"></script>
+    <script src="{% static 'cross_list_courses/js/controllers/ListController.js' %}"></script>
   </body>
 </html>

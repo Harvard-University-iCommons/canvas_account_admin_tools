@@ -1,0 +1,20 @@
+{% verbatim %}
+<li class="list-group-item">
+  <div class="form-group">
+    <label for="textarea-course-{{field}}" class="col-md-2">
+      {{label}}
+    </label>
+    <div class="col-md-10">
+      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
+      <div ng-hide="isLoading()">
+        <textarea type="text" class="form-control" id="input-course-{{field}}"
+                  name="textarea-course-{{field}}" ng-show="editable"
+                  ng-model="formValue" maxlength="{{maxlength}}">
+        </textarea>
+        <span id="span-course-{{field}}"
+              ng-hide="editable">{{modelValue}}</span>
+      </div>
+    </div>
+  </div>
+</li>
+{% endverbatim %}

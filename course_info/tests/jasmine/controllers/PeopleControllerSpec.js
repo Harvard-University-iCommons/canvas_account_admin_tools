@@ -27,7 +27,7 @@ function validateURIHasParameters(uri, params) {
 
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
-        $httpBackend, $window, $log, $uibModal;
+        $httpBackend, $window, $log, $uibModal, $templateCache;
     var controller, scope;
     var courseInstanceId = 1234567890;
     var courseInstanceURL =
@@ -37,10 +37,12 @@ describe('Unit testing PeopleController', function() {
 
     // set up the test environment
     beforeEach(function() {
+        // load in the app and the templates-as-module
         module('CourseInfo');
+        module('templates');
         inject(function(_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
                         _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
-                        _$uibModal_) {
+                        _$uibModal_, _$templateCache_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
@@ -51,6 +53,7 @@ describe('Unit testing PeopleController', function() {
             $window = _$window_;
             $log = _$log_;
             $uibModal = _$uibModal_;
+            $templateCache = _$templateCache_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -174,7 +177,8 @@ describe('Unit testing PeopleController', function() {
                 ],
                 course: {
                     school_id: 'abc',
-                    registrar_code_display: '2222',
+                    registrar_code_display: '4x2',
+                    registrar_code: '2222',
                     course_id : '789',
                 },
                 term: {
@@ -185,8 +189,9 @@ describe('Unit testing PeopleController', function() {
             };
         });
 
-        it('format the course instance data for the UI ', function() {
+        it('formats the course instance data for the UI', function() {
             courseInstances.instances[ci.course_instance_id] = ci;
+
             controller = $controller('PeopleController', {$scope: scope});
 
             expect(scope.courseInstance['title']).toEqual(ci.title);
@@ -194,9 +199,26 @@ describe('Unit testing PeopleController', function() {
                     (ci.course.school_id.toUpperCase());
             expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
             expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
-            expect(scope.courseInstance['cid']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(scope.courseInstance['registrar_code_display']).toEqual(
-                    ci.course.registrar_code_display+' ('+ci.course.course_id+')');
+                    ci.course.registrar_code_display);
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
+        });
+        it('uses registrar_code if registrar_code_display is blank', function() {
+            courseInstances.instances[ci.course_instance_id] = angular.copy(ci);
+            courseInstances.instances[ci.course_instance_id].course.registrar_code_display = '';
+
+            controller = $controller('PeopleController', {$scope: scope});
+
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code);
             expect(scope.courseInstance['sites']).toEqual('888');
             expect(scope.courseInstance['xlist_status']).toEqual('N/A');
 
@@ -403,25 +425,24 @@ describe('Unit testing PeopleController', function() {
             });
         });
 
-        describe('isEmailAddress', function() {
-            // TODO - steal test addresses from real email parsing library?
-            // all valid addresses, should return true
-            [{description: 'simple email address', testString: 'bob_dobbs@harvard.edu'},
-             {description: 'email address with long domain',
-              testString: 'bob_dobbs@very.specific.server.harvard.edu'},
+        describe('isUnivID', function() {
+            // all valid IDs, should return true
+            [{description: 'numbers', testString: '12345678'},
+             {description: 'letters', testString: 'abcdefgh'},
+             {description: 'alphanumeric', testString: 'a1b2c3d4'},
             ].forEach(function(test) {
                 it('should return true for ' + test.description, function() {
-                    expect(scope.isEmailAddress(test.testString)).toBe(true);
+                    expect(scope.isUnivID(test.testString)).toBe(true);
                 });
             });
 
-            // not addresses, should return false
-            [{description: 'series of digits', testString: '123456789'},
-             {description: '@ but no .', testString: 'bob_dobbs@harvard'},
-             {description: '. but no @', testString: 'bob_dobbs.harvard.edu'},
+            // not valid IDs, should return false
+            [{description: 'has @', testString: '1234@678'},
+             {description: 'too short', testString: '1234567'},
+             {description: 'too long', testString: 'abcdefghi'},
             ].forEach(function(test) {
                 it('should return false for ' + test.description, function() {
-                    expect(scope.isEmailAddress(test.testString)).toBe(false);
+                    expect(scope.isUnivID(test.testString)).toBe(false);
                 });
             });
         });
@@ -815,9 +836,6 @@ describe('Unit testing PeopleController', function() {
     });
 
     describe('confirmRemove', function() {
-        var modalContentsPartialURL =
-            'partials/remove-course-membership-confirmation.html';
-
         beforeEach(function() {
             var ci = {
                 course_instance_id: $routeParams.courseInstanceId,
@@ -827,11 +845,9 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
 
-        it('should get the partial and stick the instance on the scope', function() {
+        it('should stick the instance on the scope', function() {
             scope.confirmRemove();
             expect(scope.confirmRemoveModalInstance).not.toBeNull();
-            $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
-            $httpBackend.flush(1);
         });
 
         it('should call removeMembership and remove itself from the scope on close',
@@ -839,12 +855,11 @@ describe('Unit testing PeopleController', function() {
                var membership = {};
                spyOn(scope, 'removeMembership');
                scope.confirmRemove();
-               $httpBackend.expectGET(modalContentsPartialURL).respond(200, '');
-               $httpBackend.flush(1);
+               scope.$digest();  // resolves modal instantiation
                scope.confirmRemoveModalInstance.close(membership);
-               // TODO - figure out why this isn't being called from within jasmine
-               //expect(scope.removeMembership).toHaveBeenCalled();
-               //expect(scope.confirmRemoveModalInstance).toBeNull();
+               scope.$digest();  // resolves confirmRemoveModalInstance result
+               expect(scope.removeMembership).toHaveBeenCalled();
+               expect(scope.confirmRemoveModalInstance).toBeNull();
            }
         );
     });

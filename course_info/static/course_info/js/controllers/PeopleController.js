@@ -149,7 +149,8 @@
 
             // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
             // a more perm solution is being discussed, but will invlove talking to the schools.
-            if ( membership.role.role_name == "Teaching Fellow") {
+            if (membership && membership.role &&
+                    membership.role.role_name == "Teaching Fellow") {
                 membership.role.role_name = "TA";
             }
 
@@ -160,14 +161,23 @@
                 resolve: {
                     membership: function() {
                         return membership;
-                    },
+                    }
                 },
+                // allows template to refer to parent scope's getProfileFullName
+                scope: $scope,
                 templateUrl: 'partials/remove-course-membership-confirmation.html',
             });
 
             // if they confirm, then do the work
             $scope.confirmRemoveModalInstance.result
-                .then($scope.removeMembership)
+                .then(
+                    function modalSuccess(membership) {
+                        $scope.removeMembership(membership);
+                    },
+                    function modalFailure(failure) {
+                        $log.error('remove confirmation modal failure: ' + failure);
+                    }
+                )
                 .finally(function() {
                     $scope.confirmRemoveModalInstance = null;
                 });
@@ -210,6 +220,20 @@
             // return the filtered list
             return filteredResults;
         };
+        $scope.getProfileFullName = function(profile) {
+            if (profile) {
+                return profile.name_last + ', ' + profile.name_first;
+            } else {
+                return '';
+            }
+        };
+        $scope.getProfileRoleTypeCd = function (profile) {
+            if (profile) {
+                return profile.role_type_cd;
+            } else {
+                return '';
+            }
+        };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
                        ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
@@ -220,7 +244,9 @@
 
             // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
             // a more perm solution is being discussed, but will invlove talking to the schools.
-            if ( memberResult.data.results.length > 0 && memberResult.data.results[0].role.role_name == "Teaching Fellow") {
+            if (memberResult.data.results.length > 0 &&
+                    memberResult.data.results[0].role &&
+                    memberResult.data.results[0].role.role_name == "Teaching Fellow") {
                 memberResult.data.results[0].role.role_name = "TA";
             }
 
@@ -241,7 +267,7 @@
                 $scope.clearMessages();
                 $scope.addWarning = {
                     type: 'alreadyInCourse',
-                    fullName: profile.name_last + ', ' + profile.name_first,
+                    fullName: $scope.getProfileFullName(profile),
                     memberships: memberResult.data.results,
                     searchTerm: memberResult.config.searchTerm,
                 };
@@ -270,21 +296,25 @@
                 }
             }
         };
-        $scope.isEmailAddress = function(searchTerm) {
-            // TODO - better regex
-            var re = /^\s*\w+@\w+(\.\w+)+\s*$/;
+        $scope.isUnivID = function(searchTerm) {
+            var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
         };
         $scope.lookup = function(searchTerm) {
+            var peopleParams = {page_size: 100};
+            var memberParams = {page_size: 100};
+
+            if ($scope.isUnivID(searchTerm)) {
+                peopleParams.univ_id = searchTerm;
+                memberParams.user_id = searchTerm;
+            } else {
+                peopleParams.email_address = searchTerm;
+                memberParams['profile.email_address'] = searchTerm;
+            }
+
             // first the general people lookup
             var peopleURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/people/']);
-            var peopleParams = {page_size: 100};
-            if ($scope.isEmailAddress(searchTerm)) {
-                peopleParams.email_address = searchTerm;
-            } else {
-                peopleParams.univ_id = searchTerm;
-            }
             var peoplePromise = $http.get(peopleURL, {params: peopleParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
@@ -294,15 +324,6 @@
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
-
-
-            var memberParams = {page_size: 100};
-            if ($scope.isEmailAddress(searchTerm)) {
-                memberParams['profile.email_address'] = searchTerm;
-            } else {
-                memberParams.user_id = searchTerm;
-            }
-
             var memberPromise = $http.get(memberURL, {params: memberParams,
                                                       searchTerm: searchTerm})
                                      .error($scope.handleAjaxError);
@@ -332,8 +353,8 @@
             $http.delete(courseMemberURL, config)
                 .success(function(data, status, headers, config, statusText) {
                     var success = membership; // TODO - copy to avoid stomping the original?
-                    success.searchTerm = membership.profile.name_last +
-                                         ', ' + membership.profile.name_first;
+                    success.searchTerm = $scope.getProfileFullName(membership.profile)
+                        || membership.user_id;
                     success.action = 'removed from';
                     $scope.clearMessages();
                     $scope.success = success;
@@ -382,11 +403,16 @@
                 });
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="' + full.profile.role_type_cd 
-                   + '"></badge> ' + full.user_id;
+            if (full.profile) {
+                return '<badge ng-cloak role="'
+                    + $scope.getProfileRoleTypeCd(full.profile)
+                    + '"></badge> ' + full.user_id;
+            } else {
+                return '<badge ng-cloak role=""></badge> ' + full.user_id;
+            }
         };
         $scope.renderName = function(data, type, full, meta) {
-            return full.profile.name_last + ', ' + full.profile.name_first;
+            return $scope.getProfileFullName(full.profile) || full.user_id;
         };
         // hotfix added to address TA role name
         // will be addressed with a database change as soon as
@@ -446,17 +472,17 @@
             // and is combination of existing logic in
             // Searchcontroller.courseInstanceToTable and Searchcontroller cell
             // render functions.
-            courseInstance = {};
+            var courseInstance = {};
             if (ci) {
                 courseInstance['title']= ci.title;
                 courseInstance['school'] = ci.course ?
                         ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
                 courseInstance['year'] = ci.term ? ci.term.academic_year : '';
-                courseInstance['cid'] = ci.course_instance_id;
+                courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['registrar_code_display'] = ci.course ?
-                        ci.course.registrar_code_display +
-                        ' (' + ci.course.course_id + ')'.trim() : '';
+                        (ci.course.registrar_code_display
+                        || ci.course.registrar_code).trim() : '';
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
                         courseInstance['xlist_status'] = 'Primary';
@@ -467,7 +493,7 @@
                         courseInstance['xlist_status'] = 'N/A';
                 }
                 var sites = ci.sites || [];
-                var siteIds =[]
+                var siteIds =[];
                 sites.forEach(function (site) {
                     site.site_id = site.external_id;
                     if (site.site_id.indexOf('http') === 0) {

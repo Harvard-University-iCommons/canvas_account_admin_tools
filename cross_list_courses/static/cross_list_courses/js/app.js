@@ -1,5 +1,5 @@
 (function(){
-    var app = angular.module('CourseInfo',
+    var app = angular.module('CrossListCourses',
                              ['ngSanitize', 'ng.django.urls', 'ngRoute',
                               'ui.bootstrap', 'datatables']);
     
@@ -18,8 +18,8 @@
                     //
                     // window.globals.append_resource_link_id function added by
                     // django_auth_lti/js/resource_link_id.js
-                    if (!(config.url.startsWith('uib/template/alert/') ||
-                                config.url.startsWith('uib/template/modal/'))) {
+                    if (!(config.url.startsWith('template/alert/') ||
+                                config.url.startsWith('template/modal/'))) {
                         config.url = window.globals.append_resource_link_id(config.url);
                     }
                     return config;
@@ -29,17 +29,8 @@
 
         $routeProvider
             .when('/', {
-                templateUrl: 'partials/search.html',
-                controller: 'SearchController',
-            })
-            .when('/details/:courseInstanceId', {
-                templateUrl: 'partials/details.html',
-                controller: 'DetailsController as dc',
-                //dependencies: ['directives/editable_field']
-            })
-            .when('/people/:courseInstanceId', {
-                templateUrl: 'partials/people.html',
-                controller: 'PeopleController',
+                templateUrl: 'partials/list.html',
+                controller: 'ListController',
             })
             .otherwise({
                 redirectTo: '/',

@@ -9,8 +9,9 @@
 <div class="modal-body">
   <p>Are you sure you want to remove</p>
   <div class="course-membership-entry">
-    {{ membership.profile.name_last }}, {{ membership.profile.name_first }}
-    <badge role="{{ membership.profile.role_type_cd }}"></badge> {{ membership.profile.univ_id }}
+    {{ getProfileFullName(membership.profile) }}
+    <badge role="{{ getProfileRoleTypeCd(membership.profile) }}">
+    </badge> {{ membership.user_id }}
     <strong>Enrolled as {{ membership.role.role_name }}</strong>
   </div>
   <p>from this course?</p>

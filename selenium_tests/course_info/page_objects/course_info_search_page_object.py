@@ -4,8 +4,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
-from selenium_tests.course_info.page_objects.course_people_page_object \
-    import Locators as CoursePeoplePageLocators
+from selenium_tests.course_info.page_objects.course_info_detail_page_object \
+    import Locators as DetailsPageLocators
 
 
 class Locators(object):
@@ -20,7 +20,7 @@ class Locators(object):
     @classmethod
     def COURSE_LINK_HREF_CSS(cls, cid):
         """ returns a locator for a course detail link in the course table """
-        return By.CSS_SELECTOR, 'a[href="#/people/{}"]'.format(cid)
+        return By.CSS_SELECTOR, 'a[href="#/details/{}"]'.format(cid)
 
 
 class CourseSearchPageObject(CourseInfoBasePageObject):
@@ -67,7 +67,7 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
         search_textbox.send_keys(search_text)
         self.find_element(*Locators.SEARCH_BUTTON).click()
         # loading the results can take a long time, so explicitly wait longer
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+        WebDriverWait(self._driver, 45).until(lambda s: s.find_element(
             *Locators.COURSE_RESULTS_TABLE).is_displayed())
 
     def select_course(self, cid=None, title=None):
@@ -78,6 +78,3 @@ class CourseSearchPageObject(CourseInfoBasePageObject):
             self.find_element((By.LINK_TEXT, title)).click()
         else:
             raise RuntimeError('select_course() requires cid or title')
-        # loading the results can take a long time, so explicitly wait longer
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
-            *CoursePeoplePageLocators.ADD_PEOPLE_BUTTON).is_displayed())
