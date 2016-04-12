@@ -60,6 +60,7 @@
                         next: '',
                         previous: '',
                     },
+                    processing: '<img src="' + window.globals.STATIC_URL + 'images/ajax-loader-large.gif" class="loading"/> Loading...',
                 },
                 lengthMenu: [10, 25, 50, 100],
                 // yes, this is a deprecated param.  yes, it's still required.
@@ -67,6 +68,7 @@
                 sAjaxDataProp: 'data',
                 searching: false,
                 serverSide: true,
+                processing:true,
                 ordering: false,
             };
 
