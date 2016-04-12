@@ -1,5 +1,4 @@
 {% verbatim %}
-
 <nav>
   <h3 class="breadcrumbs">
     {% endverbatim %}
@@ -201,10 +200,12 @@
                   {{ p.univ_id }},
                 </span>
                 please submit one.
+                <span uib-tooltip="Multiple user records were found for this ID. Please search for this ID separately to pick a specific record to add to the course."><i class="fa fa-info-circle"></i></span>
               </span>
               <!-- partial failure (when adding to Canvas via API) -->
               <span ng-switch-when="partialFailure">
                 User was added to course but may not yet be shown in Canvas.
+                <span uib-tooltip="The user was added to the course in Harvard's database but could not be added to Canvas, possibly because the user does not exist yet in Canvas. The user may be automatically synced to the Canvas course at a later time, or may require manual intervention to enroll in the Canvas course."><i class="fa fa-info-circle"></i></span>
               </span>
               <!-- addFailed server error or other unknown error
                    when attempting to add the user -->
