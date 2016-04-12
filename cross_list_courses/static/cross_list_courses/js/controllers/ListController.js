@@ -4,8 +4,8 @@
      */
     var app = angular.module('CrossListCourses');
     app.controller('ListController',
-        ['$scope', '$http', '$timeout', '$document', '$window', '$compile','djangoUrl',
-        function($scope, $http, $timeout, $document, $window, $compile, $djangoUrl){
+        ['$scope', '$http', '$timeout', '$document', '$window', '$compile','djangoUrl','$log',
+        function($scope, $http, $timeout, $document, $window, $compile, $djangoUrl, $log){
 
             $scope.dtInstance = null;
 
