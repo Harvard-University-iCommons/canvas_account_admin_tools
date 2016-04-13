@@ -4,8 +4,8 @@
      */
     var app = angular.module('CrossListCourses');
     app.controller('ListController',
-        ['$scope', '$http', '$timeout', '$document', '$window', '$compile','djangoUrl',
-        function($scope, $http, $timeout, $document, $window, $compile, $djangoUrl){
+        ['$scope', '$http', '$timeout', '$document', '$window', '$compile','djangoUrl','$log',
+        function($scope, $http, $timeout, $document, $window, $compile, $djangoUrl, $log){
 
             $scope.dtInstance = null;
 
@@ -24,7 +24,7 @@
                     var queryParams = {
                         offset: data.start,
                         limit: data.length,
-                        ordering: '-last_modified_date',
+                        ordering:'-primary_course_instance__term__calendar_year,primary_course_instance__term__school_id',
                         include: 'course_instance',
                     };
 
@@ -60,6 +60,7 @@
                         next: '',
                         previous: '',
                     },
+                    processing: '<img src="' + window.globals.STATIC_URL + 'images/ajax-loader-large.gif" class="loading"/> Loading...',
                 },
                 lengthMenu: [10, 25, 50, 100],
                 // yes, this is a deprecated param.  yes, it's still required.
@@ -67,6 +68,7 @@
                 sAjaxDataProp: 'data',
                 searching: false,
                 serverSide: true,
+                processing:true,
                 ordering: false,
             };
 
