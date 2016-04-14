@@ -2,7 +2,7 @@ from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
 from selenium_tests.course_info.course_info_base_test_case \
-    import TEST_USERS_WITH_ROLES_PATH, ADD_MULTIPLE_USERS_PATH
+    import TEST_USERS_WITH_ROLES_PATH
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
@@ -53,71 +53,93 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
                              test_user, role_id)
 
 
-@ddt
 class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
-    @data(*get_xl_data(ADD_MULTIPLE_USERS_PATH))
-    @unpack
-    def test_multi_add_unsuccessful(self, test_case_id, test_user,
-                                      canvas_role, role_id):
-
-        # This test is testing that ID are not successfully added.
-
+    def test_multi_user_add_unsuccessful(self):
+        """
+        TLT-2574
+        This test verifies that multiple_user_add (for invalid ID) is
+        unsuccessful.  Cleanup not needed via rest API for this test.
+        """
+        # Load up test course and go to People Page
         self._load_test_course()
         self.detail_page.go_to_people_page()
-        # verify that you are on the course's people's page
         self.assertTrue(self.people_page.is_loaded())
-
-        # add TWO users to role
-        self.people_page.search_and_add_user(test_user, canvas_role)
-        self.driver.save_screenshot('people_add.png')
-
-        # Note: If the course has a lot of people enrolled, results are
-        # paginated and it's possible that user may not be on the initial
-        # page. So we are asserting the alert message instead
-
-        #debug
-        element = self.driver.find_element_by_id('alert-success').text
-        element1 = element.strip()
-        print element1
-
-        #TODO: this assert is failing here, could not find text on page (?)
+        # Add multiple invalid test ID
+        self.people_page.search_and_add_user(self.test_data['unsuccessful_add'],
+                                             self.test_data['canvas_role'])
+        # Verify that unsuccessful message shows up
         self.assertTrue(self.people_page.add_was_unsuccessful())
 
-        # debug 
-        # self.driver.find_element_by_xpath('//p[contains(.,"could not be
-        # added.")]')
+    def test_multi_user_add_successful(self):
+        """
+        TLT-2574:
+        This test verifies that multiple_user_add (for valid ID) are successful.
+        Cleanup of data required and included via rest API calls.
+        """
+
+        # Put test data in a list, since rest api removes one id at a time.
+        id_list = self.test_data['successful_add']
+
+        # Removes test ID from the course first in case those IDs are already
+        # in the course. id_list is a list, since rest api removes one id
+        # at a time.
+        for user_id in id_list:
+            self.api.remove_user(self.test_settings['test_course']['cid'],
+                                 user_id)
+
+        # Load up the test course and go to People Page
+        self._load_test_course()
+        self.detail_page.go_to_people_page()
+        self.assertTrue(self.people_page.is_loaded())
+
+        # Join the id_list so we can pass in all the test id for user_add
+        element = ', '.join(id_list)
+
+        # Search and add valid ID to the course
+        self.people_page.search_and_add_user(element, self.test_data['canvas_role'])
+
+        ''' Limitation:  This may no longer be a valid test if there are a lot
+        of ID in the test course and the user being added appears
+        on second page due to pagination.  If that is the case, we could go
+        back to checking on alert text'''
+
+        # Verify successful add (if ID appears in the list of users)
+        for user_id in id_list:
+            self.people_page.add_is_successful_by_id(user_id)
+            # Clean up test data at the end of test
+            self.api.remove_user(self.test_settings['test_course']['cid'],
+                                 user_id)
 
 
-    # def test_successful_multi_user_add self):
-    #     """
-    #     Test multiple add where add is successful
-    #     rest API call/cleanup for this one.
-    #    :return:
-    #     Failure message on screen that user is not found
-    #     """
+    def test_multiple_add_partial_failure(self):
+        """
+        TLT-2574:
+        This test verifies that multiple_user_add is partially successful.
+        Some added.  Others aren't. Cleanup of data includedincluded.
+        """
+        # test data as a list, since rest api removes user one at a time
+        id_list = self.test_data['partial_success_add']
 
-    # def test_multiple_add_partial_failure_due_to_user_not_found(self):
-    #     """
-    #     Test multiple add where a user is not found (fake ID)
-    #     No need to do rest API call/cleanup for this one.
-    #    :return:
-    #     Failure message on screen that user is not found
-    #     """
-    #
-    # def test_multiple_add_partial_failure_due_to_user_already_added (self):
-    #     """
-    #     Test multiple add where one user is already added
-    #     Need rest API cleanup for the partial success
-    #     :return:
-    #     Failure message on screen that user is already added
-    #     """
-    #
-    # def test_multiple_add_full_failure_no_user_gets_added(self):
-    #     """
-    #     Test multiple add where one user is already added
-    #     Need rest API cleanup for the partial success
-    #     :return:
-    #     Failure message on screen that no ID is added
-    #     """
-    #
+        # Remove test ID from the course first in case those IDs are already
+        # in the course.
+        for id in id_list:
+            self.api.remove_user(self.test_settings['test_course']['cid'], id)
+
+        #  Load up test course and go to People page.
+        self._load_test_course()
+        self.detail_page.go_to_people_page()
+        self.assertTrue(self.people_page.is_loaded())
+
+        # Join the id_list so we can pass test id as a string; not a list
+        element = ', '.join(id_list)
+        self.people_page.search_and_add_user(element,
+                                             self.test_data['canvas_role'])
+
+        # Verify that user is not added through alert text
+        self.assertTrue(self.people_page.multiple_add_partial_failure())
+
+        # Remove test ID from course as cleanup
+        for id in id_list:
+            self.api.remove_user(self.test_settings['test_course']['cid'], id)
+
