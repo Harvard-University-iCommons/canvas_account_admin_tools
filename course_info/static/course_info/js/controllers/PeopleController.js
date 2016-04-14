@@ -53,7 +53,6 @@
                         memberships: memberRecordsInCourse,
                         searchTerm: searchTerm
                     });
-                    $scope.tracking.failures  += 1;
                 }
             } else if (filteredResults.length == 0) {
                 // didn't find any people for the search term
@@ -61,7 +60,6 @@
                     type: 'notFound',
                     searchTerm: searchTerm
                 });
-                $scope.tracking.failures  += 1;
             } else {  // if (filteredResults.length > 1)
                 // multiple profiles found for search term, do not add
                 $scope.messages.warnings.push({
@@ -71,11 +69,8 @@
                     name: $scope.getProfileFullName(filteredResults[0]),
                     profiles: filteredResults
                 });
-                $scope.tracking.failures  += 1;
             }
-            $scope.updateProgressBar();  // handles failures
-            // todo: do we need to return a resolved or rejected promise here instead?
-            return null;  // no attempt made to add member
+            $scope.tracking.failures++;
         };
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
@@ -84,16 +79,14 @@
              POST call response.
              */
             var handlePostSuccess = function(response) {
-                $scope.tracking.successes += 1;
-                $scope.updateProgressBar();
+                $scope.tracking.successes++;
                 return response;
             };
 
             var handlePostError = function(response) {
                 $scope.handleAjaxErrorResponse(response);
-                if (response.data.detail &&
-                        (response.data.detail.indexOf(
-                            'Canvas API error details') != -1)) {
+                if ((((response||{}).data||{}).detail||'').indexOf(
+                            'Canvas API error details') != -1) {
                     // There was a partial error (we caught
                     // a Canvas API error). The user has been added to the
                     // coursemanager db, but could not be added to Canvas.
@@ -114,8 +107,7 @@
                         searchTerm: searchTerm
                     });
                 }
-                $scope.tracking.failures  += 1;
-                $scope.updateProgressBar();
+                $scope.tracking.failures++;
                 return response;
             };
 
@@ -124,7 +116,8 @@
                                          + $scope.courseInstanceId + '/people/']);
 
             return $http.post(url, userPostParams)
-                .then(handlePostSuccess, handlePostError);
+                .then(handlePostSuccess, handlePostError)
+                .finally($scope.updateProgressBar);
         };
         $scope.addPeopleToCourse = function(searchTerms) {
 
@@ -141,7 +134,7 @@
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'partials/add-people-to-course-confirmation.html',
-                controller: function($scope, $uibModalInstance, numPeople, selectedRoleName) {
+                controller: function ($scope, $uibModalInstance, numPeople, selectedRoleName) {
                     $scope.numPeople = numPeople;
                     $scope.selectedRoleName = selectedRoleName;
                 },
@@ -170,8 +163,10 @@
                         return memberResponse;
                     }, function courseMemberLookupFailed(memberResponse) {
                         $scope.handleAjaxErrorResponse(memberResponse);
-                        // todo: how do we make this break the add chain?
-                        return $q.reject('Course member lookup failed');
+                        $scope.messages.warnings.push({
+                            type: 'courseMemberLookupFailed'
+                        });
+                        return $q.reject(memberResponse);
                     });
                 var peoplePromises = $scope.lookupPeople(searchTermList);
                 var addNewMemberPromises = [];
@@ -180,12 +175,18 @@
                         $q.all([memberPromise, personPromise])
                             .then(function addFetchedPerson(responses) {
                                 var personResponse = responses[1];
-                                $scope.updateProgressBar();
-                                return $scope.addNewMember(personResponse, membersByUserId);
-                            })
-                        );
-                    });
-                $q.all(addNewMemberPromises).then($scope.showAddNewMemberResults);
+                                return $scope.addNewMember(personResponse,
+                                    membersByUserId);
+                            }, function addNewMemberPromiseFailure(response) {
+                                // swallow rejected person lookup to allow others
+                                // to proceed
+                                return null;
+                            }).finally($scope.updateProgressBar)
+                    );
+                });
+                $q.all(addNewMemberPromises.concat(memberPromise)).then(
+                    $scope.showAddNewMemberResults,
+                    $scope.showAddNewMemberResults);
             });
         };
 
@@ -194,7 +195,6 @@
             $scope.tracking = {
                 failures: 0,
                 successes: 0,
-                lookupsCompleted: 0,
                 total: 0};
             $scope.removeFailure = null;
         };
@@ -404,7 +404,7 @@
                                               ['api/course/v2/people/']);
             var peoplePromiseList = [];
 
-            searchTermList.forEach(function(searchTerm) {
+            searchTermList.forEach(function setupPersonLookup(searchTerm) {
                 var promiseConfig = {
                     params: {limit: 100},
                     searchTerm: searchTerm  // save for error handling
@@ -415,9 +415,14 @@
                     promiseConfig.params.email_address = searchTerm;
                 }
                 var promise = $http.get(peopleURL, promiseConfig)
-                    .then(function(response) {
-                        $scope.tracking.lookupsCompleted += 1;
-                        return response;
+                    .then(null,
+                        function personLookupFailure(response) {
+                            $scope.tracking.failures++;
+                            $scope.messages.warnings.push({
+                                type: 'personLookupFailed',
+                                searchTerm: searchTerm
+                            });
+                            return $q.reject(response);
                     });
                 peoplePromiseList.push(promise);
             });
@@ -564,7 +569,6 @@
             /* Updates page with summary message and failure details after all
              add person operations are finished.
              */
-            $scope.operationInProgress = false;
             // use 'total_failures' to avoid stomping existing 'failures'
             $scope.tracking.total_failures = $scope.tracking.total - $scope.tracking.successes;
             // figure out the alert type (ie. the color) here
@@ -580,7 +584,8 @@
             }
             // todo: .success for all ok, .warning for mixed, .danger for all failures
             $scope.messages.success = {type: 'add', alertType: alertType};
-            $scope.dtInstance.reloadData();
+            if ($scope.tracking.successes) { $scope.dtInstance.reloadData(); }
+            $scope.operationInProgress = false;
         };
         $scope.updateProgressBar = function(text) {
             /* Updates progress bar message with either `text` for a specific
