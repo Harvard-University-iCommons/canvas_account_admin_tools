@@ -28,6 +28,7 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
 SELENIUM_CONFIG = {
    'account_admin': {
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
+      #'relative_url': 'accounts/10/external_tools/99',  # qa (Admin Console)
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
@@ -56,6 +57,13 @@ SELENIUM_CONFIG = {
          'school': 'Divinity School',
          'type': 'All courses',
          'year': '2016',
+      },
+      # TLT-2574 - Course Info People Add
+      'test_data_for_multiple_users_add': {
+         'canvas_role': 'Guest',
+         'unsuccessful_add': '12345678, 23456789',
+         'successful_add': ['aa000gc0', 'aa000fcz'],
+         'partial_success_add': ['aa000gc0', '12345678'],
       },
       'test_users': {
          'existing': {
