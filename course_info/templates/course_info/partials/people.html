@@ -156,7 +156,7 @@
       </ng-pluralize>
       <ng-pluralize count="tracking.total_failures"
                     when="{'0': '',
-                           'one': '1 person could not be added',
+                           'one': '1 person could not be added.',
                            'other': '{} people could not be added.'}">
       </ng-pluralize>
     </span>
@@ -210,7 +210,8 @@
               <!-- addFailed server error or other unknown error
                    when attempting to add the user -->
               <span ng-switch-default>
-                User could not be added to the course at this time.
+                Server Error. User could not be added
+                to the course at this time.
               </span>
             </span>
           </td>
