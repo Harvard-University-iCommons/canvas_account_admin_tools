@@ -9,17 +9,24 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
+
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
     ADD_PEOPLE_SEARCH_TXT = (By.ID, 'emailHUID')
     ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn-id')
-    ALERT_SUCCESS_ADD_PERSON_TEXT = (By.XPATH, '//p[contains(.,"were added")]')
     ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
-    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//div[contains(.,"could not be '
-                                               'added")]')
-    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
+    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//div[contains(.,"could not '
+                                               'be added")]')
+    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
+
+    MULTI_USER_PARTIAL_FAILURE_TEXT = (By.XPATH, '//div[contains(.,"person '
+                                                 'could not be added")]')
+
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
+
+    SINGLE_ADD_ALERT_TEXT = (By.XPATH, '//div[contains(.,"were added")]')
+
 
     @classmethod
     def DELETE_USER_ICON (cls, sis_user_id):
@@ -70,18 +77,36 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, canvas_role).click()
 
-    def add_was_successful(self):
+    def single_add_was_successful(self):
         # Verify success text
-        # todo: this does not check _which_ add was successful...
+        # todo: we can refactor this; see "add_is_successful_by_id" method
         try:
-            self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON_TEXT)
+            self.find_element(*Locators.SINGLE_ADD_ALERT_TEXT)
+        except NoSuchElementException:
+            return False
+        return True
+
+
+    def add_is_successful_by_id(self, user_id):
+        # Verify user ID is displayed
+        try:
+            self.find_element(*CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(
+                        user_id)).is_displayed()
+        except NoSuchElementException:
+            return False
+        return True
+
+    def multiple_add_partial_failure(self):
+        # Verify partial success/failure through alert text
+        try:
+            self.find_element(
+                    *Locators.MULTI_USER_PARTIAL_FAILURE_TEXT)
         except NoSuchElementException:
             return False
         return True
 
     def add_was_unsuccessful(self):
-        # Verify success text
-        # todo: this does not check _which_ add was unsuccessful...
+        # Verify unsuccessful add by checking on alert text
         try:
             self.find_element(*Locators.ALERT_UNSUCCESSFUL_ADD_PERSON)
         except NoSuchElementException:
