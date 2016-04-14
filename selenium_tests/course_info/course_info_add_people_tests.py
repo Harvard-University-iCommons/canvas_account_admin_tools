@@ -55,6 +55,16 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
 
 class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
+    def _load_find_info_tool(self):
+        """
+        Common code: This method loads up the find_info_tool and goes to the
+        People's page
+        """
+        self._load_test_course()
+        self.detail_page.go_to_people_page()
+        self.assertTrue(self.people_page.is_loaded())
+
+
     def test_multi_user_add_unsuccessful(self):
         """
         TLT-2574
@@ -62,9 +72,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         unsuccessful.  Cleanup not needed via rest API for this test.
         """
         # Load up test course and go to People Page
-        self._load_test_course()
-        self.detail_page.go_to_people_page()
-        self.assertTrue(self.people_page.is_loaded())
+        self._load_find_info_tool()
+
         # Add multiple invalid test ID
         self.people_page.search_and_add_user(self.test_data['unsuccessful_add'],
                                              self.test_data['canvas_role'])
@@ -77,25 +86,19 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         This test verifies that multiple_user_add (for valid ID) are successful.
         Cleanup of data required and included via rest API calls.
         """
-
         # Put test data in a list, since rest api removes one id at a time.
         id_list = self.test_data['successful_add']
 
-        # Removes test ID from the course first in case those IDs are already
-        # in the course. id_list is a list, since rest api removes one id
-        # at a time.
+        # Remove test user if they are already in course.
         for user_id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'],
                                  user_id)
 
         # Load up the test course and go to People Page
-        self._load_test_course()
-        self.detail_page.go_to_people_page()
-        self.assertTrue(self.people_page.is_loaded())
+        self._load_find_info_tool()
 
-        # Join the id_list so we can pass in all the test id for user_add
+        # Join the id_list so we can pass in test users as a string; not list
         element = ', '.join(id_list)
-
         # Search and add valid ID to the course
         self.people_page.search_and_add_user(element, self.test_data['canvas_role'])
 
@@ -121,17 +124,14 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         # test data as a list, since rest api removes user one at a time
         id_list = self.test_data['partial_success_add']
 
-        # Remove test ID from the course first in case those IDs are already
-        # in the course.
+        # Remove test users if they are already in course.
         for id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'], id)
 
         #  Load up test course and go to People page.
-        self._load_test_course()
-        self.detail_page.go_to_people_page()
-        self.assertTrue(self.people_page.is_loaded())
+        self._load_find_info_tool()
 
-        # Join the id_list so we can pass test id as a string; not a list
+        # Join the id_list so we can pass in test users as a string; not list
         element = ', '.join(id_list)
         self.people_page.search_and_add_user(element,
                                              self.test_data['canvas_role'])
@@ -139,7 +139,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         # Verify that user is not added through alert text
         self.assertTrue(self.people_page.multiple_add_partial_failure())
 
-        # Remove test ID from course as cleanup
+        # Test data cleanup from course
         for id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'], id)
 
