@@ -127,42 +127,68 @@
                 .then(handlePostSuccess, handlePostError);
         };
         $scope.addPeopleToCourse = function(searchTerms) {
+
             /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
              and attempts to add people to the course who do not already have an
              enrollment.
              */
-            var membersByUserId = {};
-            $scope.clearMessages();
-            $scope.operationInProgress = true;
-            var searchTermList = $scope.getSearchTermList(searchTerms);
-            $scope.tracking.total = searchTermList.length;
-            $scope.updateProgressBar('Looking up ' + $scope.tracking.total
-                + ' people');
-            var memberPromise = $scope.lookupCourseMembers()
-                .then(function updateCourseMembers(memberResponse) {
-                    membersByUserId = $scope.getMembersByUserId(
-                        memberResponse.data.results);
-                    return memberResponse;
-                }, function courseMemberLookupFailed(memberResponse) {
-                    $scope.handleAjaxErrorResponse(memberResponse);
-                    // todo: how do we make this break the add chain?
-                    return $q.reject('Course member lookup failed');
-                });
-            var peoplePromises = $scope.lookupPeople(searchTermList);
-            var addNewMemberPromises = [];
-            peoplePromises.forEach(function setupAddPersonPromiseChain(personPromise) {
-                addNewMemberPromises.push(
-                    $q.all([memberPromise, personPromise])
-                        .then(function addFetchedPerson(responses) {
-                            var personResponse = responses[1];
-                            $scope.updateProgressBar();
-                            return $scope.addNewMember(personResponse, membersByUserId);
-                        })
-                    );
-                });
-            $q.all(addNewMemberPromises).then($scope.showAddNewMemberResults);
 
+            // split the list to get the number of people the user is trying to add
+            $scope.numPeople = searchTerms.split(',').length;
+            $scope.selectedRoleName = $scope.selectedRole.roleName;
+            // open a modal confirmation box and as the user to verify they want to add
+            // the number of users they entered.
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'partials/add-people-to-course-confirmation.html',
+                controller: function($scope, $uibModalInstance, numPeople, selectedRoleName) {
+                    $scope.numPeople = numPeople;
+                    $scope.selectedRoleName = selectedRoleName;
+                },
+                resolve: {
+                    numPeople: function () {
+                        return $scope.numPeople;
+                    },
+                    selectedRoleName: function () {
+                        return $scope.selectedRoleName;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function modalSuccess() {
+                var membersByUserId = {};
+                $scope.clearMessages();
+                $scope.operationInProgress = true;
+                var searchTermList = $scope.getSearchTermList(searchTerms);
+                $scope.tracking.total = searchTermList.length;
+                $scope.updateProgressBar('Looking up ' + $scope.tracking.total
+                    + ' people');
+                var memberPromise = $scope.lookupCourseMembers()
+                    .then(function updateCourseMembers(memberResponse) {
+                        membersByUserId = $scope.getMembersByUserId(
+                            memberResponse.data.results);
+                        return memberResponse;
+                    }, function courseMemberLookupFailed(memberResponse) {
+                        $scope.handleAjaxErrorResponse(memberResponse);
+                        // todo: how do we make this break the add chain?
+                        return $q.reject('Course member lookup failed');
+                    });
+                var peoplePromises = $scope.lookupPeople(searchTermList);
+                var addNewMemberPromises = [];
+                peoplePromises.forEach(function setupAddPersonPromiseChain(personPromise) {
+                    addNewMemberPromises.push(
+                        $q.all([memberPromise, personPromise])
+                            .then(function addFetchedPerson(responses) {
+                                var personResponse = responses[1];
+                                $scope.updateProgressBar();
+                                return $scope.addNewMember(personResponse, membersByUserId);
+                            })
+                        );
+                    });
+                $q.all(addNewMemberPromises).then($scope.showAddNewMemberResults);
+            });
         };
+
         $scope.clearMessages = function() {
             $scope.messages = {progress: null, success: null, warnings: []};
             $scope.tracking = {
@@ -690,7 +716,7 @@
                 orderable: false,
                 render: $scope.renderRemove,
                 title: 'Remove',
-            },
+            }
         ];
     }
 })();
