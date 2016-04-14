@@ -18,8 +18,6 @@ from selenium_tests.course_info.page_objects.course_people_page_object \
 # Common files used for all Manage People test cases
 TEST_USERS_WITH_ROLES_PATH = join(dirname(abspath(__file__)),
     'test_data', 'admin_console_roles.xlsx')
-ADD_MULTIPLE_USERS_PATH = join(dirname(abspath(__file__)),
-    'test_data', 'admin_console_add_multi_users.xlsx')
 
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
@@ -52,6 +50,9 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.detail_page = CourseInfoDetailPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)
         cls.search_page = CourseSearchPageObject(cls.driver)
+
+        cls.test_data = settings.SELENIUM_CONFIG[
+            'course_info_tool']['test_data_for_multiple_users_add']
 
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
