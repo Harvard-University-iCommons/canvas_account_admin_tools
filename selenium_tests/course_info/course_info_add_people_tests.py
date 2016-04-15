@@ -68,8 +68,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
     def test_multi_user_add_unsuccessful(self):
         """
         TLT-2574
-        This test verifies that multiple_user_add (for invalid ID) is
-        unsuccessful.  Cleanup not needed via rest API for this test.
+        This test verifies that that adding multiple users (for invalid ids)
+        is unsuccessful.  Cleanup not needed via rest API for this test.
         """
         # Load up test course and go to People Page
         self._load_find_info_tool()
@@ -83,8 +83,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
     def test_multi_user_add_successful(self):
         """
         TLT-2574:
-        This test verifies that multiple_user_add (for valid ID) are successful.
-        Cleanup of data required and included via rest API calls.
+        This test verifies that adding multiple users (for valid ID) is
+        successful. Cleanup of data included.
         """
         # Put test data in a list, since rest api removes one id at a time.
         id_list = self.test_data['successful_add']
@@ -118,8 +118,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
     def test_multiple_add_partial_failure(self):
         """
         TLT-2574:
-        This test verifies that multiple_user_add is partially successful.
-        Some added.  Others aren't. Cleanup of data includedincluded.
+        This test verifies that adding multiple users is partially successful.
+        Cleanup of data included.
         """
         # test data as a list, since rest api removes user one at a time
         id_list = self.test_data['partial_success_add']
