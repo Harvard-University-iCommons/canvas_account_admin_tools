@@ -55,10 +55,10 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
 
 class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
-    def _load_find_info_tool(self):
+    def _load_course(self):
         """
-        Common code: This method loads up the find_info_tool and goes to the
-        People's page
+        Common code: This method load up the course, and goes to
+        the Course People Details page.
         """
         self._load_test_course()
         self.detail_page.go_to_people_page()
@@ -71,7 +71,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         is unsuccessful.  Cleanup not needed via rest API for this test.
         """
         # Load up test course and go to People Page
-        self._load_find_info_tool()
+        self._load_course()
 
         # Add multiple invalid test ID
         self.people_page.search_and_add_user(self.test_data['unsuccessful_add'],
@@ -94,7 +94,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
                                  user_id)
 
         # Load up the test course and go to People Page
-        self._load_find_info_tool()
+        self._load_course()
 
         # Join the id_list so we can pass in test users as a string; not list
         element = ', '.join(id_list)
@@ -128,7 +128,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
             self.api.remove_user(self.test_settings['test_course']['cid'], id)
 
         #  Load up test course and go to People page.
-        self._load_find_info_tool()
+        self._load_course()
 
         # Join the id_list so we can pass in test users as a string; not list
         element = ', '.join(id_list)
