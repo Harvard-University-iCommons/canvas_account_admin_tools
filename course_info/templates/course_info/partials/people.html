@@ -149,8 +149,7 @@
 
   <!-- begin success alerts -->
   <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
-             close="closeAlert('success')" class="col-md-12"
-             id="alert-success">
+             class="col-md-12" id="alert-success">
     <span ng-if="messages.success.type == 'add'">
       <ng-pluralize count="tracking.successes"
                     when="{'0': 'No people were added to the course.',

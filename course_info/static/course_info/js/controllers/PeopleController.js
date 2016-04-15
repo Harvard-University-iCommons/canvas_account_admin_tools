@@ -174,7 +174,6 @@
         };
         $scope.closeAlert = function(source) {
             $scope.messages[source] = null;
-            $scope.partialFailureData = null;
         };
         $scope.compareRoles = function(a, b) {
             /*
