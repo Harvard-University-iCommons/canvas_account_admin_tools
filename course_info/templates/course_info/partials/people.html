@@ -143,10 +143,12 @@
   </div>
   <!-- end add person expand-o-widget -->
 
+  <div  ng-if="messages.success" class="panel panel-default  col-md-12" id="alert-pane">
+      <div  class="panel-body col-md-12" id="alert-pane">
+
   <!-- begin success alerts -->
   <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
-             close="closeAlert('success')" class="col-md-12"
-             id="alert-success">
+             class="col-md-12" id="alert-success">
     <span ng-if="messages.success.type == 'add'">
       <ng-pluralize count="tracking.successes"
                     when="{'0': 'No people were added to the course.',
@@ -218,6 +220,10 @@
       </tbody>
     </table>
   </div>
+  </div>
+
+ </div>
+ <!-- end alert pane -->
 
   <!-- begin remove failure warning alerts -->
   <uib-alert ng-if="removeFailure" type="warning"

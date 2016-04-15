@@ -40,7 +40,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         user id
         """
         try:
-            WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+            WebDriverWait(self._driver, 60).until_not(lambda s: s.find_element(
                 *CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
                 ).is_displayed())
         except TimeoutException:
