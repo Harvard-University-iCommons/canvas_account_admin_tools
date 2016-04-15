@@ -119,15 +119,16 @@
                 .then(handlePostSuccess, handlePostError)
                 .finally($scope.updateProgressBar);
         };
-        $scope.addPeopleToCourse = function(searchTerms) {
+        $scope.addPeopleToCourse = function(searchTermList) {
+
             /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
              and attempts to add people to the course who do not already have an
              enrollment.
              */
+
             var membersByUserId = {};
             $scope.clearMessages();
             $scope.operationInProgress = true;
-            var searchTermList = $scope.getSearchTermList(searchTerms);
             $scope.tracking.total = searchTermList.length;
             $scope.updateProgressBar('Looking up ' + $scope.tracking.total
                 + ' people');
@@ -157,12 +158,13 @@
                             // to proceed
                             return null;
                         }).finally($scope.updateProgressBar)
-                    );
-                });
+                );
+            });
             $q.all(addNewMemberPromises.concat(memberPromise)).then(
                 $scope.showAddNewMemberResults,
                 $scope.showAddNewMemberResults);
         };
+
         $scope.clearMessages = function() {
             $scope.messages = {progress: null, success: null, warnings: []};
             $scope.tracking = {
@@ -198,6 +200,31 @@
             else {
                 return b.active - a.active;
             }
+        };
+        $scope.confirmAddPeopleToCourse = function(searchTerms) {
+            var searchTermList = $scope.getSearchTermList(searchTerms);
+            // open a modal confirmation box and as the user to verify they want to add
+            // the number of users they entered.
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'partials/add-people-to-course-confirmation.html',
+                controller: function ($scope, $uibModalInstance, numPeople, selectedRoleName) {
+                    $scope.numPeople = numPeople;
+                    $scope.selectedRoleName = selectedRoleName;
+                },
+                resolve: {
+                    numPeople: function () {
+                        return searchTermList.length;
+                    },
+                    selectedRoleName: function () {
+                        return $scope.selectedRole.roleName;
+                    }
+                }
+            });
+
+            modalInstance.result.then(function modalSuccess() {
+                $scope.addPeopleToCourse(searchTermList);
+            });            
         };
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and
@@ -694,7 +721,7 @@
                 orderable: false,
                 render: $scope.renderRemove,
                 title: 'Remove',
-            },
+            }
         ];
     }
 })();

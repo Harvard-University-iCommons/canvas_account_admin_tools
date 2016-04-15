@@ -1,0 +1,21 @@
+{% verbatim %}
+<div class="modal-header">
+  <h3 class="modal-title">Confirm add people</h3>
+</div>
+<div class="modal-body">
+
+<p>Are you sure you want to add <b>{{numPeople}}</b> people to the course with the role <b>{{selectedRoleName}}</b>?</p>
+
+</div>
+<div class="modal-footer">
+      <button type="button" class="btn btn-default pull-left"
+          id="modalCancel" ng-click="$dismiss('cancel')">
+    Cancel
+  </button>
+
+      <button type="button" class="btn btn-primary" ng-click="$close()"
+          id="modalConfirm">
+    Add People
+  </button>
+</div>
+{% endverbatim %}
