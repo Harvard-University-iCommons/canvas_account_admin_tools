@@ -18,7 +18,7 @@ class Locators(object):
                                                'be added")]')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
-
+    MODAL_WINDOW_CONFIRM_ADD = (By.ID, 'modalConfirm')
     MULTI_USER_PARTIAL_FAILURE_TEXT = (By.XPATH, '//div[contains(.,"person '
                                                  'could not be added")]')
 
@@ -69,6 +69,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+        self.find_element(*Locators.MODAL_WINDOW_CONFIRM_ADD).click()
         WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
             *Locators.PROGRESS_BAR).is_displayed())
 
