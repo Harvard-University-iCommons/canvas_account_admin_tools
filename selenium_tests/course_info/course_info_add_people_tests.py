@@ -64,10 +64,9 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         self.detail_page.go_to_people_page()
         self.assertTrue(self.people_page.is_loaded())
 
-
     def test_multi_user_add_unsuccessful(self):
         """
-        TLT-2574
+        TLT-2574: AC #3, Test case 12
         This test verifies that that adding multiple users (for invalid ids)
         is unsuccessful.  Cleanup not needed via rest API for this test.
         """
@@ -82,7 +81,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
     def test_multi_user_add_successful(self):
         """
-        TLT-2574:
+        TLT-2574: AC #3, Test case 12
         This test verifies that adding multiple users (for valid ID) is
         successful. Cleanup of data included.
         """
@@ -100,7 +99,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         # Join the id_list so we can pass in test users as a string; not list
         element = ', '.join(id_list)
         # Search and add valid ID to the course
-        self.people_page.search_and_add_user(element, self.test_data['canvas_role'])
+        self.people_page.search_and_add_user(element,
+                                             self.test_data['canvas_role'])
 
         ''' Limitation:  This may no longer be a valid test if there are a lot
         of ID in the test course and the user being added appears
@@ -114,10 +114,9 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
             self.api.remove_user(self.test_settings['test_course']['cid'],
                                  user_id)
 
-
     def test_multiple_add_partial_failure(self):
         """
-        TLT-2574:
+        TLT-2574: AC #3, Test case 12
         This test verifies that adding multiple users is partially successful.
         Cleanup of data included.
         """
@@ -141,4 +140,3 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         # Test data cleanup from course
         for id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'], id)
-
