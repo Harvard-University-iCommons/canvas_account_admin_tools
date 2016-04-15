@@ -25,7 +25,7 @@ class Locators(object):
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
 
-    SINGLE_ADD_ALERT_TEXT = (By.XPATH, '//div[contains(.,"were added")]')
+    SINGLE_ADD_ALERT_TEXT = (By.XPATH, '//div[contains(.,"was added")]')
 
 
     @classmethod

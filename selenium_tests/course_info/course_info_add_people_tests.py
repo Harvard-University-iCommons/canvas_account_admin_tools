@@ -33,7 +33,7 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
         self.assertTrue(self.people_page.is_loaded())
 
         # assert that the success message is not already loaded on the page
-        self.assertFalse(self.people_page.add_was_successful())
+        self.assertFalse(self.people_page.single_add_was_successful())
 
         # add user to role
         self.people_page.search_and_add_user(test_user, canvas_role)
@@ -45,7 +45,7 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
         self.assertTrue(self.people_page.is_person_on_page(test_user))
 
         # Assert that the success text is displayed
-        self.assertTrue(self.people_page.add_was_successful())
+        self.assertTrue(self.people_page.single_add_was_successful())
 
         # clean up (avoid cluttering the course if multiple different
         # test users are used)
@@ -135,7 +135,6 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         element = ', '.join(id_list)
         self.people_page.search_and_add_user(element,
                                              self.test_data['canvas_role'])
-
         # Verify that user is not added through alert text
         self.assertTrue(self.people_page.multiple_add_partial_failure())
 
