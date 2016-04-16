@@ -33,7 +33,7 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
         self.assertTrue(self.people_page.is_loaded())
 
         # assert that the success message is not already loaded on the page
-        self.assertFalse(self.people_page.single_add_was_successful())
+        self.assertFalse(self.people_page.people_added(1, 0))
 
         # add user to role
         self.people_page.search_and_add_user(test_user, canvas_role)
@@ -45,7 +45,7 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
         self.assertTrue(self.people_page.is_person_on_page(test_user))
 
         # Assert that the success text is displayed
-        self.assertTrue(self.people_page.single_add_was_successful())
+        self.assertTrue(self.people_page.people_added(1, 0))
 
         # clean up (avoid cluttering the course if multiple different
         # test users are used)
@@ -78,7 +78,7 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         self.people_page.search_and_add_user(self.test_data['unsuccessful_add'],
                                              self.test_data['canvas_role'])
         # Verify that unsuccessful message shows up
-        self.assertTrue(self.people_page.add_was_unsuccessful())
+        self.assertTrue(self.people_page.people_added(0, 2))
 
     def test_multi_user_add_successful(self):
         """
@@ -106,6 +106,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         of ID in the test course and the user being added appears
         on second page due to pagination.  If that is the case, we could go
         back to checking on alert text'''
+
+        self.assertTrue(self.people_page.people_added(len(id_list), 0))
 
         # Verify successful add (if ID appears in the list of users)
         for user_id in id_list:
@@ -136,7 +138,8 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         self.people_page.search_and_add_user(element,
                                              self.test_data['canvas_role'])
         # Verify that user is not added through alert text
-        self.assertTrue(self.people_page.multiple_add_partial_failure())
+        self.assertTrue(self.people_page.people_added(1, 1))
+        self.people_page.add_is_successful_by_id(id_list[0])
 
         # Test data cleanup from course
         for id in id_list:

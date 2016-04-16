@@ -14,19 +14,15 @@ class Locators(object):
     ADD_PEOPLE_SEARCH_TXT = (By.ID, 'emailHUID')
     ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn-id')
     ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
-    ALERT_UNSUCCESSFUL_ADD_PERSON = (By.XPATH, '//div[contains(.,"could not '
-                                               'be added")]')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"just removed")]')
+    # todo: this can be simplified by applying proper IDs to the elements
+    ADD_PEOPLE_CONFIRM_MODAL = (
+        By.XPATH, '//h3[contains(.,"Confirm add people") and @class="modal-title"]')
+    ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON = (
+        By.XPATH, '//button[contains(.,"Add People") and @id="modalConfirm"]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
-
-    MULTI_USER_PARTIAL_FAILURE_TEXT = (By.XPATH, '//div[contains(.,"person '
-                                                 'could not be added")]')
-
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
-
-    SINGLE_ADD_ALERT_TEXT = (By.XPATH, '//div[contains(.,"was added")]')
-
 
     @classmethod
     def DELETE_USER_ICON (cls, sis_user_id):
@@ -69,6 +65,18 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
+
+        # Confirm by clicking 'Add People' in modal
+        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+            *Locators.ADD_PEOPLE_CONFIRM_MODAL).is_displayed())
+        self.find_element(
+            *Locators.ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON).click()
+
+        # Don't return to test case until modal closes and progress bar starts
+        # NOTE: In the event of a super-fast resolution of the add attempt, the
+        # progress bar might not be displayed long enough for Selenium to pick
+        # it up; we may wish to do an alternate test (for success/error
+        # messages) if this first one fails.
         WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
             *Locators.PROGRESS_BAR).is_displayed())
 
@@ -76,16 +84,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, canvas_role).click()
-
-    def single_add_was_successful(self):
-        # Verify success text
-        # todo: we can refactor this; see "add_is_successful_by_id" method
-        try:
-            self.find_element(*Locators.SINGLE_ADD_ALERT_TEXT)
-        except NoSuchElementException:
-            return False
-        return True
-
 
     def add_is_successful_by_id(self, user_id):
         # Verify user ID is displayed
@@ -96,22 +94,33 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def multiple_add_partial_failure(self):
-        # Verify partial success/failure through alert text
-        try:
-            self.find_element(
-                    *Locators.MULTI_USER_PARTIAL_FAILURE_TEXT)
-        except NoSuchElementException:
-            return False
-        return True
+    def people_added(self, expected_successes, expected_failures):
+        """
+        Checks to see if the number of people successfully added to course
+        and number of people not added to course matches expected numbers
+        """
+        element = None
 
-    def add_was_unsuccessful(self):
-        # Verify unsuccessful add by checking on alert text
+        success_message = 'No people were added to the course.'
+        if expected_successes == 1:
+            success_message = '1 person was added to the course.'
+        elif expected_successes > 1:
+            success_message = '{} people were added to the course.'.format(
+                expected_successes)
+
+        failure_message = ''
+        if expected_failures == 1:
+            failure_message = '1 person could not be added.'
+        elif expected_failures > 1:
+            failure_message = '{} people could not be added.'.format(
+                expected_failures)
+        '{} {}'.format(success_message, failure_message).strip()
         try:
-            self.find_element(*Locators.ALERT_UNSUCCESSFUL_ADD_PERSON)
+            element = self.find_element(*Locators.ALERT_SUCCESS_ALERT_BOX)
         except NoSuchElementException:
             return False
-        return True
+        return element.text == '{} {}'.format(
+            success_message, failure_message).strip()
 
     def delete_was_successful(self):
         # Verify delete text
