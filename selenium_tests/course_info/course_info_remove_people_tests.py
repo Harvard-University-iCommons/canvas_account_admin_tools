@@ -43,5 +43,15 @@ class RemovePeopleTests(CourseInfoBaseTestCase):
         self.people_page.delete_user(test_user)
 
         self.assertTrue(self.people_page.delete_was_successful())
+
+        '''Note: Page needs to reloaded as tests are persistently failing
+        for element not found - perhaps cache has changed" for different test
+        id (as the test ID are being removed so DOM has changed. This ensures
+        that the page is reloaded.'''
+        self.driver.refresh()
+        self.setUp()
+        self._load_test_course()
+
+        # Verifies that user has been removed from course.  
         self.assertTrue(
             self.people_page.is_person_removed_from_list(test_user))
