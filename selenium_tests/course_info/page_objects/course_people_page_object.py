@@ -20,9 +20,6 @@ class Locators(object):
     ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON = (
         By.XPATH, '//button[contains(.,"Add People") and @id="modalConfirm"]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
-    MODAL_WINDOW_CONFIRM_ADD = (By.ID, 'modalConfirm')
-    MULTI_USER_PARTIAL_FAILURE_TEXT = (By.XPATH, '//div[contains(.,"person '
-                                                 'could not be added")]')
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
 
@@ -67,7 +64,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
-        self.find_element(*Locators.MODAL_WINDOW_CONFIRM_ADD).click()
 
         # Confirm by clicking 'Add People' in modal
         WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
@@ -89,16 +85,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, canvas_role).click()
 
-
-    def multiple_add_partial_failure(self):
-        # Verify partial success/failure through alert text
-        try:
-            self.find_element(
-                    *Locators.MULTI_USER_PARTIAL_FAILURE_TEXT)
-
-    def add_was_unsuccessful(self):
-        # Verify unsuccessful add by checking on alert text
-
     def people_added(self, expected_successes, expected_failures):
         """
         Checks to see if the number of people successfully added to course
@@ -118,7 +104,7 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             failure_message = '1 person could not be added.'
         elif expected_failures > 1:
             failure_message = '{} people could not be added.'.format(
-                expected_failures)
+                    expected_failures)
         '{} {}'.format(success_message, failure_message).strip()
         try:
             element = self.find_element(*Locators.ALERT_SUCCESS_ALERT_BOX)

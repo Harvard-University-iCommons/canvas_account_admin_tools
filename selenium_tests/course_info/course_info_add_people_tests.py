@@ -9,7 +9,6 @@ from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
 
-
 @ddt
 class SingleAddPeopleTests(CourseInfoBaseTestCase):
 
@@ -58,18 +57,19 @@ class SingleAddPeopleTests(CourseInfoBaseTestCase):
 
 class MultipleAddPeopleTests(CourseInfoBaseTestCase):
 
-    @classmethod
-    def _load_course(cls):
+    def setUp(self):
         """
         Common code: This method load up the course, and goes to
         the Course People Details page.
         """
-        cls.test_data = settings.SELENIUM_CONFIG[
-            'course_info_tool']['test_data_for_multiple_users_add']
+        super(MultipleAddPeopleTests, self).setUp()
+        self._load_test_course()
+        self.detail_page.go_to_people_page()
+        self.assertTrue(self.people_page.is_loaded())
 
-        cls._load_test_course()
-        cls.detail_page.go_to_people_page()
-        cls.assertTrue(cls.people_page.is_loaded())
+        # Test data path for adding users
+        self.test_data = settings.SELENIUM_CONFIG[
+            'course_info_tool']['test_data_for_multiple_users_add']
 
 
     def test_multi_user_add_unsuccessful(self):
@@ -78,17 +78,10 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         This test verifies that that adding multiple users (for invalid ids)
         is unsuccessful.  Cleanup not needed via rest API for this test.
         """
-        # Load up test course and go to People Page
-        self._load_course()
-
-        self.test_data = settings.SELENIUM_CONFIG[
-            'course_info_tool']['test_data_for_multiple_users_add']
-
-        #Add multiple invalid test ID
+        #  Add multiple invalid test ID
         self.people_page.search_and_add_users(self.test_data['unsuccessful_add'],
                                               self.test_data['canvas_role'])
-
-        # Verify that unsuccessful message shows up
+        #  Verify that unsuccessful message shows up
         self.assertTrue(self.people_page.people_added(0, 2))
 
     def test_multi_user_add_successful(self):
@@ -97,46 +90,33 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         This test verifies that adding multiple users (for valid ID) is
         successful. Cleanup of data included.
         """
-    
-        self.test_data = settings.SELENIUM_CONFIG[
-            'course_info_tool']['test_data_for_multiple_users_add']
-
         # Put test data in a list, since rest api removes one id at a time.
 
         id_list = self.test_data['successful_add']
-        
+
         # Remove test user if they are already in course.
         for user_id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'],
                                  user_id)
-        
-        # Load up the test course and go to People Page
-        self._load_course()
-        
-        for user_id in id_list:
-            self.assertFalse(self.people_page.is_person_on_page(user_id))
 
         # Search and add valid ID to the course
         # Join the id_list so we can pass in test users as a string; not list
         user_id_input_string = ', '.join(id_list)
         self.people_page.search_and_add_users(user_id_input_string,
                                               self.test_data['canvas_role'])
+        self.driver.save_screenshot("add_users.png")
 
-        
-        ''' Limitation:  This may no longer be a valid test if there are a lot
-        of ID in the test course and the user being added appears
-        on second page due to pagination.  If that is the case, we could go
-        back to checking on alert text'''
-        
+
+        ''' Limitation:  Due to pagination, this may not be a good test
+        case if there are number of users in course.  In that case,
+        we could go back to checking on alert text or expand the list of
+        people displayed'''
+
         #  Verify successful add (if ID appears in the list of users)
 
-
         self.assertTrue(self.people_page.people_added(len(id_list), 0))
-
-        # Verify successful add (if ID appears in the list of users)
+        #  Cleanup
         for user_id in id_list:
-            self.assertTrue(self.people_page.is_person_on_page(user_id))
-            # Clean up test data at the end of test
             self.api.remove_user(self.test_settings['test_course']['cid'],
                                  user_id)
             self.assertTrue(self.people_page.is_person_on_page(user_id))
@@ -147,10 +127,6 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         This test verifies that adding multiple users is partially successful.
         Cleanup of data included.
         """
-
-        self.test_data = settings.SELENIUM_CONFIG[
-            'course_info_tool']['test_data_for_multiple_users_add']
-
         # test data as a list, since rest api removes user one at a time
         id_list = self.test_data['partial_success_add']
 
@@ -158,16 +134,13 @@ class MultipleAddPeopleTests(CourseInfoBaseTestCase):
         for id in id_list:
             self.api.remove_user(self.test_settings['test_course']['cid'], id)
 
-        #  Load up test course and go to People page.
-        self._load_course()
-
         # Join the id_list so we can pass in test users as a string; not list
         user_id_input_string = ', '.join(id_list)
         self.people_page.search_and_add_users(user_id_input_string,
                                              self.test_data['canvas_role'])
         # Verify that user is not added through alert text
         self.assertTrue(self.people_page.people_added(1, 1))
-        self.people_page.add_is_successful_by_id(id_list[0])
+        self.people_page.is_person_on_page(id_list[0])
 
         # Test data cleanup from course
         for id in id_list:
