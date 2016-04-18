@@ -61,9 +61,11 @@ SELENIUM_CONFIG = {
       # TLT-2574 - Course Info People Add
       'test_data_for_multiple_users_add': {
          'canvas_role': 'Guest',
-         'unsuccessful_add': '12345678, 23456789',
-         'successful_add': ['aa000gc0', 'aa000fcz'],
          'partial_success_add': ['aa000gc0', '12345678'],
+         'successful_add': ['aa000gc0', 'aa000fcz'],
+         # sending in as a string as data cleanup in not needed for
+         # unsuccessful user add test
+         'unsuccessful_add': '12345678, 23456789',
       },
       'test_users': {
          'existing': {
@@ -75,7 +77,7 @@ SELENIUM_CONFIG = {
    'icommons_rest_api': {
       'base_path': 'api/course/v2'
    },
-   'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
+   'run_locally': SECURE_SETTINGS.get('selenium_run_locally', True),
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
    'selenium_grid_url': SECURE_SETTINGS.get('selenium_grid_url'),

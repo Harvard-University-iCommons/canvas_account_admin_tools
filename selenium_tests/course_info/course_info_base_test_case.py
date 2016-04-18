@@ -51,9 +51,6 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         cls.people_page = CoursePeoplePageObject(cls.driver)
         cls.search_page = CourseSearchPageObject(cls.driver)
 
-        cls.test_data = settings.SELENIUM_CONFIG[
-            'course_info_tool']['test_data_for_multiple_users_add']
-
     def setUp(self):
         super(CourseInfoBaseTestCase, self).setUp()
 

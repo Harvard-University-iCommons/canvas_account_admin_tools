@@ -7,7 +7,6 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 
-
 class Locators(object):
 
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
@@ -50,14 +49,14 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         user id
         """
         try:
-            WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
+            WebDriverWait(self._driver, 60).until_not(lambda s: s.find_element(
                 *CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
                 ).is_displayed())
         except TimeoutException:
             return False
         return True
 
-    def search_and_add_user(self, user_id, canvas_role):
+    def search_and_add_users(self, user_id, canvas_role):
         # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
@@ -77,25 +76,6 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, canvas_role).click()
-
-    def single_add_was_successful(self):
-        # Verify success text
-        # todo: we can refactor this; see "add_is_successful_by_id" method
-        try:
-            self.find_element(*Locators.SINGLE_ADD_ALERT_TEXT)
-        except NoSuchElementException:
-            return False
-        return True
-
-
-    def add_is_successful_by_id(self, user_id):
-        # Verify user ID is displayed
-        try:
-            self.find_element(*CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(
-                        user_id)).is_displayed()
-        except NoSuchElementException:
-            return False
-        return True
 
     def multiple_add_partial_failure(self):
         # Verify partial success/failure through alert text
@@ -128,3 +108,4 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         delete in modal window """
         self.find_element(*Locators.DELETE_USER_ICON(user_id)).click()
         self.find_element(*Locators.DELETE_USER_CONFIRM).click()
+
