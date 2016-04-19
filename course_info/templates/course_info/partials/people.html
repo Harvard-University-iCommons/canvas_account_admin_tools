@@ -175,7 +175,7 @@
         <!-- end success alerts -->
 
         <div ng-if="warningsToDisplay()" id="table-failure-details">
-          <table class="table table-striped dataTable">
+          <table datatable="ng"  dt-options="dtOptionsWarning" class="table table-striped dataTable">
             <thead>
               <th>Search Term</th>
               <th>Name</th>
