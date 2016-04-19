@@ -13,9 +13,8 @@
 </nav>
 
 
-<main class="float-left col-60">
-<div class="container-fluid">
-
+<main>
+<div ng-if='courseInstance' class="row">
   <div class="col-md-12">
       <div id="courseInfoDT_wrapper" class="dataTables_wrapper form-inline no-footer">
         <table id="courseInfoDT"
@@ -37,101 +36,100 @@
         </table>
       </div>
   </div>
+</div>
 
+<div class="row">
   <!-- begin add people interface -->
   <!-- begin add person expand-o-widget -->
-  <div role="tabpanel" class="tab-pane active fade in active col-md-12" id="people">
-    <br />
+  <div class="col-md-12" id="people">
     <button id="addPeopleBtn" class="btn btn-primary" type="button"
-            data-toggle="collapse" data-target="#addPeopleDialog"
-            aria-expanded="false" aria-controls="addPeopleDialog">
+            data-toggle="collapse" data-target="#add-people-dialog"
+            aria-expanded="false" aria-controls="add-people-dialog">
        Add People <span class="caret"></span>
     </button>
-    <div class="collapse" id="addPeopleDialog">
-      <div class="well container-fluid col-md-12">
-        <div class="form-group-inline">
-
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="sr-only" for="emailHUID">
-                Enter Harvard University ID or email address
-              </label>
-              <textarea class="form-control" id="emailHUID"
-                     placeholder="Enter Harvard University IDs or email addresses separated by commas or on separate lines"
-                     ng-model="searchTerms" ng-disabled="(searchResults.length > 1) || operationInProgress">
-              </textarea>
-            </div>
-          </div>
-
-          <div class="col-md-2">
-            <button id="select-role-btn-id"
-                    type="button"
-                    class="btn btn-primary dropdown-toggle"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                    ng-disabled="(searchTerms.length == 0) || operationInProgress"
-                    ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
-            </button>
-            <ul class="dropdown-menu" role="menu"
-                aria-labelledby="select-role-btn-id">
-              <li ng-repeat="role in roles">
-                <a ng-click="selectRole(role)">
-                  {{ role.roleName }}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div class="col-md-4 bring-forward">
-            <button type="button" class="btn btn-default dropdown-toggle pull-right"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-info-circle"></i>
-              Privacy Disclaimer
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right" id="privacyDropdown">
-              <li>
-                The University has a legal responsibility to protect the privacy
-                of students and the confidentiality of student records. Adding a
-                member to the teaching staff of this course will allow them to
-                view both "directory information" (i.e. student's name) and
-                "non-directory information" (i.e. student's Harvard University
-                ID#) for the students included in this course. The course list
-                may include students who have asked that we not release any
-                information about them, including the fact that they attend
-                classes at Harvard. By adding a person to the teaching staff you
-                are granting them access to view this information; others are
-                not permitted to view these records. For these reasons, all
-                members of the teaching staff should be reminded to keep this
-                information confidential. If you have any questions, please
-                contact the Office of the Registrar.
-              </li>
-            </ul>
-          </div>
+    <div class="well collapse form-horizontal" id="add-people-dialog">
+      <div class="form-group">
+        <div class="col-xs-12">
+          <label class="sr-only" for="emailHUID">
+            Enter Harvard University ID or email address
+          </label>
+          <textarea class="form-control" id="emailHUID"
+                 placeholder="Enter Harvard University IDs or email addresses separated by commas or on separate lines"
+                 ng-model="searchTerms" ng-disabled="(searchResults.length > 1) || operationInProgress">
+          </textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-xs-8">
+          <button id="select-role-btn-id"
+                  type="button"
+                  class="btn btn-primary dropdown-toggle"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  ng-disabled="(searchTerms.length == 0) || operationInProgress"
+                  ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
+          </button>
+          <ul class="dropdown-menu" role="menu"
+              aria-labelledby="select-role-btn-id">
+            <li ng-repeat="role in roles">
+              <a ng-click="selectRole(role)">
+                {{ role.roleName }}
+              </a>
+            </li>
+          </ul>
         </div>
 
-        <div class="col-md-12" id="directoryLink">
+        <div class="col-xs-4">
+          <button type="button" class="btn btn-default dropdown-toggle pull-right"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-info-circle"></i>
+            Privacy Disclaimer
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu pull-right" id="privacyDropdown">
+            <li>
+              The University has a legal responsibility to protect the privacy
+              of students and the confidentiality of student records. Adding a
+              member to the teaching staff of this course will allow them to
+              view both "directory information" (i.e. student's name) and
+              "non-directory information" (i.e. student's Harvard University
+              ID#) for the students included in this course. The course list
+              may include students who have asked that we not release any
+              information about them, including the fact that they attend
+              classes at Harvard. By adding a person to the teaching staff you
+              are granting them access to view this information; others are
+              not permitted to view these records. For these reasons, all
+              members of the teaching staff should be reminded to keep this
+              information confidential. If you have any questions, please
+              contact the Office of the Registrar.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-xs-8" id="directoryLink">
           <a href="https://connections.harvard.edu" target="_blank">
             Go to the Harvard Directory
           </a>
           to find someone's official email address.
         </div>
 
-        <div class="col-md-12 row">
-          <div class="col-md-12">
-            <button id="add-user-btn-id"
-               class="btn btn-primary"
-               ng-click="confirmAddPeopleToCourse(searchTerms)"
-               ng-disabled="disableAddToCourseButton()">
-              <i class="fa fa-plus-circle"></i> Add to Course
-            </button>
-          </div>
+        <div class="col-xs-4">
+          <button id="add-user-btn"
+             class="btn btn-primary pull-right"
+             type="button"
+             ng-click="confirmAddPeopleToCourse(searchTerms)"
+             ng-disabled="disableAddToCourseButton()">
+            <i class="fa fa-plus-circle"></i> Add to Course
+          </button>
         </div>
+      </div>
 
-        <div class="col-md-8 col-md-offset-2"
-             id="progressBarOuterWrapper"
-             ng-if="operationInProgress">
+      <div ng-if="operationInProgress" class="form-group">
+        <div class="col-xs-8 col-xs-offset-2"
+             id="progressBarOuterWrapper">
           <uib-progressbar type="success" value="100"
                            class="progress-striped active">
             <i> {{ messages.progress }} </i>
@@ -141,134 +139,139 @@
     </div>
   </div>
   <!-- end add person expand-o-widget -->
+</div>
 
-  <div  ng-if="messages.success" class="panel panel-default  col-md-12" id="alert-pane">
-      <div  class="panel-body col-md-12" id="alert-pane">
+<div class="row">
+  <div class="col-xs-12">
+    <div ng-if="messages.success" class="panel panel-default" id="alert-pane">
+      <div class="panel-body" id="alert-pane">
 
-  <!-- begin success alerts -->
-  <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
-             class="col-md-12" id="alert-success">
-    <span ng-if="messages.success.type == 'add'">
-      <ng-pluralize count="tracking.successes"
-                    when="{'0': 'No people were added to the course.',
-                           'one': '1 person was added to the course.',
-                           'other': '{} people were added to the course.'}">
-      </ng-pluralize>
-      <ng-pluralize count="tracking.total_failures"
-                    when="{'0': '',
-                           'one': '1 person could not be added.',
-                           'other': '{} people could not be added.'}">
-      </ng-pluralize>
-    </span>
-    <span ng-if="messages.success.type == 'remove'">
-      <p><strong>{{ messages.success.searchTerm }}</strong>
-        was just removed from this course:</p>
+        <!-- begin success alerts -->
+        <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
+                   id="alert-success">
+          <span ng-if="messages.success.type == 'add'">
+            <ng-pluralize count="tracking.successes"
+                          when="{'0': 'No people were added to the course.',
+                                 'one': '1 person was added to the course.',
+                                 'other': '{} people were added to the course.'}">
+            </ng-pluralize>
+            <ng-pluralize count="tracking.total_failures"
+                          when="{'0': '',
+                                 'one': '1 person could not be added.',
+                                 'other': '{} people could not be added.'}">
+            </ng-pluralize>
+          </span>
+          <span ng-if="messages.success.type == 'remove'">
+            <p><strong>{{ messages.success.searchTerm }}</strong>
+              was just removed from this course:</p>
+            <div class="course-membership-entry">
+              {{ getProfileFullName(messages.success.profile) }}
+              <badge role="{{ getProfileRoleTypeCd(messages.success.profile) }}"></badge>
+              {{ messages.success.user_id }}
+              <strong>Enrolled as {{ messages.success.role.role_name }}</strong>
+            </div>
+          </span>
+        </uib-alert>
+        <!-- end success alerts -->
+
+        <div ng-if="warningsToDisplay()" id="table-failure-details">
+          <table class="table table-striped dataTable">
+            <thead>
+              <th>Search Term</th>
+              <th>Name</th>
+              <th>Result</th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="m in messages.warnings track by $index">
+                <td>{{ m.searchTerm }}</td>
+                <td>{{ m.name || 'N/A' }}</td>
+                <td>
+                  <span ng-switch="m.type">
+                    <span ng-switch-when="alreadyInCourse">
+                      User already in the course.
+                    </span>
+                    <!-- search term didn't find a user -->
+                    <span ng-switch-when="notFound">
+                      User not found.
+                    </span>
+                    <!-- search term found multiple IDs -->
+                    <span ng-switch-when="multipleProfiles">
+                      There are {{ m.profiles.length }} IDs for this user:
+                      <span ng-repeat="p in m.profiles track by $index">
+                        {{ p.univ_id }},
+                      </span>
+                      please submit one.
+                      <span uib-tooltip="Multiple user records were found for this ID. Please search for this ID separately to pick a specific record to add to the course."><i class="fa fa-info-circle"></i></span>
+                    </span>
+                    <!-- partial failure (when adding to Canvas via API) -->
+                    <span ng-switch-when="partialFailure">
+                      User was added to course but may not yet be shown in Canvas.
+                      <span uib-tooltip="The user was added to the course in Harvard's database but could not be added to Canvas, possibly because the user does not exist yet in Canvas. The user may be automatically synced to the Canvas course at a later time, or may require manual intervention to enroll in the Canvas course."><i class="fa fa-info-circle"></i></span>
+                    </span>
+                    <!-- addFailed server error or other unknown error
+                         when attempting to add the user -->
+                    <span ng-switch-default>
+                      Server Error. User could not be added
+                      to the course at this time.
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- begin remove failure warning alerts -->
+    <uib-alert ng-if="removeFailure" type="warning"
+               close="closeAlert('removeFailure')">
+      <div ng-switch="removeFailure.type">
+        <div ng-switch-when="noSuchUser">
+          <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+          has already been removed from this course.
+        </div>
+        <div ng-switch-when="noSuchCourse">
+          <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+          cannot be removed from this course because it no longer exists.
+        </div>
+        <div ng-switch-when="serverError">
+          There was a problem removing
+          <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+          from the database. Please try again.
+        </div>
+        <div ng-switch-when="canvasError">
+          There was a problem removing
+          <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
+          from the Canvas site. Please try again.
+        </div>
+        <div ng-switch-default>
+          There was a problem removing
+          <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>.
+          Please try again.
+        </div>
+      </div>
       <div class="course-membership-entry">
-        {{ getProfileFullName(messages.success.profile) }}
-        <badge role="{{ getProfileRoleTypeCd(messages.success.profile) }}"></badge>
-        {{ messages.success.user_id }}
-        <strong>Enrolled as {{ messages.success.role.role_name }}</strong>
+        {{ getProfileFullName(removeFailure.profile) }}
+        <badge role="{{ getProfileRoleTypeCd(removeFailure.profile) }}">
+        </badge> {{ removeFailure.user_id }}
+        <strong>Enrolled as {{ removeFailure.role.role_name }}</strong>
       </div>
-    </span>
-  </uib-alert>
-  <!-- end success alerts -->
-
-  <div ng-if="warningsToDisplay()" id="table-failure-details">
-    <table class="table table-striped dataTable">
-      <thead>
-        <th>Search Term</th>
-        <th>Name</th>
-        <th>Result</th>
-      </thead>
-      <tbody>
-        <tr ng-repeat="m in messages.warnings track by $index">
-          <td>{{ m.searchTerm }}</td>
-          <td>{{ m.name || 'N/A' }}</td>
-          <td>
-            <span ng-switch="m.type">
-              <span ng-switch-when="alreadyInCourse">
-                User already in the course.
-              </span>
-              <!-- search term didn't find a user -->
-              <span ng-switch-when="notFound">
-                User not found.
-              </span>
-              <!-- search term found multiple IDs -->
-              <span ng-switch-when="multipleProfiles">
-                There are {{ m.profiles.length }} IDs for this user:
-                <span ng-repeat="p in m.profiles track by $index">
-                  {{ p.univ_id }},
-                </span>
-                please submit one.
-                <span uib-tooltip="Multiple user records were found for this ID. Please search for this ID separately to pick a specific record to add to the course."><i class="fa fa-info-circle"></i></span>
-              </span>
-              <!-- partial failure (when adding to Canvas via API) -->
-              <span ng-switch-when="partialFailure">
-                User was added to course but may not yet be shown in Canvas.
-                <span uib-tooltip="The user was added to the course in Harvard's database but could not be added to Canvas, possibly because the user does not exist yet in Canvas. The user may be automatically synced to the Canvas course at a later time, or may require manual intervention to enroll in the Canvas course."><i class="fa fa-info-circle"></i></span>
-              </span>
-              <!-- addFailed server error or other unknown error
-                   when attempting to add the user -->
-              <span ng-switch-default>
-                Server Error. User could not be added
-                to the course at this time.
-              </span>
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    </uib-alert>
+    <!-- end remove failure warning alerts -->
   </div>
-  </div>
+</div>
+<!-- end alert pane -->
 
- </div>
- <!-- end alert pane -->
-
-  <!-- begin remove failure warning alerts -->
-  <uib-alert ng-if="removeFailure" type="warning"
-             close="closeAlert('removeFailure')" class="col-md-12">
-    <div ng-switch="removeFailure.type">
-      <div ng-switch-when="noSuchUser">
-        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
-        has already been removed from this course.
-      </div>
-      <div ng-switch-when="noSuchCourse">
-        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
-        cannot be removed from this course because it no longer exists.
-      </div>
-      <div ng-switch-when="serverError">
-        There was a problem removing
-        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
-        from the database. Please try again.
-      </div>
-      <div ng-switch-when="canvasError">
-        There was a problem removing
-        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
-        from the Canvas site. Please try again.
-      </div>
-      <div ng-switch-default>
-        There was a problem removing
-        <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>.
-        Please try again.
-      </div>
-    </div>
-    <div class="course-membership-entry">
-      {{ getProfileFullName(removeFailure.profile) }}
-      <badge role="{{ getProfileRoleTypeCd(removeFailure.profile) }}">
-      </badge> {{ removeFailure.user_id }}
-      <strong>Enrolled as {{ removeFailure.role.role_name }}</strong>
-    </div>
-  </uib-alert>
-  <!-- end remove failure warning alerts -->
-
+<div class="row">
   <!-- end add people interface -->
-
-  <!-- begin course membership interface -->
-  <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
-         dt-instance="dtInstance" class="table table-striped table-hover">
-  </table>
-  <!-- end course membership interface -->
-
+  <div class="col-md-12">
+    <!-- begin course membership interface -->
+    <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
+           dt-instance="dtInstance" class="table table-striped table-hover">
+    </table>
+    <!-- end course membership interface -->
+  </div>
 </div>
 </main>
 
