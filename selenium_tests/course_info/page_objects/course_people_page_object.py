@@ -11,7 +11,7 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 class Locators(object):
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
     ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn-id")
+    ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn")
     ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
