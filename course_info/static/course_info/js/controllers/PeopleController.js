@@ -265,7 +265,7 @@
                 });
         };
         $scope.disableAddToCourseButton = function(){
-            return ($scope.operationInProgress || $scope.searchTerms.length == 0);
+            return ($scope.operationInProgress || ($scope.searchTerms.length == 0));
         };
         $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
@@ -612,6 +612,7 @@
         $scope.clearMessages();  // initialize user-facing messages
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
+        $scope.initialCourseMembersFetched = false;  // UI component visibility
 
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
@@ -660,23 +661,27 @@
                     method: 'GET',
                     data: queryParams,
                     dataSrc: 'data',
-                    dataType: 'json',
-                    success: function(data, textStatus, jqXHR) {
-                        callback({
-                            recordsTotal: data.count,
-                            recordsFiltered: data.count,
-                            data: data.results,
-                        });
-                    },
-                    error: function(data, textStatus, errorThrown) {
-                        $log.error('Error getting data from ' + url + ': '
-                                   + textStatus + ', ' + errorThrown);
-                        callback({
-                            recordsTotal: 0,
-                            recordsFiltered: 0,
-                            data: [],
-                        });
-                    },
+                    dataType: 'json'
+                }).done(function dataTableGetDone(data, textStatus, jqXHR) {
+                    callback({
+                        recordsTotal: data.count,
+                        recordsFiltered: data.count,
+                        data: data.results,
+                    });
+                })
+                .fail(function dataTableGetFail(data, textStatus, errorThrown) {
+                    $log.error('Error getting data from ' + url + ': '
+                               + textStatus + ', ' + errorThrown);
+                    callback({
+                        recordsTotal: 0,
+                        recordsFiltered: 0,
+                        data: [],
+                    });
+                })
+                .always(function dataTableGetAlways() {
+                    // notify UI to stop showing a loading... message
+                    $scope.initialCourseMembersFetched = true;
+                    $scope.$digest();
                 });
             },
             createdRow: function( row, data, dataIndex ) {
@@ -692,8 +697,10 @@
                     next: '',
                     previous: '',
                 },
+                processing: 'Loading, please wait...'
             },
             lengthMenu: [10, 25, 50, 100],
+            processing: true,
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
             sAjaxDataProp: 'data',
