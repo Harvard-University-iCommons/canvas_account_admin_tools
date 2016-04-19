@@ -4,8 +4,7 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log, $uibModal,
-                              DTOptionsBuilder, DTColumnBuilder) {
+                              djangoUrl, $http, $q, $log, $uibModal) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -585,8 +584,6 @@
             // todo: .success for all ok, .warning for mixed, .danger for all failures
             $scope.messages.success = {type: 'add', alertType: alertType};
             if ($scope.tracking.successes) { $scope.dtInstance.reloadData(); }
-            //if ($scope.messages.warnings.length > 0) { $scope.dtInstance1._renderer.rerender(); }
-
             $scope.operationInProgress = false;
         };
         $scope.updateProgressBar = function(text) {
