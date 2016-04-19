@@ -7,6 +7,7 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 
+
 class Locators(object):
 
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
@@ -52,13 +53,14 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def search_and_add_users(self, user_id, canvas_role):
+    def search_and_add_users(self, search_terms, canvas_role):
         # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).clear()
         # Enter user to search on
-        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
+        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(
+            search_terms)
         # Select role
         self.select_role_type(canvas_role)
 

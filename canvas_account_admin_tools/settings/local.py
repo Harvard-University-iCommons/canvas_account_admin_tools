@@ -40,7 +40,7 @@ SELENIUM_CONFIG = {
          'title': 'Latin Paleography and Manuscript Culture: Seminar',
          'registrar_code_display': '2223',
          'school': 'Divinity School',
-         'type': 'Only courses without sites',
+         'type': 'All courses',
          'year': '2014',
       },
       'test_course_with_registrar_code_display_not_populated_in_db': {
@@ -57,15 +57,6 @@ SELENIUM_CONFIG = {
          'school': 'Divinity School',
          'type': 'All courses',
          'year': '2016',
-      },
-      # TLT-2574 - Course Info People Add
-      'test_data_for_multiple_users_add': {
-         'canvas_role': 'Guest',
-         'partial_success_add': ['aa000gc0', '12345678'],
-         'successful_add': ['aa000gc0', 'aa000fcz'],
-         # sending in as a string as data cleanup in not needed for
-         # unsuccessful user add test
-         'unsuccessful_add': '12345678, 23456789',
       },
       'test_users': {
          'existing': {
