@@ -637,7 +637,7 @@
 
         // configure the alert datatable
         $scope.dtOptionsWarning = {searching: false, paging: false,
-             ordering: ([1, 'asc'])};
+             ordering: ([1, 'asc']), info : false};
         
         // configure the datatable
         $scope.dtInstance = null;
