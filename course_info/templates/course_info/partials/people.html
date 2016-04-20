@@ -93,6 +93,25 @@
         </div>
 
         <div class="col-xs-4">
+          <button id="add-user-btn"
+             class="btn btn-primary pull-right"
+             type="button"
+             ng-click="confirmAddPeopleToCourse(searchTerms)"
+             ng-disabled="disableAddToCourseButton()">
+            <i class="fa fa-plus-circle"></i> Add to Course
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-xs-8" id="directoryLink">
+          <a href="https://connections.harvard.edu" target="_blank">
+            Go to the Harvard Directory
+          </a>
+          to find someone's official email address.
+        </div>
+
+        <div class="col-xs-4">
           <button type="button" class="btn btn-default dropdown-toggle pull-right"
                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fa fa-info-circle"></i>
@@ -117,25 +136,6 @@
               contact the Office of the Registrar.
             </li>
           </ul>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div class="col-xs-8" id="directoryLink">
-          <a href="https://connections.harvard.edu" target="_blank">
-            Go to the Harvard Directory
-          </a>
-          to find someone's official email address.
-        </div>
-
-        <div class="col-xs-4">
-          <button id="add-user-btn"
-             class="btn btn-primary pull-right"
-             type="button"
-             ng-click="confirmAddPeopleToCourse(searchTerms)"
-             ng-disabled="disableAddToCourseButton()">
-            <i class="fa fa-plus-circle"></i> Add to Course
-          </button>
         </div>
       </div>
 
