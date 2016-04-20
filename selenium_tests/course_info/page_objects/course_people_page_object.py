@@ -68,19 +68,10 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
 
         # Confirm by clicking 'Add People' in modal
-        WebDriverWait(self._driver, 30).until(lambda s: s.find_element(
+        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
             *Locators.ADD_PEOPLE_CONFIRM_MODAL).is_displayed())
         self.find_element(
             *Locators.ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON).click()
-
-        # Don't return to test case until modal closes and progress bar starts
-        # NOTE: In the event of a super-fast resolution of the add attempt, the
-        # progress bar might not be displayed long enough for Selenium to pick
-        # it up; we may wish to do an alternate test (for success/error
-        # messages) if this first one fails.
-
-        WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-            *Locators.PROGRESS_BAR).is_displayed())
 
     def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
