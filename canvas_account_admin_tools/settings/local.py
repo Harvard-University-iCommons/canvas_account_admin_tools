@@ -38,7 +38,7 @@ SELENIUM_CONFIG = {
          'cid': '353035',
          'term': 'Spring',
          'title': 'Caribbean Poetics',
-         'registrar_code_display': '2430',
+         'registrar_code_display': 'HDS 2430',
          'school': 'Divinity School',
          'type': 'All courses',
          'year': '2016',
