@@ -4,7 +4,7 @@
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log, $uibModal) {
+                              djangoUrl, $http, $q, $log, $uibModal, angularDRF) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -14,7 +14,7 @@
         };
 
         // set up functions we'll be calling later
-        $scope.addNewMember = function(personResponse, members) {
+        $scope.addNewMember = function(personResult, members) {
             /* Make a call to add the person to the course as a new member
              if person is:
              - not already in `members`
@@ -24,17 +24,9 @@
              to the course, or null if the add was not attempted for one of the
              reasons listed above.
              */
-            // TODO - implement and use generalized logic that will follow any
-            //        "next" links in the rest api response.  note that the api
-            //        proxy doesn't rewrite the next urls.
-            if (personResponse.next) {
-                $log.warning('Received multiple pages of results from '
-                             + personResponse.config.url + ', only using one.');
-            }
-
-            var filteredResults = $scope.filterSearchResults(
-                                      personResponse.data.results);
-            var searchTerm = personResponse.config.searchTerm;
+            var personRecords = personResult[0];
+            var searchTerm = personResult[1];
+            var filteredResults = $scope.filterSearchResults(personRecords);
             if (filteredResults.length == 1) {
                 var memberRecordsInCourse = members[filteredResults[0].univ_id];
                 if (angular.isUndefined(memberRecordsInCourse)) {
@@ -64,7 +56,7 @@
                 // multiple profiles found for search term, do not add
                 $scope.messages.warnings.push({
                     type: 'multipleProfiles',
-                    searchTerm: personResponse.config.searchTerm,
+                    searchTerm: searchTerm,
                     // just pick the first one to find the name
                     name: $scope.getProfileFullName(filteredResults[0]),
                     profiles: filteredResults
@@ -133,36 +125,34 @@
             $scope.updateProgressBar('Looking up ' + $scope.tracking.total
                 + ' people');
             var memberPromise = $scope.lookupCourseMembers()
-                .then(function updateCourseMembers(memberResponse) {
-                    membersByUserId = $scope.getMembersByUserId(
-                        memberResponse.data.results);
-                    return memberResponse;
-                }, function courseMemberLookupFailed(memberResponse) {
-                    $scope.handleAjaxErrorResponse(memberResponse);
+                .then(function updateCourseMembers(members) {
+                    membersByUserId = $scope.getMembersByUserId(members);
+                    return members;
+                }, function courseMemberLookupFailed(memberError) {
+                    $scope.handleAngularDRFError(memberError);
                     $scope.messages.warnings.push({
                         type: 'courseMemberLookupFailed'
                     });
-                    return $q.reject(memberResponse);
+                    return $q.reject(memberError);
                 });
             var peoplePromises = $scope.lookupPeople(searchTermList);
             var addNewMemberPromises = [];
             peoplePromises.forEach(function setupAddPersonPromiseChain(personPromise) {
                 addNewMemberPromises.push(
                     $q.all([memberPromise, personPromise])
-                        .then(function addFetchedPerson(responses) {
-                            var personResponse = responses[1];
-                            return $scope.addNewMember(personResponse,
-                                membersByUserId);
-                        }, function addNewMemberPromiseFailure(response) {
+                        .then(function addFetchedPerson(results) {
+                            var personResult = results[1];
+                            return $scope.addNewMember(personResult,
+                                                       membersByUserId);
+                        }, function addNewMemberPromiseFailure(error) {
                             // swallow rejected person lookup to allow others
                             // to proceed
                             return null;
                         }).finally($scope.updateProgressBar)
                 );
             });
-            $q.all(addNewMemberPromises.concat(memberPromise)).then(
-                $scope.showAddNewMemberResults,
-                $scope.showAddNewMemberResults);
+            $q.all(addNewMemberPromises.concat(memberPromise))
+                .finally($scope.showAddNewMemberResults);
         };
 
         $scope.clearMessages = function() {
@@ -384,7 +374,6 @@
             return re.test(searchTerm);
         };
         $scope.lookupCourseMembers = function() {
-            // todo: this needs to support unlimited pages; see TLT-2267
             // exclude xreg people
             var getConfig = {
                 params: {limit: 100, '-source': 'xreg_map'}};
@@ -392,7 +381,7 @@
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
                                                + '/people/']);
-            return $http.get(memberURL, getConfig);
+            return angularDRF.get(memberURL, getConfig);
         };
         $scope.lookupPeople = function(searchTermList) {
             /* generates a list of promises (http requests to the API) for the
@@ -405,24 +394,27 @@
 
             searchTermList.forEach(function setupPersonLookup(searchTerm) {
                 var promiseConfig = {
-                    params: {limit: 100},
-                    searchTerm: searchTerm  // save for error handling
+                    drf: {pageSize: 100},
+                    params: {},
                 };
                 if ($scope.isUnivID(searchTerm)) {
                     promiseConfig.params.univ_id = searchTerm;
                 } else {
                     promiseConfig.params.email_address = searchTerm;
                 }
-                var promise = $http.get(peopleURL, promiseConfig)
-                    .then(null,
-                        function personLookupFailure(response) {
+                var promise = angularDRF.get(peopleURL, promiseConfig).then(
+                        function includeSearchTermWithPersonResult(result) {
+                            return [result, searchTerm];
+                        },
+                        function personLookupFailure(error) {
                             $scope.tracking.failures++;
                             $scope.messages.warnings.push({
                                 type: 'personLookupFailed',
                                 searchTerm: searchTerm
                             });
-                            return $q.reject(response);
-                    });
+                            return error;
+                        }
+                );
                 peoplePromiseList.push(promise);
             });
 
@@ -564,12 +556,13 @@
                     .error($scope.handleAjaxError);
             }
         };
-        $scope.showAddNewMemberResults = function(addNewMemberResponses) {
+        $scope.showAddNewMemberResults = function() {
             /* Updates page with summary message and failure details after all
              add person operations are finished.
              */
             // use 'total_failures' to avoid stomping existing 'failures'
-            $scope.tracking.total_failures = $scope.tracking.total - $scope.tracking.successes;
+            $scope.tracking.total_failures = $scope.tracking.total -
+                                             $scope.tracking.successes;
             // figure out the alert type (ie. the color) here
             var alertType = '';
             if ($scope.tracking.successes == 0) {
@@ -581,7 +574,6 @@
             else {
                 alertType = 'warning';
             }
-            // todo: .success for all ok, .warning for mixed, .danger for all failures
             $scope.messages.success = {type: 'add', alertType: alertType};
             if ($scope.tracking.successes) { $scope.dtInstance.reloadData(); }
             $scope.operationInProgress = false;

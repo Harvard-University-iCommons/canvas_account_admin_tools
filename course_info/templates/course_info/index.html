@@ -39,6 +39,7 @@
     {% endif %}
     {# fixes safari autocomplete issue #}
     {# (see https://github.com/angular/angular.js/issues/1460) #}
+    <script src="{% static 'angular-drf/js/angular-drf.js' %}"></script>
     <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
     {% include 'django_auth_lti/resource_link_id.html' %}
     <script>
@@ -56,6 +57,7 @@
     <script src="{% static 'course_info/js/controllers/SearchController.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/PeopleController.js' %}"></script>
     <script src="{% static 'course_info/js/controllers/DetailsController.js' %}"></script>
+    <script src="{% static 'course_info/js/services/AngularDRFService.js' %}"></script>
     <script src="{% static 'course_info/js/services/CourseInstancesService.js' %}"></script>
     <script src="{% static 'course_info/js/directives/BadgeDirective.js' %}"></script>
     <script src="{% static 'course_info/js/directives/HuEditableInput.js' %}"></script>
