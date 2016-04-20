@@ -82,13 +82,25 @@ describe('Unit testing PeopleController', function() {
 
     // todo: these need to be checked and moved into alphabetical position in the test file
     describe('addPeopleToCourse', function() {
-        it('should...?');
+        it('will add people as soon as their lookup is complete without ' +
+            'waiting on all people lookups to complete');
+        it('won\'t attempt to add anyone until course membership is available');
+        it('won\'t bother waiting for profile lookups or POSTing new members ' +
+            'if course membership lookup fails');
     });
     describe('addNewMember', function() {
-        it('should...?');
+        it('won\'t add person if they already have a course enrollment');
+        it('won\'t add if they could not be found via /people lookup');
+        it('won\'t add if multiple profiles returned by /people lookup');
+        it('adds person if not in course and single profile available');
     });
     describe('addNewMemberToCourse', function() {
-        it('should...?');
+        it('tracks non-partial failure, logs appropriate error message, and ' +
+            'does not reject promise chain');
+        it('tracks partial failure, logs appropriate error message, and does ' +
+            'not reject promise chain');
+        it('tracks successes');
+        it('updates the progress bar regardless of success/failure');
     });
     describe('confirmAddPeopleToCourse', function() {
         it('reflects the right number of people');
@@ -106,10 +118,13 @@ describe('Unit testing PeopleController', function() {
         it('makes the expected call and returns a promise');
     });
     describe('lookupPeople', function() {
-        it('should...?');
+        it('creates people lookups that are tracked in controller scope on ' +
+            'failure');
+        it('creates appropriate person lookups (id or email)');
     });
     describe('showAddNewMemberResults', function() {
-        it('should...?');
+        it('reloads datatable only if membership changed');
+        it('updates success message based on success/failure counts');
     });
     describe('updateProgressBar', function() {
         it('shows current add person progress based on scope vars');
