@@ -3,6 +3,10 @@
     padding-bottom: 0;
 }
 
+.add-top-margin {
+    margin-top: 20px;
+}
+
 .btn-group {
   margin-top: 1em;
 }
@@ -44,12 +48,6 @@ h3.breadcrumbs {
 
 i.fa-trash-disabled {
     color: #ccc;
-}
-
-#people {
-    /* pad add people button and its expand-o-widget equally */
-    margin-bottom: 20px;
-    margin-top: 20px;
 }
 
 #privacyDropdown {

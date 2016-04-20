@@ -8,7 +8,14 @@
     &gt; <a href="#/details/{{courseInstanceId}}">Details</a>
 
     <small><i class="fa fa-chevron-right"></i></small>
-    People in {{courseInstance.title}}
+
+    <span ng-if='!(courseInstance && initialCourseMembersFetched)'>
+      Loading course membership for course instance {{courseInstanceId}}...
+      <i class="fa fa-refresh fa-spin"></i>
+    </span>
+    <span ng-if='courseInstance && initialCourseMembersFetched'>
+      People in {{courseInstance.title}}
+    </span>
   </h3>
 </nav>
 
@@ -38,7 +45,7 @@
   </div>
 </div>
 
-<div class="row">
+<div ng-if='courseInstance && initialCourseMembersFetched' class="row add-top-margin">
   <!-- begin add people interface -->
   <!-- begin add person expand-o-widget -->
   <div class="col-md-12" id="people">
@@ -53,9 +60,14 @@
           <label class="sr-only" for="emailHUID">
             Enter Harvard University ID or email address
           </label>
-          <textarea class="form-control" id="emailHUID"
-                 placeholder="Enter Harvard University IDs or email addresses separated by commas or on separate lines"
-                 ng-model="searchTerms" ng-disabled="(searchResults.length > 1) || operationInProgress">
+          {% endverbatim %}
+          {# Using $parent in <textarea> due to it being a child of the ng-if #}
+          {# on the <div> above. See http://stackoverflow.com/a/27040860. #}
+          {# (Punting on the controller-as approach in that SO answer) #}
+          {% verbatim %}
+          <textarea ng-model="$parent.searchTerms" ng-disabled="operationInProgress"
+                    class="form-control" id="emailHUID"
+                    placeholder="Enter Harvard University IDs or email addresses separated by commas or on separate lines">
           </textarea>
         </div>
       </div>
@@ -67,7 +79,7 @@
                   data-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
-                  ng-disabled="(searchTerms.length == 0) || operationInProgress"
+                  ng-disabled="disableAddToCourseButton()"
                   ng-bind-html="selectedRole.roleName + ' <span class=\'caret\'></span>'">
           </button>
           <ul class="dropdown-menu" role="menu"
@@ -78,6 +90,25 @@
               </a>
             </li>
           </ul>
+        </div>
+
+        <div class="col-xs-4">
+          <button id="add-user-btn"
+             class="btn btn-primary pull-right"
+             type="button"
+             ng-click="confirmAddPeopleToCourse(searchTerms)"
+             ng-disabled="disableAddToCourseButton()">
+            <i class="fa fa-plus-circle"></i> Add to Course
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="col-xs-8" id="directoryLink">
+          <a href="https://connections.harvard.edu" target="_blank">
+            Go to the Harvard Directory
+          </a>
+          to find someone's official email address.
         </div>
 
         <div class="col-xs-4">
@@ -108,25 +139,6 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <div class="col-xs-8" id="directoryLink">
-          <a href="https://connections.harvard.edu" target="_blank">
-            Go to the Harvard Directory
-          </a>
-          to find someone's official email address.
-        </div>
-
-        <div class="col-xs-4">
-          <button id="add-user-btn"
-             class="btn btn-primary pull-right"
-             type="button"
-             ng-click="confirmAddPeopleToCourse(searchTerms)"
-             ng-disabled="disableAddToCourseButton()">
-            <i class="fa fa-plus-circle"></i> Add to Course
-          </button>
-        </div>
-      </div>
-
       <div ng-if="operationInProgress" class="form-group">
         <div class="col-xs-8 col-xs-offset-2"
              id="progressBarOuterWrapper">
@@ -141,9 +153,9 @@
   <!-- end add person expand-o-widget -->
 </div>
 
-<div class="row">
+<div ng-if="messages.success" class="row add-top-margin">
   <div class="col-xs-12">
-    <div ng-if="messages.success" class="panel panel-default" id="alert-pane">
+    <div class="panel panel-default" id="alert-pane">
       <div class="panel-body" id="alert-pane">
 
         <!-- begin success alerts -->
@@ -175,7 +187,7 @@
         <!-- end success alerts -->
 
         <div ng-if="warningsToDisplay()" id="table-failure-details">
-          <table class="table table-striped dataTable">
+          <table datatable="ng"  dt-options="dtOptionsWarning" class="table table-striped dataTable">
             <thead>
               <th>Search Term</th>
               <th>Name</th>
@@ -222,10 +234,13 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
 
+<div ng-if="removeFailure" class="row add-top-margin">
+  <div class="col-xs-12">
     <!-- begin remove failure warning alerts -->
-    <uib-alert ng-if="removeFailure" type="warning"
-               close="closeAlert('removeFailure')">
+    <uib-alert type="warning" close="closeAlert('removeFailure')">
       <div ng-switch="removeFailure.type">
         <div ng-switch-when="noSuchUser">
           <strong>{{ getProfileFullName(removeFailure.profile) || removeFailure.user_id }}</strong>
@@ -263,7 +278,7 @@
 </div>
 <!-- end alert pane -->
 
-<div class="row">
+<div class="row add-top-margin">
   <!-- end add people interface -->
   <div class="col-md-12">
     <!-- begin course membership interface -->
