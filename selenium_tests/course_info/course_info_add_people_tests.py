@@ -31,7 +31,7 @@ class AddPeopleTests(CourseInfoBaseTestCase):
         for user_id in id_list:
             self.api.remove_user(test_cid, user_id)
 
-        self._load_test_course('test_course_SB_ILE')
+        self._load_test_course(test_course_key)
 
         self.detail_page.go_to_people_page()
 
