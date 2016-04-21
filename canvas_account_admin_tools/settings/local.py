@@ -64,6 +64,9 @@ SELENIUM_CONFIG = {
          },
       }
    },
+   'cross_listing': {
+      'relative_url': 'accounts/8/external_tools/99'
+   },
    'icommons_rest_api': {
       'base_path': 'api/course/v2'
    },
