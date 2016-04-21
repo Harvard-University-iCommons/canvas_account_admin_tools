@@ -103,7 +103,7 @@ describe('Unit testing PeopleController', function() {
         it('updates the progress bar regardless of success/failure');
     });
     describe('confirmAddPeopleToCourse', function() {
-        it('reflects the right number of people');
+        it('reflects the right role and number of people');
         it('initiates the process if confirmed');
         it('doesn\'t initiate the process if canceled');
     });

@@ -18,7 +18,7 @@
                     //
                     // window.globals.append_resource_link_id function added by
                     // django_auth_lti/js/resource_link_id.js
-                    if (!(config.url.startsWith('uib/template/'))) {
+                    if (!config.url.startsWith('uib/template/')) {
                         config.url = window.globals.append_resource_link_id(config.url);
                     }
                     return config;

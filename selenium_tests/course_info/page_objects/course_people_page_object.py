@@ -9,11 +9,17 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
+
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
-    ADD_PEOPLE_SEARCH_TXT = (By.ID, "emailHUID")
-    ADD_TO_COURSE_BUTTON = (By.ID, "add-user-btn")
-    ALERT_SUCCESS_ADD_PERSON = (By.XPATH, '//p[contains(.,"just added")]')
-    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"was just removed")]')
+    ADD_PEOPLE_SEARCH_TXT = (By.ID, 'emailHUID')
+    ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn')
+    ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
+    ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"just removed")]')
+    # todo: this can be simplified by applying proper IDs to the elements
+    ADD_PEOPLE_CONFIRM_MODAL = (
+        By.XPATH, '//h3[contains(.,"Confirm add people") and @class="modal-title"]')
+    ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON = (
+        By.XPATH, '//button[contains(.,"Add People") and @id="modalConfirm"]')
     DELETE_USER_CONFIRM = (By.XPATH, '//button[contains(.,"Yes, Remove User")]')
     PROGRESS_BAR = (By.ID, 'progressBarOuterWrapper')
     ROLES_DROPDOWN_LIST = (By.ID, "select-role-btn-id")
@@ -47,34 +53,58 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return False
         return True
 
-    def search_and_add_user(self, user_id, canvas_role):
+    def search_and_add_users(self, search_terms, canvas_role):
         # Click "Add People" button to open the dialog
         self.find_element(*Locators.ADD_PEOPLE_BUTTON).click()
         # Clear Textbox
         self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).clear()
         # Enter user to search on
-        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(user_id)
+        self.find_element(*Locators.ADD_PEOPLE_SEARCH_TXT).send_keys(
+            search_terms)
         # Select role
         self.select_role_type(canvas_role)
 
         # Click 'Add to course' course button
         self.find_element(*Locators.ADD_TO_COURSE_BUTTON).click()
-        WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-            *Locators.PROGRESS_BAR).is_displayed())
+
+        # Confirm by clicking 'Add People' in modal
+        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+            *Locators.ADD_PEOPLE_CONFIRM_MODAL).is_displayed())
+        self.find_element(
+            *Locators.ADD_PEOPLE_CONFIRM_MODAL_CONFIRM_BUTTON).click()
 
     def select_role_type(self, canvas_role):
         """ select a role from the roles dropdown """
         self.find_element(*Locators.ROLES_DROPDOWN_LIST).click()
         self.find_element(By.LINK_TEXT, canvas_role).click()
 
-    def add_was_successful(self):
-        # Verify success text
-        # todo: this does not check _which_ add was successful...
+    def people_added(self, expected_successes, expected_failures):
+        """
+        Checks to see if the number of people successfully added to course
+        and number of people not added to course matches expected numbers
+        """
+        element = None
+
+        success_message = 'No people were added to the course.'
+        if expected_successes == 1:
+            success_message = '1 person was added to the course.'
+        elif expected_successes > 1:
+            success_message = '{} people were added to the course.'.format(
+                expected_successes)
+
+        failure_message = ''
+        if expected_failures == 1:
+            failure_message = '1 person could not be added.'
+        elif expected_failures > 1:
+            failure_message = '{} people could not be added.'.format(
+                    expected_failures)
+        '{} {}'.format(success_message, failure_message).strip()
         try:
-            self.find_element(*Locators.ALERT_SUCCESS_ADD_PERSON)
+            element = self.find_element(*Locators.ALERT_SUCCESS_ALERT_BOX)
         except NoSuchElementException:
             return False
-        return True
+        return element.text == '{} {}'.format(
+            success_message, failure_message).strip()
 
     def delete_was_successful(self):
         # Verify delete text
@@ -90,3 +120,4 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
         delete in modal window """
         self.find_element(*Locators.DELETE_USER_ICON(user_id)).click()
         self.find_element(*Locators.DELETE_USER_CONFIRM).click()
+
