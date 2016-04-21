@@ -2,7 +2,8 @@ from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
 from selenium_tests.course_info.course_info_base_test_case \
-    import TEST_USERS_WITH_ROLES_PATH
+    import TEST_USER_SEARCH_TERMS_PATH
+
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase
 
@@ -10,44 +11,43 @@ from selenium_tests.course_info.course_info_base_test_case \
 @ddt
 class AddPeopleTests(CourseInfoBaseTestCase):
 
-    @data(*get_xl_data(TEST_USERS_WITH_ROLES_PATH))
+    @data(*get_xl_data(TEST_USER_SEARCH_TERMS_PATH))
     @unpack
-    def test_add_person(self, test_case_id, test_user, canvas_role, role_id):
+    def test_add_people(self, test_case_id, search_terms, canvas_role, role_id,
+                        successes, failures):
         """ verify the person search and add functionality """
 
         # Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool
         # environment (because of shared cache interactions)
 
-        # ensure person is not in course before attempting to add using API;
-        # remove ALL roles/enrollments for the test user in this course
+        # ensure people are not in course before attempting to add using API;
+        # remove ALL roles/enrollments for the test users in this course
         # to ensure no incidental data causes conflict when we try to add
-        self.api.remove_user(self.test_settings['test_course']['cid'],
-                             test_user)
 
-        self._load_test_course()
+        test_course_key = 'test_course'
+        test_cid = self.test_settings[test_course_key]['cid']
+        id_list = [s.strip() for s in search_terms.split(',')]
+
+        for user_id in id_list:
+            self.api.remove_user(test_cid, user_id)
+
+        self._load_test_course(test_course_key)
 
         self.detail_page.go_to_people_page()
 
         # search for a user and add user to course
         self.assertTrue(self.people_page.is_loaded())
 
-        # assert that the success message is not already loaded on the page
-        self.assertFalse(self.people_page.add_was_successful())
+        # assert that the results message is not already loaded on the page
+        self.assertFalse(self.people_page.people_added(int(successes), int(failures)))
 
         # add user to role
-        self.people_page.search_and_add_user(test_user, canvas_role)
+        self.people_page.search_and_add_users(search_terms, canvas_role)
 
-        # assert that user is found on page.
-        # Note: If the course has a lot of people enrolled, results are
-        # paginated and it's possible that user may not be on the initial
-        # page. So this may change based on data changing
-        self.assertTrue(self.people_page.is_person_on_page(test_user))
-
-        # Assert that the success text is displayed
-        self.assertTrue(self.people_page.add_was_successful())
+        # Assert that the results summary text is displayed
+        self.assertTrue(self.people_page.people_added(int(successes), int(failures)))
 
         # clean up (avoid cluttering the course if multiple different
         # test users are used)
-        self.api.remove_user(self.test_settings['test_course']['cid'],
-                             test_user, role_id)
-
+        for user_id in id_list:
+            self.api.remove_user(test_cid, user_id)
