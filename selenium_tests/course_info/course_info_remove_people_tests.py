@@ -13,7 +13,7 @@ class RemovePeopleTests(CourseInfoBaseTestCase):
     def test_remove_person(self, test_case_id, test_user, canvas_role, role_id):
         """ Removes a user from course using the Admin Console """
 
-        test_course_key = 'test_course_SB_ILE'
+        test_course_key = 'test_course'
         course_instance_id = self.test_settings[test_course_key]['cid']
 
         # Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool

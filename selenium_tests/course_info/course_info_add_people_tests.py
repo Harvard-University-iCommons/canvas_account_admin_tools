@@ -24,7 +24,7 @@ class AddPeopleTests(CourseInfoBaseTestCase):
         # remove ALL roles/enrollments for the test users in this course
         # to ensure no incidental data causes conflict when we try to add
 
-        test_course_key = 'test_course_SB_ILE'
+        test_course_key = 'test_course'
         test_cid = self.test_settings[test_course_key]['cid']
         id_list = [s.strip() for s in search_terms.split(',')]
 

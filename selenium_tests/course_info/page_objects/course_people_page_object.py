@@ -12,7 +12,7 @@ class Locators(object):
 
     ADD_PEOPLE_BUTTON = (By.XPATH, '//button[contains(.,"Add People")]')
     ADD_PEOPLE_SEARCH_TXT = (By.ID, 'emailHUID')
-    ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn-id')
+    ADD_TO_COURSE_BUTTON = (By.ID, 'add-user-btn')
     ALERT_SUCCESS_ALERT_BOX = (By.ID, 'alert-success')
     ALERT_SUCCESS_DELETE_PERSON = (By.XPATH, '//p[contains(.,"just removed")]')
     # todo: this can be simplified by applying proper IDs to the elements
