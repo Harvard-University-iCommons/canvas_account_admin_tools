@@ -2,10 +2,13 @@ from django.conf import settings
 from urlparse import urljoin
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
-from selenium_common.pin.page_objects.pin_login_page_object import PinLoginPageObject
+from selenium_common.pin.page_objects.pin_login_page_object \
+    import PinLoginPageObject
 
-from selenium_tests.cross_listing.page_objects.cross_listing_index_page import IndexPagePageObject
-from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object import AccountAdminDashboardPage
+from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_object \
+    import AccountAdminDashboardPage
+from selenium_tests.cross_listing.page_objects.cross_listing_index_page \
+    import IndexPagePageObject
 
 
 class CrossListingBaseTestCase(BaseSeleniumTestCase):
@@ -44,4 +47,3 @@ class CrossListingBaseTestCase(BaseSeleniumTestCase):
 
         # check if page is loaded (which will also set the focus on the tool)
         self.assertTrue(self.index_page.is_loaded())
-

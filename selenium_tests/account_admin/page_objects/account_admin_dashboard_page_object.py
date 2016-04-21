@@ -49,7 +49,7 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
 
     def select_cross_listing_link(self):
         """
-        select the course info link element and click it
+        select the cross list link element and click it
         """
         self.focus_on_tool_frame()
         self.find_element(
