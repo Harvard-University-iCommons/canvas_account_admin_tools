@@ -21,6 +21,7 @@ module.exports = function(config) {
       'node_modules/datatables.net-bs/js/dataTables.bootstrap.js',
       'node_modules/angular-datatables/dist/angular-datatables.js',
       'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+      'course_info/static/course_info/js/services/AngularDRFService.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
     ],
@@ -28,6 +29,7 @@ module.exports = function(config) {
 
     // list of files to exclude
     exclude: [
+      // 'course_info/static/course_info/js/services/AngularDRFService.js',
     ],
 
 
