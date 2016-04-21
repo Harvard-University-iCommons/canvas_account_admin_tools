@@ -19,7 +19,7 @@
              if person is:
              - not already in `members`
              - not found in people lookup
-             - represented by more than one profile
+             - not represented by more than one profile
              Returns a promise representing the call made to add the new member
              to the course, or null if the add was not attempted for one of the
              reasons listed above.
@@ -40,7 +40,8 @@
                     // the user already has an enrollment in the course
                     $scope.messages.warnings.push({
                         type: 'alreadyInCourse',
-                        // just pick the first enrollment to find the name
+                        // the memberships don't come with names, so get it
+                        // from the search results
                         name: $scope.getProfileFullName(filteredResults[0]),
                         memberships: memberRecordsInCourse,
                         searchTerm: searchTerm
@@ -63,6 +64,7 @@
                 });
             }
             $scope.tracking.failures++;
+            return null;
         };
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
@@ -160,7 +162,9 @@
             $scope.tracking = {
                 failures: 0,
                 successes: 0,
-                total: 0};
+                total: 0,
+                totalFailures: 0,
+            };
             $scope.removeFailure = null;
         };
         $scope.closeAlert = function(source) {
@@ -211,7 +215,7 @@
                 }
             });
 
-            modalInstance.result.then(function modalSuccess() {
+            modalInstance.result.then(function modalConfirmed() {
                 $scope.addPeopleToCourse(searchTermList);
             });            
         };
@@ -242,14 +246,9 @@
 
             // if they confirm, then do the work
             $scope.confirmRemoveModalInstance.result
-                .then(
-                    function modalSuccess(membership) {
-                        $scope.removeMembership(membership);
-                    },
-                    function modalFailure(failure) {
-                        $log.error('remove confirmation modal failure: ' + failure);
-                    }
-                )
+                .then(function modalConfirmed(membership) {
+                    $scope.removeMembership(membership);
+                })
                 .finally(function() {
                     $scope.confirmRemoveModalInstance = null;
                 });
@@ -260,6 +259,11 @@
         $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
             var resultsDict = {};
+
+            // short circuit if there's no results, which happens on timeout
+            if (!searchResults) {
+                return resultsDict;
+            }
 
             // create a dict of the id's as keys and the
             // role records as values
@@ -331,11 +335,11 @@
                 // this is a temp fix to change the display text of the role
                 // "Teaching Fellow" to "TA" a more perm solution is being
                 // discussed, but will involve talking to the schools.
-                if (member.role && member.role.role_name == "Teaching Fellow") {
+                if (memberCopy.role && memberCopy.role.role_name == "Teaching Fellow") {
                     memberCopy.role.role_name = "TA";
                 }
-                membersByUserId[member.user_id] =
-                    (membersByUserId[member.user_id] || []).push(memberCopy);
+                membersByUserId[memberCopy.user_id] =
+                    (membersByUserId[memberCopy.user_id] || []).push(memberCopy);
             });
             return membersByUserId;
         };
@@ -369,6 +373,9 @@
             $scope.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
         };
+        $scope.handleAngularDRFError = function(error) {
+            $log.error(error);
+        };
         $scope.isUnivID = function(searchTerm) {
             var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
@@ -376,7 +383,9 @@
         $scope.lookupCourseMembers = function() {
             // exclude xreg people
             var getConfig = {
-                params: {limit: 100, '-source': 'xreg_map'}};
+                params: {'-source': 'xreg_map'},
+                drf: {'pageSize': 100},
+            };
             var memberURL = djangoUrl.reverse('icommons_rest_api_proxy',
                                               ['api/course/v2/course_instances/'
                                                + $scope.courseInstanceId
@@ -412,7 +421,7 @@
                                 type: 'personLookupFailed',
                                 searchTerm: searchTerm
                             });
-                            return error;
+                            return $q.reject(error);
                         }
                 );
                 peoplePromiseList.push(promise);
@@ -560,15 +569,15 @@
             /* Updates page with summary message and failure details after all
              add person operations are finished.
              */
-            // use 'total_failures' to avoid stomping existing 'failures'
-            $scope.tracking.total_failures = $scope.tracking.total -
-                                             $scope.tracking.successes;
+            // use 'totalFailures' to avoid stomping existing 'failures'
+            $scope.tracking.totalFailures = $scope.tracking.total -
+                                            $scope.tracking.successes;
             // figure out the alert type (ie. the color) here
             var alertType = '';
             if ($scope.tracking.successes == 0) {
                 alertType = 'danger';
             }
-            else if ($scope.tracking.total_failures == 0) {
+            else if ($scope.tracking.totalFailures == 0) {
                 alertType = 'success';
             }
             else {
@@ -597,7 +606,7 @@
             }
         };
         $scope.warningsToDisplay = function() {
-            return !$scope.operationInProgress && $scope.messages.warnings.length > 0;
+            return (!$scope.operationInProgress && ($scope.messages.warnings.length > 0));
         };
 
         // now actually init the controller
