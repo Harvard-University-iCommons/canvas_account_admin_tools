@@ -1,8 +1,8 @@
 from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
 from selenium_common.base_page_object import BasePageObject
+
 
 class Locators(object):
     @classmethod
