@@ -161,8 +161,6 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('reloads datatable only if membership changed', function() {
-            console.log("====in reloads datatable only if members");
-
             scope.tracking.successes = 1;
             scope.tracking.total = 2;
             scope.tracking.failure = 1;
