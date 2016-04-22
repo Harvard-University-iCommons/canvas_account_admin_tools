@@ -19,7 +19,7 @@ class AccountAdminBaseTestCase(BaseSeleniumTestCase):
         cls.TOOL_URL = urljoin(cls.CANVAS_BASE_URL, cls.TOOL_RELATIVE_URL)
 
         cls.acct_admin_dashboard_page = AccountAdminDashboardPage(cls.driver)
-        cls.acct_admin_dashboard_page[cls.TOOL_URL]
+        cls.acct_admin_dashboard_page.get(cls.TOOL_URL)
         login_page = PinLoginPageObject(cls.driver)
         if login_page.is_loaded():
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
