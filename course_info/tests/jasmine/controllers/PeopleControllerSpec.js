@@ -149,8 +149,94 @@ describe('Unit testing PeopleController', function() {
         it('creates appropriate person lookups (id or email)');
     });
     describe('showAddNewMemberResults', function() {
-        it('reloads datatable only if membership changed');
-        it('updates success message based on success/failure counts');
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope});
+        });
+
+        afterEach(function() {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
+        it('reloads datatable only if membership changed', function() {
+            console.log("====in reloads datatable only if members");
+
+            scope.tracking.successes = 1;
+            scope.tracking.total = 2;
+            scope.tracking.failure = 1;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
+
+        });
+
+        it('doesnt reload datatable membership is unchanged', function() {
+            scope.tracking.successes = 0;
+            scope.tracking.total = 2;
+            scope.tracking.failure = 2;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+
+        it('updates success message based on success/failure counts', function(){
+            scope.tracking.total = 2;
+            scope.tracking.successes = 2;
+            scope.tracking.failure = 0;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('success');
+        });
+
+        it('updates warning message based on success/failure counts', function(){
+            scope.tracking.total = 1;
+            scope.tracking.successes = 2;
+            scope.tracking.failure = 1;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('warning');
+        });
+
+        it('updates danger message based on success/failure counts', function(){
+
+            scope.tracking.total = 2;
+            scope.tracking.failure = 2;
+            scope.tracking.successes = 0;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('danger');
+        });
     });
     describe('updateProgressBar', function() {
         it('shows current add person progress based on scope vars');
