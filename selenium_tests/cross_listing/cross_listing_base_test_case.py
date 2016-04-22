@@ -17,10 +17,10 @@ class CrossListingBaseTestCase(BaseSeleniumTestCase):
     def setUpClass(cls):
         super(CrossListingBaseTestCase, cls).setUpClass()
 
-        cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
-        cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
+        cls.USERNAME = settings.SELENIUM_CONFIG['selenium_username']
+        cls.PASSWORD = settings.SELENIUM_CONFIG['selenium_password']
 
-        cls.CANVAS_BASE_URL = settings.SELENIUM_CONFIG.get('canvas_base_url')
+        cls.CANVAS_BASE_URL = settings.SELENIUM_CONFIG['canvas_base_url']
         cls.test_settings = settings.SELENIUM_CONFIG['cross_listing']
         cls.TOOL_RELATIVE_URL = cls.test_settings['relative_url']
         cls.TOOL_URL = urljoin(cls.CANVAS_BASE_URL, cls.TOOL_RELATIVE_URL)
