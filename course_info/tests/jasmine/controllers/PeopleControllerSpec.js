@@ -112,7 +112,33 @@ describe('Unit testing PeopleController', function() {
         it('patches/hacks/fixes up the Teaching Fellow role name');
     });
     describe('getSearchTermList', function() {
-        it('returns a list of trimmed search terms split on comma and newline');
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
+        it('returns a list of trimmed search terms split on comma and newline', function() {
+            var testCases = [
+                // [inputString, expectedResults],
+                ['123456789', ['123456789']],
+                [' 123456789 ', ['123456789']],
+                ['123456789,987654321', ['123456789', '987654321']],
+                ['123456789   \t,\t\t\t987654321', ['123456789', '987654321']],
+                ['123456789\n987654321', ['123456789', '987654321']],
+                [' 123456789 \n 987654321 ', ['123456789', '987654321']],
+                [' ,123456789, ,\n, ,987654321, ,', ['123456789', '987654321']],
+            ];
+
+            testCases.forEach(function(testCase) {
+                var inputString = testCase[0];
+                var expectedResults = testCase[1];
+                expect(scope.getSearchTermList(inputString))
+                      .toEqual(expectedResults);
+            });
+        });
     });
     describe('lookupCourseMembers', function() {
         it('makes the expected call and returns a promise');
