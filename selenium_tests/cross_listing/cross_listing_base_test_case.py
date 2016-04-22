@@ -21,8 +21,7 @@ class CrossListingBaseTestCase(BaseSeleniumTestCase):
         cls.PASSWORD = settings.SELENIUM_CONFIG['selenium_password']
 
         cls.CANVAS_BASE_URL = settings.SELENIUM_CONFIG['canvas_base_url']
-        cls.test_settings = settings.SELENIUM_CONFIG['cross_listing']
-        cls.TOOL_RELATIVE_URL = cls.test_settings['relative_url']
+        cls.TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG['account_admin']['relative_url']
         cls.TOOL_URL = urljoin(cls.CANVAS_BASE_URL, cls.TOOL_RELATIVE_URL)
 
         cls.account_admin_dashboard_page = AccountAdminDashboardPage(cls.driver)
@@ -42,7 +41,7 @@ class CrossListingBaseTestCase(BaseSeleniumTestCase):
         if not self.account_admin_dashboard_page.is_loaded():
             self.account_admin_dashboard_page.get(self.TOOL_URL)
 
-        # navigate to course info page
+        # navigate to cross-list tool
         self.account_admin_dashboard_page.select_cross_listing_link()
 
         # check if page is loaded (which will also set the focus on the tool)
