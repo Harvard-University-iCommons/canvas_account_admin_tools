@@ -18,6 +18,8 @@ from selenium_tests.course_info.page_objects.course_people_page_object \
 # Common files used for all Manage People test cases
 TEST_USERS_WITH_ROLES_PATH = join(dirname(abspath(__file__)),
     'test_data', 'admin_console_roles.xlsx')
+TEST_USER_SEARCH_TERMS_PATH = join(dirname(abspath(__file__)),
+    'test_data', 'add_people_search_terms.xlsx')
 
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):

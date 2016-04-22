@@ -28,19 +28,20 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
 SELENIUM_CONFIG = {
    'account_admin': {
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
+      #'relative_url': 'accounts/10/external_tools/99',  # qa (Admin Console)
    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
       # 'relative_url': 'accounts/8/external_tools/68',  # local
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       'test_course': {
-         'cid': '339331',
+         'cid': '353035',
          'term': 'Spring',
-         'title': 'Latin Paleography and Manuscript Culture: Seminar',
-         'registrar_code_display': '2223',
+         'title': 'Caribbean Poetics',
+         'registrar_code_display': 'HDS 2430',
          'school': 'Divinity School',
-         'type': 'Only courses without sites',
-         'year': '2014',
+         'type': 'All courses',
+         'year': '2016',
       },
       'test_course_with_registrar_code_display_not_populated_in_db': {
          'cid': '353457',
