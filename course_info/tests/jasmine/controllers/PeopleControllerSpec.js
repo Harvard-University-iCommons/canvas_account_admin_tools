@@ -27,7 +27,7 @@ function validateURIHasParameters(uri, params) {
 
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
-        $httpBackend, $window, $log, $uibModal, $templateCache, angularDRF;
+        $httpBackend, $window, $log, $uibModal, $templateCache, angularDRF, $q;
     var controller, scope;
     var courseInstanceId = 1234567890;
     var courseInstanceURL =
@@ -42,7 +42,7 @@ describe('Unit testing PeopleController', function() {
         module('templates');
         inject(function(_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
                         _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
-                        _$uibModal_, _$templateCache_, _angularDRF_) {
+                        _$uibModal_, _$templateCache_, _angularDRF_, _$q_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
@@ -55,6 +55,7 @@ describe('Unit testing PeopleController', function() {
             $uibModal = _$uibModal_;
             $templateCache = _$templateCache_;
             angularDRF = _angularDRF_;
+            $q = _$q_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -76,7 +77,7 @@ describe('Unit testing PeopleController', function() {
     it('should inject the providers we requested', function() {
         [$controller, $rootScope, $routeParams, courseInstances, $compile,
          djangoUrl, $httpBackend, $window, $log, $uibModal, $templateCache,
-         angularDRF].forEach(function(thing) {
+         angularDRF, $q].forEach(function(thing) {
             expect(thing).not.toBeUndefined();
             expect(thing).not.toBeNull();
         });
@@ -227,16 +228,62 @@ describe('Unit testing PeopleController', function() {
         });
     });
     describe('lookupPeople', function() {
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
         it('creates people lookups that are tracked in controller scope on ' +
-            'failure');
-        it('creates appropriate person lookups (id or email)');
+                'failure', function() {
+            // sanity check the scope before calling lookupPeople
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+
+            // set up the spy to reject
+            spyOn(angularDRF, 'get').and.returnValue($q.reject(new Error()));
+
+            // call it, then digest to process the rejection
+            var promiseList = scope.lookupPeople(['12345678']);
+            scope.$digest();
+
+            // verify that the failures are marked on the scope
+            expect(scope.tracking.failures).toEqual(1);
+            expect(scope.messages.warnings)
+                .toEqual([{type: 'personLookupFailed', searchTerm: '12345678'}]);
+        });
+
+        it('creates appropriate person lookups (id or email)', function() {
+            var testCases = [
+                // [searchTerms, expectedParams]
+                [['user@example.edu'], [{email_address: 'user@example.edu'}]],
+                [['12345678'], [{univ_id: '12345678'}]],
+                [['user@example.edu', '12345678'],
+                 [{email_address: 'user@example.edu'}, {univ_id: '12345678'}]],
+            ];
+
+            spyOn(angularDRF, 'get').and.returnValue($q.resolve());
+
+            testCases.forEach(function (testCase) {
+                var searchTerms = testCase[0];
+                var expectedParams = testCase[1];
+
+                var promiseList = scope.lookupPeople(searchTerms);
+                expect(promiseList.length).toEqual(searchTerms.length);
+                expect(angularDRF.get).toHaveBeenCalledTimes(searchTerms.length);
+                for (var i=0; i<expectedParams.length; i++) {
+                    var args = angularDRF.get.calls.argsFor(i);
+                    expect(args[1].params).toEqual(expectedParams[i]);
+                }
+                angularDRF.get.calls.reset();
+            });
+        });
     });
     describe('showAddNewMemberResults', function() {
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope});
-        });
-
-        afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
             $httpBackend.expectGET(courseInstanceURL).respond(200, '');
@@ -500,9 +547,6 @@ describe('Unit testing PeopleController', function() {
     describe('dt cell render functions', function() {
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope});
-        });
-
-        afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
             $httpBackend.expectGET(courseInstanceURL).respond(200, '');
