@@ -108,8 +108,56 @@ describe('Unit testing PeopleController', function() {
         it('doesn\'t initiate the process if canceled');
     });
     describe('getMembersByUserId', function() {
-        it('maps enrollments to IDs');
-        it('patches/hacks/fixes up the Teaching Fellow role name');
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+        });
+        afterEach(function() {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+        it('maps enrollments to IDs', function() {
+            var memberList = [{
+                    "role": {
+                        "canvas_role": "student",
+                        "role_id": 101,
+                        "role_name": "Teaching Fellow"
+                    },
+                    "source": "xmlfeed",
+                    "user_id": "12345678",
+                    "profile": {
+                        "active": 1,
+                        "email_address": "smith@harvard.edu",
+                        "name_first": "Sarah",
+                        "name_last": "Smith",
+                        "prime_role_indicator": "Y",
+                        "role_type_cd": "STUDENT",
+                        "univ_id": "12345678"
+                    }
+                },
+                {
+                    "role": {
+                        "canvas_role": "student",
+                        "role_id": 102,
+                        "role_name": "TA"
+                    },
+                    "source": "xmlfeed",
+                    "user_id": "87654321",
+                    "profile": {
+                        "active": 1,
+                        "email_address": "smith@harvard.edu",
+                        "name_first": "kid",
+                        "name_last": "smart",
+                        "prime_role_indicator": "Y",
+                        "role_type_cd": "STUDENT",
+                        "univ_id": "87654321"
+                    }
+                }];
+            var result = scope.getMembersByUserId(memberList);
+            memberList[0].role.role_name = 'TA';
+            expect(result).toEqual({12345678: [memberList[0]], 87654321: [memberList[1]]});
+        });
     });
     describe('getSearchTermList', function() {
         beforeEach(function() {

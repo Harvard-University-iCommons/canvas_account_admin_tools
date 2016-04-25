@@ -224,7 +224,7 @@
             // stashes this membership object on the modal's child scope.
 
             // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
-            // a more perm solution is being discussed, but will invlove talking to the schools.
+            // a more perm solution is being discussed, but will involve talking to the schools.
             if (membership && membership.role &&
                     membership.role.role_name == "Teaching Fellow") {
                 membership.role.role_name = "TA";
@@ -332,14 +332,17 @@
             var membersByUserId = {};
             memberList.forEach(function(member) {
                 var memberCopy = angular.copy(member);
-                // this is a temp fix to change the display text of the role
-                // "Teaching Fellow" to "TA" a more perm solution is being
-                // discussed, but will involve talking to the schools.
+
                 if (memberCopy.role && memberCopy.role.role_name == "Teaching Fellow") {
                     memberCopy.role.role_name = "TA";
                 }
-                membersByUserId[memberCopy.user_id] =
-                    (membersByUserId[memberCopy.user_id] || []).push(memberCopy);
+
+                if(memberCopy.user_id in membersByUserId){
+                    membersByUserId[memberCopy.user_id].push(memberCopy);
+                }
+                else {
+                    membersByUserId[memberCopy.user_id] = [memberCopy];
+                }
             });
             return membersByUserId;
         };
