@@ -336,13 +336,8 @@
                 if (memberCopy.role && memberCopy.role.role_name == "Teaching Fellow") {
                     memberCopy.role.role_name = "TA";
                 }
-
-                if(memberCopy.user_id in membersByUserId){
-                    membersByUserId[memberCopy.user_id].push(memberCopy);
-                }
-                else {
-                    membersByUserId[memberCopy.user_id] = [memberCopy];
-                }
+                membersByUserId[memberCopy.user_id] =
+                     (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
             });
             return membersByUserId;
         };
