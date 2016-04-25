@@ -237,8 +237,36 @@ describe('Unit testing PeopleController', function() {
         });
     });
     describe('updateProgressBar', function() {
-        it('shows current add person progress based on scope vars');
-        it('displays override text if provided');
+        beforeEach(function () {
+            controller = $controller('PeopleController', {$scope: scope});
+        });
+        afterEach(function () {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
+        it('shows current add person progress based on scope vars', function () {
+            scope.tracking.total = 3;
+            scope.tracking.successes = 1;
+            scope.tracking.failure = 1;
+            var expectedMsg = 'Adding 2 of 3'
+            //invoke the method
+            scope.updateProgressBar();
+            expect(scope.messages.progress).toEqual(expectedMsg)
+        });
+
+        it('displays override text if provided', function () {
+            scope.tracking.total = 3;
+            scope.tracking.successes = 1;
+            scope.tracking.failure = 1;
+
+            var text = 'Looking up 3 people '
+            //invoke the method
+            scope.updateProgressBar(text);
+            expect(scope.messages.progress).toEqual(text);
+        });
     });
 
     describe('$scope setup', function() {
