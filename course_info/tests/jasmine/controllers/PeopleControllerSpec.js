@@ -668,36 +668,21 @@ describe('Unit testing PeopleController', function() {
             });
         });
 
-        xdescribe('disableAddUserButton', function() {
+        describe('disableAddUserButton', function() {
             // the state of the add user button depends on the contents of
-            // the search field, on whether a lookup has returned multiple
-            // results, and on whether any of those results have been selected
+            // the search field
             it('should disable if a search is in progress', function() {
                 scope.operationInProgress = true;
                 expect(scope.disableAddToCourseButton()).toBe(true);
             });
-            it('should enable if the search had multiple results and one is selected',
-               function() {
-                   scope.searchResults = [{}, {}]; // contents don't matter, only length
-                   scope.selectedResult = {id: 123};
-                   expect(scope.disableAddToCourseButton()).toBe(false);
-               }
-            );
-            it('should disable if the search had multiple results and none are selected',
-               function() {
-                   scope.searchResults = [{}]; // contents don't matter, only length
-                   scope.selectedResult = {id: null};
-                   expect(scope.disableAddToCourseButton()).toBe(true);
-               }
-            );
-            it('should enable if a search term has been entered and there are no results',
-               function() {
-                   scope.searchTerm = 'bob';
-                   expect(scope.disableAddToCourseButton()).toBe(false);
-               }
-            );
-            it('should disable if there is no search term or results', function() {
+            it('should disable if there is no search term', function() {
+                scope.searchTerms = '';
                 expect(scope.disableAddToCourseButton()).toBe(true);
+            });
+            it('is enabled if there are search terms and no operation is ' +
+                'in progress', function() {
+                scope.searchTerms = '12345678, a@b.com';
+                expect(scope.disableAddToCourseButton()).toBe(false);
             });
         });
 
