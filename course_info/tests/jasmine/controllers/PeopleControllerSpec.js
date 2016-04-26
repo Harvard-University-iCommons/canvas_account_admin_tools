@@ -35,6 +35,13 @@ describe('Unit testing PeopleController', function() {
         '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2F';
     var coursePeopleURL = courseInstanceURL + 'people%2F';
 
+    // helper methods for DRYer code
+    function clearInitialCourseInstanceFetch() {
+        // handle the initial course instance get
+        $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+        $httpBackend.flush(1);
+    }
+
     // set up the test environment
     beforeEach(function() {
         // load in the app and the templates-as-module
@@ -98,12 +105,80 @@ describe('Unit testing PeopleController', function() {
         it('adds person if not in course and single profile available');
     });
     describe('addNewMemberToCourse', function() {
-        it('tracks non-partial failure, logs appropriate error message, and ' +
-            'does not reject promise chain');
-        it('tracks partial failure, logs appropriate error message, and does ' +
-            'not reject promise chain');
-        it('tracks successes');
-        it('updates the progress bar regardless of success/failure');
+        var user = {user_id: 'bobdobbs', role_id: 0};
+        var userJson = JSON.stringify(user);
+        var ajaxResponse;
+        var args = {postParams: user, name: 'test user', searchTerm:'123'};
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            spyOn(scope, 'updateProgressBar');
+            clearInitialCourseInstanceFetch();
+            scope.addNewMemberToCourse(args.postParams, args.name,
+                    args.searchTerm)
+                .then(function(response) { ajaxResponse = response; });
+        });
+        afterEach(function() {
+            // should update the progress bar regardless of success/failure
+            expect(scope.updateProgressBar).toHaveBeenCalled();
+        });
+
+        it('tracks successes', function() {
+            $httpBackend.expectPOST(coursePeopleURL, user)
+                .respond(201, userJson);
+            $httpBackend.flush(1);
+
+            expect(scope.tracking.successes).toEqual(1);
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+            expect(ajaxResponse.status).toEqual(201);
+            expect(ajaxResponse.data).toEqual(user);
+        });
+
+        describe('failure cases', function() {
+            beforeEach(function() {
+                spyOn(scope, 'handleAjaxErrorResponse');
+            });
+            afterEach(function() {
+                expect(scope.tracking.successes).toEqual(0);
+                expect(scope.tracking.failures).toEqual(1);
+                expect(ajaxResponse.status).toEqual(500);
+                expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            });
+            it('tracks non-partial failure, logs appropriate error message, ' +
+                'and does not reject promise chain', function() {
+                var expectedWarning = {
+                    type: 'addFailed', name: args.name, searchTerm: args.searchTerm
+                };
+                var testFailureData = {detail: 'test failure'};
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+            it('tracks partial failure, logs appropriate error message, and ' +
+                'does not reject promise chain', function() {
+                var testFailureData = {
+                    detail: 'Canvas API error details: testing'};
+                var expectedWarning = {
+                    type: 'partialFailure',
+                    failureDetail: testFailureData.detail,
+                    name: args.name,
+                    searchTerm: args.searchTerm
+                };
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+        });
+
     });
     describe('confirmAddPeopleToCourse', function() {
         it('reflects the right role and number of people');
