@@ -27,13 +27,20 @@ function validateURIHasParameters(uri, params) {
 
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
-        $httpBackend, $window, $log, $uibModal, $templateCache, angularDRF;
+        $httpBackend, $window, $log, $uibModal, $templateCache, angularDRF, $q;
     var controller, scope;
     var courseInstanceId = 1234567890;
     var courseInstanceURL =
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
         '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2F';
     var coursePeopleURL = courseInstanceURL + 'people%2F';
+
+    // helper methods for DRYer code
+    function clearInitialCourseInstanceFetch() {
+        // handle the initial course instance get
+        $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+        $httpBackend.flush(1);
+    }
 
     // set up the test environment
     beforeEach(function() {
@@ -42,7 +49,7 @@ describe('Unit testing PeopleController', function() {
         module('templates');
         inject(function(_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
                         _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
-                        _$uibModal_, _$templateCache_, _angularDRF_) {
+                        _$uibModal_, _$templateCache_, _angularDRF_, _$q_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
@@ -55,6 +62,7 @@ describe('Unit testing PeopleController', function() {
             $uibModal = _$uibModal_;
             $templateCache = _$templateCache_;
             angularDRF = _angularDRF_;
+            $q = _$q_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -76,7 +84,7 @@ describe('Unit testing PeopleController', function() {
     it('should inject the providers we requested', function() {
         [$controller, $rootScope, $routeParams, courseInstances, $compile,
          djangoUrl, $httpBackend, $window, $log, $uibModal, $templateCache,
-         angularDRF].forEach(function(thing) {
+         angularDRF, $q].forEach(function(thing) {
             expect(thing).not.toBeUndefined();
             expect(thing).not.toBeNull();
         });
@@ -201,12 +209,80 @@ describe('Unit testing PeopleController', function() {
         });
     });
     describe('addNewMemberToCourse', function() {
-        it('tracks non-partial failure, logs appropriate error message, and ' +
-            'does not reject promise chain');
-        it('tracks partial failure, logs appropriate error message, and does ' +
-            'not reject promise chain');
-        it('tracks successes');
-        it('updates the progress bar regardless of success/failure');
+        var user = {user_id: 'bobdobbs', role_id: 0};
+        var userJson = JSON.stringify(user);
+        var ajaxResponse;
+        var args = {postParams: user, name: 'test user', searchTerm:'123'};
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            spyOn(scope, 'updateProgressBar');
+            clearInitialCourseInstanceFetch();
+            scope.addNewMemberToCourse(args.postParams, args.name,
+                    args.searchTerm)
+                .then(function(response) { ajaxResponse = response; });
+        });
+        afterEach(function() {
+            // should update the progress bar regardless of success/failure
+            expect(scope.updateProgressBar).toHaveBeenCalled();
+        });
+
+        it('tracks successes', function() {
+            $httpBackend.expectPOST(coursePeopleURL, user)
+                .respond(201, userJson);
+            $httpBackend.flush(1);
+
+            expect(scope.tracking.successes).toEqual(1);
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+            expect(ajaxResponse.status).toEqual(201);
+            expect(ajaxResponse.data).toEqual(user);
+        });
+
+        describe('failure cases', function() {
+            beforeEach(function() {
+                spyOn(scope, 'handleAjaxErrorResponse');
+            });
+            afterEach(function() {
+                expect(scope.tracking.successes).toEqual(0);
+                expect(scope.tracking.failures).toEqual(1);
+                expect(ajaxResponse.status).toEqual(500);
+                expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            });
+            it('tracks non-partial failure, logs appropriate error message, ' +
+                'and does not reject promise chain', function() {
+                var expectedWarning = {
+                    type: 'addFailed', name: args.name, searchTerm: args.searchTerm
+                };
+                var testFailureData = {detail: 'test failure'};
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+            it('tracks partial failure, logs appropriate error message, and ' +
+                'does not reject promise chain', function() {
+                var testFailureData = {
+                    detail: 'Canvas API error details: testing'};
+                var expectedWarning = {
+                    type: 'partialFailure',
+                    failureDetail: testFailureData.detail,
+                    name: args.name,
+                    searchTerm: args.searchTerm
+                };
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+        });
+
     });
     describe('confirmAddPeopleToCourse', function() {
         it('reflects the right role and number of people');
@@ -331,16 +407,62 @@ describe('Unit testing PeopleController', function() {
         });
     });
     describe('lookupPeople', function() {
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
         it('creates people lookups that are tracked in controller scope on ' +
-            'failure');
-        it('creates appropriate person lookups (id or email)');
+                'failure', function() {
+            // sanity check the scope before calling lookupPeople
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+
+            // set up the spy to reject
+            spyOn(angularDRF, 'get').and.returnValue($q.reject(new Error()));
+
+            // call it, then digest to process the rejection
+            var promiseList = scope.lookupPeople(['12345678']);
+            scope.$digest();
+
+            // verify that the failures are marked on the scope
+            expect(scope.tracking.failures).toEqual(1);
+            expect(scope.messages.warnings)
+                .toEqual([{type: 'personLookupFailed', searchTerm: '12345678'}]);
+        });
+
+        it('creates appropriate person lookups (id or email)', function() {
+            var testCases = [
+                // [searchTerms, expectedParams]
+                [['user@example.edu'], [{email_address: 'user@example.edu'}]],
+                [['12345678'], [{univ_id: '12345678'}]],
+                [['user@example.edu', '12345678'],
+                 [{email_address: 'user@example.edu'}, {univ_id: '12345678'}]],
+            ];
+
+            spyOn(angularDRF, 'get').and.returnValue($q.resolve());
+
+            testCases.forEach(function (testCase) {
+                var searchTerms = testCase[0];
+                var expectedParams = testCase[1];
+
+                var promiseList = scope.lookupPeople(searchTerms);
+                expect(promiseList.length).toEqual(searchTerms.length);
+                expect(angularDRF.get).toHaveBeenCalledTimes(searchTerms.length);
+                for (var i=0; i<expectedParams.length; i++) {
+                    var args = angularDRF.get.calls.argsFor(i);
+                    expect(args[1].params).toEqual(expectedParams[i]);
+                }
+                angularDRF.get.calls.reset();
+            });
+        });
     });
     describe('showAddNewMemberResults', function() {
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope});
-        });
-
-        afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
             $httpBackend.expectGET(courseInstanceURL).respond(200, '');
@@ -476,20 +598,10 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance).toBeNull();
         });
 
-        xit('should set all message vars to null', function(){
-            ['success', 'addWarning',
-                'addPartialFailure', 'removeFailure'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).toBeNull();
-            });
-        });
-
-        xit('should have a bunch of non-null variables set up', function() {
+        it('should have a bunch of non-null variables set up', function() {
             ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
-                'searchResults', 'searchTerm', 'selectedResult',
                 'selectedRole'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).not.toBeUndefined();
+                expect(scope[scopeAttr]).not.toBeUndefined();
             });
         });
     });
@@ -604,9 +716,6 @@ describe('Unit testing PeopleController', function() {
     describe('dt cell render functions', function() {
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope});
-        });
-
-        afterEach(function() {
             // handle the course instance get from setTitle, so we can always
             // assert at the end of a test that there's no pending http calls.
             $httpBackend.expectGET(courseInstanceURL).respond(200, '');
@@ -681,6 +790,21 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
 
+        describe('closeAlert', function() {
+            it('should work when an alert is present', function() {
+                scope.messages.testAlert = 'This is a test';  // contents don't matter
+                scope.closeAlert('testAlert');
+                expect(scope.messages.testAlert).toBeNull();
+            });
+            
+            it('should not blow up when no alert is present', function() {
+                scope.messages.testAlert = null;
+                scope.closeAlert('testAlert');
+                expect(scope.messages.testAlert).toBeNull();
+            });
+
+        });
+
         describe('compareRoles', function() {
             it('should sort as expected', function() {
                 var roles = [
@@ -702,6 +826,24 @@ describe('Unit testing PeopleController', function() {
 
                 roles.sort(scope.compareRoles);
                 expect(roles).toEqual(afterSorting);
+            });
+        });
+
+        describe('disableAddUserButton', function() {
+            // the state of the add user button depends on the contents of
+            // the search field
+            it('should disable if a search is in progress', function() {
+                scope.operationInProgress = true;
+                expect(scope.disableAddToCourseButton()).toBe(true);
+            });
+            it('should disable if there is no search term', function() {
+                scope.searchTerms = '';
+                expect(scope.disableAddToCourseButton()).toBe(true);
+            });
+            it('is enabled if there are search terms and no operation is ' +
+                'in progress', function() {
+                scope.searchTerms = '12345678, a@b.com';
+                expect(scope.disableAddToCourseButton()).toBe(false);
             });
         });
 
@@ -774,6 +916,50 @@ describe('Unit testing PeopleController', function() {
                 expect(scope.selectedRole).toEqual(role);
             });
         });
+
+        describe('clearMessages', function(){
+            it('should set all messages to null', function(){
+                var messageBuckets = ['warnings'];
+                var messageKeys = ['progress', 'success'];
+                var scopeKeys = ['removeFailure'];
+                var trackingKeys = ['failures', 'successes', 'total',
+                    'totalFailures'];
+                var expectNoMessages = function() {
+                    messageBuckets.forEach(function (bucket) {
+                        expect(scope.messages[bucket]).toEqual([]);
+                    });
+                    messageKeys.forEach(function (key) {
+                        expect(scope.messages[key]).toBeNull();
+                    });
+                    scopeKeys.forEach(function (key) {
+                        expect(scope[key]).toBeNull();
+                    });
+                    trackingKeys.forEach(function (key) {
+                        expect(scope.tracking[key]).toEqual(0);
+                    });
+                };
+
+                // fresh scope should be clear/clean
+                expectNoMessages();
+
+                messageBuckets.forEach(function (bucket) {
+                    scope.messages[bucket].push({ type: 'test'});
+                });
+                messageKeys.forEach(function (key) {
+                    scope.messages[key] = 1;  // random, meaningless number
+                });
+                scopeKeys.forEach(function (key) {
+                    scope[key] = 1;  // random, meaningless number
+                });
+                trackingKeys.forEach(function (key) {
+                    scope.tracking[key] = 1;  // random, meaningless number
+                });
+
+                // refreshed scope should also be clear/clean
+                scope.clearMessages();
+                expectNoMessages();
+            });
+        });
     });
 
     describe('confirmRemove', function() {
@@ -819,27 +1005,24 @@ describe('Unit testing PeopleController', function() {
         var courseMembershipURL = coursePeopleURL + membership.user_id;
 
         beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'confirmRemove test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
+            clearInitialCourseInstanceFetch();
             scope.dtInstance = {reloadData: function(){}};
             spyOn(scope.dtInstance, 'reloadData');
         });
 
-        xit('should handle success', function() {
+        it('should handle success', function() {
             var expectedSuccess = JSON.parse(JSON.stringify(membership));
-            expectedSuccess.action = 'removed from';
-            expectedSuccess.searchTerm = 'Dobbs, Bob';
+            angular.extend(expectedSuccess,
+                {alertType: 'success', searchTerm: 'Dobbs, Bob', type: 'remove'}
+            );
 
             scope.removeMembership(membership);
 
             $httpBackend.expectDELETE(courseMembershipURL).respond(204, '');
             $httpBackend.flush(1);
 
-            expect(scope.success).toEqual(expectedSuccess);
+            expect(scope.messages.success).toEqual(expectedSuccess);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
