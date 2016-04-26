@@ -494,20 +494,10 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance).toBeNull();
         });
 
-        xit('should set all message vars to null', function(){
-            ['success', 'addWarning',
-                'addPartialFailure', 'removeFailure'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).toBeNull();
-            });
-        });
-
-        xit('should have a bunch of non-null variables set up', function() {
+        it('should have a bunch of non-null variables set up', function() {
             ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
-                'searchResults', 'searchTerm', 'selectedResult',
                 'selectedRole'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).not.toBeUndefined();
+                expect(scope[scopeAttr]).not.toBeUndefined();
             });
         });
     });
@@ -920,7 +910,7 @@ describe('Unit testing PeopleController', function() {
            }
         );
     });
-    
+
     xdescribe('handleLookupResults', function() {
         // NOTE: relies on filterSearchResults() working properly.  mocking
         //       its results wasn't worth it.
@@ -994,7 +984,7 @@ describe('Unit testing PeopleController', function() {
                        ['bob_dobbs@harvard.edu',
                         {user_id: 456, role_id: 123}]);
             expect(scope.operationInProgress).toBe(true);
-        })
+        });
 
         it('should show choices and disable progress for multiple results',
            function() {
@@ -1143,27 +1133,24 @@ describe('Unit testing PeopleController', function() {
         var courseMembershipURL = coursePeopleURL + membership.user_id;
 
         beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'confirmRemove test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
+            clearInitialCourseInstanceFetch();
             scope.dtInstance = {reloadData: function(){}};
             spyOn(scope.dtInstance, 'reloadData');
         });
 
-        xit('should handle success', function() {
+        it('should handle success', function() {
             var expectedSuccess = JSON.parse(JSON.stringify(membership));
-            expectedSuccess.action = 'removed from';
-            expectedSuccess.searchTerm = 'Dobbs, Bob';
+            angular.extend(expectedSuccess,
+                {alertType: 'success', searchTerm: 'Dobbs, Bob', type: 'remove'}
+            );
 
             scope.removeMembership(membership);
 
             $httpBackend.expectDELETE(courseMembershipURL).respond(204, '');
             $httpBackend.flush(1);
 
-            expect(scope.success).toEqual(expectedSuccess);
+            expect(scope.messages.success).toEqual(expectedSuccess);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
