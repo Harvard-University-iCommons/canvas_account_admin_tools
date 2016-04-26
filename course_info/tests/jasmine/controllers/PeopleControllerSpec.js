@@ -93,10 +93,13 @@ describe('Unit testing PeopleController', function() {
 
     describe('addNewMember', function() {
 
+        var personResult = [];
+        var members = {};
+
         beforeEach(function() {
             controller = $controller('PeopleController', {$scope: scope });
-            this.members = {};
-            this.members["12345678"] = [{
+            //var members = {};
+            members["12345678"] = [{
                         active: 1,
                         email_address: "test45@mcelroy.org",
                         name_first: "Test",
@@ -105,7 +108,7 @@ describe('Unit testing PeopleController', function() {
                         role_type_cd: "STUDENT",
                         univ_id: "12345678"
                     }];
-            this.members["43215678"] = [{
+            members["43215678"] = [{
                         active: 1,
                         email_address: "test46@mcelroy.org",
                         name_first: "Peter",
@@ -115,7 +118,7 @@ describe('Unit testing PeopleController', function() {
                         univ_id: "43215678"
                     }];
 
-            this.personResult = [
+            personResult.push(
                 {
                     active: 1,
                     email_address: "test45@mcelroy.org",
@@ -126,7 +129,7 @@ describe('Unit testing PeopleController', function() {
                     univ_id: "12345678"
                 },
                 ["test45@mcelroy.org"]
-            ];
+            );
         });
         afterEach(function() {
             // handle the course instance get from setTitle, so we can always
@@ -135,10 +138,10 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.flush(1);
         });
         it('won\'t add person if they already have a course enrollment', function(){
-            spyOn(scope, 'filterSearchResults').and.returnValue([this.personResult[0]]);
+            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0]]);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
-            var result = scope.addNewMember(this.personResult, this.members);
+            var result = scope.addNewMember(personResult, members);
             expect(result).toBeNull();
         });
         it('won\'t add if they could not be found via /people lookup', function(){
@@ -146,9 +149,9 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope, 'filterSearchResults').and.returnValue([]);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
-            var result = scope.addNewMember(personResult, this.members);
+            var result = scope.addNewMember(personResult, members);
             expect(scope.messages.warnings).toEqual([{type: 'notFound',
-                    searchTerm: this.personResult[1]}]);
+                    searchTerm: personResult[1]}]);
             expect(result).toBeNull();
         });
         it('won\'t add if multiple profiles returned by /people lookup', function(){
@@ -161,10 +164,10 @@ describe('Unit testing PeopleController', function() {
                     role_type_cd: "STUDENT",
                     univ_id: "12345675"
                 };
-            spyOn(scope, 'filterSearchResults').and.returnValue([this.personResult[0], secondPerson]);
+            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0], secondPerson]);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
-            var result = scope.addNewMember(this.personResult, this.members);
+            var result = scope.addNewMember(personResult, members);
             expect(scope.messages.warnings[0].type).toEqual('multipleProfiles');
             expect(result).toBeNull();
         });
@@ -173,18 +176,22 @@ describe('Unit testing PeopleController', function() {
                 {
                     active: 1,
                     email_address: "test49@mcelroy.org",
-                    name_first: "New",
-                    name_last: "User",
+                    name_first: "Test",
+                    name_last: "New User",
                     prime_role_indicator: "Y",
                     role_type_cd: "STUDENT",
-                    univ_id: "12345674"
+                    univ_id: '12345674'
                 },
                 ["test49@mcelroy.org"]
             ];
-            spyOn(scope, 'filterSearchResults').and.returnValue([newPerson]);
-            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'filterSearchResults').and.returnValue([newPerson[0]]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test New User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
-            var result = scope.addNewMember(newPerson, this.members);
+            var result = scope.addNewMember(newPerson, members);
+            var postParams = {
+                        user_id: '12345674',
+                        role_id: 0};
+            expect(scope.addNewMemberToCourse).toHaveBeenCalledWith(postParams, 'Test New User', newPerson[1]);
             expect(result).toEqual({ result: 'success' });
         });
     });
@@ -669,29 +676,6 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
 
-        xdescribe('clearSearchResults', function() {
-            it('should empty any search results', function() {
-                scope.searchResults = [{}];  // contents don't matter
-                scope.clearSearchResults();
-                expect(scope.searchResults).toEqual([]);
-            });
-        });
-
-        xdescribe('closeAlert', function() {
-            it('should work when an alert is present', function() {
-                scope.testAlerts = 'This is a test';  // contents don't matter
-                scope.closeAlert('testAlerts');
-                expect(scope.testAlerts).toBeNull();
-            });
-            
-            it('should not blow up when no alert is present', function() {
-                scope.testAlerts = null;
-                scope.closeAlert('testAlerts');
-                expect(scope.testAlerts).toBeNull();
-            });
-
-        });
-
         describe('compareRoles', function() {
             it('should sort as expected', function() {
                 var roles = [
@@ -713,39 +697,6 @@ describe('Unit testing PeopleController', function() {
 
                 roles.sort(scope.compareRoles);
                 expect(roles).toEqual(afterSorting);
-            });
-        });
-
-        xdescribe('disableAddUserButton', function() {
-            // the state of the add user button depends on the contents of
-            // the search field, on whether a lookup has returned multiple
-            // results, and on whether any of those results have been selected
-            it('should disable if a search is in progress', function() {
-                scope.operationInProgress = true;
-                expect(scope.disableAddToCourseButton()).toBe(true);
-            });
-            it('should enable if the search had multiple results and one is selected',
-               function() {
-                   scope.searchResults = [{}, {}]; // contents don't matter, only length
-                   scope.selectedResult = {id: 123};
-                   expect(scope.disableAddToCourseButton()).toBe(false);
-               }
-            );
-            it('should disable if the search had multiple results and none are selected',
-               function() {
-                   scope.searchResults = [{}]; // contents don't matter, only length
-                   scope.selectedResult = {id: null};
-                   expect(scope.disableAddToCourseButton()).toBe(true);
-               }
-            );
-            it('should enable if a search term has been entered and there are no results',
-               function() {
-                   scope.searchTerm = 'bob';
-                   expect(scope.disableAddToCourseButton()).toBe(false);
-               }
-            );
-            it('should disable if there is no search term or results', function() {
-                expect(scope.disableAddToCourseButton()).toBe(true);
             });
         });
 
@@ -817,385 +768,6 @@ describe('Unit testing PeopleController', function() {
                 scope.selectRole(role);
                 expect(scope.selectedRole).toEqual(role);
             });
-        });
-
-        xdescribe('clearMessages', function(){
-            it('should set all messages to null', function(){
-                scope.addPartialFailure = 'There has been a failure';
-                scope.addWarning = 'There has been an error';
-                scope.success = 'User added';
-                scope.removeFailure = 'Error removing user';
-
-                scope.clearMessages();
-                ['success', 'addWarning',
-                    'partialFailureData', 'removeFailure'].forEach(function(scopeAttr) {
-                    var thing = scope[scopeAttr];
-                    expect(thing).toBeNull();
-                });
-            });
-        });
-    });
-
-    xdescribe('addUser', function() {
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'addUser tests',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            spyOn(scope, 'addUserToCourse');
-            spyOn(scope, 'lookup');
-        });
-
-        it('should call lookup if there are no search results', function() {
-            scope.searchResults = [];
-            scope.addUser('bob');
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-            expect(scope.lookup.calls.count()).toEqual(1);
-            expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
-        });
-
-        it('should log an error if called with a single search result', function() {
-            scope.searchResults = [{}]; // contents don't matter
-            scope.addUser('bob');
-            expect($log.error.logs).toEqual(
-                [['Add user button pressed while we have a single search result']]);
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-            expect(scope.lookup.calls.count()).toEqual(0);
-        });
-
-        it('should call lookup if there are multiple search results and none selected',
-           function() {
-               scope.searchResults = [{}, {}];
-               scope.addUser('bob');
-               expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-               expect(scope.lookup.calls.count()).toEqual(1);
-               expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
-           }
-        );
-
-        it('should call addUserToCourse if there are multiple results and one selected',
-           function() {
-               scope.searchResults = [{}, {}];
-               scope.selectedResult = {id: 999};
-               scope.selectedRole = {roleId: 888};
-               scope.addUser('bob');
-               expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
-               expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
-                       ['bob', {user_id: scope.selectedResult.id,
-                                role_id: scope.selectedRole.roleId}]);
-           }
-        );
-    });
-
-    xdescribe('addUserToCourse', function() {
-        var user = {user_id: 'bobdobbs', role_id: 0};
-        var searchTerm = 'bob_dobbs@harvard.edu';
-        var enrollmentDetailsURL = coursePeopleURL + '&user_id=' + user.user_id;
-        var enrollmentDetails = {
-            results: [{
-                profile: {
-                    name_last: 'Dobbs',
-                    name_first: 'Bob',
-                    role_type_cd: 'STUDENT',
-                    univ_id: 'bobdobbs',
-                },
-                role: {
-                    role_name: 'Student',
-                }
-            }],
-        };
-
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'addUserToCourse test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            scope.operationInProgress = true;
-            scope.searchResults = [{}];
-        });
-
-        afterEach(function() {
-            // no matter what, we should end the search and clear the results.
-            expect(scope.operationInProgress).toBe(false);
-            expect(scope.searchResults).toEqual([]);
-        });
-
-        it('should alert and reload the datatable on success', function() {
-            var expectedSuccess = 
-                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-            expectedSuccess.searchTerm = searchTerm;
-            expectedSuccess.action = 'added to';
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            // call it
-            scope.addNewMemberToCourse(searchTerm, user);
-
-            // trigger the ajax calls
-            $httpBackend.expectPOST(coursePeopleURL, user)
-                        .respond(201, JSON.stringify(user)); 
-            $httpBackend.expectGET(enrollmentDetailsURL)
-                        .respond(200, JSON.stringify(enrollmentDetails));
-            $httpBackend.flush(2);
-
-            // check to see if it's reacting correctly
-            expect(scope.success).toEqual(expectedSuccess);
-            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-        });
-
-        it('should alert and reload the datatable on a canvas partial failure',
-           function() {
-               var partialFailureResponse = {
-                   detail: "Error while enrolling user USER in Canvas section sis_section_id:SECTION. Canvas API error details: 403: {u'message': u\"Can't add an enrollment to a concluded course.\"}",
-               };
-               var expectedSuccess =
-                   JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-
-               var partialFailureData = {
-                   searchTerm: searchTerm,
-                   text: partialFailureResponse.detail,
-               };
-               expectedSuccess.searchTerm = searchTerm;
-               expectedSuccess.action = 'added to';
-               expectedSuccess.partialFailureData = partialFailureData;
-
-               // mock out the datatable so we can verify that it gets reloaded
-               scope.dtInstance = {reloadData: function(){}};
-               spyOn(scope.dtInstance, 'reloadData');
-
-               // call it
-               scope.addNewMemberToCourse(searchTerm, user);
-
-               // trigger the ajax calls
-               $httpBackend.expectPOST(coursePeopleURL, user)
-                           .respond(500, JSON.stringify(partialFailureResponse));
-               $httpBackend.expectGET(enrollmentDetailsURL)
-                           .respond(200, JSON.stringify(enrollmentDetails));
-               $httpBackend.flush(2);
-
-               // check to see if it's reacting correctly
-               expect(scope.success).toEqual(expectedSuccess);
-               expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-           }
-        );
-
-        it('should warn on failure to add the user', function() {
-            spyOn(scope, 'handleAjaxError');
-
-            scope.addNewMemberToCourse(searchTerm, user);
-
-            $httpBackend.expectPOST(coursePeopleURL, user).respond(500, '');
-            $httpBackend.flush(1);
-
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
-            expect(scope.addWarning).toEqual({type: 'addFailed',
-                                             searchTerm: searchTerm});
-        });
-
-        it('should handle a failure to get user enrollment after an apparent add success',
-           function() {
-               var expectedPartialFailure = {
-                   searchTerm: searchTerm,
-                   text: 'Add to course seemed to succeed, but we received ' +
-                         'an error trying to retrieve the user\'s course details.',
-               };
-               spyOn(scope, 'handleAjaxError');
-
-               scope.addNewMemberToCourse(searchTerm, user);
-
-               $httpBackend.expectPOST(coursePeopleURL, user)
-                           .respond(201, JSON.stringify(user)); 
-               $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
-               $httpBackend.flush(2);
-
-               expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
-               expect(scope.handleAjaxError.calls.count()).toEqual(1);
-           }
-        );
-    });
-
-    xdescribe('handleLookupResults', function() {
-        // NOTE: relies on filterSearchResults() working properly.  mocking
-        //       its results wasn't worth it.
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'handleLookupResults test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            scope.operationInProgress = true;
-        });
-
-        it('should warn and disable progress if the user is already enrolled',
-           function() {
-               var peopleResult = {}; // content doesn't matter
-               var memberResult = {
-                   data: {results:
-                              [{profile: {name_last: 'Dobbs',
-                                          name_first: 'Bob'}}]},
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var expectedWarning = {
-                   type: 'alreadyInCourse',
-                   fullName: 'Dobbs, Bob',
-                   memberships: memberResult.data.results,
-                   searchTerm: 'bob_dobbs@harvard.edu',
-               };
-
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
-
-        it('should warn and disable progress if the user is not found',
-           function() {
-               var peopleResult = {
-                   data: {results: []},
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var memberResult = {data: {results: []}};
-               var expectedWarning = {
-                   type: 'notFound',
-                   searchTerm: 'bob_dobbs@harvard.edu',
-               };
-
-               scope.searchTerm = 'bob_dobbs@harvard.edu';
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
-
-        it('should call addUserToCourse if one result is found', function() {
-            var peopleResult = {
-                data: {
-                    results: [
-                        {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
-                    ],
-                },
-                config: {searchTerm: 'bob_dobbs@harvard.edu'},
-            };
-            var memberResult = {data: {results: []}};
-            spyOn(scope, 'addUserToCourse');
-
-            scope.selectedRole = {roleId: 123};
-            scope.handleLookupResults([peopleResult, memberResult]);
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
-            expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
-                       ['bob_dobbs@harvard.edu',
-                        {user_id: 456, role_id: 123}]);
-            expect(scope.operationInProgress).toBe(true);
-        })
-
-        it('should show choices and disable progress for multiple results',
-           function() {
-               var peopleResult = {
-                   data: {
-                       results: [
-                           {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
-                           {univ_id: 789, active: 0, prime_role_indicator: 'Y'},
-                       ],
-                   },
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var memberResult = {data: {results: []}};
-               var filteredResults = scope.filterSearchResults(
-                                         peopleResult.data.results);
-
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.searchResults).toEqual(filteredResults);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
-    });
-
-    xdescribe('lookup', function() {
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'lookup test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            spyOn(scope, 'handleLookupResults');
-        });
-
-        it('queries by email when appropriate', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-
-            scope.lookup(searchTerm);
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-        });
-
-        it('queries by user id when appropriate', function() {
-            var searchTerm = 'bobdobbs';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'univ_id': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'user_id': searchTerm});
-            };
-
-            scope.lookup(searchTerm);
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-        });
-
-        it('logs errors from the people endpoint', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-            spyOn(scope, 'handleAjaxError');
-            scope.lookup('bob_dobbs@harvard.edu');
-            $httpBackend.expectGET(peopleURLValidate).respond(500, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
-        });
-
-        it('logs errors from the course people endpoint', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-            spyOn(scope, 'handleAjaxError');
-            scope.lookup('bob_dobbs@harvard.edu');
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(500, '');
-            $httpBackend.flush(2);
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
         });
     });
 
