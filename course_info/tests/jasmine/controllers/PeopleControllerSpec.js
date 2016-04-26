@@ -621,25 +621,17 @@ describe('Unit testing PeopleController', function() {
             controller = $controller('PeopleController', {$scope: scope});
         });
 
-        xdescribe('clearSearchResults', function() {
-            it('should empty any search results', function() {
-                scope.searchResults = [{}];  // contents don't matter
-                scope.clearSearchResults();
-                expect(scope.searchResults).toEqual([]);
-            });
-        });
-
-        xdescribe('closeAlert', function() {
+        describe('closeAlert', function() {
             it('should work when an alert is present', function() {
-                scope.testAlerts = 'This is a test';  // contents don't matter
-                scope.closeAlert('testAlerts');
-                expect(scope.testAlerts).toBeNull();
+                scope.messages.testAlert = 'This is a test';  // contents don't matter
+                scope.closeAlert('testAlert');
+                expect(scope.messages.testAlert).toBeNull();
             });
             
             it('should not blow up when no alert is present', function() {
-                scope.testAlerts = null;
-                scope.closeAlert('testAlerts');
-                expect(scope.testAlerts).toBeNull();
+                scope.messages.testAlert = null;
+                scope.closeAlert('testAlert');
+                expect(scope.messages.testAlert).toBeNull();
             });
 
         });
