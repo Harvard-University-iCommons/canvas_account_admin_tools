@@ -90,11 +90,103 @@ describe('Unit testing PeopleController', function() {
         it('won\'t bother waiting for profile lookups or POSTing new members ' +
             'if course membership lookup fails');
     });
+
     describe('addNewMember', function() {
-        it('won\'t add person if they already have a course enrollment');
-        it('won\'t add if they could not be found via /people lookup');
-        it('won\'t add if multiple profiles returned by /people lookup');
-        it('adds person if not in course and single profile available');
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            this.members = {};
+            this.members["12345678"] = [{
+                        active: 1,
+                        email_address: "test45@mcelroy.org",
+                        name_first: "Test",
+                        name_last: "User",
+                        prime_role_indicator: "Y",
+                        role_type_cd: "STUDENT",
+                        univ_id: "12345678"
+                    }];
+            this.members["43215678"] = [{
+                        active: 1,
+                        email_address: "test46@mcelroy.org",
+                        name_first: "Peter",
+                        name_last: "Smith",
+                        prime_role_indicator: "Y",
+                        role_type_cd: "STUDENT",
+                        univ_id: "43215678"
+                    }];
+
+            this.personResult = [
+                {
+                    active: 1,
+                    email_address: "test45@mcelroy.org",
+                    name_first: "Test",
+                    name_last: "User",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "12345678"
+                },
+                ["test45@mcelroy.org"]
+            ];
+        });
+        afterEach(function() {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+        it('won\'t add person if they already have a course enrollment', function(){
+            spyOn(scope, 'filterSearchResults').and.returnValue([this.personResult[0]]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(this.personResult, this.members);
+            expect(result).toBeNull();
+        });
+        it('won\'t add if they could not be found via /people lookup', function(){
+            var personResult = [{}, ["test45@mcelroy.org"]];
+            spyOn(scope, 'filterSearchResults').and.returnValue([]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(personResult, this.members);
+            expect(scope.messages.warnings).toEqual([{type: 'notFound',
+                    searchTerm: this.personResult[1]}]);
+            expect(result).toBeNull();
+        });
+        it('won\'t add if multiple profiles returned by /people lookup', function(){
+            var secondPerson = {
+                    active: 1,
+                    email_address: "test48@mcelroy.org",
+                    name_first: "Test",
+                    name_last: "User2",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "12345675"
+                };
+            spyOn(scope, 'filterSearchResults').and.returnValue([this.personResult[0], secondPerson]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(this.personResult, this.members);
+            expect(scope.messages.warnings[0].type).toEqual('multipleProfiles');
+            expect(result).toBeNull();
+        });
+        it('adds person if not in course and single profile available', function(){
+            var newPerson = [
+                {
+                    active: 1,
+                    email_address: "test49@mcelroy.org",
+                    name_first: "New",
+                    name_last: "User",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "12345674"
+                },
+                ["test49@mcelroy.org"]
+            ];
+            spyOn(scope, 'filterSearchResults').and.returnValue([newPerson]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(newPerson, this.members);
+            expect(result).toEqual({ result: 'success' });
+        });
     });
     describe('addNewMemberToCourse', function() {
         it('tracks non-partial failure, logs appropriate error message, and ' +
