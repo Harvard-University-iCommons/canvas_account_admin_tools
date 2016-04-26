@@ -198,7 +198,7 @@
             var searchTermList = $scope.getSearchTermList(searchTerms);
             // open a modal confirmation box and as the user to verify they want to add
             // the number of users they entered.
-            var modalInstance = $uibModal.open({
+            $scope.confirmAddModalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'partials/add-people-to-course-confirmation.html',
                 controller: function ($scope, $uibModalInstance, numPeople, selectedRoleName) {
@@ -215,9 +215,12 @@
                 }
             });
 
-            modalInstance.result.then(function modalConfirmed() {
+            $scope.confirmAddModalInstance.result.then(function modalConfirmed() {
                 $scope.addPeopleToCourse(searchTermList);
-            });            
+            })
+            .finally(function() {
+                $scope.confirmAddModalInstance = null;
+            });
         };
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and

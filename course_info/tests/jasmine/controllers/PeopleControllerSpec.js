@@ -285,9 +285,31 @@ describe('Unit testing PeopleController', function() {
 
     });
     describe('confirmAddPeopleToCourse', function() {
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope});
+            clearInitialCourseInstanceFetch();
+            var searchTerm ="123456789, \n987654321";
+            spyOn(scope, 'addPeopleToCourse');
+            scope.confirmAddPeopleToCourse(searchTerm);
+            scope.$digest();  // resolves modal instantiation
+        });
+
+        // todo: cannot yet find a way to access the modal's controller scope
+        // within a test
         it('reflects the right role and number of people');
-        it('initiates the process if confirmed');
-        it('doesn\'t initiate the process if canceled');
+
+        it('initiates the process if confirmed', function() {
+            scope.confirmAddModalInstance.close();
+            scope.$digest();  // resolves modalInstance result
+            expect(scope.addPeopleToCourse).toHaveBeenCalled();
+        });
+
+        it('doesn\'t initiate the process if canceled', function() {
+            scope.confirmAddModalInstance.dismiss();
+            scope.$digest();  // resolves confirmAddModalInstance result
+            expect(scope.addPeopleToCourse).not.toHaveBeenCalled();
+        });
+
     });
     describe('getMembersByUserId', function() {
         beforeEach(function() {
