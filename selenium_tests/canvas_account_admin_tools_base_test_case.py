@@ -8,6 +8,7 @@ from selenium_tests.account_admin.page_objects.account_admin_dashboard_page_obje
 
 
 class AccountAdminBaseTestCase(BaseSeleniumTestCase):
+
     @classmethod
     def setUpClass(cls):
         super(AccountAdminBaseTestCase, cls).setUpClass()
@@ -24,5 +25,5 @@ class AccountAdminBaseTestCase(BaseSeleniumTestCase):
         if login_page.is_loaded():
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
-            print '(User {} already logged in to PIN)'.format(cls.USERNAME)
+            print '(User {} is already logged in)'.format(cls.USERNAME)
 
