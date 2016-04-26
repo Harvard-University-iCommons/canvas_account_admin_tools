@@ -142,6 +142,7 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
             var result = scope.addNewMember(personResult, members);
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
             expect(result).toBeNull();
         });
         it('won\'t add if they could not be found via /people lookup', function(){
@@ -152,6 +153,8 @@ describe('Unit testing PeopleController', function() {
             var result = scope.addNewMember(personResult, members);
             expect(scope.messages.warnings).toEqual([{type: 'notFound',
                     searchTerm: personResult[1]}]);
+            expect(scope.getProfileFullName).not.toHaveBeenCalled();
+
             expect(result).toBeNull();
         });
         it('won\'t add if multiple profiles returned by /people lookup', function(){
@@ -169,6 +172,7 @@ describe('Unit testing PeopleController', function() {
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
             var result = scope.addNewMember(personResult, members);
             expect(scope.messages.warnings[0].type).toEqual('multipleProfiles');
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
             expect(result).toBeNull();
         });
         it('adds person if not in course and single profile available', function(){
@@ -191,6 +195,7 @@ describe('Unit testing PeopleController', function() {
             var postParams = {
                         user_id: '12345674',
                         role_id: 0};
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(newPerson[0]);
             expect(scope.addNewMemberToCourse).toHaveBeenCalledWith(postParams, 'Test New User', newPerson[1]);
             expect(result).toEqual({ result: 'success' });
         });
