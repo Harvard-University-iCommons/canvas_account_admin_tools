@@ -771,19 +771,47 @@ describe('Unit testing PeopleController', function() {
             });
         });
 
-        xdescribe('clearMessages', function(){
+        describe('clearMessages', function(){
             it('should set all messages to null', function(){
-                scope.addPartialFailure = 'There has been a failure';
-                scope.addWarning = 'There has been an error';
-                scope.success = 'User added';
-                scope.removeFailure = 'Error removing user';
+                var messageBuckets = ['warnings'];
+                var messageKeys = ['progress', 'success'];
+                var scopeKeys = ['removeFailure'];
+                var trackingKeys = ['failures', 'successes', 'total',
+                    'totalFailures'];
+                var expectNoMessages = function() {
+                    messageBuckets.forEach(function (bucket) {
+                        expect(scope.messages[bucket]).toEqual([]);
+                    });
+                    messageKeys.forEach(function (key) {
+                        expect(scope.messages[key]).toBeNull();
+                    });
+                    scopeKeys.forEach(function (key) {
+                        expect(scope[key]).toBeNull();
+                    });
+                    trackingKeys.forEach(function (key) {
+                        expect(scope.tracking[key]).toEqual(0);
+                    });
+                };
 
-                scope.clearMessages();
-                ['success', 'addWarning',
-                    'partialFailureData', 'removeFailure'].forEach(function(scopeAttr) {
-                    var thing = scope[scopeAttr];
-                    expect(thing).toBeNull();
+                // fresh scope should be clear/clean
+                expectNoMessages();
+
+                messageBuckets.forEach(function (bucket) {
+                    scope.messages[bucket].push({ type: 'test'});
                 });
+                messageKeys.forEach(function (key) {
+                    scope.messages[key] = 1;  // random, meaningless number
+                });
+                scopeKeys.forEach(function (key) {
+                    scope[key] = 1;  // random, meaningless number
+                });
+                trackingKeys.forEach(function (key) {
+                    scope.tracking[key] = 1;  // random, meaningless number
+                });
+
+                // refreshed scope should also be clear/clean
+                scope.clearMessages();
+                expectNoMessages();
             });
         });
     });
