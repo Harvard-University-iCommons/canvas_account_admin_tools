@@ -182,60 +182,27 @@ describe('Unit testing PeopleController', function() {
     });
     describe('confirmAddPeopleToCourse', function() {
         beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'confirmAddPeopleToCourse test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
-        });
-
-        xit('reflects the right role and number of people', function() {
-
+            clearInitialCourseInstanceFetch();
             var searchTerm ="123456789, \n987654321";
-            //scope.selectedRole.roleName = "Student";
-            var searchTermList = [
-                ['123456789', ['123456789']],
-                ['987654321 ', ['987654321']],
-            ];
-            spyOn(scope, 'getSearchTermList').and.returnValue(searchTermList);
-            scope.confirmAddPeopleToCourse(searchTerm);
-
-            var modalScope = scope.modalInstance.scope();
-            expect(modalScope.numPeople).toEqual(2);
-            expect(modalScope.selectedRoleName).toEqual("Student");
-        });
-
-        it('initiates the process if confirmed', function() {
-            var searchTerm ="123456789, \n987654321";
-            var searchTermList = [
-                ['123456789', ['123456789']],
-                ['987654321 ', ['987654321']],
-            ];
-            spyOn(scope, 'getSearchTermList').and.returnValue(searchTermList);
             spyOn(scope, 'addPeopleToCourse');
             scope.confirmAddPeopleToCourse(searchTerm);
             scope.$digest();  // resolves modal instantiation
+        });
 
-            //The modalInstance in the controller had to be made a scope variable
-            scope.modalInstance.close();
+        // todo: cannot yet find a way to access the modal's controller scope
+        // within a test
+        it('reflects the right role and number of people');
+
+        it('initiates the process if confirmed', function() {
+            scope.confirmAddModalInstance.close();
             scope.$digest();  // resolves modalInstance result
             expect(scope.addPeopleToCourse).toHaveBeenCalled();
         });
 
         it('doesn\'t initiate the process if canceled', function() {
-        var searchTerm ="123456789, \n987654321";
-            var searchTermList = [
-                ['123456789', ['123456789']],
-                ['987654321 ', ['987654321']],
-            ];
-            spyOn(scope, 'getSearchTermList').and.returnValue(searchTermList);
-            spyOn(scope, 'addPeopleToCourse');
-            scope.confirmAddPeopleToCourse(searchTerm);
-            scope.$digest();  // resolves modal instantiation
-
-            scope.modalInstance.dismiss();
-            scope.$digest();  // resolves modalInstance result
+            scope.confirmAddModalInstance.dismiss();
+            scope.$digest();  // resolves confirmAddModalInstance result
             expect(scope.addPeopleToCourse).not.toHaveBeenCalled();
         });
 
