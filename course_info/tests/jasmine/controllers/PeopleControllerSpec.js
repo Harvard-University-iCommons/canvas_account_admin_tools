@@ -35,6 +35,13 @@ describe('Unit testing PeopleController', function() {
         '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2F';
     var coursePeopleURL = courseInstanceURL + 'people%2F';
 
+    // helper methods for DRYer code
+    function clearInitialCourseInstanceFetch() {
+        // handle the initial course instance get
+        $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+        $httpBackend.flush(1);
+    }
+
     // set up the test environment
     beforeEach(function() {
         // load in the app and the templates-as-module
@@ -98,12 +105,80 @@ describe('Unit testing PeopleController', function() {
         it('adds person if not in course and single profile available');
     });
     describe('addNewMemberToCourse', function() {
-        it('tracks non-partial failure, logs appropriate error message, and ' +
-            'does not reject promise chain');
-        it('tracks partial failure, logs appropriate error message, and does ' +
-            'not reject promise chain');
-        it('tracks successes');
-        it('updates the progress bar regardless of success/failure');
+        var user = {user_id: 'bobdobbs', role_id: 0};
+        var userJson = JSON.stringify(user);
+        var ajaxResponse;
+        var args = {postParams: user, name: 'test user', searchTerm:'123'};
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            spyOn(scope, 'updateProgressBar');
+            clearInitialCourseInstanceFetch();
+            scope.addNewMemberToCourse(args.postParams, args.name,
+                    args.searchTerm)
+                .then(function(response) { ajaxResponse = response; });
+        });
+        afterEach(function() {
+            // should update the progress bar regardless of success/failure
+            expect(scope.updateProgressBar).toHaveBeenCalled();
+        });
+
+        it('tracks successes', function() {
+            $httpBackend.expectPOST(coursePeopleURL, user)
+                .respond(201, userJson);
+            $httpBackend.flush(1);
+
+            expect(scope.tracking.successes).toEqual(1);
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+            expect(ajaxResponse.status).toEqual(201);
+            expect(ajaxResponse.data).toEqual(user);
+        });
+
+        describe('failure cases', function() {
+            beforeEach(function() {
+                spyOn(scope, 'handleAjaxErrorResponse');
+            });
+            afterEach(function() {
+                expect(scope.tracking.successes).toEqual(0);
+                expect(scope.tracking.failures).toEqual(1);
+                expect(ajaxResponse.status).toEqual(500);
+                expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            });
+            it('tracks non-partial failure, logs appropriate error message, ' +
+                'and does not reject promise chain', function() {
+                var expectedWarning = {
+                    type: 'addFailed', name: args.name, searchTerm: args.searchTerm
+                };
+                var testFailureData = {detail: 'test failure'};
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+            it('tracks partial failure, logs appropriate error message, and ' +
+                'does not reject promise chain', function() {
+                var testFailureData = {
+                    detail: 'Canvas API error details: testing'};
+                var expectedWarning = {
+                    type: 'partialFailure',
+                    failureDetail: testFailureData.detail,
+                    name: args.name,
+                    searchTerm: args.searchTerm
+                };
+
+                $httpBackend.expectPOST(coursePeopleURL, user)
+                    .respond(500, testFailureData);
+                $httpBackend.flush(1);
+
+                expect(scope.messages.warnings).toEqual([expectedWarning]);
+                expect(ajaxResponse.data).toEqual(testFailureData);
+            });
+        });
+
     });
     describe('confirmAddPeopleToCourse', function() {
         beforeEach(function() {
@@ -474,20 +549,10 @@ describe('Unit testing PeopleController', function() {
             expect(scope.dtInstance).toBeNull();
         });
 
-        xit('should set all message vars to null', function(){
-            ['success', 'addWarning',
-                'addPartialFailure', 'removeFailure'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).toBeNull();
-            });
-        });
-
-        xit('should have a bunch of non-null variables set up', function() {
+        it('should have a bunch of non-null variables set up', function() {
             ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
-                'searchResults', 'searchTerm', 'selectedResult',
                 'selectedRole'].forEach(function(scopeAttr) {
-                var thing = scope[scopeAttr];
-                expect(thing).not.toBeUndefined();
+                expect(scope[scopeAttr]).not.toBeUndefined();
             });
         });
     });
@@ -848,190 +913,6 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
-    xdescribe('addUser', function() {
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'addUser tests',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            spyOn(scope, 'addUserToCourse');
-            spyOn(scope, 'lookup');
-        });
-
-        it('should call lookup if there are no search results', function() {
-            scope.searchResults = [];
-            scope.addUser('bob');
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-            expect(scope.lookup.calls.count()).toEqual(1);
-            expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
-        });
-
-        it('should log an error if called with a single search result', function() {
-            scope.searchResults = [{}]; // contents don't matter
-            scope.addUser('bob');
-            expect($log.error.logs).toEqual(
-                [['Add user button pressed while we have a single search result']]);
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-            expect(scope.lookup.calls.count()).toEqual(0);
-        });
-
-        it('should call lookup if there are multiple search results and none selected',
-           function() {
-               scope.searchResults = [{}, {}];
-               scope.addUser('bob');
-               expect(scope.addNewMemberToCourse.calls.count()).toEqual(0);
-               expect(scope.lookup.calls.count()).toEqual(1);
-               expect(scope.lookup.calls.argsFor(0)).toEqual(['bob']);
-           }
-        );
-
-        it('should call addUserToCourse if there are multiple results and one selected',
-           function() {
-               scope.searchResults = [{}, {}];
-               scope.selectedResult = {id: 999};
-               scope.selectedRole = {roleId: 888};
-               scope.addUser('bob');
-               expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
-               expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
-                       ['bob', {user_id: scope.selectedResult.id,
-                                role_id: scope.selectedRole.roleId}]);
-           }
-        );
-    });
-
-    xdescribe('addUserToCourse', function() {
-        var user = {user_id: 'bobdobbs', role_id: 0};
-        var searchTerm = 'bob_dobbs@harvard.edu';
-        var enrollmentDetailsURL = coursePeopleURL + '&user_id=' + user.user_id;
-        var enrollmentDetails = {
-            results: [{
-                profile: {
-                    name_last: 'Dobbs',
-                    name_first: 'Bob',
-                    role_type_cd: 'STUDENT',
-                    univ_id: 'bobdobbs',
-                },
-                role: {
-                    role_name: 'Student',
-                }
-            }],
-        };
-
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'addUserToCourse test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            scope.operationInProgress = true;
-            scope.searchResults = [{}];
-        });
-
-        afterEach(function() {
-            // no matter what, we should end the search and clear the results.
-            expect(scope.operationInProgress).toBe(false);
-            expect(scope.searchResults).toEqual([]);
-        });
-
-        it('should alert and reload the datatable on success', function() {
-            var expectedSuccess = 
-                JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-            expectedSuccess.searchTerm = searchTerm;
-            expectedSuccess.action = 'added to';
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            // call it
-            scope.addNewMemberToCourse(searchTerm, user);
-
-            // trigger the ajax calls
-            $httpBackend.expectPOST(coursePeopleURL, user)
-                        .respond(201, JSON.stringify(user)); 
-            $httpBackend.expectGET(enrollmentDetailsURL)
-                        .respond(200, JSON.stringify(enrollmentDetails));
-            $httpBackend.flush(2);
-
-            // check to see if it's reacting correctly
-            expect(scope.success).toEqual(expectedSuccess);
-            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-        });
-
-        it('should alert and reload the datatable on a canvas partial failure',
-           function() {
-               var partialFailureResponse = {
-                   detail: "Error while enrolling user USER in Canvas section sis_section_id:SECTION. Canvas API error details: 403: {u'message': u\"Can't add an enrollment to a concluded course.\"}",
-               };
-               var expectedSuccess =
-                   JSON.parse(JSON.stringify(enrollmentDetails.results[0]));
-
-               var partialFailureData = {
-                   searchTerm: searchTerm,
-                   text: partialFailureResponse.detail,
-               };
-               expectedSuccess.searchTerm = searchTerm;
-               expectedSuccess.action = 'added to';
-               expectedSuccess.partialFailureData = partialFailureData;
-
-               // mock out the datatable so we can verify that it gets reloaded
-               scope.dtInstance = {reloadData: function(){}};
-               spyOn(scope.dtInstance, 'reloadData');
-
-               // call it
-               scope.addNewMemberToCourse(searchTerm, user);
-
-               // trigger the ajax calls
-               $httpBackend.expectPOST(coursePeopleURL, user)
-                           .respond(500, JSON.stringify(partialFailureResponse));
-               $httpBackend.expectGET(enrollmentDetailsURL)
-                           .respond(200, JSON.stringify(enrollmentDetails));
-               $httpBackend.flush(2);
-
-               // check to see if it's reacting correctly
-               expect(scope.success).toEqual(expectedSuccess);
-               expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-           }
-        );
-
-        it('should warn on failure to add the user', function() {
-            spyOn(scope, 'handleAjaxError');
-
-            scope.addNewMemberToCourse(searchTerm, user);
-
-            $httpBackend.expectPOST(coursePeopleURL, user).respond(500, '');
-            $httpBackend.flush(1);
-
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
-            expect(scope.addWarning).toEqual({type: 'addFailed',
-                                             searchTerm: searchTerm});
-        });
-
-        it('should handle a failure to get user enrollment after an apparent add success',
-           function() {
-               var expectedPartialFailure = {
-                   searchTerm: searchTerm,
-                   text: 'Add to course seemed to succeed, but we received ' +
-                         'an error trying to retrieve the user\'s course details.',
-               };
-               spyOn(scope, 'handleAjaxError');
-
-               scope.addNewMemberToCourse(searchTerm, user);
-
-               $httpBackend.expectPOST(coursePeopleURL, user)
-                           .respond(201, JSON.stringify(user)); 
-               $httpBackend.expectGET(enrollmentDetailsURL).respond(404, '');
-               $httpBackend.flush(2);
-
-               expect(scope.addPartialFailure).toEqual(expectedPartialFailure);
-               expect(scope.handleAjaxError.calls.count()).toEqual(1);
-           }
-        );
-    });
-
     xdescribe('handleLookupResults', function() {
         // NOTE: relies on filterSearchResults() working properly.  mocking
         //       its results wasn't worth it.
@@ -1105,7 +986,7 @@ describe('Unit testing PeopleController', function() {
                        ['bob_dobbs@harvard.edu',
                         {user_id: 456, role_id: 123}]);
             expect(scope.operationInProgress).toBe(true);
-        })
+        });
 
         it('should show choices and disable progress for multiple results',
            function() {
@@ -1127,88 +1008,6 @@ describe('Unit testing PeopleController', function() {
                expect(scope.operationInProgress).toBe(false);
            }
         );
-    });
-
-    xdescribe('lookup', function() {
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'lookup test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            spyOn(scope, 'handleLookupResults');
-        });
-
-        it('queries by email when appropriate', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-
-            scope.lookup(searchTerm);
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-        });
-
-        it('queries by user id when appropriate', function() {
-            var searchTerm = 'bobdobbs';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'univ_id': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'user_id': searchTerm});
-            };
-
-            scope.lookup(searchTerm);
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-        });
-
-        it('logs errors from the people endpoint', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-            spyOn(scope, 'handleAjaxError');
-            scope.lookup('bob_dobbs@harvard.edu');
-            $httpBackend.expectGET(peopleURLValidate).respond(500, '');
-            $httpBackend.expectGET(memberURLValidate).respond(200, '');
-            $httpBackend.flush(2);
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
-        });
-
-        it('logs errors from the course people endpoint', function() {
-            var searchTerm = 'bob_dobbs@harvard.edu';
-            var peopleURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'email_address': searchTerm});
-            };
-            var memberURLValidate = function(uri) {
-                return validateURIHasParameters(
-                           uri, {'profile.email_address': searchTerm});
-            };
-            spyOn(scope, 'handleAjaxError');
-            scope.lookup('bob_dobbs@harvard.edu');
-            $httpBackend.expectGET(peopleURLValidate).respond(200, '');
-            $httpBackend.expectGET(memberURLValidate).respond(500, '');
-            $httpBackend.flush(2);
-            expect(scope.handleAjaxError.calls.count()).toEqual(1);
-        });
     });
 
     describe('confirmRemove', function() {
@@ -1254,27 +1053,24 @@ describe('Unit testing PeopleController', function() {
         var courseMembershipURL = coursePeopleURL + membership.user_id;
 
         beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'confirmRemove test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
             controller = $controller('PeopleController', {$scope: scope});
+            clearInitialCourseInstanceFetch();
             scope.dtInstance = {reloadData: function(){}};
             spyOn(scope.dtInstance, 'reloadData');
         });
 
-        xit('should handle success', function() {
+        it('should handle success', function() {
             var expectedSuccess = JSON.parse(JSON.stringify(membership));
-            expectedSuccess.action = 'removed from';
-            expectedSuccess.searchTerm = 'Dobbs, Bob';
+            angular.extend(expectedSuccess,
+                {alertType: 'success', searchTerm: 'Dobbs, Bob', type: 'remove'}
+            );
 
             scope.removeMembership(membership);
 
             $httpBackend.expectDELETE(courseMembershipURL).respond(204, '');
             $httpBackend.flush(1);
 
-            expect(scope.success).toEqual(expectedSuccess);
+            expect(scope.messages.success).toEqual(expectedSuccess);
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
         });
 
