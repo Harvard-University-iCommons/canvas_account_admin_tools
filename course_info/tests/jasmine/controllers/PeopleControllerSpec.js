@@ -98,11 +98,115 @@ describe('Unit testing PeopleController', function() {
         it('won\'t bother waiting for profile lookups or POSTing new members ' +
             'if course membership lookup fails');
     });
+
     describe('addNewMember', function() {
-        it('won\'t add person if they already have a course enrollment');
-        it('won\'t add if they could not be found via /people lookup');
-        it('won\'t add if multiple profiles returned by /people lookup');
-        it('adds person if not in course and single profile available');
+
+        var personResult = [];
+        var members = {};
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            //var members = {};
+            members["12345678"] = [{
+                        active: 1,
+                        email_address: "test45@mcelroy.org",
+                        name_first: "Test",
+                        name_last: "User",
+                        prime_role_indicator: "Y",
+                        role_type_cd: "STUDENT",
+                        univ_id: "12345678"
+                    }];
+            members["43215678"] = [{
+                        active: 1,
+                        email_address: "test46@mcelroy.org",
+                        name_first: "Peter",
+                        name_last: "Smith",
+                        prime_role_indicator: "Y",
+                        role_type_cd: "STUDENT",
+                        univ_id: "43215678"
+                    }];
+
+            personResult.push(
+                {
+                    active: 1,
+                    email_address: "test45@mcelroy.org",
+                    name_first: "Test",
+                    name_last: "User",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "12345678"
+                },
+                ["test45@mcelroy.org"]
+            );
+        });
+        afterEach(function() {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+        it('won\'t add person if they already have a course enrollment', function(){
+            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0]]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(personResult, members);
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
+            expect(result).toBeNull();
+        });
+        it('won\'t add if they could not be found via /people lookup', function(){
+            var personResult = [{}, ["test45@mcelroy.org"]];
+            spyOn(scope, 'filterSearchResults').and.returnValue([]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(personResult, members);
+            expect(scope.messages.warnings).toEqual([{type: 'notFound',
+                    searchTerm: personResult[1]}]);
+            expect(scope.getProfileFullName).not.toHaveBeenCalled();
+
+            expect(result).toBeNull();
+        });
+        it('won\'t add if multiple profiles returned by /people lookup', function(){
+            var secondPerson = {
+                    active: 1,
+                    email_address: "test48@mcelroy.org",
+                    name_first: "Test",
+                    name_last: "User2",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "12345675"
+                };
+            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0], secondPerson]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(personResult, members);
+            expect(scope.messages.warnings[0].type).toEqual('multipleProfiles');
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
+            expect(result).toBeNull();
+        });
+        it('adds person if not in course and single profile available', function(){
+            var newPerson = [
+                {
+                    active: 1,
+                    email_address: "test49@mcelroy.org",
+                    name_first: "Test",
+                    name_last: "New User",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: '12345674'
+                },
+                ["test49@mcelroy.org"]
+            ];
+            spyOn(scope, 'filterSearchResults').and.returnValue([newPerson[0]]);
+            spyOn(scope, 'getProfileFullName').and.returnValue('Test New User');
+            spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
+            var result = scope.addNewMember(newPerson, members);
+            var postParams = {
+                        user_id: '12345674',
+                        role_id: 0};
+            expect(scope.getProfileFullName).toHaveBeenCalledWith(newPerson[0]);
+            expect(scope.addNewMemberToCourse).toHaveBeenCalledWith(postParams, 'Test New User', newPerson[1]);
+            expect(result).toEqual({ result: 'success' });
+        });
     });
     describe('addNewMemberToCourse', function() {
         var user = {user_id: 'bobdobbs', role_id: 0};
@@ -856,103 +960,6 @@ describe('Unit testing PeopleController', function() {
                 expectNoMessages();
             });
         });
-    });
-
-    xdescribe('handleLookupResults', function() {
-        // NOTE: relies on filterSearchResults() working properly.  mocking
-        //       its results wasn't worth it.
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'handleLookupResults test',
-            };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            scope.operationInProgress = true;
-        });
-
-        it('should warn and disable progress if the user is already enrolled',
-           function() {
-               var peopleResult = {}; // content doesn't matter
-               var memberResult = {
-                   data: {results:
-                              [{profile: {name_last: 'Dobbs',
-                                          name_first: 'Bob'}}]},
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var expectedWarning = {
-                   type: 'alreadyInCourse',
-                   fullName: 'Dobbs, Bob',
-                   memberships: memberResult.data.results,
-                   searchTerm: 'bob_dobbs@harvard.edu',
-               };
-
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
-
-        it('should warn and disable progress if the user is not found',
-           function() {
-               var peopleResult = {
-                   data: {results: []},
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var memberResult = {data: {results: []}};
-               var expectedWarning = {
-                   type: 'notFound',
-                   searchTerm: 'bob_dobbs@harvard.edu',
-               };
-
-               scope.searchTerm = 'bob_dobbs@harvard.edu';
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.addWarning).toEqual(expectedWarning);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
-
-        it('should call addUserToCourse if one result is found', function() {
-            var peopleResult = {
-                data: {
-                    results: [
-                        {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
-                    ],
-                },
-                config: {searchTerm: 'bob_dobbs@harvard.edu'},
-            };
-            var memberResult = {data: {results: []}};
-            spyOn(scope, 'addUserToCourse');
-
-            scope.selectedRole = {roleId: 123};
-            scope.handleLookupResults([peopleResult, memberResult]);
-            expect(scope.addNewMemberToCourse.calls.count()).toEqual(1);
-            expect(scope.addNewMemberToCourse.calls.argsFor(0)).toEqual(
-                       ['bob_dobbs@harvard.edu',
-                        {user_id: 456, role_id: 123}]);
-            expect(scope.operationInProgress).toBe(true);
-        });
-
-        it('should show choices and disable progress for multiple results',
-           function() {
-               var peopleResult = {
-                   data: {
-                       results: [
-                           {univ_id: 456, active: 0, prime_role_indicator: 'Y'},
-                           {univ_id: 789, active: 0, prime_role_indicator: 'Y'},
-                       ],
-                   },
-                   config: {searchTerm: 'bob_dobbs@harvard.edu'},
-               };
-               var memberResult = {data: {results: []}};
-               var filteredResults = scope.filterSearchResults(
-                                         peopleResult.data.results);
-
-               scope.handleLookupResults([peopleResult, memberResult]);
-               expect(scope.searchResults).toEqual(filteredResults);
-               expect(scope.operationInProgress).toBe(false);
-           }
-        );
     });
 
     describe('confirmRemove', function() {
