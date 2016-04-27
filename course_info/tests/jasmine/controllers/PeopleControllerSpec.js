@@ -1,30 +1,3 @@
-// Regex taken from Errata #2624 (https://www.rfc-editor.org/errata_search.php?rfc=3986),
-// filed against RFC 3986 (https://www.rfc-editor.org/info/rfc3986) Appendix B
-// The RFC appendix explains the different capture groups.  The query string is $7.
-var URIRegex = /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
-function getParametersFromURI(uri) {
-    var URIComponents = URIRegex.exec(decodeURI(uri));
-    var paramStrings = URIComponents[7].split('&');
-    var params = {};
-    paramStrings.forEach(function(paramString) {
-        var kv = paramString.split('=');
-        params[kv[0]] = kv[1];
-    });
-    return params;
-}
-
-// needed to let angular expect a url where the parameter order may vary
-// (as urls created by djangoUrl in the controller do).
-function validateURIHasParameters(uri, params) {
-    var actualParams = getParametersFromURI(uri);
-    for (var key in params) {
-        if (actualParams[key] !== params[key]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 describe('Unit testing PeopleController', function() {
     var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
         $httpBackend, $window, $log, $uibModal, $templateCache, angularDRF, $q;
@@ -92,11 +65,102 @@ describe('Unit testing PeopleController', function() {
 
     // todo: these need to be checked and moved into alphabetical position in the test file
     describe('addPeopleToCourse', function() {
+        // input to addPeopleToCourse
+        var searchTermList = ['12345678', 'user@example.edu'];
+
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.flush(1);
+        });
+
         it('will add people as soon as their lookup is complete without ' +
-            'waiting on all people lookups to complete');
-        it('won\'t attempt to add anyone until course membership is available');
+                'waiting on all people lookups to complete', function() {
+            // value we'll be resolving from one of the people promises
+            var personResult = [{univ_id: searchTermList[0]}, searchTermList[0]];
+            // promise returned from lookupCourseMembers
+            var memberPromise = $q.resolve([]);
+            // promises returned from lookupPeople.  only one is resolved.
+            var peoplePromises = [$q.resolve(personResult),
+                                  $q.defer().promise];
+
+            // set up spies on methods addPeopleToCourse calls out to
+            spyOn(scope, 'lookupCourseMembers').and.returnValue(memberPromise);
+            spyOn(scope, 'lookupPeople').and.returnValue(peoplePromises);
+
+            // this is the one we're making sure only gets called once
+            spyOn(scope, 'addNewMember');
+
+            // run it
+            scope.addPeopleToCourse(searchTermList);
+            scope.$digest();
+
+            // make sure it was called once with the right args
+            expect(scope.addNewMember).toHaveBeenCalledTimes(1);
+            expect(scope.addNewMember.calls.argsFor(0)[0]).toBe(personResult);
+        });
+
+        it('won\'t attempt to add anyone until course membership is available',
+                function() {
+            // promise returned from lookupCourseMembers, but we need the
+            // deferred it's derived from so we can resolve it later.
+            var memberDeferred = $q.defer();
+            // promises returned from lookupPeople, already resolved
+            var peoplePromises = [$q.resolve([]), $q.resolve([])];
+
+            // set up spies on methods addPeopleToCourse calls out to
+            spyOn(scope, 'lookupCourseMembers')
+                .and.returnValue(memberDeferred.promise);
+            spyOn(scope, 'lookupPeople').and.returnValue(peoplePromises);
+
+            // this is the one we're making sure doesn't get called
+            spyOn(scope, 'addNewMember');
+
+            // run it
+            scope.addPeopleToCourse(searchTermList);
+            scope.$digest();
+
+            // make sure it wasn't called
+            expect(scope.addNewMember).not.toHaveBeenCalled();
+
+            // now resolve the memberDeferred
+            memberDeferred.resolve([]);
+            scope.$digest();
+
+            // and affirm it was called, so we know it's not just a broken test
+            expect(scope.addNewMember).toHaveBeenCalledTimes(2);
+        });
+
         it('won\'t bother waiting for profile lookups or POSTing new members ' +
-            'if course membership lookup fails');
+                'if course membership lookup fails', function() {
+            // promise returned from lookupCourseMembers
+            var memberPromise = $q.reject(new Error());
+            // promises returned from lookupPeople
+            var peoplePromises = [$q.defer().promise, $q.defer().promise];
+
+            // set up spies on methods addPeopleToCourse calls out to
+            spyOn(scope, 'lookupCourseMembers').and.returnValue(memberPromise);
+            spyOn(scope, 'lookupPeople').and.returnValue(peoplePromises);
+
+            // this is the one we're making sure doesn't get called
+            spyOn(scope, 'addNewMember');
+
+            // and this is the one that should
+            spyOn(scope, 'showAddNewMemberResults');
+
+            // run it
+            scope.addPeopleToCourse(searchTermList);
+            scope.$digest();
+
+            // make sure the POST wasn't done
+            expect(scope.addNewMember).not.toHaveBeenCalled();
+
+            // and that the results were updated, despite the profile lookups
+            // being unresolved.
+            expect(scope.showAddNewMemberResults).toHaveBeenCalled();
+        });
     });
 
     describe('addNewMember', function() {
