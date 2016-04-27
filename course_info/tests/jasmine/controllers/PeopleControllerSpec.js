@@ -358,9 +358,29 @@ describe('Unit testing PeopleController', function() {
             scope.$digest();  // resolves modal instantiation
         });
 
-        // todo: cannot yet find a way to access the modal's controller scope
-        // within a test
-        it('reflects the right role and number of people');
+        it('reflects the right role and number of people', function() {
+            // NOTE: currently, the modal scope shows up as a sibling of our
+            // application scope, so we're only looking there.  if that changes,
+            // this logic may need to be extended to walk the tree from
+            // $rootScope.
+            var modalScope;
+            for (modalScope = scope.$$nextSibling;
+                    modalScope != null; modalScope = modalScope.$$nextSibling) {
+                if (modalScope.hasOwnProperty('numPeople')  &&
+                        modalScope.hasOwnProperty('selectedRoleName')) {
+                    break;
+                }
+            }
+
+            // if modalScope is null, we couldn't find the modal's scope
+            expect(modalScope).not.toBeNull();
+
+            expect(modalScope.numPeople).toEqual(2); // 2 items in searchTerm
+            // this is kinda tautological, since the modal scope gets its
+            // value from scope.selectedRole.roleName, but doesn't hurt.
+            expect(modalScope.selectedRoleName)
+                .toEqual(scope.selectedRole.roleName);
+        });
 
         it('initiates the process if confirmed', function() {
             scope.confirmAddModalInstance.close();
