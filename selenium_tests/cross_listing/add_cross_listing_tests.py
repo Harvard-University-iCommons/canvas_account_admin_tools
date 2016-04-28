@@ -1,7 +1,6 @@
 from ddt import ddt, data, unpack
 
 from selenium_common.base_test_case import get_xl_data
-from selenium_common.base_page_object import BasePageObject
 
 from selenium_tests.cross_listing.cross_listing_base_test_case import \
     CrossListingBaseTestCase, TEST_DATA_CROSS_LISTING_MAPPINGS
@@ -25,15 +24,17 @@ class AddCrossListingTests(CrossListingBaseTestCase):
         # Adds the pairing
         self.assertTrue(
                 self.index_page.add_cross_listing_pairing(primary_cid,
-                                                          secondary_cid))
+                                                          secondary_cid)
+        )
 
         # Verifies alert confirmation appears on page
         self.assertTrue(
-                self.index_page.confirm_presence_of_some_alert_box())
+                self.index_page.confirm_presence_of_confirmation_alert()
+        )
 
-        # Verifies that that course is added successfully or failed,
-        # based on either search by ID or by confirmation text only - TBD
-
+        # Verifies that that course is added successfully.
+        # TODO: I might have to recondition this whole thing to to check by
+        # failed conditions
         self.assertTrue(
-                self.index_page._confirm_based_on_alert_text_or_search_by_text_on_page()
-        # TODO:  based on expected result?
+                self.index_page.confirm_successful_add_by_id(primary_cid,
+                                                             secondary_cid))
