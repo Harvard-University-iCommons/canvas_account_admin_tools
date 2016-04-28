@@ -27,7 +27,7 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                                                           secondary_cid)
         )
 
-        # Verifies alert confirmation appears 
+        # Verifies alert confirmation appears
         self.assertTrue(
                 self.index_page.confirm_presence_of_confirmation_alert()
         )
