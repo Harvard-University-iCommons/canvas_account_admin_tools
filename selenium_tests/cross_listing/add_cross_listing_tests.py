@@ -27,14 +27,27 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                                                           secondary_cid)
         )
 
-        # Verifies alert confirmation appears on page
+        # Verifies alert confirmation appears 
         self.assertTrue(
                 self.index_page.confirm_presence_of_confirmation_alert()
         )
 
-        # Verifies that that course is added successfully.
-        # TODO: I might have to recondition this whole thing to to check by
-        # failed conditions
-        self.assertTrue(
-                self.index_page.confirm_successful_add_by_id(primary_cid,
-                                                             secondary_cid))
+        # Verifies the cids are on page if it's successfully cross-listed
+        if expected_result == 'success':
+            self.assertTrue(self.index_page.is_add_successful())
+
+        # Verifies error message if cross-listing is unsuccessful
+        if expected_result == 'fail':
+            expected_text = "EXPECTED ERROR MESSAGE" # TODO:need error
+            actual_text = self.index_page.get_confirmation_text()
+            self.assertEqual(actual_text, expected_text,
+                             "Error. Expected error is '{}' but error is "
+                             "returning '{}'".format(expected_text,
+                                                     actual_text))
+
+        # test_data must contain a value in expected result column.
+        else:
+            raise ValueError('given_access column for expected result {} must '
+                             'be either '
+                             '\'fail\' or \'success\''.format(expected_result)
+                             )
