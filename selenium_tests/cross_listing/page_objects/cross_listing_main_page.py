@@ -1,7 +1,7 @@
 """
 This page models the main (landing) page of the Cross Listing Tool
 """
-
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
@@ -9,47 +9,73 @@ from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
 
 
 class Locators(object):
-    HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
-    # TODO STUBS:
-    ADD_ALERT_TEXT = (By.ID, 'SOME_ALERT_BOX')
-    PRIMARY_INSTANCE_ADD_FIELD = (By.ID, 'PRIMARY_ELEMENT')
-    SECONDARY_INSTANCE_ADD_FIELD = (By.ID, 'SECONDARY_ELEMENT')
+    # TODO STUBS -- TO BE CLEANED UP ONCE ACTUAL LOCATORS ARE AVAIALBLE:
     ADD_CROSS_LISTING_BUTTON = (By.ID, "SOME_SUBMIT_BUTTON")
+    CONFIRMATION_ALERT  = (By.ID, 'SOME_ALERT_BOX')
+    HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
+    PRIMARY_CID_ADD_FIELD = (By.ID, 'PRIMARY_ELEMENT')
+    SECONDARY_CID_ADD_FIELD = (By.ID, 'SECONDARY_ELEMENT')
 
 
 class MainPageObject(CrossListingBasePageObject):
     page_loaded_locator = Locators.HEADING_ELEMENT
 
     #TODO: This is a stub
-    def add_cross_listing_pairing(self, course_instance_1, course_instance_2):
+    def add_cross_listing_pairing(self, primary_cid, secondary_cid):
         """Add two cross listed ID to be paired in cross-listing tool"""
 
-        PRIMARY_COURSE_INSTANCE= self.find_element(*By PRIMARY_CI LOCATOR)
-        # Enter value for primary course instance
-        PRIMARY_COURSE_INSTANCE.send_keys(course_instance_1)
+        # Fill in the primary CID for cross-listing
+        primary_cid_field = self.find_element(*Locators.PRIMARY_CID_ADD_FIELD)
+        primary_cid_field.send_keys(primary_cid)
 
-        SECONDARY_COURSE_INSTANCE = self.find_element(*By SECONDARY_CI LOCATOR)
-        # Enter value for secondary course instance
-        SECONDARY_COURSE_INSTANCE.send_keys(course_instance_2)
+        # Fill in the secondary CID field for cross-listing
+        secondary_cid_field = self.find_element(*Locators.SECONDARY_CID_ADD_FIELD)
+        secondary_cid_field.send_keys(secondary_cid)
 
-        # Click on Add to Pair Cross_Listing Course
-        self.find_element(by Add Paring --Submit Locator)
+        # Click on submit button to pair the cross listing
+        self.find_element(*Locators.ADD_CROSS_LISTING_BUTTON)
 
     #TODO:  This is a stub only
 
-    def confirm_alert_text(self):
+    def confirm_presence_of_confirmation_alert(self):
         """
         :param self:
-        :return: Confirms that an alert box returns after add indicating
-        the presence of alert box.
+        :return: Confirms that an alert box returns after add
         """
-        alert_message = self.find_element(Locators.alert_box)
-        if element is present:
+        try:
+            self.find_element(*Locators.CONFIRMATION_ALERT)
+        except NoSuchElementException:
+            return False
+
+
+    # TODO:  This is a stub only.  May not need this is we're checking by
+    # confirm text only
+
+    def confirm_successful_add_by_id (self, primary_cid, secondary_cid):
+        """This confirms successful add by checking on presence
+        of the primary_cid in the table"""
+
+        ci_search = CrossListingBasePageObject(self.driver)
+
+
+        # TODO: Possibility of making this clearer?
+        # If both check_primary and check_secondary does not return NONE (
+        # from "get_cell_with_text" method, then this indicates that the
+        # primary and secondary IDs are on the page, indicating successful
+        # add.  This method should then return True.
+
+        check_primary = ci_search.get_cell_with_text(primary_cid)
+        check_secondary = ci_search.get_cell_with_text(secondary_cid)
+
+        if check_secondary =! "None":
             return True
         else:
             return False
 
-    #TODO:  This is a stub only
+
+    #   TODO:  This is a stub only.  This one still requires a some
+    # thought/logic.
+
     def confirm_success_alert_text(self, success/failure indicator_in_xls):
         """
         :param self:
@@ -59,24 +85,4 @@ class MainPageObject(CrossListingBasePageObject):
         alert_message = self.find_element(Locators.alert_box)
         text = alert_message.text
         return text
-
-
-    #TODO:  This is a stub only.
-    def confirm_successful_add_by_id (self, course_instance_1,
-                                      course_instance_2):
-        """This confirms successful add by verifying that the
-        course instance ID are on the search.  May not be needed if we're
-        only checking by success or failure text only"""
-        self.search_page = CrossListingBasePageObject(self.driver)
-        element1 = self.search_page.get_cell_with_text(course_instance_1)
-        element2 = self.search_page.get_cell_with_text(course_instance_2)
-
-
-        if element 1 and element 2 is not none:
-        #TO: can I condition this against if element1 AND element2 is on the page,
-        # then return true and false? Look into how to write this
-
-        #if element is not None:
-            return True
-        return False
 
