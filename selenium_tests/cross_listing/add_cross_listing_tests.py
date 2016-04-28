@@ -19,8 +19,6 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                                             primary_cid, secondary_cid,
                                             expected_result):
 
-        # TODO: This is a test stub only:
-
         # Adds the pairing
         self.assertTrue(
                 self.index_page.add_cross_listing_pairing(primary_cid,
@@ -38,7 +36,7 @@ class AddCrossListingTests(CrossListingBaseTestCase):
 
         # Verifies error message if cross-listing is unsuccessful
         if expected_result == 'fail':
-            expected_text = "EXPECTED ERROR MESSAGE" # TODO:need error
+            expected_text = "EXPECTED ERROR MESSAGE"  # TODO:need error
             actual_text = self.index_page.get_confirmation_text()
             self.assertEqual(actual_text, expected_text,
                              "Error. Expected error is '{}' but error is "
