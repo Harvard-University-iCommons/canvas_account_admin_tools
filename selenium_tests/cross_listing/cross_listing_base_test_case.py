@@ -1,7 +1,14 @@
+from django.conf import settings
+from os.path import abspath, dirname, join
+from urlparse import urljoin
+
 from selenium_tests.canvas_account_admin_tools_base_test_case \
     import AccountAdminBaseTestCase
 from selenium_tests.cross_listing.page_objects.cross_listing_main_page \
     import MainPageObject
+
+TEST_DATA_CROSS_LISTING_MAPPINGS = join(dirname(abspath(
+        __file__)), 'test_data', 'cross_listing_mappings.xlsx')
 
 
 class CrossListingBaseTestCase(AccountAdminBaseTestCase):
