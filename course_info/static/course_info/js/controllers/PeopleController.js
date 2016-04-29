@@ -40,9 +40,7 @@
                     // the user already has an enrollment in the course
                     $scope.messages.warnings.push({
                         type: 'alreadyInCourse',
-                        // the memberships don't come with names, so get it
-                        // from the search results
-                        name: $scope.getProfileFullName(filteredResults[0]),
+                        name: $scope.getProfileFullName(memberRecordsInCourse[0]),
                         memberships: memberRecordsInCourse,
                         searchTerm: searchTerm
                     });
@@ -196,12 +194,13 @@
         };
         $scope.confirmAddPeopleToCourse = function(searchTerms) {
             var searchTermList = $scope.getSearchTermList(searchTerms);
-            // open a modal confirmation box and as the user to verify they want to add
-            // the number of users they entered.
+            // open a modal confirmation box and as the user to verify they want
+            // to add the number of users they entered.
             $scope.confirmAddModalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'partials/add-people-to-course-confirmation.html',
-                controller: function ($scope, $uibModalInstance, numPeople, selectedRoleName) {
+                controller: function ($scope, $uibModalInstance, numPeople,
+                                      selectedRoleName) {
                     $scope.numPeople = numPeople;
                     $scope.selectedRoleName = selectedRoleName;
                 },
@@ -226,8 +225,6 @@
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
 
-            // this is a temp fix to change the display text of the role "Teaching Fellow" to "TA"
-            // a more perm solution is being discussed, but will involve talking to the schools.
             if (membership && membership.role &&
                     membership.role.role_name == "Teaching Fellow") {
                 membership.role.role_name = "TA";
@@ -340,7 +337,7 @@
                     memberCopy.role.role_name = "TA";
                 }
                 membersByUserId[memberCopy.user_id] =
-                     (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
+                    (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
             });
             return membersByUserId;
         };

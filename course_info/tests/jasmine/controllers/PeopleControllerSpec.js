@@ -14,6 +14,11 @@ describe('Unit testing PeopleController', function() {
         $httpBackend.expectGET(courseInstanceURL).respond(200, '');
         $httpBackend.flush(1);
     }
+    function setupController() {
+        controller = $controller('PeopleController', {$scope: scope});
+        clearInitialCourseInstanceFetch();
+    }
+    // end helper methods
 
     // set up the test environment
     beforeEach(function() {
@@ -37,8 +42,8 @@ describe('Unit testing PeopleController', function() {
             angularDRF = _angularDRF_;
             $q = _$q_;
 
-            // this comes from django_auth_lti, just stub it out so that the $httpBackend
-            // sanity checks in afterEach() don't fail
+            // this comes from django_auth_lti, just stub it out so that the
+            // $httpBackend sanity checks in afterEach() don't fail
             $window.globals = {
                 append_resource_link_id: function(url) { return url; },
             };
@@ -63,18 +68,11 @@ describe('Unit testing PeopleController', function() {
         });
     });
 
-    // todo: these need to be checked and moved into alphabetical position in the test file
     describe('addPeopleToCourse', function() {
         // input to addPeopleToCourse
         var searchTermList = ['12345678', 'user@example.edu'];
 
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
+        beforeEach(setupController);
 
         it('will add people as soon as their lookup is complete without ' +
                 'waiting on all people lookups to complete', function() {
@@ -162,36 +160,11 @@ describe('Unit testing PeopleController', function() {
             expect(scope.showAddNewMemberResults).toHaveBeenCalled();
         });
     });
-
     describe('addNewMember', function() {
 
-        var personResult = [];
-        var members = {};
-
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-            //var members = {};
-            members["12345678"] = [{
-                        active: 1,
-                        email_address: "test45@mcelroy.org",
-                        name_first: "Test",
-                        name_last: "User",
-                        prime_role_indicator: "Y",
-                        role_type_cd: "STUDENT",
-                        univ_id: "12345678"
-                    }];
-            members["43215678"] = [{
-                        active: 1,
-                        email_address: "test46@mcelroy.org",
-                        name_first: "Peter",
-                        name_last: "Smith",
-                        prime_role_indicator: "Y",
-                        role_type_cd: "STUDENT",
-                        univ_id: "43215678"
-                    }];
-
-            personResult.push(
-                {
+        var members = {
+            12345678:
+                [{
                     active: 1,
                     email_address: "test45@mcelroy.org",
                     name_first: "Test",
@@ -199,16 +172,33 @@ describe('Unit testing PeopleController', function() {
                     prime_role_indicator: "Y",
                     role_type_cd: "STUDENT",
                     univ_id: "12345678"
-                },
-                ["test45@mcelroy.org"]
-            );
-        });
-        afterEach(function() {
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
+                }],
+            43215678:
+                [{
+                    active: 1,
+                    email_address: "test46@mcelroy.org",
+                    name_first: "Peter",
+                    name_last: "Smith",
+                    prime_role_indicator: "Y",
+                    role_type_cd: "STUDENT",
+                    univ_id: "43215678"
+                }]
+        };
+        var personResult = [
+            {
+                active: 1,
+                email_address: "test45@mcelroy.org",
+                name_first: "Test",
+                name_last: "User",
+                prime_role_indicator: "Y",
+                role_type_cd: "STUDENT",
+                univ_id: "12345678"
+            },
+            ["test45@mcelroy.org"]
+        ];
+
+        beforeEach(setupController);
+
         it('won\'t add person if they already have a course enrollment', function(){
             spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0]]);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
@@ -279,9 +269,8 @@ describe('Unit testing PeopleController', function() {
         var args = {postParams: user, name: 'test user', searchTerm:'123'};
 
         beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
+            setupController();
             spyOn(scope, 'updateProgressBar');
-            clearInitialCourseInstanceFetch();
             scope.addNewMemberToCourse(args.postParams, args.name,
                     args.searchTerm)
                 .then(function(response) { ajaxResponse = response; });
@@ -350,8 +339,7 @@ describe('Unit testing PeopleController', function() {
     });
     describe('confirmAddPeopleToCourse', function() {
         beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope});
-            clearInitialCourseInstanceFetch();
+            setupController();
             var searchTerm ="123456789, \n987654321";
             spyOn(scope, 'addPeopleToCourse');
             scope.confirmAddPeopleToCourse(searchTerm);
@@ -378,6 +366,7 @@ describe('Unit testing PeopleController', function() {
             expect(modalScope.numPeople).toEqual(2); // 2 items in searchTerm
             // this is kinda tautological, since the modal scope gets its
             // value from scope.selectedRole.roleName, but doesn't hurt.
+            // note: default is Student, so this checks that it propagates
             expect(modalScope.selectedRoleName)
                 .toEqual(scope.selectedRole.roleName);
         });
@@ -395,495 +384,27 @@ describe('Unit testing PeopleController', function() {
         });
 
     });
-    describe('getMembersByUserId', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
+    describe('confirmRemove', function() {
+        beforeEach(setupController);
+
+        it('should stick the instance on the scope', function() {
+            scope.confirmRemove();
+            expect(scope.confirmRemoveModalInstance).not.toBeNull();
         });
-        afterEach(function() {
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-        it('maps enrollments to IDs', function() {
-            var memberList = [{
-                    "role": {
-                        "canvas_role": "student",
-                        "role_id": 101,
-                        "role_name": "Teaching Fellow"
-                    },
-                    "source": "xmlfeed",
-                    "user_id": "12345678",
-                    "profile": {
-                        "active": 1,
-                        "email_address": "smith@harvard.edu",
-                        "name_first": "Sarah",
-                        "name_last": "Smith",
-                        "prime_role_indicator": "Y",
-                        "role_type_cd": "STUDENT",
-                        "univ_id": "12345678"
-                    }
-                },
-                {
-                    "role": {
-                        "canvas_role": "student",
-                        "role_id": 102,
-                        "role_name": "TA"
-                    },
-                    "source": "xmlfeed",
-                    "user_id": "87654321",
-                    "profile": {
-                        "active": 1,
-                        "email_address": "smith@harvard.edu",
-                        "name_first": "kid",
-                        "name_last": "smart",
-                        "prime_role_indicator": "Y",
-                        "role_type_cd": "STUDENT",
-                        "univ_id": "87654321"
-                    }
-                }];
-            var result = scope.getMembersByUserId(memberList);
-            memberList[0].role.role_name = 'TA';
-            expect(result).toEqual({12345678: [memberList[0]], 87654321: [memberList[1]]});
-        });
+
+        it('should call removeMembership and remove itself from the scope on close',
+           function() {
+               var membership = {};
+               spyOn(scope, 'removeMembership');
+               scope.confirmRemove();
+               scope.$digest();  // resolves modal instantiation
+               scope.confirmRemoveModalInstance.close(membership);
+               scope.$digest();  // resolves confirmRemoveModalInstance result
+               expect(scope.removeMembership).toHaveBeenCalled();
+               expect(scope.confirmRemoveModalInstance).toBeNull();
+           }
+        );
     });
-    describe('getSearchTermList', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('returns a list of trimmed search terms split on comma and newline', function() {
-            var testCases = [
-                // [inputString, expectedResults],
-                ['123456789', ['123456789']],
-                [' 123456789 ', ['123456789']],
-                ['123456789,987654321', ['123456789', '987654321']],
-                ['123456789   \t,\t\t\t987654321', ['123456789', '987654321']],
-                ['123456789\n987654321', ['123456789', '987654321']],
-                [' 123456789 \n 987654321 ', ['123456789', '987654321']],
-                [' ,123456789, ,\n, ,987654321, ,', ['123456789', '987654321']],
-            ];
-
-            testCases.forEach(function(testCase) {
-                var inputString = testCase[0];
-                var expectedResults = testCase[1];
-                expect(scope.getSearchTermList(inputString))
-                      .toEqual(expectedResults);
-            });
-        });
-    });
-    describe('lookupCourseMembers', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-
-            // pass through to the $http backend to get a promise
-            spyOn(angularDRF, 'get').and.callThrough();
-        });
-
-        afterEach(function() {
-            // flush the $http backend call that angularURL makes for us.
-            // assumes that the angularDRF.get call params were validated,
-            // so we don't have to care about the url.
-            $httpBackend.expectGET(function(url) { return true; })
-                        .respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('makes the expected call and returns a promise', function() {
-            var promise = scope.lookupCourseMembers();
-
-            // verifying the return value has a `then()` method is as close
-            // as we get to verify we got back a promise.
-            expect(angular.isFunction(promise.then)).toBe(true);
-
-            // ensure the url and some of the params are what we expect
-            expect(angularDRF.get).toHaveBeenCalledTimes(1);
-            var callArgs = angularDRF.get.calls.argsFor(0);
-            expect(callArgs[0]).toEqual(coursePeopleURL);
-            expect(callArgs[1].params['-source']).toEqual('xreg_map');
-            expect(callArgs[1].drf.hasOwnProperty('pageSize')).toBe(true);
-        });
-    });
-    describe('lookupPeople', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('creates people lookups that are tracked in controller scope on ' +
-                'failure', function() {
-            // sanity check the scope before calling lookupPeople
-            expect(scope.tracking.failures).toEqual(0);
-            expect(scope.messages.warnings).toEqual([]);
-
-            // set up the spy to reject
-            spyOn(angularDRF, 'get').and.returnValue($q.reject(new Error()));
-
-            // call it, then digest to process the rejection
-            var promiseList = scope.lookupPeople(['12345678']);
-            scope.$digest();
-
-            // verify that the failures are marked on the scope
-            expect(scope.tracking.failures).toEqual(1);
-            expect(scope.messages.warnings)
-                .toEqual([{type: 'personLookupFailed', searchTerm: '12345678'}]);
-        });
-
-        it('creates appropriate person lookups (id or email)', function() {
-            var testCases = [
-                // [searchTerms, expectedParams]
-                [['user@example.edu'], [{email_address: 'user@example.edu'}]],
-                [['12345678'], [{univ_id: '12345678'}]],
-                [['user@example.edu', '12345678'],
-                 [{email_address: 'user@example.edu'}, {univ_id: '12345678'}]],
-            ];
-
-            spyOn(angularDRF, 'get').and.returnValue($q.resolve());
-
-            testCases.forEach(function (testCase) {
-                var searchTerms = testCase[0];
-                var expectedParams = testCase[1];
-
-                var promiseList = scope.lookupPeople(searchTerms);
-                expect(promiseList.length).toEqual(searchTerms.length);
-                expect(angularDRF.get).toHaveBeenCalledTimes(searchTerms.length);
-                for (var i=0; i<expectedParams.length; i++) {
-                    var args = angularDRF.get.calls.argsFor(i);
-                    expect(args[1].params).toEqual(expectedParams[i]);
-                }
-                angularDRF.get.calls.reset();
-            });
-        });
-    });
-    describe('showAddNewMemberResults', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope});
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('reloads datatable only if membership changed', function() {
-            scope.tracking.successes = 1;
-            scope.tracking.total = 2;
-            scope.tracking.failure = 1;
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            //invoke the method
-            scope.showAddNewMemberResults();
-            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
-
-        });
-
-        it('doesnt reload datatable membership is unchanged', function() {
-            scope.tracking.successes = 0;
-            scope.tracking.total = 2;
-            scope.tracking.failure = 2;
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            //invoke the method
-            scope.showAddNewMemberResults();
-
-            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
-        });
-
-        it('updates success message based on success/failure counts', function(){
-            scope.tracking.total = 2;
-            scope.tracking.successes = 2;
-            scope.tracking.failure = 0;
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            //invoke the method
-            scope.showAddNewMemberResults();
-            expect(scope.messages.success['type']).toEqual('add');
-            expect(scope.messages.success['alertType']).toEqual('success');
-        });
-
-        it('updates warning message based on success/failure counts', function(){
-            scope.tracking.total = 1;
-            scope.tracking.successes = 2;
-            scope.tracking.failure = 1;
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            //invoke the method
-            scope.showAddNewMemberResults();
-            expect(scope.messages.success['type']).toEqual('add');
-            expect(scope.messages.success['alertType']).toEqual('warning');
-        });
-
-        it('updates danger message based on success/failure counts', function(){
-
-            scope.tracking.total = 2;
-            scope.tracking.failure = 2;
-            scope.tracking.successes = 0;
-
-            // mock out the datatable so we can verify that it gets reloaded
-            scope.dtInstance = {reloadData: function(){}};
-            spyOn(scope.dtInstance, 'reloadData');
-
-            //invoke the method
-            scope.showAddNewMemberResults();
-            expect(scope.messages.success['type']).toEqual('add');
-            expect(scope.messages.success['alertType']).toEqual('danger');
-        });
-    });
-    describe('updateProgressBar', function() {
-        beforeEach(function () {
-            controller = $controller('PeopleController', {$scope: scope});
-        });
-        afterEach(function () {
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('shows current add person progress based on scope vars', function () {
-            scope.tracking.total = 3;
-            scope.tracking.successes = 1;
-            scope.tracking.failure = 1;
-            var expectedMsg = 'Adding 2 of 3'
-            //invoke the method
-            scope.updateProgressBar();
-            expect(scope.messages.progress).toEqual(expectedMsg)
-        });
-
-        it('displays override text if provided', function () {
-            scope.tracking.total = 3;
-            scope.tracking.successes = 1;
-            scope.tracking.failure = 1;
-
-            var text = 'Looking up 3 people '
-            //invoke the method
-            scope.updateProgressBar(text);
-            expect(scope.messages.progress).toEqual(text);
-        });
-    });
-
-    describe('$scope setup', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope });
-        });
-
-        afterEach(function() {
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('should set the course instance id', function() {
-            expect(scope.courseInstanceId).toEqual($routeParams.courseInstanceId);
-        });
-
-        it('should have a null dtInstance', function() {
-            expect(scope.dtInstance).toBeNull();
-        });
-
-        it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
-                'selectedRole'].forEach(function(scopeAttr) {
-                expect(scope[scopeAttr]).not.toBeUndefined();
-            });
-        });
-    });
-
-    describe('setCourseInstance', function() {
-        var ci;
-        beforeEach(function() {
-            // if we want to pull the instance id from $routeParams, this has
-            // to be in a beforeEach(), can't be in a describe().
-            ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'Test Title',
-                course: {
-                    school_id: 'abc',
-                    registrar_code_display: '2222'
-                },
-            };
-        });
-
-        it('should work when courseInstances has the course instance', function() {
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
-            expect(scope.courseInstance['title']).toEqual(ci.title);
-            //check one other additional metadata here  for sanity check
-            expect(scope.courseInstance['school']).toEqual
-                    (ci.course.school_id.toUpperCase());
-        });
-
-        it('should work whenCourseInstances is empty', function() {
-            controller = $controller('PeopleController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL)
-                        .respond(200, JSON.stringify(ci));
-            $httpBackend.flush(1);
-            expect(scope.courseInstance['title']).toEqual(ci.title);
-            expect(scope.courseInstance['school']).toEqual
-                    (ci.course.school_id.toUpperCase());
-        });
-
-        it('courseInstance whould not be set when CourseInstance doesnt match', function() {
-            //override the course_instance_id for ci
-            ci.course_instance_id = '1234'
-            controller = $controller('PeopleController', {$scope: scope});
-            $httpBackend.expectGET(courseInstanceURL)
-                        .respond(200, JSON.stringify(ci));
-            $httpBackend.flush(1);
-            expect(scope.courseInstance).not.toBeDefined();
-        });
-    });
-
-    describe('getFormattedCourseInstance', function() {
-        var ci;
-        beforeEach(function() {
-            ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'Test Title',
-                sites: [
-                    {
-                        external_id: 'https://x.y.z/888',
-                        site_id: '888',
-                    }
-                ],
-                course: {
-                    school_id: 'abc',
-                    registrar_code_display: '4x2',
-                    registrar_code: '2222',
-                    course_id : '789',
-                },
-                term: {
-                    display_name: 'Summer 2015',
-                    academic_year : '2015',
-                },
-                primary_xlist_instances:[],
-            };
-        });
-
-        it('formats the course instance data for the UI', function() {
-            courseInstances.instances[ci.course_instance_id] = ci;
-
-            controller = $controller('PeopleController', {$scope: scope});
-
-            expect(scope.courseInstance['title']).toEqual(ci.title);
-            expect(scope.courseInstance['school']).toEqual
-                    (ci.course.school_id.toUpperCase());
-            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
-            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
-            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
-            expect(scope.courseInstance['registrar_code_display']).toEqual(
-                    ci.course.registrar_code_display);
-            expect(scope.courseInstance['sites']).toEqual('888');
-            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
-        });
-        it('uses registrar_code if registrar_code_display is blank', function() {
-            courseInstances.instances[ci.course_instance_id] = angular.copy(ci);
-            courseInstances.instances[ci.course_instance_id].course.registrar_code_display = '';
-
-            controller = $controller('PeopleController', {$scope: scope});
-
-            expect(scope.courseInstance['title']).toEqual(ci.title);
-            expect(scope.courseInstance['school']).toEqual
-                    (ci.course.school_id.toUpperCase());
-            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
-            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
-            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
-            expect(scope.courseInstance['registrar_code_display']).toEqual(
-                    ci.course.registrar_code);
-            expect(scope.courseInstance['sites']).toEqual('888');
-            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
-
-        });
-    });
-
-    describe('dt cell render functions', function() {
-        beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope});
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.flush(1);
-        });
-
-        it('renderName', function() {
-            var full = {
-                profile: {
-                    name_first: 'Joe',
-                    name_last: 'Student',
-                },
-            };
-            var result = scope.renderName(undefined, undefined, full, undefined);
-            expect(result).toEqual('Student, Joe');
-        });
-
-        it('renderId', function() {
-            var full = {
-                profile: {role_type_cd: 'STUDENT'},
-                user_id: 123456,
-            }
-            var result = scope.renderId(undefined, undefined, full, undefined);
-            expect(result).toEqual('<badge ng-cloak role="STUDENT"></badge> 123456');
-        });
-
-        it('renderSource for registrar-fed', function() {
-            var data = 'fasfeed';
-            var result = scope.renderSource(data, undefined, undefined, undefined);
-            expect(result).toEqual('Registrar Added');
-        });
-
-        it('renderSource for manual', function() {
-            var data = '';
-            var result = scope.renderSource(data, undefined, undefined, undefined);
-            expect(result).toEqual('Manually Added');
-        });
-
-        it('renderRemove for registrar-fed', function() {
-            var full = {source: 'fasfeed', user_id: '1234567890'};
-            var meta = {row: 1};
-            var result = scope.renderRemove(undefined, undefined, full, meta);
-            var expectedResult = '<div class="text-center">' +
-                                 '<i class="fa fa-trash-o fa-trash-disabled">' +
-                                 '</i></div>';
-            expect(result).toEqual(expectedResult);
-        });
-
-        it('renderRemove for manual', function() {
-            var full = {source: 'peopletool', user_id: '9876543210'};
-            var meta = {row: 2};
-            var result = scope.renderRemove(undefined, undefined, full, meta);
-            var expectedResult = '<div class="text-center">' +
-                                 '<a href="" ng-click="confirmRemove(' +
-                                 'dtInstance.DataTable.data()[2])" ' +
-                                 'data-sisid="9876543210">' +
-                                 '<i class="fa fa-trash-o ">' +
-                                 '</i></a></div>';
-            expect(result).toEqual(expectedResult);
-        });
-    });
-
     describe('controller methods which act purely locally', function() {
         // group these so that we can init the scope/controllers/directives
         // such that we're just testing the controller methods
@@ -902,7 +423,7 @@ describe('Unit testing PeopleController', function() {
                 scope.closeAlert('testAlert');
                 expect(scope.messages.testAlert).toBeNull();
             });
-            
+
             it('should not blow up when no alert is present', function() {
                 scope.messages.testAlert = null;
                 scope.closeAlert('testAlert');
@@ -984,7 +505,7 @@ describe('Unit testing PeopleController', function() {
 
         describe('handleAjaxError', function() {
             it('should log an error', function() {
-                var expectedMessage = 
+                var expectedMessage =
                     "Error attempting to GET https://tea.pot: 418 I'm a teapot: {}";
                 scope.handleAjaxError({}, 418, {},
                                       {method: 'GET', url: 'https://tea.pot'},
@@ -1067,36 +588,276 @@ describe('Unit testing PeopleController', function() {
             });
         });
     });
+    describe('dt cell render functions', function() {
+        beforeEach(setupController);
 
-    describe('confirmRemove', function() {
-        beforeEach(function() {
-            var ci = {
-                course_instance_id: $routeParams.courseInstanceId,
-                title: 'confirmRemove test',
+        it('renderName', function() {
+            var full = {
+                profile: {
+                    name_first: 'Joe',
+                    name_last: 'Student',
+                },
             };
-            courseInstances.instances[ci.course_instance_id] = ci;
-            controller = $controller('PeopleController', {$scope: scope});
+            var result = scope.renderName(undefined, undefined, full, undefined);
+            expect(result).toEqual('Student, Joe');
         });
 
-        it('should stick the instance on the scope', function() {
-            scope.confirmRemove();
-            expect(scope.confirmRemoveModalInstance).not.toBeNull();
+        it('renderId', function() {
+            var full = {
+                profile: {role_type_cd: 'STUDENT'},
+                user_id: 123456,
+            }
+            var result = scope.renderId(undefined, undefined, full, undefined);
+            expect(result).toEqual('<badge ng-cloak role="STUDENT"></badge> 123456');
         });
 
-        it('should call removeMembership and remove itself from the scope on close',
-           function() {
-               var membership = {};
-               spyOn(scope, 'removeMembership');
-               scope.confirmRemove();
-               scope.$digest();  // resolves modal instantiation
-               scope.confirmRemoveModalInstance.close(membership);
-               scope.$digest();  // resolves confirmRemoveModalInstance result
-               expect(scope.removeMembership).toHaveBeenCalled();
-               expect(scope.confirmRemoveModalInstance).toBeNull();
-           }
-        );
+        it('renderSource for registrar-fed', function() {
+            var data = 'fasfeed';
+            var result = scope.renderSource(data, undefined, undefined, undefined);
+            expect(result).toEqual('Registrar Added');
+        });
+
+        it('renderSource for manual', function() {
+            var data = '';
+            var result = scope.renderSource(data, undefined, undefined, undefined);
+            expect(result).toEqual('Manually Added');
+        });
+
+        it('renderRemove for registrar-fed', function() {
+            var full = {source: 'fasfeed', user_id: '1234567890'};
+            var meta = {row: 1};
+            var result = scope.renderRemove(undefined, undefined, full, meta);
+            var expectedResult = '<div class="text-center">' +
+                                 '<i class="fa fa-trash-o fa-trash-disabled">' +
+                                 '</i></div>';
+            expect(result).toEqual(expectedResult);
+        });
+
+        it('renderRemove for manual', function() {
+            var full = {source: 'peopletool', user_id: '9876543210'};
+            var meta = {row: 2};
+            var result = scope.renderRemove(undefined, undefined, full, meta);
+            var expectedResult = '<div class="text-center">' +
+                                 '<a href="" ng-click="confirmRemove(' +
+                                 'dtInstance.DataTable.data()[2])" ' +
+                                 'data-sisid="9876543210">' +
+                                 '<i class="fa fa-trash-o ">' +
+                                 '</i></a></div>';
+            expect(result).toEqual(expectedResult);
+        });
     });
+    describe('getFormattedCourseInstance', function() {
+        var ci;
+        beforeEach(function() {
+            ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Title',
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                    }
+                ],
+                course: {
+                    school_id: 'abc',
+                    registrar_code_display: '4x2',
+                    registrar_code: '2222',
+                    course_id : '789',
+                },
+                term: {
+                    display_name: 'Summer 2015',
+                    academic_year : '2015',
+                },
+                primary_xlist_instances:[],
+            };
+        });
 
+        it('formats the course instance data for the UI', function() {
+            courseInstances.instances[ci.course_instance_id] = ci;
+
+            controller = $controller('PeopleController', {$scope: scope});
+
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code_display);
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
+        });
+        it('uses registrar_code if registrar_code_display is blank', function() {
+            courseInstances.instances[ci.course_instance_id] = angular.copy(ci);
+            courseInstances.instances[ci.course_instance_id].course.registrar_code_display = '';
+
+            controller = $controller('PeopleController', {$scope: scope});
+
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+            expect(scope.courseInstance['term']).toEqual(ci.term.display_name);
+            expect(scope.courseInstance['year']).toEqual(ci.term.academic_year);
+            expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
+            expect(scope.courseInstance['registrar_code_display']).toEqual(
+                    ci.course.registrar_code);
+            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['xlist_status']).toEqual('N/A');
+
+        });
+    });
+    describe('getMembersByUserId', function() {
+        beforeEach(setupController);
+
+        it('maps enrollments to IDs', function() {
+            var memberList = [{
+                    "role": {
+                        "canvas_role": "student",
+                        "role_id": 101,
+                        "role_name": "Teaching Fellow"
+                    },
+                    "source": "xmlfeed",
+                    "user_id": "12345678",
+                    "profile": {
+                        "active": 1,
+                        "email_address": "smith@harvard.edu",
+                        "name_first": "Sarah",
+                        "name_last": "Smith",
+                        "prime_role_indicator": "Y",
+                        "role_type_cd": "STUDENT",
+                        "univ_id": "12345678"
+                    }
+                },
+                {
+                    "role": {
+                        "canvas_role": "student",
+                        "role_id": 102,
+                        "role_name": "TA"
+                    },
+                    "source": "xmlfeed",
+                    "user_id": "87654321",
+                    "profile": {
+                        "active": 1,
+                        "email_address": "smith@harvard.edu",
+                        "name_first": "kid",
+                        "name_last": "smart",
+                        "prime_role_indicator": "Y",
+                        "role_type_cd": "STUDENT",
+                        "univ_id": "87654321"
+                    }
+                }];
+            var result = scope.getMembersByUserId(memberList);
+            var memberWithFixedRole = angular.copy(memberList[0]);
+            memberWithFixedRole.role.role_name = 'TA';
+            expect(result).toEqual({
+                12345678: [memberWithFixedRole],
+                87654321: [memberList[1]]
+            });
+        });
+    });
+    describe('getSearchTermList', function() {
+        beforeEach(setupController);
+
+        it('returns a list of trimmed search terms split on comma and newline', function() {
+            var testCases = [
+                // [inputString, expectedResults],
+                ['123456789', ['123456789']],
+                [' 123456789 ', ['123456789']],
+                ['123456789,987654321', ['123456789', '987654321']],
+                ['123456789   \t,\t\t\t987654321', ['123456789', '987654321']],
+                ['123456789\n987654321', ['123456789', '987654321']],
+                [' 123456789 \n 987654321 ', ['123456789', '987654321']],
+                [' ,123456789, ,\n, ,987654321, ,', ['123456789', '987654321']],
+            ];
+
+            testCases.forEach(function(testCase) {
+                var inputString = testCase[0];
+                var expectedResults = testCase[1];
+                expect(scope.getSearchTermList(inputString))
+                      .toEqual(expectedResults);
+            });
+        });
+    });
+    describe('lookupCourseMembers', function() {
+        beforeEach(function() {
+            setupController();
+            // pass through to the $http backend to get a promise
+            spyOn(angularDRF, 'get').and.callThrough();
+        });
+
+        afterEach(function() {
+            // flush the $http backend call that angularURL makes for us.
+            // assumes that the angularDRF.get call params were validated,
+            // so we don't have to care about the url.
+            $httpBackend.expectGET(function(url) { return true; })
+                        .respond(200, '');
+            $httpBackend.flush(1);
+        });
+
+        it('makes the expected call and returns a promise', function() {
+            var promise = scope.lookupCourseMembers();
+
+            // verifying the return value has a `then()` method is as close
+            // as we get to verify we got back a promise.
+            expect(angular.isFunction(promise.then)).toBe(true);
+
+            // ensure the url and some of the params are what we expect
+            expect(angularDRF.get).toHaveBeenCalledTimes(1);
+            var callArgs = angularDRF.get.calls.argsFor(0);
+            expect(callArgs[0]).toEqual(coursePeopleURL);
+            expect(callArgs[1].params['-source']).toEqual('xreg_map');
+            expect(callArgs[1].drf.hasOwnProperty('pageSize')).toBe(true);
+        });
+    });
+    describe('lookupPeople', function() {
+        beforeEach(setupController);
+
+        it('creates people lookups that are tracked in controller scope on ' +
+                'failure', function() {
+            // sanity check the scope before calling lookupPeople
+            expect(scope.tracking.failures).toEqual(0);
+            expect(scope.messages.warnings).toEqual([]);
+
+            // set up the spy to reject
+            spyOn(angularDRF, 'get').and.returnValue($q.reject(new Error()));
+
+            // call it, then digest to process the rejection
+            var promiseList = scope.lookupPeople(['12345678']);
+            scope.$digest();
+
+            // verify that the failures are marked on the scope
+            expect(scope.tracking.failures).toEqual(1);
+            expect(scope.messages.warnings)
+                .toEqual([{type: 'personLookupFailed', searchTerm: '12345678'}]);
+        });
+
+        it('creates appropriate person lookups (id or email)', function() {
+            var testCases = [
+                // [searchTerms, expectedParams]
+                [['user@example.edu'], [{email_address: 'user@example.edu'}]],
+                [['12345678'], [{univ_id: '12345678'}]],
+                [['user@example.edu', '12345678'],
+                 [{email_address: 'user@example.edu'}, {univ_id: '12345678'}]],
+            ];
+
+            spyOn(angularDRF, 'get').and.returnValue($q.resolve());
+
+            testCases.forEach(function (testCase) {
+                var searchTerms = testCase[0];
+                var expectedParams = testCase[1];
+
+                var promiseList = scope.lookupPeople(searchTerms);
+                expect(promiseList.length).toEqual(searchTerms.length);
+                expect(angularDRF.get).toHaveBeenCalledTimes(searchTerms.length);
+                for (var i=0; i<expectedParams.length; i++) {
+                    var args = angularDRF.get.calls.argsFor(i);
+                    expect(args[1].params).toEqual(expectedParams[i]);
+                }
+                angularDRF.get.calls.reset();
+            });
+        });
+    });
     describe('removeMembership', function() {
         var membership = {
             profile: {
@@ -1111,8 +872,7 @@ describe('Unit testing PeopleController', function() {
         var courseMembershipURL = coursePeopleURL + membership.user_id;
 
         beforeEach(function() {
-            controller = $controller('PeopleController', {$scope: scope});
-            clearInitialCourseInstanceFetch();
+            setupController();
             scope.dtInstance = {reloadData: function(){}};
             spyOn(scope.dtInstance, 'reloadData');
         });
@@ -1209,6 +969,175 @@ describe('Unit testing PeopleController', function() {
 
             expect(scope.removeFailure).toEqual(expectedFailure);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+    });
+    describe('scope setup', function() {
+        beforeEach(function() {
+            controller = $controller('PeopleController', {$scope: scope });
+        });
+
+        afterEach(clearInitialCourseInstanceFetch);
+
+        it('should set the course instance id', function() {
+            expect(scope.courseInstanceId).toEqual($routeParams.courseInstanceId);
+        });
+
+        it('should have a null dtInstance', function() {
+            expect(scope.dtInstance).toBeNull();
+        });
+
+        it('should have a bunch of non-null variables set up', function() {
+            ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
+                'selectedRole'].forEach(function(scopeAttr) {
+                expect(scope[scopeAttr]).not.toBeUndefined();
+            });
+        });
+    });
+    describe('setCourseInstance', function() {
+        var ci;
+        beforeEach(function() {
+            // if we want to pull the instance id from $routeParams, this has
+            // to be in a beforeEach(), can't be in a describe().
+            ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Title',
+                course: {
+                    school_id: 'abc',
+                    registrar_code_display: '2222'
+                },
+            };
+        });
+
+        it('should work when courseInstances has the course instance', function() {
+            courseInstances.instances[ci.course_instance_id] = ci;
+            controller = $controller('PeopleController', {$scope: scope});
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            //check one other additional metadata here  for sanity check
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+        });
+
+        it('should work whenCourseInstances is empty', function() {
+            controller = $controller('PeopleController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
+            $httpBackend.flush(1);
+            expect(scope.courseInstance['title']).toEqual(ci.title);
+            expect(scope.courseInstance['school']).toEqual
+                    (ci.course.school_id.toUpperCase());
+        });
+
+        it('courseInstance whould not be set when CourseInstance doesnt match', function() {
+            //override the course_instance_id for ci
+            ci.course_instance_id = '1234'
+            controller = $controller('PeopleController', {$scope: scope});
+            $httpBackend.expectGET(courseInstanceURL)
+                        .respond(200, JSON.stringify(ci));
+            $httpBackend.flush(1);
+            expect(scope.courseInstance).not.toBeDefined();
+        });
+    });
+    describe('showAddNewMemberResults', function() {
+        beforeEach(setupController);
+
+        it('reloads datatable only if membership changed', function() {
+            scope.tracking.successes = 1;
+            scope.tracking.total = 2;
+            scope.tracking.failure = 1;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.dtInstance.reloadData.calls.count()).toEqual(1);
+
+        });
+
+        it('doesnt reload datatable membership is unchanged', function() {
+            scope.tracking.successes = 0;
+            scope.tracking.total = 2;
+            scope.tracking.failure = 2;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+        });
+
+        it('updates success message based on success/failure counts', function(){
+            scope.tracking.total = 2;
+            scope.tracking.successes = 2;
+            scope.tracking.failure = 0;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('success');
+        });
+
+        it('updates warning message based on success/failure counts', function(){
+            scope.tracking.total = 1;
+            scope.tracking.successes = 2;
+            scope.tracking.failure = 1;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('warning');
+        });
+
+        it('updates danger message based on success/failure counts', function(){
+
+            scope.tracking.total = 2;
+            scope.tracking.failure = 2;
+            scope.tracking.successes = 0;
+
+            // mock out the datatable so we can verify that it gets reloaded
+            scope.dtInstance = {reloadData: function(){}};
+            spyOn(scope.dtInstance, 'reloadData');
+
+            //invoke the method
+            scope.showAddNewMemberResults();
+            expect(scope.messages.success['type']).toEqual('add');
+            expect(scope.messages.success['alertType']).toEqual('danger');
+        });
+    });
+    describe('updateProgressBar', function() {
+        beforeEach(setupController);
+
+        it('shows current add person progress based on scope vars', function () {
+            scope.tracking.total = 3;
+            scope.tracking.successes = 1;
+            scope.tracking.failures = 1;
+            var expectedMsg = 'Adding 3 of 3';
+            //invoke the method
+            scope.updateProgressBar();
+            expect(scope.messages.progress).toEqual(expectedMsg)
+        });
+
+        it('displays override text if provided', function () {
+            scope.tracking.total = 3;
+            scope.tracking.successes = 1;
+            scope.tracking.failures = 1;
+
+            var text = 'Looking up 3 people';
+            //invoke the method
+            scope.updateProgressBar(text);
+            expect(scope.messages.progress).toEqual(text);
         });
     });
 });
