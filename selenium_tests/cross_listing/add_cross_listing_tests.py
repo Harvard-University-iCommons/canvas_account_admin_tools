@@ -5,25 +5,29 @@ from selenium_common.base_test_case import get_xl_data
 from selenium_tests.cross_listing.cross_listing_base_test_case import \
     CrossListingBaseTestCase, TEST_DATA_CROSS_LISTING_MAPPINGS
 
+#     TLT-2589, AC #1 and 7
+#     This test adds a valid cross-list pairing to the cross-listing table
 
-@ddt
+# @ddt
 class AddCrossListingTests(CrossListingBaseTestCase):
-
-    """TLT-2589, AC #1 and 7
-    This test adds a valid cross-list pairing to the cross-listing table
-    """
 
     @data(get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
-    def test_adding_a_cross_listing_pairing(self, test_case_id,
-                                            primary_cid, secondary_cid,
-                                            expected_result):
+    def test_add_cross_listing_pairing(self, test_case_id,
+                                       primary_cid,
+                                       secondary_cid,
+                                       expected_result):
 
-        # Adds the pairing
-        self.assertTrue(
-                self.index_page.add_cross_listing_pairing(primary_cid,
-                                                          secondary_cid)
-        )
+        self.driver.save_screenshot("before_add_pairing.png")
+
+        # self.index_page.add_cross_listing_pairing('123456', '234567')
+        # Debug
+        print test_case_id, primary_cid, secondary_cid, expected_result
+
+        self.index_page.add_cross_listing_pairing(self, primary_cid,
+                                                  secondary_cid)
+        self.driver.save_screenshot("after_add.png")
+
 
         # Verifies alert confirmation appears
         self.assertTrue(
@@ -49,3 +53,4 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                              'be either '
                              '\'fail\' or \'success\''.format(expected_result)
                              )
+        
