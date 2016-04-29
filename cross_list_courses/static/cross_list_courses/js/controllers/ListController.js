@@ -8,12 +8,44 @@
         function($scope, $http, $timeout, $document, $window, $compile, $djangoUrl, $log){
 
             $scope.dtInstance = null;
+            $scope.message = null;
+            $scope.operationInProgress = false;
+            // todo: strip()
+            $scope.primaryCourseInput = '';
+            $scope.secondaryCourseInput = '';
 
             $scope.formatCourse = function(course_instance) {
                 return course_instance.course.school_id.toUpperCase() +
                                 ' ' + course_instance.course.registrar_code +
                                 '-' + course_instance.term.display_name +
                                 '-' + course_instance.course_instance_id;
+            };
+
+            $scope.invalidInput = function() {
+                return !$scope.isValidCourseInstance($scope.primaryCourseInput) ||
+                        !$scope.isValidCourseInstance($scope.secondaryCourseInput)
+            };
+
+            $scope.isValidCourseInstance = function(courseInstanceString) {
+                return courseInstanceString.match(/[0-9]+/);
+            };
+
+            $scope.submitAddCrosslisting = function() {
+                $scope.clearMessages();
+                $scope.operationInProgress = true;
+                // todo: make the call, process it
+                $timeout(function() {
+                    $scope.message = {
+                        alertType: 'success',
+                        text: $scope.primaryCourseInput + ' was successfully crosslisted with ' + $scope.secondaryCourseInput + '.'
+                    };
+                    $scope.operationInProgress = false;
+                }, 1000);
+                // todo: reload datatable
+            };
+
+            $scope.clearMessages = function() {
+                $scope.message = null;
             };
 
             $scope.dtOptions = {
