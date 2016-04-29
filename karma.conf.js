@@ -21,14 +21,16 @@ module.exports = function(config) {
       'node_modules/datatables.net-bs/js/dataTables.bootstrap.js',
       'node_modules/angular-datatables/dist/angular-datatables.js',
       'node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+      // need to ensure that the drf page-reader lib is called before the
+      // service that depends on it is, so call out angular-drf.js explicitly.
+      'course_info/tests/libraries/angular-drf.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
     ],
 
 
     // list of files to exclude
-    exclude: [
-    ],
+    exclude: [],
 
 
     // preprocess matching files before serving them to the browser
