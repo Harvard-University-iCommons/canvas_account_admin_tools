@@ -40,7 +40,8 @@
                     // the user already has an enrollment in the course
                     $scope.messages.warnings.push({
                         type: 'alreadyInCourse',
-                        name: $scope.getProfileFullName(memberRecordsInCourse[0]),
+                        name: $scope.getProfileFullName(
+                            memberRecordsInCourse[0].profile),
                         memberships: memberRecordsInCourse,
                         searchTerm: searchTerm
                     });
