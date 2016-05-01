@@ -8,7 +8,10 @@
     function ListController($scope, $http, $timeout, $document, $window,
                             $compile, djangoUrl, $log, $q) {
         $scope.message = null;
-        $scope.operationInProgress = false;
+        // operationInProgress can be 'add' or 'remove' -- the distinction is
+        // made so that the submit button for the add doesn't show a spinning
+        // progress icon while the modal is processing a remove request
+        $scope.operationInProgress = null;
         $scope.rawFormInput = {primary: '', secondary: ''};
 
         $scope.cleanCourseInstanceInput = function (courseInstanceString) {
@@ -63,7 +66,7 @@
         };
         $scope.submitAddCrosslisting = function () {
             $scope.clearMessages();
-            $scope.operationInProgress = true;
+            $scope.operationInProgress = 'add';
 
             var primary = $scope.cleanCourseInstanceInput(
                 $scope.rawFormInput.primary);
