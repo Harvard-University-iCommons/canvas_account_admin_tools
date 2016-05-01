@@ -6,7 +6,8 @@
     app.controller('ListController', ListController);
 
     function ListController($scope, $http, $timeout, $document, $window,
-                            $compile, djangoUrl, $log, $q) {
+                            $compile, djangoUrl, $log, $q, $uibModal) {
+        // {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         // operationInProgress can be 'add' or 'remove' -- the distinction is
         // made so that the submit button for the add doesn't show a spinning
@@ -19,6 +20,52 @@
         };
         $scope.clearMessages = function () {
             $scope.message = null;
+        };
+        $scope.confirmRemove = function(xlistMap) {
+            var primaryId = xlistMap.primary_course_instance.course_instance_id;
+            var secondaryId = xlistMap.secondary_course_instance.course_instance_id;
+            $scope.confirmRemoveModalInstance = $uibModal.open({
+                controller: function($scope, primary, secondary) {
+                    $scope.primary = primary;
+                    $scope.secondary = secondary;
+                    $scope.clearMessages();
+                    $scope.confirm = function() {
+                        $scope.removeCrosslisting(xlistMap.xlist_map_id,
+                            primaryId, secondaryId)
+                        .finally(function closeModal(){
+                            $scope.$close();  // close modal
+                            $scope.confirmRemoveModalInstance = null;
+                        });
+                    }
+                },
+                resolve: {
+                    primary: function() {
+                        return primaryId;
+                    },
+                    secondary: function() {
+                        return secondaryId;
+                    }
+                },
+                // can access parent scope so it can call removeCrosslisting()
+                scope: $scope,
+                templateUrl: 'partials/remove-xlist-map-confirmation.html',
+            });
+        };
+        $scope.deleteCrosslisting = function (xlistMapId) {
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                ['api/course/v2/xlist_maps/' + xlistMapId + '/']);
+
+            // todo: this is the call to make, switch when backend is ready
+            // return $http.delete(url);
+
+            // temporarily return a random success, failure, or backend msg
+            var deferred = $q.defer();
+            $timeout(function () {
+                return Math.round(Math.random())
+                    ? deferred.resolve({})
+                    : deferred.reject({});
+            }, 1000);
+            return deferred.promise;
         };
         $scope.formatCourse = function (course_instance) {
             return course_instance.course.school_id.toUpperCase() +
@@ -64,6 +111,27 @@
             }, 1000);
             return deferred.promise;
         };
+        $scope.removeCrosslisting = function(xlistMapId, primary, secondary) {
+            $scope.operationInProgress = 'remove';
+
+            var promise = $scope.deleteCrosslisting(xlistMapId)
+                .then(function deleteSucceeded(response) {
+                    $scope.message = {
+                        alertType: 'success',
+                        text: 'Successfully de-cross-listed ' + primary +
+                            ' and  ' + secondary + '.'
+                    };
+                    $scope.dtInstance.reloadData();
+                }, function DeleteFailed(response) {
+                    errorText = 'Could not de-cross-list ' + primary +
+                        ' and ' + secondary + '. Please try again later.';
+                    $scope.message = {alertType: 'danger', text: errorText};
+                }).finally(function cleanupAfterDelete() {
+                    $scope.operationInProgress = null;
+                });
+
+            return promise;
+        };
         $scope.submitAddCrosslisting = function () {
             $scope.clearMessages();
             $scope.operationInProgress = 'add';
@@ -95,14 +163,13 @@
                     }
                     $scope.message = {alertType: 'danger', text: errorText};
                 }).finally(function cleanupAfterPost() {
-                $scope.operationInProgress = false;
+                $scope.operationInProgress = null;
             });
         };
 
         /**
          * Datatable setup and helpers
          */
-
         $scope.dtInstance = null;
 
         function renderCourseInstance(courseInstance) {
@@ -111,6 +178,15 @@
             } else {
                 return 'N/A';
             }
+        }
+        function renderRemove(data, type, full, meta) {
+            var icon = '<i class="fa fa-trash-o"></i>';
+            var link = '<a href="" data-toggle="tooltip" ' +
+                'data-placement="left" title="De-cross-list courses"' +
+                'ng-click="confirmRemove(dtInstance.DataTable.data()[' +
+                meta.row + '])" ' + 'data-xlist-map-id="' +
+                full.xlist_map_id + '">' + icon + '</a>';
+            return '<div class="text-center">' + link + '</div>';
         }
 
         $scope.dtOptions = {
@@ -149,6 +225,14 @@
                     },
                 });
             },
+            createdRow: function( row, data, dataIndex ) {
+                // to use angular directives within the rendered datatable,
+                // we have to compile those elements ourselves.  joy.
+                $compile(angular.element(row).contents())($scope);
+            },
+            drawCallback: function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            },
             language: {
                 emptyTable: 'There are no cross listed courses to display.',
                 info: 'Showing _START_ to _END_ of _TOTAL_ course mappings',
@@ -186,6 +270,12 @@
                         data.secondary_course_instance);
                 },
                 title: 'Secondary',
+            },
+            {
+                data: null,
+                orderable: false,
+                render: renderRemove,
+                width: '10%'
             },
         ];
 
