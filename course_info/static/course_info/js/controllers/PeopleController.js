@@ -339,7 +339,7 @@
                     memberCopy.role.role_name = "TA";
                 }
                 membersByUserId[memberCopy.user_id] =
-                    (membersByUserId[memberCopy.user_id] || []).push(memberCopy);
+                    (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
             });
             return membersByUserId;
         };
