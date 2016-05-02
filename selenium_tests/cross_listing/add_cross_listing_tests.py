@@ -8,10 +8,10 @@ from selenium_tests.cross_listing.cross_listing_base_test_case import \
 #     TLT-2589, AC #1 and 7
 #     This test adds a valid cross-list pairing to the cross-listing table
 
-# @ddt
+@ddt
 class AddCrossListingTests(CrossListingBaseTestCase):
 
-    @data(get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
+    @data(*get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
     def test_add_cross_listing_pairing(self, test_case_id,
                                        primary_cid,
@@ -24,7 +24,7 @@ class AddCrossListingTests(CrossListingBaseTestCase):
         # Debug
         print test_case_id, primary_cid, secondary_cid, expected_result
 
-        self.index_page.add_cross_listing_pairing(self, primary_cid,
+        self.index_page.add_cross_listing_pairing(primary_cid,
                                                   secondary_cid)
         self.driver.save_screenshot("after_add.png")
 

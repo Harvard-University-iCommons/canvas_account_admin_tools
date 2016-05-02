@@ -16,7 +16,7 @@ class Locators(object):
     DELETE_BUTTON = (By.ID, 'DELETE_PAIRING_BUTTON')
     HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
-    SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary_course')
+    SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
     SUBMIT_BUTTON = (By.ID, "submit-new-cross-listing-btn")
 
 
