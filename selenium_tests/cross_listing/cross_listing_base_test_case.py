@@ -17,7 +17,7 @@ class CrossListingBaseTestCase(AccountAdminBaseTestCase):
         super(CrossListingBaseTestCase, self).setUp()
 
         # instantiate
-        self.index_page = MainPageObject(self.driver)
+        self.main_page = MainPageObject(self.driver)
 
         # initialize
         if not self.acct_admin_dashboard_page.is_loaded():
@@ -27,4 +27,4 @@ class CrossListingBaseTestCase(AccountAdminBaseTestCase):
         self.acct_admin_dashboard_page.select_cross_listing_link()
 
         # check if page is loaded (which will also set the focus on the tool)
-        self.assertTrue(self.index_page.is_loaded())
+        self.assertTrue(self.main_page.is_loaded())
