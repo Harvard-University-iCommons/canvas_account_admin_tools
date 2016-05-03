@@ -11,13 +11,13 @@ from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
 
 
 class Locators(object):
-    CONFIRMATION_ALERT = (By.ID, 'alert-pane')
+    CONFIRMATION_ALERT = (By.ID, 'result-message')
     # TODO: DELETE is a stub until remove story comes into play
     DELETE_BUTTON = (By.ID, 'DELETE_PAIRING_BUTTON')
     HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
     SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
-    SUBMIT_BUTTON = (By.ID, "submit-new-cross-listing-btn")
+    SUBMIT_BUTTON = (By.ID, 'submit-new-cross-listing-btn')
 
 
 class MainPageObject(CrossListingBasePageObject):
@@ -36,7 +36,7 @@ class MainPageObject(CrossListingBasePageObject):
         secondary_cid_field.send_keys(secondary_cid)
 
         # Click on submit button to pair the cross listing
-        self.find_element(*Locators.SUBMIT_BUTTON)
+        self.find_element(*Locators.SUBMIT_BUTTON).click()
 
     def confirm_presence_of_confirmation_alert(self):
         """
@@ -44,33 +44,19 @@ class MainPageObject(CrossListingBasePageObject):
         :return: Confirms that an alert box returns after add
         """
         try:
-            self.find_element(*Locators.CONFIRMATION_ALERT)
-        except NoSuchElementException:
+            WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+                    *Locators.CONFIRMATION_ALERT).is_displayed())
+        except TimeoutException:
             return False
-
-    def is_add_successful(self, primary_cid, secondary_cid):
-        """This confirms successful add by checking on presence
-        of the primary_cid in the table"""
-
-        ci_search = CrossListingBasePageObject(self.driver)
-        check_primary = ci_search.get_cell_with_text(primary_cid)
-        check_secondary = ci_search.get_cell_with_text(secondary_cid)
-
-        # If check_primary or check_secondary returns NONE, the ids are not on
-        # the page which indicates an unsuccessful add.
-
-        if check_primary == "None" or check_secondary == "None":
-            return False
-        else:
-            return True
+        return True
 
     def get_confirmation_text(self):
         """
-        Returns either the success or failure confirmation text
+        Returns the confirmation text after add
         """
         alert = self.find_element(*Locators.CONFIRMATION_ALERT)
-        confirmation_text = alert.text
-        return confirmation_text.strip()
+        confirmation_text = alert.text.strip()
+        return confirmation_text
 
 
     """THE FOLLOWING ARE FOR THE REMOVE STORY; IN VERY PRIMITIVE STUB FORM
