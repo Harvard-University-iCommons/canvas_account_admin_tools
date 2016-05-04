@@ -29,16 +29,16 @@ class MainPageObject(CrossListingBasePageObject):
     def add_cross_listing_pairing(self, primary_cid, secondary_cid):
         """Add two cross listed ID to be paired in cross-listing tool"""
 
-        # Fill in the primary CID for cross-listing
+        # Fills in the primary CID for cross-listing
         primary_cid_field = self.find_element(*Locators.PRIMARY_CID_ADD_FIELD)
         primary_cid_field.send_keys(primary_cid)
 
-        # Fill in the secondary CID field for cross-listing
+        # Fills in the secondary CID field for cross-listing
         secondary_cid_field = self.find_element(
                 *Locators.SECONDARY_CID_ADD_FIELD)
         secondary_cid_field.send_keys(secondary_cid)
 
-        # Click on submit button to pair the cross listing
+        # Clicks on submit button to pair the cross listing
         self.find_element(*Locators.SUBMIT_BUTTON).click()
 
     def confirm_presence_of_confirmation_alert(self):
@@ -61,37 +61,11 @@ class MainPageObject(CrossListingBasePageObject):
         confirmation_text = alert.text.strip()
         return confirmation_text
 
-    def is_locator_element_present(self, locator_element):
-        """
-        Verifies if the error element is present.
-        """
-        try:
-            self.find_element(locator_element)
-        except NoSuchElementException:
-            return False
-        return True
-
     def verify_error_elements_are_present(self):
         """
         There are several possible error messages.  This verifies that one of
         the several possible errors appear for unsuccessful add
         """
-        # This is a working version.  Spent quite some time trying to
-        # simplify code, but other variations did not work as desired.
-        # OPTION A: Did not work with this format
-        # if (self.is_locator_element_present(Locators.ERROR_MESSAGE_1) or
-        #          self.is_locator_element_present(Locators.ERROR_MESSAGE_2)
-        #     return True
-        # else:
-        #  return False
-        #
-        # OPTION B: Did not work with this format
-        # try:
-        #     if self.find_element(*Locators.ERROR_MESSAGE_0).is_displayed():
-        #         return True
-        #     elif self.find_element(*Locators.ERROR_MESSAGE_1).is_displayed():
-        #         return True
-
         count = 0
         try:
             print self.get_confirmation_text()
@@ -125,7 +99,7 @@ class MainPageObject(CrossListingBasePageObject):
         except NoSuchElementException:
             pass
 
-        # A count equal of 1 or more indicates one of error messages appear.  o
+        # A count equal of 1 or more indicates one of error messages appear.
         if count > 0:
             return True
         return False
