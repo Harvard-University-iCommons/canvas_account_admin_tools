@@ -12,8 +12,11 @@ from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
 
 class Locators(object):
     CONFIRMATION_ALERT = (By.ID, 'result-message')
-    # TODO: DELETE is a stub until remove story comes into play
-    DELETE_BUTTON = (By.ID, 'DELETE_PAIRING_BUTTON')
+    ERROR_MESSAGE_1 = (By.XPATH, './/div[contains(.,"already exists")]')
+    ERROR_MESSAGE_2 = (By.XPATH, './/div[contains(.,"already crosslisted")]')
+    ERROR_MESSAGE_3 = (By.XPATH, './/div[contains(.,"currently crosslisted")]')
+    ERROR_MESSAGE_4 = (By.XPATH, './/div[contains(.,"not be crosslisted")]')
+    ERROR_MESSAGE_5 = (By.XPATH, './/div[contains(.,"backend")]')
     HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
     SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
@@ -58,32 +61,71 @@ class MainPageObject(CrossListingBasePageObject):
         confirmation_text = alert.text.strip()
         return confirmation_text
 
-
-    """THE FOLLOWING ARE FOR THE REMOVE STORY; IN VERY PRIMITIVE STUB FORM
-    ONLY """
-
-    def delete_mapping(self, cid):
-        # TODO:  STUB ONLY BELOW FOR TLT-2595 (REMOVE STORY)
+    def is_locator_element_present(self, locator_element):
         """
-        Deletes a crosslisting pairing via the UI
-        """
-        # LOGIC WITH PO:
-        # it goes 1 primary to 1 secondary,
-        # or 1 primary to multiple secondaries
-        # secondary_course_instance should be a column of unique values
-
-        # TODO: Figure out logic here, check primary/secondary/both/one?
-        # self.find_element(*Locators.DELETE_PAIRING_BUTTON(cid)).click()
-
-    def is_mapping_removed_from_list(self, lookup_text):
-         # TODO:  STUB ONLY BELOW FOR TLT-2595 (REMOVE STORY)
-        """
-        Verifies that a cross-listing mapping has been removed from list
+        Verifies if the error element is present.
         """
         try:
-            WebDriverWait(self._driver, 30).until_not(lambda s: s.find_element(
-                *CrossListingBasePageObject.get_cell_with_text(
-                        lookup_text)).is_displayed())
-        except TimeoutException:
+            self.find_element(locator_element)
+        except NoSuchElementException:
             return False
         return True
+
+    def verify_error_elements_are_present(self):
+        """
+        There are several possible error messages.  This verifies that one of
+        the several possible errors appear for unsuccessful add
+        """
+        # This is a working version.  Spent quite some time trying to
+        # simplify code, but other variations did not work as desired.
+        # OPTION A: Did not work with this format
+        # if (self.is_locator_element_present(Locators.ERROR_MESSAGE_1) or
+        #          self.is_locator_element_present(Locators.ERROR_MESSAGE_2)
+        #     return True
+        # else:
+        #  return False
+        #
+        # OPTION B: Did not work with this format
+        # try:
+        #     if self.find_element(*Locators.ERROR_MESSAGE_0).is_displayed():
+        #         return True
+        #     elif self.find_element(*Locators.ERROR_MESSAGE_1).is_displayed():
+        #         return True
+
+        count = 0
+        try:
+            print self.get_confirmation_text()
+            if self.find_element(*Locators.ERROR_MESSAGE_1).is_displayed():
+                # increments counter by 1 if message is found
+                count += 1
+        except NoSuchElementException:
+            pass
+
+        try:
+            if self.find_element(*Locators.ERROR_MESSAGE_2).is_displayed():
+                count += 1
+        except NoSuchElementException:
+            pass
+
+        try:
+            if self.find_element(*Locators.ERROR_MESSAGE_3).is_displayed():
+                count += 1
+        except NoSuchElementException:
+            pass
+
+        try:
+            if self.find_element(*Locators.ERROR_MESSAGE_4).is_displayed():
+                count += 1
+        except NoSuchElementException:
+            pass
+
+        try:
+            if self.find_element(*Locators.ERROR_MESSAGE_5).is_displayed():
+                count += 1
+        except NoSuchElementException:
+            pass
+
+        # A count equal of 1 or more indicates one of error messages appear.  o
+        if count > 0:
+            return True
+        return False
