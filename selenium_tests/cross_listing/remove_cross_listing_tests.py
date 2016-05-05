@@ -25,6 +25,9 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         3. remove cross-listing pair via UI
         """
 
+        self.api.add_xlisted_course(primary_cid, secondary_cid)
+        print "Add via rest api actually works!"
+
         # 1. Remove existing test records if any
         # reference from remove_user is:
         # self.api.remove_user(course_instance_id, test_user)
