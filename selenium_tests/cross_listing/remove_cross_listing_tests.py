@@ -1,4 +1,5 @@
 from ddt import ddt, data, unpack
+
 from selenium_common.base_test_case import get_xl_data
 
 from selenium_tests.cross_listing.cross_listing_base_test_case import \
@@ -26,15 +27,17 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         """
 
         # Remove any xlisted pairing via rest api for a clean test.
-        self.api.remove_xlisted_course(primary_cid)
+        self.api.remove_xlisted_course(primary_cid, secondary_cid)
+        # TODO: 1. Gets "IndexError: list index out of range" error if the
+        # primary cid isn't in there for removal.
 
         # Add the xlisted pair via rest api
         self.api.add_xlisted_course(primary_cid, secondary_cid)
 
-        # Remove cross-listing pairing via UI
+        # # Remove cross-listing pairing via UI
 
         # Gets the cross-listing map_id from the rest api first
-        xlist_map_id = self.api.lookup_xlist_map_id(primary_cid)
+        xlist_map_id = self.api.lookup_xlist_map_id(primary_cid, secondary_cid)
         # delete the record that associated with the xlist_map_id
         self.main_page.delete_cross_listing_pairing(xlist_map_id)
 
@@ -44,6 +47,7 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         actual_text = self.main_page.get_confirmation_text()
         # Verifies that the expected remove successful message matches the
         # actual success confirmation message
+
         self.assertEqual(actual_text, expected_text, "Error. Expected success "
                         "message is '{}' but message is returning '{}'".format(
                                                     expected_text, actual_text))

@@ -5,6 +5,7 @@ This page models the main (landing) page of the Cross Listing Tool
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
     import CrossListingBasePageObject
@@ -13,6 +14,7 @@ from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
 class Locators(object):
     CONFIRMATION_ALERT = (By.ID, 'result-message')
     DELETE_MODAL_CONFIRM = (By.ID, 'removeXlistMapModalConfirm')
+    DATA_TABLE = (By.ID, 'DataTables_Table_0_wrapper')
     ERROR_MESSAGE_1 = (By.XPATH, './/div[contains(.,"already exists")]')
     ERROR_MESSAGE_2 = (By.XPATH, './/div[contains(.,"already crosslisted")]')
     ERROR_MESSAGE_3 = (By.XPATH, './/div[contains(.,"currently crosslisted")]')
@@ -63,8 +65,22 @@ class MainPageObject(CrossListingBasePageObject):
     def delete_cross_listing_pairing(self, data_xlist_map_id):
         """ Deletes cross-listing pairing through crosslisting tool in
         admin console and confirms delete in modal window"""
+        self._driver.save_screenshot('actual_message_before.png')
+
+        # TODO: #2:  Page takes a while to load so delete isn't finding the
+        # DELETE_CROSS_LIST_ICON in time, so it's returning element not found
+
+        # WebDriverWait(self._driver, 60).until(EC.presence_of_element_located(
+        #         Locators.DATA_TABLE))
+        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+                *Locators.DATA_TABLE).is_visible())
+
+        self.focus_on_tool_frame()
+        # self._driver.save_screenshot('actual_message_after.png')
+
         self.find_element(*Locators.DELETE_CROSSLIST_ICON(data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
+
 
     def get_confirmation_text(self):
         """
@@ -75,6 +91,8 @@ class MainPageObject(CrossListingBasePageObject):
         return confirmation_text
 
     def verify_error_elements_are_present(self):
+        # TODO: #3 we probably want to update this logic to put the erorr
+        # messages in the spreadsheet itself.  Do this last.
         """
         If a cross-list pairing is expected to "fail", it can fail for one
         of several possible reasons.  In this method, we're specifically
