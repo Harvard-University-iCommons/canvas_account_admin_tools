@@ -133,8 +133,19 @@
                 }, function postFailed(response) {
                     $scope.handleAjaxErrorResponse(response);
                     var errorText = '';
-                    if (((response || {}).error || {}).detail) {
-                        errorText = response.error.detail;
+                    var nonFieldErrors = ((response || {}).data || {}).non_field_errors;
+                    if ((response || {}).status == 400 && angular.isArray(nonFieldErrors)) {
+                        // transform backend errors to user-friendly versions
+                        var errorsForUI = nonFieldErrors.map(function(errorDetail) {
+                            if (errorDetail.indexOf('unique set') > -1) {
+                                return primary + ' is already crosslisted ' +
+                                    'with ' + secondary + '.';
+                            } else {
+                                return errorDetail;
+                            }
+                        });
+                        // backend returns array of errors; use only the first
+                        errorText = errorsForUI[0];
                     } else {
                         errorText = primary + ' could not be ' +
                             'crosslisted with ' + secondary + ' at this ' +
