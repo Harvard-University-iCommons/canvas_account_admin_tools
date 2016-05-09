@@ -63,8 +63,14 @@ class MainPageObject(CrossListingBasePageObject):
 
     def verify_error_elements_are_present(self):
         """
-        There are several possible error messages.  This verifies that one of
-        the several possible errors appear for unsuccessful add
+        If a cross-list pairing is expected to "fail", it can fail for one
+        of several possible reasons.  In this method, we're specifically
+        verifying that one of expected errors appears on the page. If there
+        is at least 1 count, it indicates that the error message appeared.
+
+        TODO: If we want to get more specific, we could eventually have
+        multiple tests check for a specific pairing for a specific error.
+
         """
         count = 0
         try:
