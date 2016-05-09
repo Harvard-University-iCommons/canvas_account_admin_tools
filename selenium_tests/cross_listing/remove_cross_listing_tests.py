@@ -33,6 +33,11 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
 
         # Remove via UI
 
+        # Get the cross-listing map_id from the rest api first
+        xlist_map_id = self.api.lookup_xlist_map_id(primary_cid)
+        # delete the record that associated with the xlist_map_id
+        self.main_page.delete_cross_listing_pairing(xlist_map_id)
+
 
 
 

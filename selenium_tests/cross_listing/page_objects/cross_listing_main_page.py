@@ -12,6 +12,7 @@ from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
 
 class Locators(object):
     CONFIRMATION_ALERT = (By.ID, 'result-message')
+    DELETE_MODAL_CONFIRM = (By.ID, 'removeXlistMapModalConfirm')
     ERROR_MESSAGE_1 = (By.XPATH, './/div[contains(.,"already exists")]')
     ERROR_MESSAGE_2 = (By.XPATH, './/div[contains(.,"already crosslisted")]')
     ERROR_MESSAGE_3 = (By.XPATH, './/div[contains(.,"currently crosslisted")]')
@@ -21,6 +22,12 @@ class Locators(object):
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
     SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
     SUBMIT_BUTTON = (By.ID, 'submit-new-cross-listing-btn')
+
+    @classmethod
+    def DELETE_CROSSLIST_ICON (cls, data_xlist_map_id):
+        """ returns a locator for the xlist link for the xlist_map_id"""
+        return By.CSS_SELECTOR, "a[data-xlist-map-id='{}']".format(
+                data_xlist_map_id)
 
 
 class MainPageObject(CrossListingBasePageObject):
@@ -52,6 +59,12 @@ class MainPageObject(CrossListingBasePageObject):
         except TimeoutException:
             return False
         return True
+
+    def delete_cross_listing_pairing(self, data_xlist_map_id):
+        """ Deletes cross-listing pairing through crosslisting tool in
+        admin console and confirms delete in modal window"""
+        self.find_element(*Locators.DELETE_CROSSLIST_ICON(data_xlist_map_id)).click()
+        self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
     def get_confirmation_text(self):
         """
