@@ -54,18 +54,7 @@
         $scope.deleteCrosslisting = function (xlistMapId) {
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                 ['api/course/v2/xlist_maps/' + xlistMapId + '/']);
-
-            // todo: this is the call to make, switch when backend is ready
-            // return $http.delete(url);
-
-            // temporarily return a random success, failure, or backend msg
-            var deferred = $q.defer();
-            $timeout(function () {
-                return Math.round(Math.random())
-                    ? deferred.resolve({})
-                    : deferred.reject({});
-            }, 1000);
-            return deferred.promise;
+            return $http.delete(url);
         };
         $scope.formatCourse = function (course_instance) {
             return course_instance.course.school_id.toUpperCase() +
@@ -111,12 +100,14 @@
                         text: 'Successfully de-cross-listed ' + primary +
                             ' and  ' + secondary + '.'
                     };
-                    $scope.dtInstance.reloadData();
                 }, function DeleteFailed(response) {
+                    $scope.handleAjaxErrorResponse(response);
                     errorText = 'Could not de-cross-list ' + primary +
                         ' and ' + secondary + '. Please try again later.';
                     $scope.message = {alertType: 'danger', text: errorText};
                 }).finally(function cleanupAfterDelete() {
+                    // always reload, in case the failure was a 404
+                    $scope.dtInstance.reloadData();
                     $scope.operationInProgress = null;
                 });
 
