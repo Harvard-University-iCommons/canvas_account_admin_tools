@@ -31,18 +31,19 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         # Add the xlisted pair via rest api
         self.api.add_xlisted_course(primary_cid, secondary_cid)
 
-        # Remove via UI
+        # Remove cross-listing pairing via UI
 
-        # Get the cross-listing map_id from the rest api first
+        # Gets the cross-listing map_id from the rest api first
         xlist_map_id = self.api.lookup_xlist_map_id(primary_cid)
         # delete the record that associated with the xlist_map_id
         self.main_page.delete_cross_listing_pairing(xlist_map_id)
 
-
-
-
-
-
-
-
-
+        # Verifies de-cross list by text confirmation message
+        expected_text = "Successfully de-cross-listed {} and {}.".format(
+                                                    primary_cid, secondary_cid)
+        actual_text = self.main_page.get_confirmation_text()
+        # Verifies that the expected remove successful message matches the
+        # actual success confirmation message
+        self.assertEqual(actual_text, expected_text, "Error. Expected success "
+                        "message is '{}' but message is returning '{}'".format(
+                                                    expected_text, actual_text))
