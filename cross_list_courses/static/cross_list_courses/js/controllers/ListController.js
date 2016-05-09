@@ -96,20 +96,10 @@
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                 ['api/course/v2/xlist_maps/']);
 
-            // todo: this is the call to make, switch when backend is ready
-            // return $http.post(url,
-            //     {primary: primary, secondary: secondary});
-
-            // temporarily return a random success, failure, or backend msg
-            var deferred = $q.defer();
-            $timeout(function () {
-                return Math.round(Math.random())
-                    ? deferred.resolve({})
-                    : Math.round(Math.random())
-                    ? deferred.reject({error: {detail: 'specific error detail from the backend'}})
-                    : deferred.reject({});
-            }, 1000);
-            return deferred.promise;
+            return $http.post(url, {
+                primary_course_instance: primary,
+                secondary_course_instance: secondary
+            });
         };
         $scope.removeCrosslisting = function(xlistMapId, primary, secondary) {
             $scope.operationInProgress = 'remove';
@@ -150,8 +140,7 @@
                     };
                     $scope.dtInstance.reloadData();
                 }, function postFailed(response) {
-                    // todo: enable once hooked up to backend
-                    // $scope.handleAjaxErrorResponse(response);
+                    $scope.handleAjaxErrorResponse(response);
                     var errorText = '';
                     if (((response || {}).error || {}).detail) {
                         errorText = response.error.detail;
