@@ -12,7 +12,8 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
     @data(*get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
     def test_remove_mapping(self, test_case_id, primary_cid,
-                            secondary_cid, expected_result):
+                            secondary_cid, expected_result,
+                            expected_alert_text):
 
         """ Removes cross-listing mappings
 
@@ -27,23 +28,31 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         """
 
         # Remove any xlisted pairing via rest api for a clean test.
-        self.api.remove_xlisted_course(primary_cid, secondary_cid)
+        # self.api.remove_xlisted_course(primary_cid, secondary_cid)
         # TODO: 1 of 2. Gets "IndexError: list index out of range" error if the
-        # primary cid isn't in there for removal.
+        # primary cid isn't in there to begin with for removal.
 
         # Add the xlisted pair via rest api
-        self.api.add_xlisted_course(primary_cid, secondary_cid)
+        # self.api.add_xlisted_course(primary_cid, secondary_cid)
 
         # # Remove cross-listing pairing via UI
 
         # Gets the cross-listing map_id from the rest api first
         xlist_map_id = self.api.lookup_xlist_map_id(primary_cid, secondary_cid)
-        # delete the record that associated with the xlist_map_id
+        print xlist_map_id
 
-        # TODO: 2 of 2: delete via UI isn't working.
+        # TODO: 2 of 2: To debug; this delete cross-listing via UI is working,
+        # but it's flakey, in which sometimes code will error out for element
+        # not found.  Added in an explicit wait, which should have worked.
+        # Interesting thing to debug: delete appears to fail consistently if
+        # self.api.add_xlisted_course is run in the same method.  If course
+        # exists and the following delete_cross_pairing_method is run, it works.
+
+
+        # Deletes the record that associated with the xlist_map_id
         self.main_page.delete_cross_listing_pairing(xlist_map_id)
 
-        # Verifies de-cross list by text confirmation message
+        # Verifies pair has been de-crosslisted by confirmation message
         expected_text = "Successfully de-cross-listed {} and {}.".format(
                                                     primary_cid, secondary_cid)
         actual_text = self.main_page.get_confirmation_text()

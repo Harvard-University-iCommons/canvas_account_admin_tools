@@ -42,7 +42,6 @@ class AddCrossListingTests(CrossListingBaseTestCase):
             # Clean up and remove the cross-listed course when test is done
             self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
-
         # Verifies a successful cross-list add
         if expected_result == 'fail':
             actual_text = self.main_page.get_confirmation_text()
@@ -60,4 +59,3 @@ class AddCrossListingTests(CrossListingBaseTestCase):
             raise ValueError('given_access column for expected result {} must '
                              'be either '
                              '\'fail\' or \'success\''.format(expected_result))
-

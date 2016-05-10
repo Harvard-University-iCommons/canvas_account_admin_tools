@@ -5,7 +5,6 @@ This page models the main (landing) page of the Cross Listing Tool
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
     import CrossListingBasePageObject
@@ -23,7 +22,7 @@ class Locators(object):
     @classmethod
     def DELETE_CROSSLIST_ICON(cls, data_xlist_map_id):
         """ returns a locator for the xlist link for the xlist_map_id"""
-        return By.CSS_SELECTOR, "a[data-xlist-map-id='{}'']".format(
+        return By.CSS_SELECTOR, "a[data-xlist-map-id='{}']".format(
                 data_xlist_map_id)
 
     @classmethod
@@ -66,23 +65,13 @@ class MainPageObject(CrossListingBasePageObject):
     def delete_cross_listing_pairing(self, data_xlist_map_id):
         """ Deletes cross-listing pairing through crosslisting tool in
         admin console and confirms delete in modal window"""
-        self._driver.save_screenshot('actual_message_before.png')
-
-        # TODO: #2 of 2:  Page takes a while to load so delete isn't finding the
-        # DELETE_CROSS_LIST_ICON in time, so it's returning element not found
-
-        # WebDriverWait(self._driver, 60).until(EC.presence_of_element_located(
-        #         Locators.DATA_TABLE))
-        # WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
-        #         *Locators.DATA_TABLE).is_visible())
-
-        self._driver.save_screenshot('actual_message_after.png')
-        # delete_icon = self.find_element(*Locators.DELETE_CROSSLIST_ICON(
-        #         data_xlist_map_id))
-        # delete_icon.click()
-        # self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
-        #
-        self.find_element(*Locators.DELETE_CROSSLIST_ICON(data_xlist_map_id)).click()
+        # Page takes a while to load.  Wait until a delete icon is displayed.
+        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+                *Locators.DELETE_CROSSLIST_ICON(
+                        data_xlist_map_id)).is_displayed())
+        delete_icon = self.find_element(*Locators.DELETE_CROSSLIST_ICON(
+                data_xlist_map_id))
+        delete_icon.click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
     def get_confirmation_text(self):
