@@ -5,7 +5,6 @@ from selenium_common.base_test_case import get_xl_data
 from selenium_tests.cross_listing.cross_listing_base_test_case import \
     CrossListingBaseTestCase, TEST_DATA_CROSS_LISTING_MAPPINGS
 
-
 @ddt
 class RemoveCrossListingTests(CrossListingBaseTestCase):
 
@@ -16,49 +15,37 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
                             expected_alert_text):
 
         """ Removes cross-listing mappings
-
         Note: ICOMMONS_REST_API_HOST environment needs to match the LTI tool
         environment (because of shared cache interactions)
 
-        1. remove ALL course instance mappings that matches primary or
-        secondary ids, to ensure no incidental data causes conflict when
-        we try to add
-        2. add via api the mapping we want to remove through the UI
-        3. remove cross-listing pair via UI
+        1. remove existing cross-list mappings via rest api first to
+        avoid incidental conflict when we try to add a new mapping.
+        2. add via cross-listing via rest api that we want to remove
+        3. test remove by clicking on the cross-list remove icon via UI
         """
 
         # Remove any xlisted pairing via rest api for a clean test.
-        # self.api.remove_xlisted_course(primary_cid, secondary_cid)
-        # TODO: 1 of 2. Gets "IndexError: list index out of range" error if the
-        # primary cid isn't in there to begin with for removal.
+        self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
         # Add the xlisted pair via rest api
-        # self.api.add_xlisted_course(primary_cid, secondary_cid)
+        self.api.add_xlisted_course(primary_cid, secondary_cid)
 
-        # # Remove cross-listing pairing via UI
-
-        # Gets the cross-listing map_id from the rest api first
+        # Get the xlist_map_id so look for the delete icon
         xlist_map_id = self.api.lookup_xlist_map_id(primary_cid, secondary_cid)
-        print xlist_map_id
 
-        # TODO: 2 of 2: To debug; this delete cross-listing via UI is working,
-        # but it's flakey, in which sometimes code will error out for element
-        # not found.  Added in an explicit wait, which should have worked.
-        # Interesting thing to debug: delete appears to fail consistently if
-        # self.api.add_xlisted_course is run in the same method.  If course
-        # exists and the following delete_cross_pairing_method is run, it works.
+        # Reload cross_listing_page due to changes from REST API Add.
+        if not self.acct_admin_dashboard_page.is_loaded():
+            self.acct_admin_dashboard_page.get(self.TOOL_URL)
+        # navigate to cross-list tool
+        self.acct_admin_dashboard_page.select_cross_listing_link()
 
-
-        # Deletes the record that associated with the xlist_map_id
+        # Clicks on the delete icon associated with the xlist_map_id
         self.main_page.delete_cross_listing_pairing(xlist_map_id)
 
         # Verifies pair has been de-crosslisted by confirmation message
         expected_text = "Successfully de-cross-listed {} and {}.".format(
                                                     primary_cid, secondary_cid)
         actual_text = self.main_page.get_confirmation_text()
-        # Verifies that the expected remove successful message matches the
-        # actual success confirmation message
-
-        self.assertEqual(actual_text, expected_text, "Error. Expected success "
+        self.assertEqual(actual_text, expected_text, "Error. Expected success"
                         "message is '{}' but message is returning '{}'".format(
                                                     expected_text, actual_text))

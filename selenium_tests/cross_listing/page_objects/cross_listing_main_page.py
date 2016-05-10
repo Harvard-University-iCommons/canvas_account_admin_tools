@@ -65,13 +65,8 @@ class MainPageObject(CrossListingBasePageObject):
     def delete_cross_listing_pairing(self, data_xlist_map_id):
         """ Deletes cross-listing pairing through crosslisting tool in
         admin console and confirms delete in modal window"""
-        # Page takes a while to load.  Wait until a delete icon is displayed.
-        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
-                *Locators.DELETE_CROSSLIST_ICON(
-                        data_xlist_map_id)).is_displayed())
-        delete_icon = self.find_element(*Locators.DELETE_CROSSLIST_ICON(
-                data_xlist_map_id))
-        delete_icon.click()
+        self.find_element(*Locators.DELETE_CROSSLIST_ICON(
+                data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
     def get_confirmation_text(self):
