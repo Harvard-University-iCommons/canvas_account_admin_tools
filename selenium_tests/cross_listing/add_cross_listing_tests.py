@@ -14,7 +14,8 @@ class AddCrossListingTests(CrossListingBaseTestCase):
     def test_add_cross_listing_pairing(self, test_case,
                                        primary_cid,
                                        secondary_cid,
-                                       expected_result):
+                                       expected_result,
+                                       expected_text):
         """
         TLT-2589, AC #1 and 7
         This test adds a valid cross-list pairing to the cross-listing table
@@ -38,10 +39,20 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                              "Error. Expected success message is '{}' but "
                              "message is returning '{}'".format(expected_text,
                                                                 actual_text))
+            # Clean up and remove the cross-listed course when test is done
+            self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
-        # Verifies error message if cross-listing is unsuccessful
+
+        # Verifies a successful cross-list add
         if expected_result == 'fail':
-            self.assertTrue(self.main_page.verify_error_elements_are_present())
+            actual_text = self.main_page.get_confirmation_text()
+            expected_text = \
+                self.main_page.verify_expected_error_message_on_page(
+                        expected_text)
+            self.assertEqual(actual_text, expected_text,
+                             "Error. Expected error message should contain '{}'"
+                             "but message is returning '{}'".format(
+                                     expected_text, actual_text))
 
         #  Verifies test_data spreadsheet contains a 'fail' or 'success'
         #  value in the "expected result" column; cannot be empty
@@ -49,3 +60,4 @@ class AddCrossListingTests(CrossListingBaseTestCase):
             raise ValueError('given_access column for expected result {} must '
                              'be either '
                              '\'fail\' or \'success\''.format(expected_result))
+
