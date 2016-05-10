@@ -15,21 +15,22 @@ class Locators(object):
     CONFIRMATION_ALERT = (By.ID, 'result-message')
     DELETE_MODAL_CONFIRM = (By.ID, 'removeXlistMapModalConfirm')
     DATA_TABLE = (By.ID, 'DataTables_Table_0_wrapper')
-    ERROR_MESSAGE_1 = (By.XPATH, './/div[contains(.,"already exists")]')
-    ERROR_MESSAGE_2 = (By.XPATH, './/div[contains(.,"already crosslisted")]')
-    ERROR_MESSAGE_3 = (By.XPATH, './/div[contains(.,"currently crosslisted")]')
-    ERROR_MESSAGE_4 = (By.XPATH, './/div[contains(.,"not be crosslisted")]')
-    ERROR_MESSAGE_5 = (By.XPATH, './/div[contains(.,"backend")]')
     HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
     SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
     SUBMIT_BUTTON = (By.ID, 'submit-new-cross-listing-btn')
 
     @classmethod
-    def DELETE_CROSSLIST_ICON (cls, data_xlist_map_id):
+    def DELETE_CROSSLIST_ICON(cls, data_xlist_map_id):
         """ returns a locator for the xlist link for the xlist_map_id"""
-        return By.CSS_SELECTOR, "a[data-xlist-map-id='{}']".format(
+        return By.CSS_SELECTOR, "a[data-xlist-map-id='{}'']".format(
                 data_xlist_map_id)
+
+    @classmethod
+    def ERROR_TEXT_LOCATOR(cls, expected_text):
+        """ returns a locator for expected error text"""
+        return By.XPATH, ".//div[contains(.,'{}') and " \
+                         "@id='result-message']".format(expected_text)
 
 
 class MainPageObject(CrossListingBasePageObject):
@@ -67,20 +68,22 @@ class MainPageObject(CrossListingBasePageObject):
         admin console and confirms delete in modal window"""
         self._driver.save_screenshot('actual_message_before.png')
 
-        # TODO: #2:  Page takes a while to load so delete isn't finding the
+        # TODO: #2 of 2:  Page takes a while to load so delete isn't finding the
         # DELETE_CROSS_LIST_ICON in time, so it's returning element not found
 
         # WebDriverWait(self._driver, 60).until(EC.presence_of_element_located(
         #         Locators.DATA_TABLE))
-        WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
-                *Locators.DATA_TABLE).is_visible())
+        # WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+        #         *Locators.DATA_TABLE).is_visible())
 
-        self.focus_on_tool_frame()
-        # self._driver.save_screenshot('actual_message_after.png')
-
+        self._driver.save_screenshot('actual_message_after.png')
+        # delete_icon = self.find_element(*Locators.DELETE_CROSSLIST_ICON(
+        #         data_xlist_map_id))
+        # delete_icon.click()
+        # self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
+        #
         self.find_element(*Locators.DELETE_CROSSLIST_ICON(data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
-
 
     def get_confirmation_text(self):
         """
@@ -90,53 +93,10 @@ class MainPageObject(CrossListingBasePageObject):
         confirmation_text = alert.text.strip()
         return confirmation_text
 
-    def verify_error_elements_are_present(self):
-        # TODO: #3 we probably want to update this logic to put the erorr
-        # messages in the spreadsheet itself.  Do this last.
-        """
-        If a cross-list pairing is expected to "fail", it can fail for one
-        of several possible reasons.  In this method, we're specifically
-        verifying that one of expected errors appears on the page. If there
-        is at least 1 count, it indicates that the error message appeared.
-
-        TODO: If we want to get more specific, we could eventually have
-        multiple tests check for a specific pairing for a specific error.
-
-        """
-        count = 0
+    def verify_expected_error_message_on_page(self, expected_text):
         try:
-            print self.get_confirmation_text()
-            if self.find_element(*Locators.ERROR_MESSAGE_1).is_displayed():
-                # increments counter by 1 if message is found
-                count += 1
+            expected_text = self.find_element(*Locators.ERROR_TEXT_LOCATOR(
+                    expected_text))
         except NoSuchElementException:
-            pass
-
-        try:
-            if self.find_element(*Locators.ERROR_MESSAGE_2).is_displayed():
-                count += 1
-        except NoSuchElementException:
-            pass
-
-        try:
-            if self.find_element(*Locators.ERROR_MESSAGE_3).is_displayed():
-                count += 1
-        except NoSuchElementException:
-            pass
-
-        try:
-            if self.find_element(*Locators.ERROR_MESSAGE_4).is_displayed():
-                count += 1
-        except NoSuchElementException:
-            pass
-
-        try:
-            if self.find_element(*Locators.ERROR_MESSAGE_5).is_displayed():
-                count += 1
-        except NoSuchElementException:
-            pass
-
-        # A count equal of 1 or more indicates one of error messages appear.
-        if count > 0:
-            return True
-        return False
+            return False
+        return expected_text.text.strip()
