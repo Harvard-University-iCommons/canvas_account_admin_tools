@@ -51,7 +51,7 @@ describe('Unit testing ListController', function () {
         });
     });
 
-    describe('confirmRemove', function() {
+    xdescribe('confirmRemove', function() {
 
         beforeEach(function () {
         });
@@ -61,7 +61,7 @@ describe('Unit testing ListController', function () {
     });
 
 
-    describe('deleteCrosslisting', function() {
+    xdescribe('deleteCrosslisting', function() {
 
         beforeEach(function () {
         });
@@ -70,7 +70,7 @@ describe('Unit testing ListController', function () {
 
     });
 
-    describe('formatCourse', function() {
+    xdescribe('formatCourse', function() {
 
         beforeEach(function () {
         });
@@ -80,7 +80,7 @@ describe('Unit testing ListController', function () {
     });
 
 
-    describe('invalidInput', function() {
+    xdescribe('invalidInput', function() {
 
         beforeEach(function () {
         });
@@ -91,7 +91,7 @@ describe('Unit testing ListController', function () {
 
     });
 
-    describe('isValidCourseInstance', function() {
+    xdescribe('isValidCourseInstance', function() {
 
         beforeEach(function () {
         });
@@ -102,7 +102,7 @@ describe('Unit testing ListController', function () {
 
     });
 
-    describe('postNewCrosslisting', function() {
+    xdescribe('postNewCrosslisting', function() {
 
         beforeEach(function () {
         });
@@ -112,7 +112,7 @@ describe('Unit testing ListController', function () {
     });
 
 
-    describe('removeCrosslisting', function() {
+    xdescribe('removeCrosslisting', function() {
 
         beforeEach(function () {
         });
@@ -123,7 +123,7 @@ describe('Unit testing ListController', function () {
     });
 
 
-    describe('submitAddCrosslisting', function() {
+    xdescribe('submitAddCrosslisting', function() {
 
         beforeEach(function () {
         });

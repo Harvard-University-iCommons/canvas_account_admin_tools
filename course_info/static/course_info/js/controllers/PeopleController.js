@@ -24,6 +24,7 @@
              to the course, or null if the add was not attempted for one of the
              reasons listed above.
              */
+            //console.log('----> '+personResult[0]);
             var personRecords = personResult[0];
             var searchTerm = personResult[1];
             var filteredResults = $scope.filterSearchResults(personRecords);
