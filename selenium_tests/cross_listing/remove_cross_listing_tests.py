@@ -28,7 +28,7 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
 
         # Remove any xlisted pairing via rest api for a clean test.
         self.api.remove_xlisted_course(primary_cid, secondary_cid)
-        # TODO: 1. Gets "IndexError: list index out of range" error if the
+        # TODO: 1 of 2. Gets "IndexError: list index out of range" error if the
         # primary cid isn't in there for removal.
 
         # Add the xlisted pair via rest api
@@ -39,6 +39,8 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         # Gets the cross-listing map_id from the rest api first
         xlist_map_id = self.api.lookup_xlist_map_id(primary_cid, secondary_cid)
         # delete the record that associated with the xlist_map_id
+
+        # TODO: 2 of 2: delete via UI isn't working.
         self.main_page.delete_cross_listing_pairing(xlist_map_id)
 
         # Verifies de-cross list by text confirmation message
