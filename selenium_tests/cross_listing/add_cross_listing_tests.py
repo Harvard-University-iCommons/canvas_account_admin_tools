@@ -30,32 +30,26 @@ class AddCrossListingTests(CrossListingBaseTestCase):
 
         # Verifies a successful cross-list add
         if expected_result == 'success':
-            expected_text = "{} was successfully crosslisted with {}.".format(
-                primary_cid, secondary_cid)
-            actual_text = self.main_page.get_confirmation_text()
-            # Verifies that the expected success message matches the actual
-            # success confirmation message
+
+            #  Verifies successful add confirmation
+            actual_text = self.main_page.get_actual_confirmation_text()
+            expected_text = self.main_page.get_expected_confirmation_text(
+                        expected_text)
             self.assertEqual(actual_text, expected_text,
                              "Error. Expected success message is '{}' but "
                              "message is returning '{}'".format(expected_text,
                                                                 actual_text))
+
             # Clean up and remove the cross-listed course when test is done
             self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
-        # Verifies a successful cross-list add
+        #  Verifies an unsuccessful cross-list
         if expected_result == 'fail':
-            actual_text = self.main_page.get_confirmation_text()
-            expected_text = \
-                self.main_page.verify_expected_error_message_on_page(
-                        expected_text)
-            self.assertEqual(actual_text, expected_text,
-                             "Error. Expected error message should contain '{}'"
-                             "but message is returning '{}'".format(
+            actual_text = self.main_page.get_actual_confirmation_text()
+            expected_text_on_page = \
+                self.main_page.get_expected_confirmation_text(expected_text)
+            self.assertEqual(actual_text, expected_text_on_page,
+                             "Error: the error message locator cannot be "
+                             "found. Expecting an error containing '{}' but "
+                             "message is returning '{}'".format(
                                      expected_text, actual_text))
-
-        #  Verifies test_data spreadsheet contains a 'fail' or 'success'
-        #  value in the "expected result" column; cannot be empty
-        else:
-            raise ValueError('given_access column for expected result {} must '
-                             'be either '
-                             '\'fail\' or \'success\''.format(expected_result))

@@ -49,7 +49,7 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
             # Verifies pair has been de-crosslisted by confirmation message
             expected_text = "Successfully de-cross-listed {} and {}.".format(
                                                     primary_cid, secondary_cid)
-            actual_text = self.main_page.get_confirmation_text()
+            actual_text = self.main_page.get_actual_confirmation_text()
             self.assertEqual(actual_text, expected_text,
                              "Expected success message is '{}' but message is "
                              "returning '{}'".format(expected_text, actual_text)
