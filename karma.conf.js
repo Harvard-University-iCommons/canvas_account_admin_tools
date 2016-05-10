@@ -26,6 +26,7 @@ module.exports = function(config) {
       'course_info/tests/libraries/angular-drf.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
+      'cross_list_courses/**/*.js',
     ],
 
 
