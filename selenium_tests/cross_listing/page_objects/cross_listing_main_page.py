@@ -69,7 +69,7 @@ class MainPageObject(CrossListingBasePageObject):
                 data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
-    def get_confirmation_text(self):
+    def get_actual_confirmation_text(self):
         """
         Returns the confirmation text after add
         """
@@ -77,10 +77,14 @@ class MainPageObject(CrossListingBasePageObject):
         confirmation_text = alert.text.strip()
         return confirmation_text
 
-    def verify_expected_error_message_on_page(self, expected_text):
+    def get_expected_confirmation_text(self, expected_text):
+        """
+        Finds the locator that contains locator text (expected text) and
+        returns the full text
+        """
         try:
             expected_text = self.find_element(*Locators.ERROR_TEXT_LOCATOR(
                     expected_text))
         except NoSuchElementException:
-            return False
+            return "Error: Expected text not found on page."
         return expected_text.text.strip()
