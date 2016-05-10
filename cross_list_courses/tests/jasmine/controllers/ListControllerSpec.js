@@ -51,4 +51,86 @@ describe('Unit testing ListController', function () {
         });
     });
 
+    describe('confirmRemove', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should show the modal dialog when the user clicks delete');
+
+    });
+
+
+    describe('deleteCrosslisting', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should make sure the correct url is called');
+
+    });
+
+    describe('formatCourse', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should make sure the course text is formatted correctly');
+
+    });
+
+
+    describe('invalidInput', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should return true when valid input is supplied');
+
+        it('should return false when invalid input is supplied');
+
+    });
+
+    describe('isValidCourseInstance', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should return true when valid course instance is supplied');
+
+        it('should return false when invalid course instance is supplied');
+
+    });
+
+    describe('postNewCrosslisting', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should make sure the post was called with the correct params');
+
+    });
+
+
+    describe('removeCrosslisting', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should make sure the deleteCrosslisting is called with the correct id');
+        it('should make sure the scope.message has the correct messag eon failure');
+
+    });
+
+
+    describe('submitAddCrosslisting', function() {
+
+        beforeEach(function () {
+        });
+
+        it('should make sure the postNewCrosslisting is called with the correct values');
+        it('should make sure the scope.message has the correct messag eon failure');
+
+    });
+
 });
