@@ -7,7 +7,8 @@
 
     function ListController($scope, $http, $timeout, $document, $window,
                             $compile, djangoUrl, $log, $q, $uibModal) {
-        // {alertType: 'bootstrap alert class', text: 'actual message'}
+        // expected $scope.message format:
+        //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         // operationInProgress can be 'add' or 'remove' -- the distinction is
         // made so that the submit button for the add doesn't show a spinning
