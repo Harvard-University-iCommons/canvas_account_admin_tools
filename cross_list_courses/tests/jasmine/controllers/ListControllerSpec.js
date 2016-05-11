@@ -1,21 +1,35 @@
 describe('Unit testing ListController', function () {
-    var $controller, $rootScope, $routeParams, courseInstances, $compile, djangoUrl,
+    var $controller, $rootScope, $routeParams, $compile, djangoUrl,
         $httpBackend, $window, $log, $uibModal, $sce, $templateCache;
 
     var controller, scope;
+    //var xlistURL =
+    //    '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+    //    '=api%2Fcourse%2Fv2%2Fxlist_maps%2F?primary_course_instance=331310';
+    //
+    function clearInitialxlistFetch() {
+    //    // handle the initial course instance get
+        $httpBackend.expectGET("partials/list.html").respond(200, '');
+        $httpBackend.flush(1);
+    }
+
+    function setupController() {
+        controller = $controller('ListController', {$scope: scope});
+        clearInitialxlistFetch();
+    }
 
     // set up the test environment
     beforeEach(function () {
         // load the app and the templates-as-module
-        module('CourseInfo');
+        module('CrossListCourses');
         module('templates');
-        inject(function (_$controller_, _$rootScope_, _$routeParams_, _courseInstances_,
+        inject(function (_$controller_, _$rootScope_, _$routeParams_,
                          _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
                          _$uibModal_, _$sce_, _$templateCache_) {
+
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
-            courseInstances = _courseInstances_;
             $compile = _$compile_;
             djangoUrl = _djangoUrl_;
             $httpBackend = _$httpBackend_;
@@ -34,6 +48,7 @@ describe('Unit testing ListController', function () {
             };
         });
         scope = $rootScope.$new();
+        setupController();
     });
 
     afterEach(function () {
@@ -44,7 +59,7 @@ describe('Unit testing ListController', function () {
 
     // DI sanity check
     it('should inject the providers we requested', function () {
-        [$controller, $rootScope, $routeParams, courseInstances, $compile,
+        [$controller, $rootScope, $routeParams, $compile,
             djangoUrl, $httpBackend, $window, $log, $sce, $templateCache].forEach(function (thing) {
             expect(thing).not.toBeUndefined();
             expect(thing).not.toBeNull();
@@ -53,10 +68,33 @@ describe('Unit testing ListController', function () {
 
     xdescribe('confirmRemove', function() {
 
-        beforeEach(function () {
-        });
+        //beforeEach(setupController);
 
-        it('should show the modal dialog when the user clicks delete');
+        it('should show the modal dialog when the user clicks delete', function(){
+            $httpBackend.expectGET("partials/remove-xlist-map-confirmation.html")
+                    .respond(200, {});
+                $httpBackend.flush(1);
+            var xlistMap = {
+                xlist_map_id: 1,
+                primary_course_instance: {
+                    course_instance_id: 123456
+                },
+                secondary_course_instance: {
+                    course_instance_id: 345678
+                }
+            };
+            scope.confirmRemove(xlistMap);
+            scope.$digest();
+            var modalScope;
+            for (modalScope = scope.$$nextSibling;
+                    modalScope != null; modalScope = modalScope.$$nextSibling) {
+                if (modalScope.hasOwnProperty('numPeople')  &&
+                        modalScope.hasOwnProperty('selectedRoleName')) {
+                    break;
+                }
+            }
+            expect(modalScope).not.toBeNull();
+        });
 
     });
 
