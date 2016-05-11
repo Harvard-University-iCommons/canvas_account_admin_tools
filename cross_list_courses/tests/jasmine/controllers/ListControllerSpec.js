@@ -3,10 +3,10 @@ describe('Unit testing ListController', function () {
         $httpBackend, $window, $log, $uibModal, $sce, $templateCache;
 
     var controller, scope;
-    //var xlistURL =
-    //    '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
-    //    '=api%2Fcourse%2Fv2%2Fxlist_maps%2F?primary_course_instance=331310';
-    //
+    var xlistURL =
+       '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+       '=api%2Fcourse%2Fv2%2Fxlist_maps%2F';
+
     function clearInitialxlistFetch() {
     //    // handle the initial course instance get
         $httpBackend.expectGET("partials/list.html").respond(200, '');
@@ -99,12 +99,16 @@ describe('Unit testing ListController', function () {
     });
 
 
-    xdescribe('deleteCrosslisting', function() {
+    describe('deleteCrosslisting', function() {
+        it('should make sure the correct url is called', function(){
+            var xlistMapId = 123,
+                deleteURL = xlistURL + xlistMapId + '%2F';
 
-        beforeEach(function () {
+            scope.deleteCrosslisting(xlistMapId);
+
+            $httpBackend.expectDELETE(deleteURL).respond(204, {});
+            $httpBackend.flush(1);
         });
-
-        it('should make sure the correct url is called');
 
     });
 
