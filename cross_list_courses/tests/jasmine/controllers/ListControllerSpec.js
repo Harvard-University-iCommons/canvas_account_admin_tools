@@ -112,15 +112,22 @@ describe('Unit testing ListController', function () {
 
     });
 
-    xdescribe('formatCourse', function() {
-
-        beforeEach(function () {
+    describe('formatCourse', function() {
+        it('should make sure the course text is formatted correctly', function() {
+            var courseInstance = {
+                "course": {
+                    "registrar_code": "24259",
+                    "school_id": "ext"
+                },
+                "course_instance_id": 338920,
+                "term": {
+                    "display_name": "Spring 2017"
+                }
+            };
+            var result = scope.formatCourse(courseInstance);
+            expect(result).toBe('EXT 24259-Spring 2017-338920');
         });
-
-        it('should make sure the course text is formatted correctly');
-
     });
-
 
     xdescribe('invalidInput', function() {
 
