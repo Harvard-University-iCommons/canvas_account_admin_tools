@@ -3,12 +3,12 @@ describe('Unit testing ListController', function () {
         $httpBackend, $window, $log, $uibModal, $sce, $templateCache;
 
     var controller, scope;
-    //var xlistURL =
-    //    '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
-    //    '=api%2Fcourse%2Fv2%2Fxlist_maps%2F?primary_course_instance=331310';
-    //
+    var xlistURL =
+        '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+        '=api%2Fcourse%2Fv2%2Fxlist_maps%2F';
+
     function clearInitialxlistFetch() {
-    //    // handle the initial course instance get
+        // handle the initial course instance get
         $httpBackend.expectGET("partials/list.html").respond(200, '');
         $httpBackend.flush(1);
     }
@@ -66,36 +66,35 @@ describe('Unit testing ListController', function () {
         });
     });
 
-    xdescribe('confirmRemove', function() {
-
-        //beforeEach(setupController);
-
-        it('should show the modal dialog when the user clicks delete', function(){
-            $httpBackend.expectGET("partials/remove-xlist-map-confirmation.html")
-                    .respond(200, {});
-                $httpBackend.flush(1);
-            var xlistMap = {
-                xlist_map_id: 1,
-                primary_course_instance: {
-                    course_instance_id: 123456
-                },
-                secondary_course_instance: {
-                    course_instance_id: 345678
-                }
-            };
+    describe('confirmRemove', function() {
+        var xlistMap = {
+            xlist_map_id: 1,
+            primary_course_instance: {
+                course_instance_id: 123456
+            },
+            secondary_course_instance: {
+                course_instance_id: 345678
+            }
+        };
+        beforeEach(function(){
+            spyOn(scope, 'clearMessages');
+            spyOn(scope, 'removeCrosslisting');
             scope.confirmRemove(xlistMap);
+            $httpBackend.expectGET("partials/remove-xlist-map-confirmation.html").respond(200, '');
+            $httpBackend.flush(1);
             scope.$digest();
-            var modalScope;
-            for (modalScope = scope.$$nextSibling;
-                    modalScope != null; modalScope = modalScope.$$nextSibling) {
-                if (modalScope.hasOwnProperty('numPeople')  &&
-                        modalScope.hasOwnProperty('selectedRoleName')) {
+        });
+        it('should show the modal dialog with correct data when the user clicks delete', function(){
+            for (modalScope = scope.$$nextSibling; modalScope != null; modalScope = modalScope.$$nextSibling) {
+                if (modalScope.modalOptions.scope.hasOwnProperty('primary')  &&
+                        modalScope.modalOptions.scope.hasOwnProperty('secondary')) {
                     break;
                 }
             }
             expect(modalScope).not.toBeNull();
+            expect(modalScope.modalOptions.scope.primary).toEqual(xlistMap.primary_course_instance.course_instance_id);
+            expect(modalScope.modalOptions.scope.secondary).toEqual(xlistMap.secondary_course_instance.course_instance_id);
         });
-
     });
 
 
