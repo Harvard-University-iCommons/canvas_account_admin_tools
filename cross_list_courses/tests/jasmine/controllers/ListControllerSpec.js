@@ -1,6 +1,6 @@
 describe('Unit testing ListController', function () {
-    var $controller, $rootScope, $routeParams, $compile, djangoUrl,
-        $httpBackend, $window, $log, $uibModal, $sce, $templateCache;
+    var $controller, $rootScope, $httpBackend, $timeout, $document, $window,
+        $compile, djangoUrl, $log, $q, $uibModal;
 
     var controller, scope;
     var xlistURL =
@@ -24,21 +24,21 @@ describe('Unit testing ListController', function () {
         // load the app and the templates-as-module
         module('CrossListCourses');
         module('templates');
-        inject(function (_$controller_, _$rootScope_, _$routeParams_,
-                         _$compile_, _djangoUrl_, _$httpBackend_, _$window_, _$log_,
-                         _$uibModal_, _$sce_, _$templateCache_) {
+        inject(function (_$controller_, _$rootScope_, _$httpBackend_,
+                         _$timeout_, _$document_, _$window_, _$compile_,
+                         _djangoUrl_, _$log_, _$q_, _$uibModal_) {
 
             $controller = _$controller_;
             $rootScope = _$rootScope_;
-            $routeParams = _$routeParams_;
+            $httpBackend = _$httpBackend_;
+            $timeout = _$timeout_;
+            $document = _$document_;
+            $window = _$window_;
             $compile = _$compile_;
             djangoUrl = _djangoUrl_;
-            $httpBackend = _$httpBackend_;
-            $window = _$window_;
             $log = _$log_;
+            $q = _$q_;
             $uibModal = _$uibModal_;
-            $sce = _$sce_;
-            $templateCache = _$templateCache_;
 
             // this comes from django_auth_lti, just stub it out so that the $httpBackend
             // sanity checks in afterEach() don't fail
@@ -60,8 +60,8 @@ describe('Unit testing ListController', function () {
 
     // DI sanity check
     it('should inject the providers we requested', function () {
-        [$controller, $rootScope, $routeParams, $compile,
-            djangoUrl, $httpBackend, $window, $log, $sce, $templateCache].forEach(function (thing) {
+        [$controller, $rootScope, $timeout, $document, $window, $compile,
+            djangoUrl, $log, $q].forEach(function (thing) {
             expect(thing).not.toBeUndefined();
             expect(thing).not.toBeNull();
         });
@@ -209,17 +209,54 @@ describe('Unit testing ListController', function () {
         });
     });
 
-
-    xdescribe('removeCrosslisting', function() {
+    describe('removeCrosslisting', function() {
+        var deleteCrosslistingDeferred = null;
 
         beforeEach(function () {
+            deleteCrosslistingDeferred = $q.defer();
+            scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
+            spyOn(scope, 'deleteCrosslisting').and
+                .returnValue(deleteCrosslistingDeferred.promise);
+            spyOn(scope, 'handleAjaxErrorResponse');
         });
 
-        it('should make sure the deleteCrosslisting is called with the correct id');
-        it('should make sure the scope.message has the correct messag eon failure');
+        it('calls deleteCrosslisting with the correct id', function() {
+            scope.removeCrosslisting(1, 2, 3);
+            expect(scope.deleteCrosslisting).toHaveBeenCalledWith(1);
+        });
+
+        it('shows failure message and cleans up on failure', function() {
+            scope.removeCrosslisting(1, 1, 2);
+
+            expect(scope.operationInProgress).toBe('remove');
+            expect(scope.message).toBe(null);
+
+            deleteCrosslistingDeferred.reject('failure!');
+            scope.$digest();
+
+            expect(scope.operationInProgress).toBeNull();
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+            expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            expect(scope.message.alertType).toBe('danger');
+        });
+
+        it('shows success message and cleans up on success', function() {
+            scope.removeCrosslisting(1, 1, 2);
+
+            expect(scope.operationInProgress).toBe('remove');
+            expect(scope.message).toBe(null);
+
+            deleteCrosslistingDeferred.resolve('success!');
+            scope.$digest();
+
+            expect(scope.operationInProgress).toBeNull();
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+            expect(scope.handleAjaxErrorResponse).not.toHaveBeenCalled();
+            expect(scope.message.alertType).toBe('success');
+        });
 
     });
-    
+
     describe('submitAddCrosslisting', function() {
         var primary = '124',
             secondary = '456',
@@ -239,7 +276,6 @@ describe('Unit testing ListController', function () {
             scope.rawFormInput.secondary = secondary;
             scope.dtInstance = {reloadData: function(){}};
             scope.submitAddCrosslisting();
-
         });
 
         it('should make sure the postNewCrosslisting is called with the correct values', function(){
