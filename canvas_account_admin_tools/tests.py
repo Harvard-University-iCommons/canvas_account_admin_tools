@@ -73,11 +73,20 @@ class CanvasAccountAdminToolsAPIProxyTests(TestCase):
         Proxy should not add last_modified_by to non-xlistmap POST data
         """
 
+        # test_path represents the path fragment handed to
+        # views.icommons_rest_api_proxy from the router (see the <path> arg
+        # in urls.py). If it doesn't contain xlist_map, the proxy layer
+        # should not add user auditing info
+        test_path = 'api-path/something_else/'
+        # test_request_path is the actual path required for the fake request
+        # object to be set up properly
+        test_request_path = '/{}'.format(test_path)
+
         test_post_data = {"any": "thing"}
         self._setup_request(method='POST', data=json.dumps(test_post_data))
 
         # call the view
-        response = icommons_rest_api_proxy(self.request, self.request.path_info)
+        response = icommons_rest_api_proxy(self.request, test_path)
 
         # get the call args from the first call to proxy.views.proxy_view
         actual_call = mock_proxy_view.call_args_list[0][0]  # just the call args
