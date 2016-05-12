@@ -156,7 +156,7 @@
                     }
                     $scope.message = {alertType: 'danger', text: errorText};
                 }).finally(function cleanupAfterPost() {
-                $scope.operationInProgress = null;
+                    $scope.operationInProgress = null;
             });
         };
 

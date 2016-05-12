@@ -263,36 +263,46 @@ describe('Unit testing ListController', function () {
     describe('submitAddCrosslisting', function() {
         var primary = '124',
             secondary = '456',
-            expectedPostParams = {
-                    primary_course_instance: primary,
-                    secondary_course_instance: secondary
-            },
-            expectedResponse = {
-                    status: 201  // format is unimportant for purposes of test
-            },
-            expectedFailureResponse = {
-                alertType: 'danger',
-                text: primary+' could not be crosslisted with '+secondary+' at this time. Please check the course instance IDs and try again.'
-            };
+            postNewCrosslistingDeferred = null;
+
         beforeEach(function () {
+            postNewCrosslistingDeferred = $q.defer();
+            scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
+            spyOn(scope, 'postNewCrosslisting').and
+                .returnValue(postNewCrosslistingDeferred.promise);
+            spyOn(scope, 'handleAjaxErrorResponse');
             scope.rawFormInput.primary = primary;
             scope.rawFormInput.secondary = secondary;
-            scope.dtInstance = {reloadData: function(){}};
+
             scope.submitAddCrosslisting();
+
+            expect(scope.operationInProgress).toBe('add');
+            expect(scope.message).toBe(null);
         });
 
         it('should make sure the postNewCrosslisting is called with the correct values', function(){
-            $httpBackend.expectPOST(xlistURL, expectedPostParams)
-                .respond(201, expectedResponse);
-            $httpBackend.flush(1);
-            expect(scope.message).toEqual({alertType: 'success', text: '124 was successfully crosslisted with 456.'});
+            expect(scope.postNewCrosslisting)
+                .toHaveBeenCalledWith(primary, secondary);
         });
 
-        it('should make sure the scope.message has the correct messag eon failure', function(){
-            $httpBackend.expectPOST(xlistURL, expectedPostParams)
-                .respond(400, expectedResponse);
-            $httpBackend.flush(1);
-            expect(scope.message).toEqual(expectedFailureResponse);
+        it('shows correct scope.message on failure', function(){
+            postNewCrosslistingDeferred.resolve('success!');
+            scope.$digest();
+
+            expect(scope.operationInProgress).toBeNull();
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+            expect(scope.handleAjaxErrorResponse).not.toHaveBeenCalled();
+            expect(scope.message.alertType).toBe('success');
+        });
+
+        it('shows correct scope.message on failure', function(){
+            postNewCrosslistingDeferred.reject('failure!');
+            scope.$digest();
+
+            expect(scope.operationInProgress).toBeNull();
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+            expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            expect(scope.message.alertType).toBe('danger');
         });
 
     });
