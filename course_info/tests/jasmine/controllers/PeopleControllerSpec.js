@@ -200,13 +200,14 @@ describe('Unit testing PeopleController', function() {
         beforeEach(setupController);
 
         it('won\'t add person if they already have a course enrollment', function(){
-            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0]]);
+            spyOn(scope, 'filterSearchResults').and.returnValue(personResult);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
             var result = scope.addNewMember(personResult, members);
             expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
             expect(result).toBeNull();
         });
+
         it('won\'t add if they could not be found via /people lookup', function(){
             var personResult = [{}, ["test45@mcelroy.org"]];
             spyOn(scope, 'filterSearchResults').and.returnValue([]);
