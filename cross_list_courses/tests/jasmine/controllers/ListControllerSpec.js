@@ -130,8 +130,6 @@ describe('Unit testing ListController', function () {
     });
 
     describe('invalidInput', function() {
-        var returnInput = function(input) { return input; };
-
         it('indicates validity when valid input is supplied', function() {
             // both course instances are valid
             spyOn(scope, 'isValidCourseInstance').and.returnValue(true);
@@ -165,15 +163,22 @@ describe('Unit testing ListController', function () {
         });
     });
 
-    xdescribe('isValidCourseInstance', function() {
-
+    describe('isValidCourseInstance', function() {
         beforeEach(function () {
+            spyOn(scope, 'cleanCourseInstanceInput').and.callFake(
+                function(input) { return input; });
         });
 
-        it('should return true when valid course instance is supplied');
+        it('returns true when valid course instance is supplied', function() {
+            expect(scope.isValidCourseInstance('1234567')).toBe(true);
+            expect(scope.isValidCourseInstance('1')).toBe(true);
+        });
 
-        it('should return false when invalid course instance is supplied');
-
+        it('returns false when invalid course instance is supplied', function() {
+            expect(scope.isValidCourseInstance('123 4567')).toBe(false);
+            expect(scope.isValidCourseInstance('abc123')).toBe(false);
+            expect(scope.isValidCourseInstance('')).toBe(false);
+        });
     });
 
     xdescribe('postNewCrosslisting', function() {

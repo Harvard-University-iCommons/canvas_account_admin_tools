@@ -79,8 +79,9 @@
                 $scope.cleanCourseInstanceInput($scope.rawFormInput.secondary))
         };
         $scope.isValidCourseInstance = function (courseInstanceString) {
-            return $scope.cleanCourseInstanceInput(courseInstanceString)
-                .match(/^[0-9]+$/);
+            // convert the result of regex match() to boolean
+            return !!($scope.cleanCourseInstanceInput(courseInstanceString)
+                .match(/^[0-9]+$/));
         };
         $scope.postNewCrosslisting = function (primary, secondary) {
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
