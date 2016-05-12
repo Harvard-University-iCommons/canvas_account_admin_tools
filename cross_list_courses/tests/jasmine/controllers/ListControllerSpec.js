@@ -129,15 +129,40 @@ describe('Unit testing ListController', function () {
         });
     });
 
-    xdescribe('invalidInput', function() {
+    describe('invalidInput', function() {
+        var returnInput = function(input) { return input; };
 
-        beforeEach(function () {
+        it('indicates validity when valid input is supplied', function() {
+            // both course instances are valid
+            spyOn(scope, 'isValidCourseInstance').and.returnValue(true);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and
+                .returnValues('123', '456');
+
+            expect(scope.invalidInput()).toBe(false);
         });
 
-        it('should return true when valid input is supplied');
+        it('indicates invalid when primary is invalid', function() {
+            spyOn(scope, 'isValidCourseInstance').and.returnValues(false, true);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and
+                .returnValues('123', '456');
+            expect(scope.invalidInput()).toBe(true);
+        });
+        it('indicates invalid when secondary is invalid', function() {
+            spyOn(scope, 'isValidCourseInstance').and.returnValues(true, false);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and.returnValues('123', '456');
+            expect(scope.invalidInput()).toBe(true);
+        });
 
-        it('should return false when invalid input is supplied');
-
+        it('indicates invalid when primary and secondary match', function() {
+            // both course instances are valid
+            spyOn(scope, 'isValidCourseInstance').and.returnValue(true);
+            // identical course instance ids cannot be paired
+            spyOn(scope, 'cleanCourseInstanceInput').and.returnValue('123');
+            expect(scope.invalidInput()).toBe(true);
+        });
     });
 
     xdescribe('isValidCourseInstance', function() {
