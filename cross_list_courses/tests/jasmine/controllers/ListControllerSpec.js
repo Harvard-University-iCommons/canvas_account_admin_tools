@@ -9,7 +9,7 @@ describe('Unit testing ListController', function () {
 
 
     function clearInitialxlistFetch() {
-        // handle the initial course instance get
+        // ignore the initial template fetch
         $httpBackend.expectGET("partials/list.html").respond(200, '');
         $httpBackend.flush(1);
     }
@@ -86,15 +86,18 @@ describe('Unit testing ListController', function () {
             scope.$digest();
         });
         it('should show the modal dialog with correct data when the user clicks delete', function(){
-            for (modalScope = scope.$$nextSibling; modalScope != null; modalScope = modalScope.$$nextSibling) {
+            for (var modalScope = scope.$$nextSibling;
+                 modalScope != null; modalScope = modalScope.$$nextSibling) {
                 if (modalScope.modalOptions.scope.hasOwnProperty('primary')  &&
                         modalScope.modalOptions.scope.hasOwnProperty('secondary')) {
                     break;
                 }
             }
             expect(modalScope).not.toBeNull();
-            expect(modalScope.modalOptions.scope.primary).toEqual(xlistMap.primary_course_instance.course_instance_id);
-            expect(modalScope.modalOptions.scope.secondary).toEqual(xlistMap.secondary_course_instance.course_instance_id);
+            expect(modalScope.modalOptions.scope.primary)
+                .toEqual(xlistMap.primary_course_instance.course_instance_id);
+            expect(modalScope.modalOptions.scope.secondary)
+                .toEqual(xlistMap.secondary_course_instance.course_instance_id);
         });
     });
 
