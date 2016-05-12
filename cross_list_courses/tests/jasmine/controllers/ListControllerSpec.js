@@ -7,6 +7,7 @@ describe('Unit testing ListController', function () {
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
         '=api%2Fcourse%2Fv2%2Fxlist_maps%2F';
 
+
     function clearInitialxlistFetch() {
         // handle the initial course instance get
         $httpBackend.expectGET("partials/list.html").respond(200, '');
@@ -98,54 +99,114 @@ describe('Unit testing ListController', function () {
     });
 
 
-    xdescribe('deleteCrosslisting', function() {
+    describe('deleteCrosslisting', function() {
+        it('should make sure the correct url is called', function(){
+            var xlistMapId = 123,
+                deleteURL = xlistURL + xlistMapId + '%2F';
 
-        beforeEach(function () {
+            scope.deleteCrosslisting(xlistMapId);
+
+            $httpBackend.expectDELETE(deleteURL).respond(204, {});
+            $httpBackend.flush(1);
         });
-
-        it('should make sure the correct url is called');
 
     });
 
-    xdescribe('formatCourse', function() {
-
-        beforeEach(function () {
+    describe('formatCourse', function() {
+        it('should make sure the course text is formatted correctly', function() {
+            var courseInstance = {
+                "course": {
+                    "registrar_code": "24259",
+                    "school_id": "ext"
+                },
+                "course_instance_id": 338920,
+                "term": {
+                    "display_name": "Spring 2017"
+                }
+            };
+            var result = scope.formatCourse(courseInstance);
+            expect(result).toBe('EXT 24259-Spring 2017-338920');
         });
-
-        it('should make sure the course text is formatted correctly');
-
     });
 
+    describe('invalidInput', function() {
+        it('indicates validity when valid input is supplied', function() {
+            // both course instances are valid
+            spyOn(scope, 'isValidCourseInstance').and.returnValue(true);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and
+                .returnValues('123', '456');
 
-    xdescribe('invalidInput', function() {
-
-        beforeEach(function () {
+            expect(scope.invalidInput()).toBe(false);
         });
 
-        it('should return true when valid input is supplied');
+        it('indicates invalid when primary is invalid', function() {
+            spyOn(scope, 'isValidCourseInstance').and.returnValues(false, true);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and
+                .returnValues('123', '456');
+            expect(scope.invalidInput()).toBe(true);
+        });
+        it('indicates invalid when secondary is invalid', function() {
+            spyOn(scope, 'isValidCourseInstance').and.returnValues(true, false);
+            // different course instances (identical ones cannot be paired)
+            spyOn(scope, 'cleanCourseInstanceInput').and.returnValues('123', '456');
+            expect(scope.invalidInput()).toBe(true);
+        });
 
-        it('should return false when invalid input is supplied');
-
+        it('indicates invalid when primary and secondary match', function() {
+            // both course instances are valid
+            spyOn(scope, 'isValidCourseInstance').and.returnValue(true);
+            // identical course instance ids cannot be paired
+            spyOn(scope, 'cleanCourseInstanceInput').and.returnValue('123');
+            expect(scope.invalidInput()).toBe(true);
+        });
     });
 
-    xdescribe('isValidCourseInstance', function() {
-
+    describe('isValidCourseInstance', function() {
         beforeEach(function () {
+            spyOn(scope, 'cleanCourseInstanceInput').and.callFake(
+                function(input) { return input; });
         });
 
-        it('should return true when valid course instance is supplied');
+        it('returns true when valid course instance is supplied', function() {
+            expect(scope.isValidCourseInstance('1234567')).toBe(true);
+            expect(scope.isValidCourseInstance('1')).toBe(true);
+        });
 
-        it('should return false when invalid course instance is supplied');
-
+        it('returns false when invalid course instance is supplied', function() {
+            expect(scope.isValidCourseInstance('123 4567')).toBe(false);
+            expect(scope.isValidCourseInstance('abc123')).toBe(false);
+            expect(scope.isValidCourseInstance('')).toBe(false);
+        });
     });
 
-    xdescribe('postNewCrosslisting', function() {
+    describe('postNewCrosslisting', function() {
+        it('calls post with the correct params', function() {
+            var result = null,
+                primary = 123,
+                secondary = 456,
+                expectedPostParams = {
+                    primary_course_instance: primary,
+                    secondary_course_instance: secondary
+                },
+                expectedResponse = {
+                    status: 201  // format is unimportant for purposes of test
+                };
 
-        beforeEach(function () {
+
+            scope.postNewCrosslisting(primary, secondary)
+                .then(function(response) { result = response.data; });
+
+            $httpBackend.expectPOST(xlistURL, expectedPostParams)
+                .respond(201, expectedResponse);
+            $httpBackend.flush(1);
+
+            // resolve promise
+            scope.$digest();
+
+            expect(result).toEqual(expectedResponse);
         });
-
-        it('should make sure the post was called with the correct params');
-
     });
 
 
