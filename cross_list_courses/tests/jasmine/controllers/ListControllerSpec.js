@@ -181,13 +181,32 @@ describe('Unit testing ListController', function () {
         });
     });
 
-    xdescribe('postNewCrosslisting', function() {
+    describe('postNewCrosslisting', function() {
+        it('calls post with the correct params', function() {
+            var result = null,
+                primary = 123,
+                secondary = 456,
+                expectedPostParams = {
+                    primary_course_instance: primary,
+                    secondary_course_instance: secondary
+                },
+                expectedResponse = {
+                    status: 201  // format is unimportant for purposes of test
+                };
 
-        beforeEach(function () {
+
+            scope.postNewCrosslisting(primary, secondary)
+                .then(function(response) { result = response.data; });
+
+            $httpBackend.expectPOST(xlistURL, expectedPostParams)
+                .respond(201, expectedResponse);
+            $httpBackend.flush(1);
+
+            // resolve promise
+            scope.$digest();
+
+            expect(result).toEqual(expectedResponse);
         });
-
-        it('should make sure the post was called with the correct params');
-
     });
 
 
