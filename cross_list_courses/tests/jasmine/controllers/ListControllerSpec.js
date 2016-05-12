@@ -219,15 +219,42 @@ describe('Unit testing ListController', function () {
         it('should make sure the scope.message has the correct messag eon failure');
 
     });
-
-
-    xdescribe('submitAddCrosslisting', function() {
-
+    
+    describe('submitAddCrosslisting', function() {
+        var primary = '124',
+            secondary = '456',
+            expectedPostParams = {
+                    primary_course_instance: primary,
+                    secondary_course_instance: secondary
+            },
+            expectedResponse = {
+                    status: 201  // format is unimportant for purposes of test
+            },
+            expectedFailureResponse = {
+                alertType: 'danger',
+                text: primary+' could not be crosslisted with '+secondary+' at this time. Please check the course instance IDs and try again.'
+            };
         beforeEach(function () {
+            scope.rawFormInput.primary = primary;
+            scope.rawFormInput.secondary = secondary;
+            scope.dtInstance = {reloadData: function(){}};
+            scope.submitAddCrosslisting();
+
         });
 
-        it('should make sure the postNewCrosslisting is called with the correct values');
-        it('should make sure the scope.message has the correct messag eon failure');
+        it('should make sure the postNewCrosslisting is called with the correct values', function(){
+            $httpBackend.expectPOST(xlistURL, expectedPostParams)
+                .respond(201, expectedResponse);
+            $httpBackend.flush(1);
+            expect(scope.message).toEqual({alertType: 'success', text: '124 was successfully crosslisted with 456.'});
+        });
+
+        it('should make sure the scope.message has the correct messag eon failure', function(){
+            $httpBackend.expectPOST(xlistURL, expectedPostParams)
+                .respond(400, expectedResponse);
+            $httpBackend.flush(1);
+            expect(scope.message).toEqual(expectedFailureResponse);
+        });
 
     });
 
