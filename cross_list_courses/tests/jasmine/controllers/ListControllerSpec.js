@@ -285,7 +285,7 @@ describe('Unit testing ListController', function () {
                 .toHaveBeenCalledWith(primary, secondary);
         });
 
-        it('shows correct scope.message on failure', function(){
+        it('shows correct scope.message on success', function(){
             postNewCrosslistingDeferred.resolve('success!');
             scope.$digest();
 
@@ -303,6 +303,22 @@ describe('Unit testing ListController', function () {
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
             expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
             expect(scope.message.alertType).toBe('danger');
+        });
+
+        it('shows something friendlier than the default DRF error when already cross-listed', function(){
+            var alreadyXlistedResponse = {
+                data: {non_field_errors:['unique set']},
+                status: 400
+            };
+
+            postNewCrosslistingDeferred.reject(alreadyXlistedResponse);
+            scope.$digest();
+
+            expect(scope.operationInProgress).toBeNull();
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+            expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
+            expect(scope.message.alertType).toBe('danger');
+            expect(scope.message.text).toContain('already crosslisted');
         });
 
     });
