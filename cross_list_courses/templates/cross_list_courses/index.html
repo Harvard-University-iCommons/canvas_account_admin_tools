@@ -7,13 +7,15 @@
   <head>
     <meta name="viewport"
           content="width=device-width, initial-scale=1, user-scalable=no">
-    <link href="/static/favicon.ico" rel="icon" type="image/x-icon">
+    <link href="{% static 'favicon.ico' %}" rel="icon" type="image/x-icon">
     <link rel="stylesheet" type="text/css"
           href="{% static 'font-awesome-4.5.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" type="text/css"
           href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}"
           media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.11/media/css/jquery.dataTables.min.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'datatables-1.10.11/media/css/jquery.dataTables.min.css' %}"
+          media="screen"/>
 
     {% if debug %}
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.js' %}"></script>
@@ -38,6 +40,11 @@
     {% endif %}
 
     {% include 'django_auth_lti/resource_link_id.html' %}
+
+    {# fixes safari autocomplete issue #}
+    {# (see https://github.com/angular/angular.js/issues/1460) #}
+    <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
+
     <script>
       window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
     </script>

@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -110,6 +111,12 @@ def icommons_rest_api_proxy(request, path):
     # request.GET is immutable, so we need to copy before modifying
     request.GET = request.GET.copy()
     request.GET.pop('resource_link_id', None)
+
+    # tlt-1314: include audit information when creating xlistmaps
+    if request.method == 'POST' and 'xlist_maps' in path:
+        body_json = json.loads(request.body)
+        body_json['last_modified_by'] = request.LTI['lis_person_sourcedid']
+        request_args['data'] = json.dumps(body_json)
 
     url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
     if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
