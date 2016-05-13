@@ -36,7 +36,9 @@ class MainPageObject(CrossListingBasePageObject):
     page_loaded_locator = Locators.HEADING_ELEMENT
 
     def add_cross_listing_pairing(self, primary_cid, secondary_cid):
-        """Add two cross listed ID to be paired in cross-listing tool"""
+        """Add two cross listed ID to be paired in cross-listing tool
+        and confirms that an alert box returns after add.
+        """
 
         # Fills in the primary CID for cross-listing
         primary_cid_field = self.find_element(*Locators.PRIMARY_CID_ADD_FIELD)
@@ -50,14 +52,9 @@ class MainPageObject(CrossListingBasePageObject):
         # Clicks on submit button to pair the cross listing
         self.find_element(*Locators.SUBMIT_BUTTON).click()
 
-    def confirm_presence_of_confirmation_alert(self):
-        """
-        :param self:
-        :return: Confirms that an alert box returns after add
-        """
         try:
             WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
-                    *Locators.CONFIRMATION_ALERT).is_displayed())
+                *Locators.CONFIRMATION_ALERT).is_displayed())
         except TimeoutException:
             return False
         return True
@@ -69,22 +66,13 @@ class MainPageObject(CrossListingBasePageObject):
                 data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
-    def get_actual_confirmation_text(self):
+    def is_locator_text_present(self, expected_text):
         """
-        Returns the confirmation text after add
-        """
-        alert = self.find_element(*Locators.CONFIRMATION_ALERT)
-        confirmation_text = alert.text.strip()
-        return confirmation_text
-
-    def get_expected_confirmation_text(self, expected_text):
-        """
-        Finds the locator that contains locator text (expected text) and
-        returns the full text
+        Check to that locator text appears on the confirmation page
         """
         try:
-            expected_text = self.find_element(*Locators.ERROR_TEXT_LOCATOR(
-                    expected_text))
+            self.find_element(*Locators.ERROR_TEXT_LOCATOR(expected_text))
         except NoSuchElementException:
-            return "Error: Expected text not found on page."
-        return expected_text.text.strip()
+            return False
+        else:
+            return True

@@ -17,39 +17,39 @@ class AddCrossListingTests(CrossListingBaseTestCase):
                                        expected_result,
                                        expected_text):
         """
-        TLT-2589, AC #1 and 7
+        Jira requirement story: TLT-1314
+        Selenium sub-task: TLT-2589.
+        These tests cover AC #1 and #7.
+
         This test adds a valid cross-list pairing to the cross-listing table
         """
-        # This adds the pairing to the cross-list table and clicks submit
-        self.main_page.add_cross_listing_pairing(primary_cid, secondary_cid)
+        # This adds a pairing to cross-list table, clicks submit,
+        # and confirm an alert box appears.
+        self.assertTrue(self.main_page.add_cross_listing_pairing(primary_cid,
+                                                                 secondary_cid))
 
-        # This verifies that the confirmation box appears
-        self.assertTrue(
-                self.main_page.confirm_presence_of_confirmation_alert()
-        )
-
-        # Verifies a successful cross-list add
+        # Verify a successful cross-list add
         if expected_result == 'success':
 
+            # Removes cross-listed courses if it exists before testing add
+            self.api.remove_xlisted_course(primary_cid, secondary_cid)
+
             #  Verifies successful add confirmation
-            actual_text = self.main_page.get_actual_confirmation_text()
-            expected_text = self.main_page.get_expected_confirmation_text(
-                        expected_text)
-            self.assertEqual(actual_text, expected_text,
-                             "Error. Expected success message is '{}' but "
-                             "message is returning '{}'".format(expected_text,
-                                                                actual_text))
+            self.driver.save_screenshot("a_success_message.png")
+            self.assertTrue(
+                self.main_page.is_locator_text_present(expected_text))
 
             # Clean up and remove the cross-listed course when test is done
             self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
-        #  Verifies an unsuccessful cross-list
-        if expected_result == 'fail':
-            actual_text = self.main_page.get_actual_confirmation_text()
-            expected_text_on_page = \
-                self.main_page.get_expected_confirmation_text(expected_text)
-            self.assertEqual(actual_text, expected_text_on_page,
-                             "Error: the error message locator cannot be "
-                             "found. Expecting an error containing '{}' but "
-                             "message is returning '{}'".format(
-                                     expected_text, actual_text))
+        #  Verify an unsuccessful cross-list
+        elif expected_result == 'fail':
+            #  Verifies successful add confirmation
+            self.assertTrue(
+                self.main_page.is_locator_text_present(expected_text))
+
+        else:
+            raise ValueError(
+                'given_access column for user {} must be either \'success\' '
+                'or \'fail\''.format(expected_result)
+            )
