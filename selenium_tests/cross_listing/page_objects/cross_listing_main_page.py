@@ -76,3 +76,11 @@ class MainPageObject(CrossListingBasePageObject):
             return False
         else:
             return True
+
+    def get_confirmation_text(self):
+        """
+        Returns the confirmation text after add
+        """
+        alert = self.find_element(*Locators.CONFIRMATION_ALERT)
+        confirmation_text = alert.text.strip()
+        return confirmation_text
