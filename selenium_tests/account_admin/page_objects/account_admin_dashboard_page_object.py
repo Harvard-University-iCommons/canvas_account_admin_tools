@@ -10,8 +10,7 @@ class AccountAdminDashboardPageLocators(object):
     # use text() for exact match (should only match on dashboard page)
     PAGE_TITLE = (By.XPATH, '//h3[text()="Admin Console"]')
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Find Course Info')]")
-    CROSS_LISTING_DIV = (By.ID, "cross-listing-button")
-
+    CROSS_LISTING_DIV = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
 
