@@ -62,6 +62,7 @@ class MainPageObject(CrossListingBasePageObject):
     def delete_cross_listing_pairing(self, data_xlist_map_id):
         """ Deletes cross-listing pairing through crosslisting tool in
         admin console and confirms delete in modal window"""
+        self.focus_on_tool_frame()
         self.find_element(*Locators.DELETE_CROSSLIST_ICON(
                 data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
