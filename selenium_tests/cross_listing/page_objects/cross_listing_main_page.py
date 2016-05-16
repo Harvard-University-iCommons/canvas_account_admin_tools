@@ -69,9 +69,11 @@ class MainPageObject(CrossListingBasePageObject):
 
     def is_locator_text_present(self, expected_text):
         """
-        Check to that locator text appears on the confirmation page
+        Check to that locator text appears on the confirmation text box
         """
         try:
+            WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+                *Locators.CONFIRMATION_ALERT).is_displayed())
             self.find_element(*Locators.ERROR_TEXT_LOCATOR(expected_text))
         except NoSuchElementException:
             return False
