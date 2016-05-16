@@ -35,7 +35,6 @@ class AddCrossListingTests(CrossListingBaseTestCase):
             self.api.remove_xlisted_course(primary_cid, secondary_cid)
 
             #  Verifies successful add confirmation
-            self.driver.save_screenshot("a_success_message.png")
             self.assertTrue(
                 self.main_page.is_locator_text_present(expected_text))
 
