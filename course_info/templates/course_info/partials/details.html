@@ -229,7 +229,46 @@
                 form-value="dc.formDisplayData.conclude_date"
                 model-value="dc.courseInstance.conclude_date"
                 field="conclude_date"
-                label="Conclusion Date"></hu-editable-input>
+                label="Conclusion Date">
+            </hu-editable-input>
+
+            <li class="list-group-item" ng-show="" is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)">
+                <div class="row">
+                  <div class="col-md-2">
+                      <strong>Course Flags </strong>
+                  </div>
+                  <div class="col-md-10">
+
+                      <hu-editable-checkbox
+                            editable="dc.editable"
+                            is-loading="dc.isUndefined(dc.courseInstance.sync_to_canvas)"
+                            form-value="dc.formDisplayData.sync_to_canvas"
+                            model-value="dc.courseInstance.sync_to_canvas"
+                            field="sync_to_canvas"
+                            label="Sync To Canvas">
+
+                      </hu-editable-checkbox>
+                      <hu-editable-checkbox
+                              editable="dc.editable"
+                              is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)"
+                              form-value="dc.formDisplayData.exclude_from_isites"
+                              model-value="dc.courseInstance.exclude_from_isites"
+                              field="exclude_from_isites"
+                              label="Exclude from Course Sites">
+                      </hu-editable-checkbox>
+                      <hu-editable-checkbox
+                              editable="dc.editable"
+                              is-loading="dc.isUndefined(dc.courseInstance.exclude_from_catalog)"
+                              form-value="dc.formDisplayData.exclude_from_catalog"
+                              model-value="dc.courseInstance.exclude_from_catalog"
+                              field="exclude_from_catalog"
+                              label="Exclude from Catalog">
+                      </hu-editable-checkbox>
+                  </div>
+                </div>
+             </li>
+
+
 
           </ul>
         </fieldset>

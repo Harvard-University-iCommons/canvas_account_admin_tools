@@ -139,7 +139,10 @@
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
                 courseInstance['conclude_date'] = ci.conclude_date;
-
+                courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
+                courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
+                courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
+                
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
                     courseInstance['xlist_status'] = 'Primary';
@@ -203,12 +206,19 @@
                 'notes',
                 'short_title',
                 'sub_title',
-                'title'
+                'title',
+                'sync_to_canvas',
+                'exclude_from_isites',
+                'exclude_from_catalog',
             ];
             fields.forEach(function(field) {
                 patchData[field] = dc.formDisplayData[field];
+                console.log("______");
+                console.log(patchData[field]);
+                console.log(dc.formDisplayData[field]);
             });
-
+            console.log(" patching data");
+            console.log(patchData);
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch() {
                     // update form data so reset button will pick up changes
