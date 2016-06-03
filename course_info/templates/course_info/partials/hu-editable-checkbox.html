@@ -5,15 +5,14 @@
       <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
       <div ng-hide="isLoading()">
         <input type="checkbox" id="input-course-{{field}}"
-               name="input-course-{{field}}" ng-show="editable"
+               name="input-course-{{field}}"
                ng-true-value="1"
                ng-false-value="0"
                ng-checked="modelValue == 1"
                ng-model="formValue" >
         </input>
-        <span id="span-course-{{field}}"
-              ng-hide="editable">{{modelValue}}</span>
-        <label for="input-course-{{field}}" style="font-weight: 300">
+
+        <label for="input-course-{{field}}">
           &nbsp;&nbsp;{{label}}
         </label>
       </div>
