@@ -213,12 +213,7 @@
             ];
             fields.forEach(function(field) {
                 patchData[field] = dc.formDisplayData[field];
-                console.log("______");
-                console.log(patchData[field]);
-                console.log(dc.formDisplayData[field]);
             });
-            console.log(" patching data");
-            console.log(patchData);
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch() {
                     // update form data so reset button will pick up changes
