@@ -15,7 +15,7 @@
     <strong>Enrolled as {{ membership.role.role_name }}</strong>
   </div>
   <p>from this course?</p>
-  <div class="alert alert-warning" role="alert" ng-show="membership.source == 'xmlfeed' ">
+  <div class="alert alert-warning" role="alert" ng-show="membership.source.indexOf('feed') > 0">
     The person you are removing is fed from the registrar and will
     be re-enrolled within 5 minutes unless the 'Sync to Canvas' box
     is unchecked in Course Details.
