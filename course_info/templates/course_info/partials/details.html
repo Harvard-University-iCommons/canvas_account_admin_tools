@@ -196,7 +196,7 @@
                 field="departments"
                 label="Departments">
               <div class="row" ng-repeat="dept in dc.courseInstance.departments">
-                <div class="col-md-12"> {{dept.name}} </div>
+                <div class="col-sm-12"> {{dept.name}} </div>
               </div>
             </hu-field-label-wrapper>
 
@@ -205,7 +205,7 @@
                 field="course_groups"
                 label="Course Groups">
               <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
-                <div class="col-md-12"> {{group.name}} </div>
+                <div class="col-sm-12"> {{group.name}} </div>
               </div>
             </hu-field-label-wrapper>
 
@@ -214,11 +214,11 @@
                 field="sites"
                 label="Associated Official and Unofficial Site(s)">
                 <div class="row" ng-repeat="site in dc.courseInstance.sites">
-                  <div class="col-md-1">
+                  <div class="col-sm-1">
                     <span class="label label-primary" ng-if="site.map_type == 'official'">Official</span>
                     <span class="label label-primary" ng-if="site.map_type == 'unofficial'">Unofficial</span>
                   </div>
-                  <div class="col-md-11">
+                  <div class="col-sm-11">
                     <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
                   </div>
                 </div>
@@ -234,10 +234,10 @@
 
             <li class="list-group-item" is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)">
                 <div class="row">
-                  <div class="col-md-2">
+                  <div class="col-sm-2">
                       <strong>Course Flags </strong>
                   </div>
-                  <div class="col-md-10">
+                  <div class="col-sm-10">
 
                       <hu-editable-checkbox
                             editable="dc.editable"
@@ -268,13 +268,11 @@
                 </div>
              </li>
 
-
-
           </ul>
         </fieldset>
 
-        <div class="form-group" ng-show="dc.editable">
-          <div class="col-md-12">
+        <div class="form-group" >
+          <div class="col-sm-12">
             <a type="link" class="btn btn-default" id="course-details-form-reset"
                ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null"
                ng-click="dc.resetFormFromUI()">
