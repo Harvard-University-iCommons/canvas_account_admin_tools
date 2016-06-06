@@ -1,24 +1,16 @@
 {% verbatim %}
-  <div class="form-group">
-
-    <div class="col-md-10">
-      <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
-      <div ng-hide="isLoading()">
-        <input type="checkbox" id="input-course-{{field}}"
-               name="input-course-{{field}}"
-               ng-true-value="1"
-               ng-false-value="0"
-               ng-checked="modelValue == 1"
-               ng-model="formValue" >
-        </input>
-
-        <label for="input-course-{{field}}">
-          &nbsp;&nbsp;{{label}}
-        </label>
-      </div>
-    </div>
-
+  <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
+  <div ng-hide="isLoading()">
+    <label for="input-course-{{field}}">
+      <input type="checkbox" id="input-course-{{field}}"
+             name="input-course-{{field}}"
+             ng-true-value="1"
+             ng-false-value="0"
+             ng-checked="modelValue == 1"
+             ng-model="formValue" >
+      </input>
+      &nbsp;&nbsp;{{label}}
+    </label>
   </div>
-
 {% endverbatim %}
 
