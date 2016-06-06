@@ -214,6 +214,7 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['xlist_status']).toEqual('N/A');
             expect(dc.courseInstance['description']).toEqual('<p>hello</p>');
             // members.count is not defined it should equal 0
+            expect(dc.courseInstance['members']).toEqual(100);
             expect(dc.courseInstance['sync_to_canvas']).toEqual(ci.sync_to_canvas);
             expect(dc.courseInstance['exclude_from_isites']).toEqual(ci.exclude_from_isites);
             expect(dc.courseInstance['exclude_from_catalog']).toEqual(ci.exclude_from_catalog);
