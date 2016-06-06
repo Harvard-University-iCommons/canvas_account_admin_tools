@@ -182,6 +182,9 @@ describe('Unit testing DetailsController', function () {
                     academic_year: '2015',
                 },
                 primary_xlist_instances: [],
+                sync_to_canvas: '1',
+                exclude_from_isites: '0',
+                exclude_from_catalog: '0'
             };
 
             members = {
@@ -211,7 +214,9 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['xlist_status']).toEqual('N/A');
             expect(dc.courseInstance['description']).toEqual('<p>hello</p>');
             // members.count is not defined it should equal 0
-            expect(dc.courseInstance['members']).toEqual(100);
+            expect(dc.courseInstance['sync_to_canvas']).toEqual(ci.sync_to_canvas);
+            expect(dc.courseInstance['exclude_from_isites']).toEqual(ci.exclude_from_isites);
+            expect(dc.courseInstance['exclude_from_catalog']).toEqual(ci.exclude_from_catalog);
 
         });
 
@@ -308,7 +313,10 @@ describe('Unit testing DetailsController', function () {
                 "notes":"test notes",
                 "short_title":"test short title",
                 "sub_title":"test sub title",
-                "title":"test title"
+                "title":"test title",
+                "sync_to_canvas": 1,
+                "exclude_from_isites":0,
+                "exclude_from_catalog":0,
             };
 
         beforeEach(function () {
@@ -318,6 +326,9 @@ describe('Unit testing DetailsController', function () {
                 short_title: 'Test',
                 sub_title: 'Jasime is your friend',
                 description: '<p>hello</p>',
+                sync_to_canvas : 1,
+                exclude_from_isites:0,
+                exclude_from_catalog:0,
                 sites: [
                     {
                         external_id: 'https://x.y.z/888',
@@ -376,7 +387,10 @@ describe('Unit testing DetailsController', function () {
                 'notes': 'test notes',
                 'short_title': 'test short title',
                 'sub_title': 'test sub title',
-                'title': 'test title'
+                'title': 'test title',
+                'sync_to_canvas' : 1,
+                'exclude_from_isites':0,
+                'exclude_from_catalog':0
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
@@ -401,7 +415,10 @@ describe('Unit testing DetailsController', function () {
                 'notes': 'test notes',
                 'short_title': 'test short title',
                 'sub_title': 'test sub title',
-                'title': 'test title'
+                'title': 'test title',
+                'sync_to_canvas' : 1,
+                'exclude_from_isites':0,
+                'exclude_from_catalog':0
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
@@ -427,7 +444,10 @@ describe('Unit testing DetailsController', function () {
                 'notes': 'test notes',
                 'short_title': 'test short title',
                 'sub_title': 'test sub title',
-                'title': 'test title'
+                'title': 'test title',
+                'sync_to_canvas' : 1,
+                'exclude_from_isites':0,
+                'exclude_from_catalog':0
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
