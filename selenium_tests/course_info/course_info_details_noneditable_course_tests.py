@@ -16,8 +16,8 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
         verify non-SB/ILE courses cannot be edited
         """
         # Verify that buttons to edit page are not present
-        self.assertFalse(self.detail_page.
-                         verify_buttons_to_edit_page_are_present())
+        self.assertTrue(self.detail_page.
+                        verify_buttons_to_edit_page_are_present())
 
         non_editable_fields = [
         'course_instance_id',
@@ -34,6 +34,5 @@ class CourseInfoDetailsNonEditTests(CourseInfoBaseTestCase):
 
         for element in non_editable_fields:
             #  verify that the field is not rendered as an input element
-            self.assertFalse(
-                    self.detail_page.is_element_displayed_as_input_field(element))
-
+            self.assertFalse(self.detail_page.
+                             is_element_displayed_as_input_field(element))
