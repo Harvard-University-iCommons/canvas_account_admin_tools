@@ -53,9 +53,9 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
 
     def verify_buttons_to_edit_page_are_present(self):
         try:
-            (self.find_element(*Locators.RESET_FORM_BUTTON).is_displayed()
-             and self.find_element(*Locators.SUBMIT_FORM_BUTTON).is_displayed())
-            return True
+            if (self.find_element(*Locators.RESET_FORM_BUTTON).is_displayed()
+            and self.find_element(*Locators.SUBMIT_FORM_BUTTON).is_displayed()):
+                return True
         except NoSuchElementException:
             return False
 
