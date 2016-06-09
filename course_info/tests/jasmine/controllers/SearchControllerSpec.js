@@ -90,4 +90,30 @@ describe('Unit testing SearchController', function() {
     describe('$scope.searchCourseInstances()', function() {
 
     });
+
+    describe('getCourseDescription()', function() {
+        it('should display the course title if title is present', function () {
+            var course = { title: 'ABC'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('ABC');
+        });
+
+        it('should dipslay the course short title if title is not present and short title is', function() {
+            var course = { title: '', short_title: 'short'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('short');
+        });
+
+        it('should display the [school_id] Untitled Course [term dsiplay name] when no title or short title are present', function(){
+            var course = { title: '', short_title: '', course: { school_id: 'COLGSAS'}, term: {display_name: 'FALL 2016'}};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('COLGSAS Untitled Course FALL 2016');
+        });
+
+        it('should display Untitled Course when no course and term are not present', function(){
+            var course = { };
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual(' Untitled Course ');
+        });
+    });
 });

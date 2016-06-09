@@ -105,12 +105,27 @@
                 });
             };
 
+            $scope.getCourseDescription = function(course) {
+                // If a course's title is [NULL], attempt to display the short title.
+                // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+                console.log(course);
+                if(typeof course.title != "undefined" && course.title.length > 0){
+                    return course.title;
+                }
+                else if(typeof course.short_title != "undefined" && course.short_title.length > 0){
+                    return course.short_title;
+                }
+                var school_id = course.course ? course.course.school_id.toUpperCase() : '';
+                var term_display_name = course.term ? course.term.display_name : '';
+                return school_id + ' Untitled Course ' + term_display_name;
+            };
+
             $scope.courseInstanceToTable = function(course) {
                 // This logic is reused in PeopelController.getFormattedCourseInstance
                 // So any changes to data format need to be done in both places.
                 // TODO: Eventually move the reusable logic to a separate library
                 var cinfo = {};
-                cinfo['description'] = course.title;
+                cinfo['description'] = $scope.getCourseDescription(course);
                 cinfo['year'] = course.term ? course.term.academic_year : '';
                 cinfo['term'] = course.term ? course.term.display_name : '';
                 cinfo['term_code'] = course.term ? course.term.term_code : '';
