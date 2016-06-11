@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'course_info',
     'cross_list_courses',
     'djangular',
+    'people_tool',
 )
 
 MIDDLEWARE_CLASSES = (

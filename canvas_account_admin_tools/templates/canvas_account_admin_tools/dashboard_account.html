@@ -26,7 +26,7 @@
 
       {% if conclude_courses %}
         <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" class="list-group-item active" target="_blank">
+          <a type="button" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" target="_blank">
               <h4 class="list-group-item-heading">Conclude Courses</h4>
               <p class="list-group-item-text">Change conclusion dates <br>for a selected course</p>
           </a>
@@ -35,7 +35,7 @@
 
       {% if lti_tools_usage %}
         <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ lti_tools_usage }}" class="list-group-item active" target="_parent">
+          <a type="button" class="btn btn-primary list-group-item active" href="{{ lti_tools_usage }}" target="_parent">
               <h4 class="list-group-item-heading">LTI Tools Usage Report</h4>
               <p class="list-group-item-text">See which LTI tools are installed in your account</p>
           </a>
@@ -44,7 +44,7 @@
 
       {% if courses_in_this_account %}
         <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ courses_in_this_account }}" class="list-group-item active" target="_parent">
+          <a type="button" class="btn btn-primary list-group-item active" href="{{ courses_in_this_account }}" target="_parent">
               <h4 class="list-group-item-heading">Courses in this Account</h4>
               <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
           </a>
@@ -52,7 +52,7 @@
       {% endif %}
 
         <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}" class="list-group-item active">
+          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}">
               <h4 class="list-group-item-heading">Find Course Info</h4>
               <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
           </a>
@@ -60,12 +60,18 @@
 
       {% if cross_listing_allowed %}
         <div id="cross-listing-button" class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'cross_list_courses:index' %}" class="list-group-item active">
+          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'cross_list_courses:index' %}">
               <h4 class="list-group-item-heading">Cross-list Courses</h4>
               <p class="list-group-item-text">Set up and modify cross-listings <br>&nbsp;</p>
           </a>
         </div>
       {% endif %}
 
+        <div class="list-group col-md-4">
+          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'people_tool:index' %}">
+              <h4 class="list-group-item-heading">Find People</h4>
+              <p class="list-group-item-text">Search for users <br>&nbsp;</p>
+          </a>
+        </div>
 
 {% endblock content %}
