@@ -248,30 +248,35 @@
                   is-loading="dc.isUndefined(dc.courseInstance.sites)"
                   field="sites"
                   label="Associated Site(s)">
-                <div class="row course-site-details"
+                <div class="course-site-details"
                      ng-repeat="site in dc.courseInstance.sites">
-                  <div class="col-sm-1">
+                  <div class="row">
+                    <div class="col-sm-1">
                     <span class="label label-primary"
                           ng-if="site.map_type == 'official'">Official</span>
                     <span class="label label-primary"
                           ng-if="site.map_type == 'unofficial'">Unofficial</span>
-                  </div>
-                  <div class="col-sm-8">
-                    <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
-                  </div>
-                  <div class="col-sm-3">
-                    <!-- todo: switch $index to site_id when available -->
-                    <button type="button" class="btn btn-default"
-                            ng-click="dc.dissociateSite($index)">
-                        <span ng-show="dc.dissociateSiteInProgressIndex == $index">
+                    </div>
+                    <div class="col-sm-8">
+                      <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
+                    </div>
+                    <div class="col-sm-3">
+                      <!-- todo: switch $index to site_id when available -->
+                      <button type="button" class="btn btn-default pull-right"
+                              ng-click="dc.dissociateSite($index)">
+                        <span
+                            ng-show="dc.dissociateSiteInProgressIndex == $index">
                           <i class="fa fa-refresh fa-spin"></i>
                           Dissociating Site...
                         </span>
-                        <span ng-show="dc.dissociateSiteInProgressIndex != $index">
+                        <span
+                            ng-show="dc.dissociateSiteInProgressIndex != $index">
                           Dissociate
                         </span>
-                    </button>
+                      </button>
+                    </div>
                   </div>
+                  <hr>
                 </div>
                 <div class="row">
                   <div class="col-sm-1"></div>
@@ -289,7 +294,7 @@
                            placeholder="Type URL of new associated course"/>
                   </div>
                   <div class="col-sm-3">
-                    <button type="button" class="btn btn-primary"
+                    <button type="button" class="btn btn-primary pull-right"
                             ng-disabled="!dc.validNewSiteURL()"
                             ng-click="dc.associateNewSite()">
                         <span ng-switch="dc.associateNewSiteInProgress">
