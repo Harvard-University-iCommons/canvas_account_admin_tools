@@ -286,6 +286,18 @@
             // return the filtered list
             return filteredResults;
         };
+
+        $scope.getCourseDescription = function(course) {
+            // If a course's title is [NULL], attempt to display the short title.
+            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            if(typeof course.title != "undefined" && course.title.trim().length > 0){
+                return course.title;
+            }
+            else if(typeof course.short_title != "undefined" && course.short_title.trim().length > 0){
+                return course.short_title;
+            }
+            return 'Untitled Course';
+        };
         $scope.getFormattedCourseInstance = function(ci) {
             // This is a helper function that formats the CourseInstance metadata
             // and is combination of existing logic in
@@ -293,7 +305,7 @@
             // render functions.
             var courseInstance = {};
             if (ci) {
-                courseInstance['title']= ci.title;
+                courseInstance['title']= $scope.getCourseDescription(ci);
                 courseInstance['school'] = ci.course ?
                         ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';

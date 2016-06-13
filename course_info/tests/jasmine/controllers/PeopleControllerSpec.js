@@ -1131,4 +1131,38 @@ describe('Unit testing PeopleController', function() {
             expect(scope.messages.progress).toEqual(text);
         });
     });
+
+    describe('getCourseDescription', function() {
+        beforeEach(setupController);
+        it('should display the course title if title is present', function () {
+            var course = { title: 'ABC'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('ABC');
+        });
+
+        it('should dipslay the course short title if title is not present and short title is', function() {
+            var course = { title: '', short_title: 'short'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('short');
+        });
+
+        it('should display Untitled Course when no title or short title are present', function(){
+            var course = { title: '', short_title: ''};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('Untitled Course');
+        });
+
+        it('should display Untitled Course when no data is present', function(){
+            var course = {};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('Untitled Course');
+        });
+
+        it('should display title if both title and short title are present', function(){
+            var course = { title: 'ABC', short_title: 'short'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('ABC');
+        });
+    });
+
 });

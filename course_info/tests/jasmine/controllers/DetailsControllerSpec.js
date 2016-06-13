@@ -517,4 +517,46 @@ describe('Unit testing DetailsController', function () {
             'while loading, and hide the loading indicator when no ' +
             'longer loading');
     });
+
+    describe('getCourseDescription', function() {
+        beforeEach(function () {
+            dc = $controller('DetailsController', {$scope: scope});
+        });
+        afterEach(function () {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.expectGET(peopleURL).respond(200, '');
+            $httpBackend.flush(2);
+        });
+        it('should display the course title if title is present', function () {
+            var course = { title: 'ABC'};
+            result = dc.getCourseDescription(course);
+            expect(result).toEqual('ABC');
+        });
+
+        it('should dipslay the course short title if title is not present and short title is', function() {
+            var course = { title: '', short_title: 'short'};
+            result = dc.getCourseDescription(course);
+            expect(result).toEqual('short');
+        });
+
+        it('should display Untitled Course when no title or short title are present', function(){
+            var course = { title: '', short_title: ''};
+            result = dc.getCourseDescription(course);
+            expect(result).toEqual('Untitled Course');
+        });
+
+        it('should display Untitled Course when no data is present', function(){
+            var course = {};
+            result = dc.getCourseDescription(course);
+            expect(result).toEqual('Untitled Course');
+        });
+
+        it('should display title if both title and short title are present', function(){
+            var course = { title: 'ABC', short_title: 'short'};
+            result = dc.getCourseDescription(course);
+            expect(result).toEqual('ABC');
+        });
+    });
 });
