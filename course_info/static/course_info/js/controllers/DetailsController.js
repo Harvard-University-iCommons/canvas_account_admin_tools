@@ -110,14 +110,24 @@
                 });
 
         };
-
+        dc.getCourseDescription = function(course) {
+            // If a course's title is [NULL], attempt to display the short title.
+            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            if(typeof course.title != "undefined" && course.title.trim().length > 0){
+                return course.title;
+            }
+            else if(typeof course.short_title != "undefined" && course.short_title.trim().length > 0){
+                return course.short_title;
+            }
+            return 'Untitled Course';
+        };
         dc.getFormattedCourseInstance = function (ciData) {
             // This is a helper function that formats the raw CourseInstance
             // API response data for display in the UI
             var ci = ciData;  // shorten for brevity, preferable to `with()`
             var courseInstance = {};
             if (ci) {
-                courseInstance['title'] = ci.title;
+                courseInstance['title'] = dc.getCourseDescription(ci);
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
                 courseInstance['year'] = ci.term.academic_year;

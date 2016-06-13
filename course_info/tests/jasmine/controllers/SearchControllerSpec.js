@@ -104,16 +104,22 @@ describe('Unit testing SearchController', function() {
             expect(result).toEqual('short');
         });
 
-        it('should display the [school_id] Untitled Course [term dsiplay name] when no title or short title are present', function(){
+        it('should display Untitled Course when no title or short title are present', function(){
             var course = { title: '', short_title: ''};
             result = scope.getCourseDescription(course);
             expect(result).toEqual('Untitled Course');
         });
 
-        it('should display Untitled Course when no data is present present', function(){
+        it('should display Untitled Course when no data is present', function(){
             var course = {};
             result = scope.getCourseDescription(course);
             expect(result).toEqual('Untitled Course');
+        });
+        
+        it('should display title if both title and short title are present', function(){
+            var course = { title: 'ABC', short_title: 'short'};
+            result = scope.getCourseDescription(course);
+            expect(result).toEqual('ABC');
         });
     });
 });
