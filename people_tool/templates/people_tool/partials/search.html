@@ -10,13 +10,19 @@
 </nav>
 
 <main>
-    <!-- todo: 'search by' text somewhere -->
+
+<div class="row" id="search-container-top-padding">
+  <div class="col-sm-12"><p></p></div>
+</div>
 
 <div class="row" id="search-container">
   <div class="col-sm-offset-2 col-sm-8">
     <form novalidate id="search-form">
       <div class="form-group">
         <div class="input-group">
+          <label for="search-type-button" class="pull-right">
+            Search by:&nbsp;&nbsp;
+          </label>
           <div class="input-group-btn">
             <button type="button"
                     class="btn btn-default dropdown-toggle"
@@ -38,16 +44,14 @@
           <!-- todo: aria-label -->
           <input type="text" class="form-control" id="search-query-string"
                  aria-label="..."
-                 ng-model="queryString">
+                 ng-model="queryString"
+                 placeholder="Please search for only one person at a time">
           <div class="input-group-btn">
             <button type="submit"
                     class="btn btn-primary"
                     id="search-submit-button"
                     ng-click="searchPeople()">
               Search
-              <span ng-if='operationInProgress'>
-                <i class="fa fa-refresh fa-spin"></i>
-              </span>
             </button>
           </div><!-- /input-group-btn -->
         </div><!-- /input-group -->
@@ -55,6 +59,22 @@
     </form>
   </div><!-- /.col-sm-8 -->
 </div><!-- /row -->
+
+<div class="row" id="search-container-bottom-padding">
+  <div class="col-sm-12"><p></p></div>
+</div>
+
+<div class="row" ng-if="operationInProgress">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="progress">
+      <div class="progress-bar progress-bar-success progress-bar-striped active"
+           role="progressbar"
+           aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+        <span class="sr-only">Search in progress</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div ng-if="messages.length" class="row" id="messages-container">
   <div class="col-sm-offset-2 col-sm-8">
