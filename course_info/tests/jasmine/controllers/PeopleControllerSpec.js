@@ -200,13 +200,14 @@ describe('Unit testing PeopleController', function() {
         beforeEach(setupController);
 
         it('won\'t add person if they already have a course enrollment', function(){
-            spyOn(scope, 'filterSearchResults').and.returnValue([personResult[0]]);
+            spyOn(scope, 'filterSearchResults').and.returnValue(personResult);
             spyOn(scope, 'getProfileFullName').and.returnValue('Test User');
             spyOn(scope, 'addNewMemberToCourse').and.returnValue({'result': 'success'});
             var result = scope.addNewMember(personResult, members);
             expect(scope.getProfileFullName).toHaveBeenCalledWith(personResult[0]);
             expect(result).toBeNull();
         });
+
         it('won\'t add if they could not be found via /people lookup', function(){
             var personResult = [{}, ["test45@mcelroy.org"]];
             spyOn(scope, 'filterSearchResults').and.returnValue([]);
@@ -623,17 +624,7 @@ describe('Unit testing PeopleController', function() {
             expect(result).toEqual('Manually Added');
         });
 
-        it('renderRemove for registrar-fed', function() {
-            var full = {source: 'fasfeed', user_id: '1234567890'};
-            var meta = {row: 1};
-            var result = scope.renderRemove(undefined, undefined, full, meta);
-            var expectedResult = '<div class="text-center">' +
-                                 '<i class="fa fa-trash-o fa-trash-disabled">' +
-                                 '</i></div>';
-            expect(result).toEqual(expectedResult);
-        });
-
-        it('renderRemove for manual', function() {
+        it('renderRemove should render correctly', function() {
             var full = {source: 'peopletool', user_id: '9876543210'};
             var meta = {row: 2};
             var result = scope.renderRemove(undefined, undefined, full, meta);
@@ -641,7 +632,7 @@ describe('Unit testing PeopleController', function() {
                                  '<a href="" ng-click="confirmRemove(' +
                                  'dtInstance.DataTable.data()[2])" ' +
                                  'data-sisid="9876543210">' +
-                                 '<i class="fa fa-trash-o ">' +
+                                 '<i class="fa fa-trash-o">' +
                                  '</i></a></div>';
             expect(result).toEqual(expectedResult);
         });

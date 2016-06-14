@@ -26,6 +26,8 @@ module.exports = function(config) {
       'course_info/tests/libraries/angular-drf.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
+      'cross_list_courses/**/*.js',
+      'cross_list_courses/templates/cross_list_courses/partials/*.html',
     ],
 
 
@@ -37,6 +39,7 @@ module.exports = function(config) {
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
       'course_info/templates/course_info/partials/*.html': ['ng-html2js'],
+      'cross_list_courses/templates/cross_list_courses/partials/*.html': ['ng-html2js'],
     },
 
 

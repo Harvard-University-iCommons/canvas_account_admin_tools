@@ -51,19 +51,14 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
     def reset_form(self):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
 
-    def is_locator_element_present(self, locator_element):
-        try:
-            self.find_element(locator_element)
-        except NoSuchElementException:
-            return False
-        return True
-
     def verify_buttons_to_edit_page_are_present(self):
-
-        if (self.is_locator_element_present(Locators.RESET_FORM_BUTTON) and
-            self.is_locator_element_present(Locators.SUBMIT_FORM_BUTTON)):
-            return True
-        else:
+        """Return true if both buttons are displayed"""
+        try:
+            return (self.find_element(*Locators.RESET_FORM_BUTTON
+                                      ).is_displayed() and
+                    self.find_element(*Locators.SUBMIT_FORM_BUTTON
+                                      ).is_displayed())
+        except NoSuchElementException:
             return False
 
     def submit_form(self):

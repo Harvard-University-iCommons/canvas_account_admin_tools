@@ -519,22 +519,10 @@
             return /^Teaching Fellow$/.test(data) ? 'TA' : data;
         };
         $scope.renderRemove = function(data, type, full, meta) {
-            // TODO - maybe make this a directive?  the isolate scope
-            //        in a directive complicates things.  anything has
-            //        to be better than this mess, though.
-            var registrarFed = /^.*feed$/.test(full.source);
-            var iconClass = registrarFed ? 'fa-trash-disabled' : '';
-            var icon = '<i class="fa fa-trash-o ' + iconClass + '"></i>';
-            var linkOpen = '';
-            if (!registrarFed) {
-                linkOpen = '<a href="" ng-click="confirmRemove(' +
-                           'dtInstance.DataTable.data()[' + meta.row + '])" ' +
-                           'data-sisid="' + full.user_id + '">';
-            }
-            var linkClose = registrarFed ? '' : '</a>';
             return '<div class="text-center">' +
-                       linkOpen + icon + linkClose + '</div>';
-        }
+                   '<a href="" ng-click="confirmRemove(dtInstance.DataTable.data()[' + meta.row + '])" ' +
+                   'data-sisid="' + full.user_id + '"><i class="fa fa-trash-o"></i></a></div>';
+        };
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         };
