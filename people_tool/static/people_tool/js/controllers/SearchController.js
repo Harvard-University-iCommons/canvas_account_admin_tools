@@ -11,7 +11,7 @@
             // `key` is the query key name to use with the $scope.queryString
             {key:'univ_id', name:'HUID or XID'},
             {key:'email_address', name:'Email address'},
-            {key:'search', name:'Full name or partial name'},
+            {key:'search', name:'First or last name'},
         ];
         $scope.searchType = $scope.searchTypeOptions[0];
         $scope.showDataTable = false;
@@ -30,7 +30,6 @@
             return profile ? profile.role_type_cd : '';
         };
         $scope.renderId = function(data, type, full, meta) {
-            // todo: badge rendered on two lines still, whyzat?
             return '<badge ng-cloak role="'
                 + (full.role_type_cd ? full.role_type_cd : '')
                 + '"></badge> ' + full.univ_id;

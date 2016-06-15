@@ -2,6 +2,8 @@
     /* allows search form label to align vertically with the input group */
     align-items:baseline;
     display:flex;
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
 
 #search-form-input-group {
