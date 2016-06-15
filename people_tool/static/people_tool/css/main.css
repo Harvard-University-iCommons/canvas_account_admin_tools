@@ -1,0 +1,21 @@
+#search-form-container {
+    /* allows search form label to align vertically with the input group */
+    align-items:baseline;
+    display:flex;
+}
+
+#search-form-input-group {
+    /* allows search form label to pull right up to the input group */
+    padding:0 10px;
+}
+
+#search-form-label {
+    /* allows search form label to align closely with the input group */
+    padding:0;
+}
+
+#search-type-button {
+    /* fixes issue where border between button and input element was doubled
+       at some screen/text sizes */
+    border-right-width:0;
+}

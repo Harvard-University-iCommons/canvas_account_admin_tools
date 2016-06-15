@@ -11,18 +11,20 @@
 
 <main>
 
-<div class="row" id="search-container-top-padding">
+<div class="row" id="search-form-container-top-padding">
   <div class="col-sm-12"><p></p></div>
 </div>
 
-<div class="row" id="search-container">
-  <div class="col-sm-offset-2 col-sm-8">
+<div class="row" id="search-form-container">
+  <div class="col-xs-offset-2 col-xs-1" id="search-form-label">
+    <label for="search-type-button" class="pull-right">
+      Search by:
+    </label>
+  </div>
+  <div class="col-xs-7" id="search-form-input-group">
     <form novalidate id="search-form">
       <div class="form-group">
         <div class="input-group">
-          <label for="search-type-button" class="pull-right">
-            Search by:&nbsp;&nbsp;
-          </label>
           <div class="input-group-btn">
             <button type="button"
                     class="btn btn-default dropdown-toggle"
@@ -57,22 +59,20 @@
         </div><!-- /input-group -->
       </div><!-- /form-group -->
     </form>
-  </div><!-- /.col-sm-8 -->
+  </div><!-- /.col-xs-7 -->
 </div><!-- /row -->
 
-<div class="row" id="search-container-bottom-padding">
+<div class="row" id="search-form-container-bottom-padding">
   <div class="col-sm-12"><p></p></div>
 </div>
 
-<div class="row" ng-if="operationInProgress">
-  <div class="col-md-8 col-md-offset-2">
-    <div class="progress">
-      <div class="progress-bar progress-bar-success progress-bar-striped active"
-           role="progressbar"
-           aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-        <span class="sr-only">Search in progress</span>
-      </div>
-    </div>
+<div class="row" ng-if="operationInProgress" id="progress-bar-container">
+  <div class="col-md-8 col-md-offset-2" id="progress-bar-inner-container">
+    <uib-progressbar type="success" value="100"
+                     class="progress-striped active">
+      <span class="sr-only">Search in progress</span>
+
+    </uib-progressbar>
   </div>
 </div>
 
