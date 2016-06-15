@@ -52,7 +52,8 @@
             <button type="submit"
                     class="btn btn-primary"
                     id="search-submit-button"
-                    ng-click="searchPeople()">
+                    ng-click="searchPeople()"
+                    ng-disabled="operationInProgress">
               Search
             </button>
           </div><!-- /input-group-btn -->
