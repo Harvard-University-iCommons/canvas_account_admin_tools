@@ -1,3 +1,13 @@
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+    /* moves ordering arrow icons in datatable header to the left of the column
+       header text */
+    background-position: left center;
+}
+
 #search-form-container {
     /* allows search form label to align vertically with the input group */
     align-items:baseline;

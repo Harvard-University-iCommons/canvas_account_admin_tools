@@ -6,12 +6,11 @@
         $scope.messages = [];
         $scope.operationInProgress = false;
         $scope.queryString = '';
-        $scope.searchTerm = '';
         $scope.searchTypeOptions = [
             // `key` is the query key name to use with the $scope.queryString
             {key:'univ_id', name:'HUID or XID'},
-            {key:'email_address', name:'Email address'},
-            {key:'search', name:'First or last name'},
+            {key:'email_address', name:'Email Address'},
+            {key:'search', name:'First OR Last Name'}
         ];
         $scope.searchType = $scope.searchTypeOptions[0];
         $scope.showDataTable = false;
@@ -19,12 +18,25 @@
             0: 'name_last',
             1: 'name_first',
             2: 'univ_id',
-            3: 'email_address',
+            3: 'email_address'
         };
 
-        $scope.cleanUpAfterOperation = function() {
-            // notify UI to stop showing in-progress messaging
-            $scope.operationInProgress = false;
+        $scope.toggleOperationInProgress = function(toggle) {
+            $timeout(function() {
+                // notify UI to start/stop showing in-progress messaging
+                $scope.operationInProgress = toggle;
+                // enable/disable interactive data table elements
+                $scope.toggleDataTableInteraction(!toggle);
+            }, 0);
+        };
+        $scope.toggleDataTableInteraction = function(toggle) {
+            // assumes all columns are sortable by default (otherwise need to
+            // store column state before disabling sorting)
+            $scope.dtInstance.dataTable.fnSettings().aoColumns.forEach(function(col) {
+                col.bSortable = toggle;
+            });
+            // todo: change mouse pointer so ordering icons don't look clickable
+            // todo: disable pagination (and style so doesn't look clickable)
         };
         $scope.getProfileRoleTypeCd = function(profile) {
             return profile ? profile.role_type_cd : '';
@@ -41,6 +53,9 @@
                 $scope.dtInstance.reloadData();
             }, 0);
         };
+        $scope.queryStringInvalid = function() {
+            return $scope.queryString.trim().length == 0;
+        };
         $scope.updateSearchType = function(searchType) {
             // searchType is an element of the $scope.searchTypeOptions array
             $scope.searchType = searchType;
@@ -56,24 +71,13 @@
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
-                              + $scope.sortKeyByColumnId[data.order[0].column],
+                              + $scope.sortKeyByColumnId[data.order[0].column]
                 };
                 queryParams[$scope.searchType.key] = $scope.queryString;
 
-                if (!$scope.queryString) {
-                    callback({
-                        recordsTotal: 0,
-                        recordsFiltered: 0,
-                        data: [],
-                    });
-                    $scope.cleanUpAfterOperation();
-                    return;
-                }
-
-                $scope.operationInProgress = true;
+                $scope.toggleOperationInProgress(true);
 
                 // todo: abort existing request?
-                // todo: disable column sorting?
                 $.ajax({
                     url: url,
                     method: 'GET',
@@ -85,7 +89,7 @@
                     callback({
                         recordsTotal: data.count,
                         recordsFiltered: data.count,
-                        data: data.results,
+                        data: data.results
                     });
                 })
                 .fail(function dataTableGetFail(data, textStatus, errorThrown) {
@@ -101,11 +105,11 @@
                     callback({
                         recordsTotal: 0,
                         recordsFiltered: 0,
-                        data: [],
+                        data: []
                     });
                 })
                 .always(function dataTableGetAlways() {
-                    $scope.cleanUpAfterOperation();
+                    $scope.toggleOperationInProgress(false);
                     $scope.$digest();
                 });
             },
@@ -114,33 +118,32 @@
                 // we have to compile those elements ourselves.
                 $compile(angular.element(row).contents())($scope);
             },
+            deferLoading: 0,
             language: {
                 emptyTable: 'There are no people to display.',
                 info: 'Showing _START_ to _END_ of _TOTAL_ people',
                 infoEmpty: 'Showing 0 to 0 of 0 people',
                 paginate: {
                     next: '',
-                    previous: '',
-                },
-                processing: 'Loading, please wait...'
+                    previous: ''
+                }
             },
             lengthMenu: [10, 25, 50, 100],
-            processing: true,
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
             sAjaxDataProp: 'data',
             searching: false,
-            serverSide: true,
+            serverSide: true
         };
 
         $scope.dtColumns = [
             {
                 data: 'name_last',
-                title: 'Last Name',
+                title: 'Last Name'
             },
             {
                 data: 'name_first',
-                title: 'First Name',
+                title: 'First Name'
             },
             {
                 render: $scope.renderId,
@@ -149,7 +152,7 @@
             },
             {
                 data: 'email_address',
-                title: 'Email',
+                title: 'Email'
             }
         ];
 
