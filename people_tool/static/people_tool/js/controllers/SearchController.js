@@ -78,7 +78,6 @@
                 $scope.toggleOperationInProgress(true);
 
                 // todo: abort existing request?
-                // todo: disable column sorting?
                 $.ajax({
                     url: url,
                     method: 'GET',
