@@ -39,9 +39,8 @@
               </li>
             </ul>
           </div><!-- /input-group-btn -->
-          <!-- todo: aria-label -->
           <input type="text" class="form-control" id="search-query-string"
-                 aria-label="..."
+                 aria-label="Person search"
                  ng-model="queryString"
                  placeholder="Please search for only one person at a time">
           <div class="input-group-btn">
@@ -49,7 +48,7 @@
                     class="btn btn-primary"
                     id="search-submit-button"
                     ng-click="searchPeople()"
-                    ng-disabled="operationInProgress">
+                    ng-disabled="operationInProgress || queryStringInvalid()">
               Search
             </button>
           </div><!-- /input-group-btn -->
