@@ -11,9 +11,7 @@ from django_auth_lti.decorators import lti_role_required
 logger = logging.getLogger(__name__)
 
 
-# todo: re-enable lti_permission_required()
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_PEOPLE_TOOL)
 @require_http_methods(['GET'])
 def index(request):
@@ -21,7 +19,6 @@ def index(request):
 
 
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_PEOPLE_TOOL)
 @require_http_methods(['GET'])
 def partials(request, path):
