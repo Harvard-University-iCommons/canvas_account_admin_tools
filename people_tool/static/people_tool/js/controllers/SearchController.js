@@ -3,14 +3,18 @@
     app.controller('SearchController', SearchController);
 
     function SearchController($scope, $compile, djangoUrl, $log, $timeout) {
+        // tracks state of interactive datatable elements
+        $scope.datatableInteractiveElementTabIndexes = [];
         $scope.messages = [];
         $scope.operationInProgress = false;
         $scope.queryString = '';
         $scope.searchTypeOptions = [
             // `key` is the query key name to use with the $scope.queryString
-            {key:'univ_id', name:'HUID or XID'},
-            {key:'email_address', name:'Email Address'},
-            {key:'search', name:'First OR Last Name'}
+            // `name` is the description to use for option labeling
+            // `maxlength` is the max length allowed by the backend
+            {key:'univ_id', name:'HUID or XID', maxLength:32},
+            {key:'email_address', name:'Email Address', maxLength:284},
+            {key:'search', name:'First OR Last Name', maxLength:30}
         ];
         $scope.searchType = $scope.searchTypeOptions[0];
         $scope.showDataTable = false;
@@ -30,13 +34,46 @@
             }, 0);
         };
         $scope.toggleDataTableInteraction = function(toggle) {
-            // disable mouse events, including pointer style changes, for all
-            // sorting headers and pagination buttons; assumes all columns are
-            // sortable by default (otherwise need to store column state before
-            // disabling sorting)
-            $('#search-results-datatable th', 'a.paginate_button')
-                .toggleClass('inert', !toggle);
-            // todo: fix tab interactions
+            // enable/disable mouse and keyboard events, including pointer style
+            // changes, for all page length and sorting headers and pagination
+            // buttons; assumes all columns are sortable by default and that
+            // page length is editable by default (otherwise need to store
+            // element state before disabling)
+
+            // all datatable input elements
+            var $inputs = $('#search-results-datatable_length select');
+
+            // all clickable datatable elements
+            var $links = $('#search-results-datatable th, a.paginate_button');
+
+            // update styling for links
+            $links.toggleClass('inert', !toggle);
+
+            if (toggle) {
+                // restore tabindex state to enable keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $links[i].setAttribute('tabindex',
+                        $scope.datatableInteractiveElementTabIndexes[i]);
+                }
+                $scope.datatableInteractiveElementTabIndexes = [];
+                $inputs.removeAttr('disabled');
+            } else {
+                // save tabindex state before disabling keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $scope.datatableInteractiveElementTabIndexes.push(
+                        $links[i].getAttribute('tabindex'));
+                }
+
+                // disable keyboard access
+                $links.attr('tabindex', -1);
+                $inputs.attr('disabled', '');
+
+                // focus on search box; if user had tabbed to interactive
+                // element and activated it by hitting enter, this prevents
+                // it from being activated again by the keyboard while
+                // operationInProgress
+                $('#search-query-string').focus();
+            }
         };
         $scope.getProfileRoleTypeCd = function(profile) {
             return profile ? profile.role_type_cd : '';
@@ -47,6 +84,16 @@
                 + '"></badge> ' + full.univ_id;
         };
         $scope.searchPeople = function(event) {
+            if ($scope.queryString.length > $scope.searchType.maxLength) {
+                $scope.messages = [{
+                    type: 'warning',
+                    text: '"' + $scope.searchType.name + '" search term cannot '
+                        + 'be greater than ' + $scope.searchType.maxLength
+                        + ' characters in length.'
+                }];
+                return;
+            }
+
             // Call within timeout to prevent
             // https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
             $timeout(function () {

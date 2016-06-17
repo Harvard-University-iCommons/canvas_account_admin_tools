@@ -56,7 +56,6 @@ describe('Unit testing people_tool SearchController', function() {
         it('sends expected GET params to backend');
         it('updates scope with no error message when backend returns no error');
         it('updates scope error message when backend returns error');
-        it('updates scope error message when backend returns error');
     });
     describe('toggleOperationInProgress', function() {
         beforeEach(setupController);
