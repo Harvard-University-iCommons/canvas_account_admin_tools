@@ -10,9 +10,11 @@
         $scope.queryString = '';
         $scope.searchTypeOptions = [
             // `key` is the query key name to use with the $scope.queryString
-            {key:'univ_id', name:'HUID or XID'},
-            {key:'email_address', name:'Email Address'},
-            {key:'search', name:'First OR Last Name'}
+            // `name` is the description to use for option labeling
+            // `maxlength` is the max length allowed by the backend
+            {key:'univ_id', name:'HUID or XID', maxLength:32},
+            {key:'email_address', name:'Email Address', maxLength:284},
+            {key:'search', name:'First OR Last Name', maxLength:30}
         ];
         $scope.searchType = $scope.searchTypeOptions[0];
         $scope.showDataTable = false;
@@ -82,6 +84,16 @@
                 + '"></badge> ' + full.univ_id;
         };
         $scope.searchPeople = function(event) {
+            if ($scope.queryString.length > $scope.searchType.maxLength) {
+                $scope.messages = [{
+                    type: 'warning',
+                    text: '"' + $scope.searchType.name + '" search term cannot '
+                        + 'be greater than ' + $scope.searchType.maxLength
+                        + ' characters in length.'
+                }];
+                return;
+            }
+
             // Call within timeout to prevent
             // https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
             $timeout(function () {
