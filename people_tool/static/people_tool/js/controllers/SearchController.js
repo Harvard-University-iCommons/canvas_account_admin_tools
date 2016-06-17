@@ -33,10 +33,10 @@
         };
         $scope.toggleDataTableInteraction = function(toggle) {
             // enable/disable mouse and keyboard events, including pointer style
-            // changes, for all ordering and sorting headers and pagination
+            // changes, for all page length and sorting headers and pagination
             // buttons; assumes all columns are sortable by default and that
-            // ordering is enabled by default (otherwise need to store element
-            // state before disabling)
+            // page length is editable by default (otherwise need to store
+            // element state before disabling)
 
             // all datatable input elements
             var $inputs = $('#search-results-datatable_length select');
