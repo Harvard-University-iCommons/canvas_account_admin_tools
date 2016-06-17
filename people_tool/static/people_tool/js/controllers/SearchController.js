@@ -30,13 +30,13 @@
             }, 0);
         };
         $scope.toggleDataTableInteraction = function(toggle) {
-            // assumes all columns are sortable by default (otherwise need to
-            // store column state before disabling sorting)
-            $scope.dtInstance.dataTable.fnSettings().aoColumns.forEach(function(col) {
-                col.bSortable = toggle;
-            });
-            // todo: change mouse pointer so ordering icons don't look clickable
-            // todo: disable pagination (and style so doesn't look clickable)
+            // disable mouse events, including pointer style changes, for all
+            // sorting headers and pagination buttons; assumes all columns are
+            // sortable by default (otherwise need to store column state before
+            // disabling sorting)
+            $('#search-results-datatable th', 'a.paginate_button')
+                .toggleClass('inert', !toggle);
+            // todo: fix tab interactions
         };
         $scope.getProfileRoleTypeCd = function(profile) {
             return profile ? profile.role_type_cd : '';
@@ -65,6 +65,8 @@
         $scope.dtInstance = null;
         $scope.dtOptions = {
             ajax: function(data, callback, settings) {
+                $scope.toggleOperationInProgress(true);
+
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
@@ -75,9 +77,6 @@
                 };
                 queryParams[$scope.searchType.key] = $scope.queryString;
 
-                $scope.toggleOperationInProgress(true);
-
-                // todo: abort existing request?
                 $.ajax({
                     url: url,
                     method: 'GET',
