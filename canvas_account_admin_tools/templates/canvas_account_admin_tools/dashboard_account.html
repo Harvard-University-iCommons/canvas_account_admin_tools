@@ -67,11 +67,12 @@
         </div>
       {% endif %}
 
+      {% if people_tool_allowed %}
         <div class="list-group col-md-4">
           <a type="button" class="btn btn-primary list-group-item active" href="{% url 'people_tool:index' %}">
               <h4 class="list-group-item-heading">Find People</h4>
               <p class="list-group-item-text">Search for users <br>&nbsp;</p>
           </a>
         </div>
-
+      {% endif %}
 {% endblock content %}
