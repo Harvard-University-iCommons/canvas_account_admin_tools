@@ -44,11 +44,12 @@
             var post_course_site_url = djangoUrl.reverse(dc.apiProxy,
                         [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/']);
             $http.post(post_course_site_url, data).then(function(response){
-                var new_ourse = {
+                var new_course = {
                     course_site_url: dc.newCourseSiteURL,
-                    map_type: 'official'
+                    map_type: 'official',
+                    site_map_id: response.data.site_map_id
                 };
-                dc.courseInstance.sites.push(new_ourse);
+                dc.courseInstance.sites.push(new_course);
                 dc.newCourseSiteURL = '';
                 dc.associateNewSiteInProgress = false;
             }, function(response) {
