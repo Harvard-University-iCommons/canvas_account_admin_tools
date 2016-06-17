@@ -88,12 +88,21 @@ def dashboard_account(request):
                                           settings.PERMISSION_XLIST_TOOL,
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
+    """
+    verify that user has permissions to view the People tool
+    """
+    people_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                          settings.PERMISSION_PEOPLE_TOOL,
+                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
         'lti_tools_usage': lti_tools_usage,
         'courses_in_this_account': courses_in_this_account,
         'cross_listing_allowed': cross_listing_is_allowed,
+        'people_tool_allowed': people_tool_is_allowed,
+
     })
 
 
