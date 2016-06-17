@@ -3,6 +3,8 @@
     app.controller('SearchController', SearchController);
 
     function SearchController($scope, $compile, djangoUrl, $log, $timeout) {
+        // tracks state of interactive datatable elements
+        $scope.datatableInteractiveElementTabIndexes = [];
         $scope.messages = [];
         $scope.operationInProgress = false;
         $scope.queryString = '';
@@ -30,13 +32,46 @@
             }, 0);
         };
         $scope.toggleDataTableInteraction = function(toggle) {
-            // disable mouse events, including pointer style changes, for all
-            // sorting headers and pagination buttons; assumes all columns are
-            // sortable by default (otherwise need to store column state before
-            // disabling sorting)
-            $('#search-results-datatable th', 'a.paginate_button')
-                .toggleClass('inert', !toggle);
-            // todo: fix tab interactions
+            // enable/disable mouse and keyboard events, including pointer style
+            // changes, for all ordering and sorting headers and pagination
+            // buttons; assumes all columns are sortable by default and that
+            // ordering is enabled by default (otherwise need to store element
+            // state before disabling)
+
+            // all datatable input elements
+            var $inputs = $('#search-results-datatable_length select');
+
+            // all clickable datatable elements
+            var $links = $('#search-results-datatable th, a.paginate_button');
+
+            // update styling for links
+            $links.toggleClass('inert', !toggle);
+
+            if (toggle) {
+                // restore tabindex state to enable keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $links[i].setAttribute('tabindex',
+                        $scope.datatableInteractiveElementTabIndexes[i]);
+                }
+                $scope.datatableInteractiveElementTabIndexes = [];
+                $inputs.removeAttr('disabled');
+            } else {
+                // save tabindex state before disabling keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $scope.datatableInteractiveElementTabIndexes.push(
+                        $links[i].getAttribute('tabindex'));
+                }
+
+                // disable keyboard access
+                $links.attr('tabindex', -1);
+                $inputs.attr('disabled', '');
+
+                // focus on search box; if user had tabbed to interactive
+                // element and activated it by hitting enter, this prevents
+                // it from being activated again by the keyboard while
+                // operationInProgress
+                $('#search-query-string').focus();
+            }
         };
         $scope.getProfileRoleTypeCd = function(profile) {
             return profile ? profile.role_type_cd : '';
