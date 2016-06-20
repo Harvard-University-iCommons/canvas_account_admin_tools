@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'course_info',
     'cross_list_courses',
     'djangular',
+    'people_tool',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -263,5 +264,7 @@ ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
+PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
+
 
