@@ -13,6 +13,14 @@ describe('Unit testing DetailsController', function () {
         '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId +
         '%2Fpeople%2F&-source=xreg_map';
 
+    var deleteSiteUrl =
+        '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2Fsites%2F999%2F';
+
+    var postSiteUrl =
+        '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
+        '=api%2Fcourse%2Fv2%2Fcourse_instances%2F' + courseInstanceId + '%2Fsites%2F';
+
     // set up the test environment
     beforeEach(function () {
         // load the app and the templates-as-module
@@ -619,9 +627,8 @@ describe('Unit testing DetailsController', function () {
 
         it('should make the post call to associate a new site with the course instance', function(){
             dc.newCourseSiteURL = 'http://testing.com';
-            post_url = '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F';
             dc.associateNewSite();
-            $httpBackend.expectPOST(post_url)
+            $httpBackend.expectPOST(postSiteUrl)
                 .respond(201, JSON.stringify({status: "success"}));
             $httpBackend.flush(1);
             siteList = [{external_id: 'https://x.y.z/888', site_id: '888', map_type: 'official'},
@@ -634,12 +641,10 @@ describe('Unit testing DetailsController', function () {
 
         it('should show an error message if the post fails', function(){
             dc.newCourseSiteURL = 'http://testing.com';
-            post_url = '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F';
             dc.associateNewSite();
-            $httpBackend.expectPOST(post_url)
+            $httpBackend.expectPOST(postSiteUrl)
                 .respond(500, JSON.stringify({status: "invalid url"}));
             $httpBackend.flush(1);
-            console.log(dc.alerts.form.siteOperationFailed);
             expect(dc.alerts.form.siteOperationFailed).toEqual({show: true, operation: 'associating', details: 'None'});
         });
 
@@ -687,12 +692,11 @@ describe('Unit testing DetailsController', function () {
             siteListIndex = 1;
             var siteURL = '';
             var site_map_id = '';
-            deleteURL ='/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F999%2F';
 
             dc.dissociateSite(siteListIndex);
             scope.$digest();// resolves modal
             dc.confirmDissociateSiteModalInstance.close(siteURL, site_map_id);
-            $httpBackend.expectDELETE(deleteURL).respond(204, {});
+            $httpBackend.expectDELETE(deleteSiteUrl).respond(204, {});
             $httpBackend.flush(1);
             expect(dc.courseInstance.sites.length).toEqual(dc.courseInstance.sites.length);
         });
@@ -709,11 +713,10 @@ describe('Unit testing DetailsController', function () {
             siteListIndex = 1;
             var siteURL = '';
             var site_map_id = '';
-            deleteURL ='/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F999%2F';
             dc.dissociateSite(siteListIndex);
             scope.$digest();// resolves modal
             dc.confirmDissociateSiteModalInstance.close(siteURL, site_map_id);
-            $httpBackend.expectDELETE(deleteURL).respond(404, {});
+            $httpBackend.expectDELETE(deleteSiteUrl).respond(404, {});
             $httpBackend.flush(1);
             expect(dc.alerts.form.siteOperationFailed.show).toEqual(true);
             expect(dc.courseInstance.sites.length).toEqual(2);
