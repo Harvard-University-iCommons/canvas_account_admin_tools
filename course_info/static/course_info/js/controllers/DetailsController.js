@@ -51,7 +51,6 @@
                 };
                 dc.courseInstance.sites.push(new_course);
                 dc.newCourseSiteURL = '';
-                dc.associateNewSiteInProgress = false;
             }, function(response) {
                 dc.handleAjaxErrorResponse(response);
                 dc.alerts.form.siteOperationFailed = {
@@ -59,7 +58,9 @@
                     operation: 'associating',
                     details: response.statusText || 'None'};
                 }
-            );
+            ).finally(function(){
+                dc.associateNewSiteInProgress = false;
+            });
         };
 
         dc.associateNewSiteHandleKey = function(keypressEvent) {
@@ -101,13 +102,14 @@
                         .then(function(response){
                             dc.dissociateSiteInProgressIndex = siteListIndex;
                             dc.courseInstance.sites.splice(siteListIndex, 1);
-                            dc.dissociateSiteInProgressIndex = null;
                         }, function(response){
                             dc.handleAjaxErrorResponse(response);
                             dc.alerts.form.siteOperationFailed = {
                                 show: true,
                                 operation: 'dissociating',
                                 details: response.statusText || 'None'};
+                        }).finally(function(){
+                            dc.dissociateSiteInProgressIndex = null;
                         });
 
             });
