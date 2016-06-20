@@ -38,22 +38,27 @@
 
         dc.associateNewSite = function() {
             dc.associateNewSiteInProgress = true;
-            // todo: call backend
-            $timeout(function() {
-                var fakeCourse = {
+            data = {
+              'external_id': dc.newCourseSiteURL
+            };
+            var post_course_site_url = djangoUrl.reverse(dc.apiProxy,
+                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/']);
+            $http.post(post_course_site_url, data).then(function(response){
+                var new_course = {
                     course_site_url: dc.newCourseSiteURL,
-                    map_type: 'official'
+                    map_type: 'official',
+                    site_map_id: response.data.site_map_id
                 };
-                dc.courseInstance.sites.push(fakeCourse);
+                dc.courseInstance.sites.push(new_course);
                 dc.newCourseSiteURL = '';
                 dc.associateNewSiteInProgress = false;
-                // dc.alerts.form.siteOperationFailed = {
-                //     show: true,
-                //     operation: 'associating',
-                //     // todo: response.statusText || 'None'
-                //     details: 'None'};
-            },
-                2000
+            }, function(response) {
+                dc.handleAjaxErrorResponse(response);
+                dc.alerts.form.siteOperationFailed = {
+                    show: true,
+                    operation: 'associating',
+                    details: response.statusText || 'None'};
+                }
             );
         };
 
@@ -72,35 +77,39 @@
         };
 
         dc.dissociateSite = function(siteListIndex) {
-            // todo: siteId is not currently available from backend; once added we can use that to call backend (instead of siteListIndex) and remove from course instance object
-            $scope.confirmDissociateSiteModalInstance = $uibModal.open({
+            dc.confirmDissociateSiteModalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'partials/dissociate-site-confirmation.html',
-                controller: function ($scope, $uibModalInstance, siteURL) {
-                    $scope.siteURL = siteURL;
+                controller: function ($scope, $uibModalInstance, siteURL, site_map_id) {
+                    dc.siteURL = siteURL;
+                    dc.site_map_id = site_map_id;
                 },
                 resolve: {
                     siteURL: function () {
                         return dc.courseInstance.sites[siteListIndex].course_site_url;
+                    },
+                    site_map_id: function() {
+                        return dc.courseInstance.sites[siteListIndex].site_map_id;
                     }
                 }
             });
+            dc.confirmDissociateSiteModalInstance.result.then(
+                function modalConfirmed() {
+                    var delete_course_site_url = djangoUrl.reverse(dc.apiProxy,
+                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/' + dc.courseInstance.sites[siteListIndex].site_map_id + '/']);
+                    $http.delete(delete_course_site_url)
+                        .then(function(response){
+                            dc.dissociateSiteInProgressIndex = siteListIndex;
+                            dc.courseInstance.sites.splice(siteListIndex, 1);
+                            dc.dissociateSiteInProgressIndex = null;
+                        }, function(response){
+                            dc.handleAjaxErrorResponse(response);
+                            dc.alerts.form.siteOperationFailed = {
+                                show: true,
+                                operation: 'dissociating',
+                                details: response.statusText || 'None'};
+                        });
 
-            $scope.confirmDissociateSiteModalInstance.result.then(
-                    function modalConfirmed() {
-                // todo: call backend
-                dc.dissociateSiteInProgressIndex = siteListIndex;
-                $timeout(function() {
-                    dc.courseInstance.sites.splice(siteListIndex, 1);
-                    dc.dissociateSiteInProgressIndex = null;
-                    // dc.alerts.form.siteOperationFailed = {
-                    //     show: true,
-                    //     operation: 'dissociating',
-                    //     // todo: response.statusText || 'None'
-                    //     details: 'None'};
-                },
-                    1500
-                );
             });
         };
 
