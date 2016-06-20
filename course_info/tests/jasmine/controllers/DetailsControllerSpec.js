@@ -582,7 +582,6 @@ describe('Unit testing DetailsController', function () {
             dc.associateNewSiteHandleKey(aEvent);
             expect(dc.validNewSiteURL).toHaveBeenCalled();
             expect(dc.associateNewSite).not.toHaveBeenCalled();
-
         });
 
     });
@@ -613,18 +612,36 @@ describe('Unit testing DetailsController', function () {
             };
             dc = $controller('DetailsController', {$scope: scope});
             dc.courseInstance = ci;
-        });
-        afterEach(function () {
-            // handle the course instance get from setTitle, so we can always
-            // assert at the end of a test that there's no pending http calls.
-            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
-            $httpBackend.expectGET(peopleURL).respond(200, '');
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
         });
 
-        it('should make the post call to associate a new site with the course instance');
+        it('should make the post call to associate a new site with the course instance', function(){
+            dc.newCourseSiteURL = 'http://testing.com';
+            post_url = '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F';
+            dc.associateNewSite();
+            $httpBackend.expectPOST(post_url)
+                .respond(201, JSON.stringify({status: "success"}));
+            $httpBackend.flush(1);
+            siteList = [{external_id: 'https://x.y.z/888', site_id: '888', map_type: 'official'},
+                        {external_id: 'https://x.y.z/999', site_id: '999', map_type: 'unofficial'},
+                        {course_site_url: 'http://testing.com', map_type: 'official', site_map_id: undefined}
+                        ];
+            expect(dc.courseInstance.sites.length).toEqual(3);
+            expect(dc.courseInstance.sites).toEqual(siteList);
+        });
 
-        it('should show an error message if the post fails');
+        it('should show an error message if the post fails', function(){
+            dc.newCourseSiteURL = 'http://testing.com';
+            post_url = '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F';
+            dc.associateNewSite();
+            $httpBackend.expectPOST(post_url)
+                .respond(500, JSON.stringify({status: "invalid url"}));
+            $httpBackend.flush(1);
+            console.log(dc.alerts.form.siteOperationFailed);
+            expect(dc.alerts.form.siteOperationFailed).toEqual({show: true, operation: 'associating', details: 'None'});
+        });
 
     });
 
