@@ -646,7 +646,57 @@ describe('Unit testing DetailsController', function () {
     });
 
     describe('dissociateSite', function(){
-        it('should make the delete call to disasscociate a url with the course instance');
+        beforeEach(function () {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Course Title',
+                short_title: 'Test',
+                sub_title: 'Jasime is your friend',
+                description: '<p>hello</p>',
+                sync_to_canvas : 1,
+                exclude_from_isites:0,
+                exclude_from_catalog:0,
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                        map_type: 'official',
+                        course_site_url: 'https://x.y.z/888',
+                        site_map_id: '888',
+                    },
+                    {
+                        external_id: 'https://x.y.z/999',
+                        site_id: '999',
+                        map_type: 'unofficial',
+                        course_site_url: 'https://x.y.z/999',
+                        site_map_id: '999',
+
+                    }
+                ]
+            };
+
+            dc = $controller('DetailsController', {$scope: scope});
+            dc.courseInstance = ci;
+            $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
+            $httpBackend.flush(2);
+        });
+
+        it('should make the delete call to disasscociate a url with the course instance', function(){
+            //delete by specifying the index
+            siteListIndex = 1;
+            deleteURL ='/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F999%2F';
+
+            dc.dissociateSite(siteListIndex);
+
+            dc.confirmDissociateSiteModalInstance.close();
+            scope.$digest();
+
+            $httpBackend.expectDELETE(deleteURL).respond(204, {});
+            //$httpBackend.flush(1);
+
+            expect(dc.courseInstance.sites.length).toEqual(1);
+        });
 
         it('should show an error message if the delete fails');
     });
