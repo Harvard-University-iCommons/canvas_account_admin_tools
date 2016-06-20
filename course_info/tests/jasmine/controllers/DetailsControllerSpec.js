@@ -560,6 +560,33 @@ describe('Unit testing DetailsController', function () {
         });
     });
 
+    describe('associateNewSiteHandleKey', function(){
+        it('should call associateNewSite when a user hits the enter key', function(){
+            spyOn(dc, 'validNewSiteURL').and.returnValue(true);
+            spyOn(dc, 'associateNewSite');
+            var aEvent = angular.element.Event('keydown');
+            aEvent.keyCode = 13;
+            $("input").trigger(aEvent);
+            dc.associateNewSiteHandleKey(aEvent);
+            expect(dc.validNewSiteURL).toHaveBeenCalled();
+            expect(dc.associateNewSite).toHaveBeenCalled();
+
+        });
+
+        it('should not call associateNewSite when a user enteres an invalid url', function(){
+            spyOn(dc, 'validNewSiteURL').and.returnValue(false);
+            spyOn(dc, 'associateNewSite');
+            var aEvent = angular.element.Event('keydown');
+            aEvent.keyCode = 13;
+            $("input").trigger(aEvent);
+            dc.associateNewSiteHandleKey(aEvent);
+            expect(dc.validNewSiteURL).toHaveBeenCalled();
+            expect(dc.associateNewSite).not.toHaveBeenCalled();
+
+        });
+
+    });
+
     describe('associateNewSite', function(){
         beforeEach(function () {
             var ci = {
@@ -595,15 +622,18 @@ describe('Unit testing DetailsController', function () {
             $httpBackend.flush(2);
         });
 
-        it('should call associateNewSite when a user hits the enter key');
-
         it('should make the post call to associate a new site with the course instance');
 
         it('should show an error message if the post fails');
-        
+
+    });
+
+    describe('dissociateSite', function(){
         it('should make the delete call to disasscociate a url with the course instance');
 
         it('should show an error message if the delete fails');
-        
     });
+
+
+
 });
