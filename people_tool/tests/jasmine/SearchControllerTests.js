@@ -1,11 +1,11 @@
 describe('Unit testing people_tool SearchController', function() {
     var $controller, $rootScope, $routeParams, $compile, djangoUrl,
-        $httpBackend, $log, $templateCache, $window;
+        $httpBackend, $log, $templateCache, $timeout, $window;
     var controller, scope;
 
     // helper methods for DRYer code
     function setupController() {
-        controller = $controller('PeopleController', {$scope: scope});
+        controller = $controller('SearchController', {$scope: scope});
     }
     // end helper methods
 
@@ -16,16 +16,17 @@ describe('Unit testing people_tool SearchController', function() {
         module('templates');
         inject(function(_$controller_, _$rootScope_, _$routeParams_,
                         _$compile_, _djangoUrl_, _$httpBackend_, _$log_,
-                        _$templateCache_, _$window_) {
+                        _$templateCache_, _$timeout_, _$window_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $routeParams = _$routeParams_;
             $compile = _$compile_;
             djangoUrl = _djangoUrl_;
             $httpBackend = _$httpBackend_;
-            $window = _$window_;
-            $log = _$log_;
             $templateCache = _$templateCache_;
+            $timeout = _$timeout_;
+            $log = _$log_;
+            $window = _$window_;
 
             // this comes from django_auth_lti, just stub it out so that the
             // $httpBackend sanity checks in afterEach() don't fail
@@ -59,7 +60,19 @@ describe('Unit testing people_tool SearchController', function() {
     });
     describe('toggleOperationInProgress', function() {
         beforeEach(setupController);
-        it('turns off data table when toggled ON');
-        it('turns on data table when toggled OFF');
+        it('turns off data table and notes operation in progress when ' +
+                'toggled ON', function() {
+            spyOn(scope, 'toggleDataTableInteraction');
+            scope.toggleOperationInProgress(true);
+            $timeout.flush();  // resolves $timeout
+            expect(scope.toggleDataTableInteraction).toHaveBeenCalledWith(false);
+        });
+        it('turns on data table and notes operation not in progress when ' +
+                'toggled OFF', function() {
+            spyOn(scope, 'toggleDataTableInteraction');
+            scope.toggleOperationInProgress(false);
+            $timeout.flush();  // resolves $timeout
+            expect(scope.toggleDataTableInteraction).toHaveBeenCalledWith(true);
+        });
     });
 });
