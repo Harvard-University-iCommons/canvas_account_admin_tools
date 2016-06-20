@@ -595,7 +595,7 @@ describe('Unit testing DetailsController', function () {
             $httpBackend.flush(2);
         });
 
-        it('should call associateNewSite when a user hits the enter key );
+        it('should call associateNewSite when a user hits the enter key');
 
         it('should make the post call to associate a new site with the course instance');
 
