@@ -487,7 +487,7 @@ describe('Unit testing DetailsController', function () {
             return compiledElement;
         }
 
-        it('should substitute the right stuff for id, name, and label', function(){
+        xit('should substitute the right stuff for id, name, and label', function(){
             dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
@@ -558,5 +558,52 @@ describe('Unit testing DetailsController', function () {
             result = dc.getCourseDescription(course);
             expect(result).toEqual('ABC');
         });
+    });
+
+    describe('associateNewSite', function(){
+        beforeEach(function () {
+            var ci = {
+                course_instance_id: $routeParams.courseInstanceId,
+                title: 'Test Course Title',
+                short_title: 'Test',
+                sub_title: 'Jasime is your friend',
+                description: '<p>hello</p>',
+                sync_to_canvas : 1,
+                exclude_from_isites:0,
+                exclude_from_catalog:0,
+                sites: [
+                    {
+                        external_id: 'https://x.y.z/888',
+                        site_id: '888',
+                        map_type: 'official'
+                    },
+                    {
+                        external_id: 'https://x.y.z/999',
+                        site_id: '999',
+                        map_type: 'unofficial'
+                    }
+                ]
+            };
+            dc = $controller('DetailsController', {$scope: scope});
+            dc.courseInstance = ci;
+        });
+        afterEach(function () {
+            // handle the course instance get from setTitle, so we can always
+            // assert at the end of a test that there's no pending http calls.
+            $httpBackend.expectGET(courseInstanceURL).respond(200, '');
+            $httpBackend.expectGET(peopleURL).respond(200, '');
+            $httpBackend.flush(2);
+        });
+
+        it('should call associateNewSite when a user hits the enter key );
+
+        it('should make the post call to associate a new site with the course instance');
+
+        it('should show an error message if the post fails');
+        
+        it('should make the delete call to disasscociate a url with the course instance');
+
+        it('should show an error message if the delete fails');
+        
     });
 });
