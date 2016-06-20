@@ -77,13 +77,12 @@
         };
 
         dc.dissociateSite = function(siteListIndex) {
-            // todo: siteId is not currently available from backend; once added we can use that to call backend (instead of siteListIndex) and remove from course instance object
-            $scope.confirmDissociateSiteModalInstance = $uibModal.open({
+            dc.confirmDissociateSiteModalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'partials/dissociate-site-confirmation.html',
                 controller: function ($scope, $uibModalInstance, siteURL, site_map_id) {
-                    $scope.siteURL = siteURL;
-                    $scope.site_map_id = site_map_id;
+                    dc.siteURL = siteURL;
+                    dc.site_map_id = site_map_id;
                 },
                 resolve: {
                     siteURL: function () {
@@ -94,8 +93,7 @@
                     }
                 }
             });
-
-            $scope.confirmDissociateSiteModalInstance.result.then(
+            dc.confirmDissociateSiteModalInstance.result.then(
                 function modalConfirmed() {
                     var delete_course_site_url = djangoUrl.reverse(dc.apiProxy,
                         [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/' + dc.courseInstance.sites[siteListIndex].site_map_id + '/']);
