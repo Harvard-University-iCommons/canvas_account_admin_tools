@@ -3,12 +3,6 @@ describe('Unit testing people_tool SearchController', function() {
         $httpBackend, $log, $templateCache, $timeout, $window;
     var controller, scope;
 
-    // helper methods for DRYer code
-    function setupController() {
-        controller = $controller('SearchController', {$scope: scope});
-    }
-    // end helper methods
-
     // set up the test environment
     beforeEach(function() {
         // load in the app and the templates-as-module
@@ -35,6 +29,7 @@ describe('Unit testing people_tool SearchController', function() {
             };
         });
         scope = $rootScope.$new();
+        controller = $controller('SearchController', {$scope: scope});
     });
 
     afterEach(function() {
@@ -52,14 +47,122 @@ describe('Unit testing people_tool SearchController', function() {
         });
     });
 
-    describe('searchPeople', function() {
-        beforeEach(setupController);
-        it('sends expected GET params to backend');
-        it('updates scope with no error message when backend returns no error');
-        it('updates scope error message when backend returns error');
+    describe('searchPeople', function () {
+        beforeEach(function() {
+            scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
+        });
+
+        it('does not hit backend if search string is too long', function() {
+            // at controller initialization, default search term has a maximum
+            // length of 32 characters
+            scope.queryString = '123456789012345678901234567890123';
+            scope.searchPeople();
+            expect($timeout.flush).toThrowError('No deferred tasks to be flushed');
+            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+            expect(scope.messages.length).toBe(1);
+            expect(scope.messages[0].type).toEqual('warning');
+        });
+        it('triggers backend call (datatable reload) if it meets validation', function() {
+            scope.queryString = '123';
+            scope.searchPeople();
+            $timeout.flush();
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+            expect(scope.messages).toEqual([]);
+        });
+    });
+
+    describe('dtOptions.ajax', function() {
+        var ajaxSpy, callbackSpy, digestSpy, logSpy,
+            toggleOperationInProgressSpy;
+        var data = {start: 0, length: 10,
+                    order: [{dir: 'asc', column: 0}]};
+        var queryString = 'search term';
+        var queryParams = {
+            offset: data.start,
+            limit: data.length,
+            ordering: 'name_last',  // column 0
+            univ_id: queryString
+        };
+
+        var expectedAjaxParams = {
+            url: null,  // needs to be added after controller is instantiated
+            method: 'GET',
+            data: queryParams,
+            dataSrc: 'data',
+            dataType: 'json'
+        };
+        var fakeAjaxResponse = {
+            recordsTotal: 1,
+            recordsFiltered: 1,
+            data: [{univ_id: '123'}]
+        };
+        var fakeAjaxResponseEmpty = {
+            recordsTotal: 0,
+            recordsFiltered: 0,
+            data: []
+        };
+
+        var respondWithData = function() {
+            var d = $.Deferred();
+            d.resolve({count: 1, results:[{univ_id: '123'}]});
+            return d.promise();
+        };
+
+        var respondWithError = function() {
+            var d = $.Deferred();
+            d.reject(undefined, 'textStatus', 'errorThrown');
+            return d.promise();
+        };
+
+        beforeEach(function() {
+            ajaxSpy = spyOn($, 'ajax');
+            logSpy = spyOn($log, 'error');
+            callbackSpy = jasmine.createSpy('callback');  // datatables callback
+
+            scope.messages = ['should be cleared!'];
+            scope.queryString = queryString;
+            expectedAjaxParams.url = djangoUrl.reverse(
+                'icommons_rest_api_proxy', ['api/course/v2/people/']);
+
+            // checks for finally()
+            toggleOperationInProgressSpy = spyOn(scope, 'toggleOperationInProgress');
+            digestSpy = spyOn(scope, '$digest');
+        });
+
+        afterEach(function() {
+            expect(toggleOperationInProgressSpy).toHaveBeenCalledWith(false);
+            expect(digestSpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('sends expected GET params to backend', function() {
+            ajaxSpy.and.callFake(respondWithData);
+            scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
+            expect(ajaxSpy).toHaveBeenCalledWith(expectedAjaxParams);
+            expect(callbackSpy).toHaveBeenCalledWith(fakeAjaxResponse);
+            expect(logSpy).not.toHaveBeenCalled();
+        });
+        it('updates scope with no error message when backend returns no error', function () {
+            ajaxSpy.and.callFake(respondWithData);
+            scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
+            expect(scope.messages).toEqual([]);
+        });
+        it('updates scope error message when backend returns error', function() {
+            ajaxSpy.and.callFake(respondWithError);
+            scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
+            expect(ajaxSpy).toHaveBeenCalledWith(expectedAjaxParams);
+            expect(callbackSpy).toHaveBeenCalledWith(fakeAjaxResponseEmpty);
+            expect(scope.messages.length).toBe(1);
+            expect(scope.messages[0].type).toEqual('danger');
+            expect(scope.messages[0].text).toContain('Server error');
+            expect(logSpy).toHaveBeenCalled();
+            var logErrorFirstCall = logSpy.calls.argsFor(0)[0];
+            expect(logErrorFirstCall).toContain(
+                'Error getting data from ' + expectedAjaxParams.url);
+            expect(logErrorFirstCall).toContain('textStatus');
+            expect(logErrorFirstCall).toContain('errorThrown');
+        });
     });
     describe('toggleOperationInProgress', function() {
-        beforeEach(setupController);
         it('turns off data table and notes operation in progress when ' +
                 'toggled ON', function() {
             spyOn(scope, 'toggleDataTableInteraction');
