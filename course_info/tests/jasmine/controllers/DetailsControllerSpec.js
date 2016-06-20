@@ -685,16 +685,15 @@ describe('Unit testing DetailsController', function () {
         it('should make the delete call to disasscociate a url with the course instance', function(){
             //delete by specifying the index
             siteListIndex = 1;
+            var siteURL = '';
+            var site_map_id = '';
             deleteURL ='/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args=api%2Fcourse%2Fv2%2Fcourse_instances%2F1234567890%2Fsites%2F999%2F';
 
             dc.dissociateSite(siteListIndex);
-
-            dc.confirmDissociateSiteModalInstance.close();
-            scope.$digest();
-
+            scope.$digest();// resolves modal
+            dc.confirmDissociateSiteModalInstance.close(siteURL, site_map_id);
             $httpBackend.expectDELETE(deleteURL).respond(204, {});
-            //$httpBackend.flush(1);
-
+            $httpBackend.flush(1);
             expect(dc.courseInstance.sites.length).toEqual(1);
         });
 
