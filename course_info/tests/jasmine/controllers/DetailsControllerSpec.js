@@ -608,12 +608,14 @@ describe('Unit testing DetailsController', function () {
                     {
                         external_id: 'https://x.y.z/888',
                         site_id: '888',
-                        map_type: 'official'
+                        map_type: 'official',
+                        site_map_id: '888'
                     },
                     {
                         external_id: 'https://x.y.z/999',
                         site_id: '999',
-                        map_type: 'unofficial'
+                        map_type: 'unofficial',
+                        site_map_id: '999'
                     }
                 ]
             };
@@ -628,11 +630,11 @@ describe('Unit testing DetailsController', function () {
             dc.newCourseSiteURL = 'http://testing.com';
             dc.associateNewSite();
             $httpBackend.expectPOST(postSiteUrl)
-                .respond(201, JSON.stringify({status: "success"}));
+                .respond(201, JSON.stringify({site_map_id: '777'}));
             $httpBackend.flush(1);
-            siteList = [{external_id: 'https://x.y.z/888', site_id: '888', map_type: 'official'},
-                        {external_id: 'https://x.y.z/999', site_id: '999', map_type: 'unofficial'},
-                        {course_site_url: 'http://testing.com', map_type: 'official', site_map_id: undefined}
+            siteList = [{external_id: 'https://x.y.z/888', site_id: '888', map_type: 'official', site_map_id: '888'},
+                        {external_id: 'https://x.y.z/999', site_id: '999', map_type: 'unofficial', site_map_id: '999'},
+                        {course_site_url: 'http://testing.com', map_type: 'official', site_map_id: '777'}
                         ];
             expect(dc.courseInstance.sites.length).toEqual(3);
             expect(dc.courseInstance.sites).toEqual(siteList);
