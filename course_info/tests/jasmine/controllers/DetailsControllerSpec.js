@@ -495,16 +495,15 @@ describe('Unit testing DetailsController', function () {
             return compiledElement;
         }
 
-        xit('should substitute the right stuff for id, name, and label', function(){
+        it('should substitute the right stuff for id, name, and label', function(){
             dc = $controller('DetailsController', {$scope: scope});
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.expectGET(peopleURL).respond(200, JSON.stringify({status: "success"}));
             $httpBackend.flush(2);
-            var liElement = directiveElem.find('li');
-            expect(liElement.find('label').text().trim()).toBe('test label');
-            expect(liElement.find('input').prop('id')).toBe('input-course-test-name');
-            expect(liElement.find('input').prop('name')).toBe('input-course-test-name');
-            expect(liElement.find('input').prop('maxlength')).toBe(500);
+            expect(directiveElem.find('label').text().trim()).toBe('test label');
+            expect(directiveElem.find('input').prop('id')).toBe('input-course-test-name');
+            expect(directiveElem.find('input').prop('name')).toBe('input-course-test-name');
+            expect(directiveElem.find('input').prop('maxlength')).toBe(500);
         });
 
         // skipping this test as I'm pretty sure it's not
