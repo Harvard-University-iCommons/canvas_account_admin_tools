@@ -52,22 +52,41 @@ describe('Unit testing people_tool SearchController', function() {
             scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
         });
 
+        function repeatCharacter(char, times) {
+            // note that `char` appears n-1 times where n is size of array, so
+            // array size needs to be one larger than number of characters
+            // requested by times
+            return new Array(times+1).join(char);
+        }
+
         it('does not hit backend if search string is too long', function() {
-            // at controller initialization, default search term has a maximum
-            // length of 32 characters
-            scope.queryString = '123456789012345678901234567890123';
-            scope.searchPeople();
-            expect($timeout.flush).toThrowError('No deferred tasks to be flushed');
-            expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
-            expect(scope.messages.length).toBe(1);
-            expect(scope.messages[0].type).toEqual('warning');
+            scope.searchTypeOptions.forEach(function(searchTypeOption) {
+                scope.messages = [];
+                scope.searchType = searchTypeOption;
+                scope.queryString = repeatCharacter('a',
+                    searchTypeOption.maxLength + 1);
+                scope.searchPeople();
+                expect($timeout.flush).toThrowError(
+                    'No deferred tasks to be flushed');
+                expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
+                expect(scope.messages.length).toBe(1);
+                expect(scope.messages[0].type).toEqual('warning');
+                expect(scope.messages[0].text).toContain(
+                    'search term cannot be greater than '
+                    + searchTypeOption.maxLength);
+            });
         });
         it('triggers backend call (datatable reload) if it meets validation', function() {
-            scope.queryString = '123';
-            scope.searchPeople();
-            $timeout.flush();
-            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
-            expect(scope.messages).toEqual([]);
+            scope.searchTypeOptions.forEach(function(searchTypeOption) {
+                scope.searchType = searchTypeOption;
+                scope.queryString = repeatCharacter('a',
+                    searchTypeOption.maxLength);
+                scope.searchPeople();
+                $timeout.flush();
+                expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+                expect(scope.messages).toEqual([]);
+                scope.dtInstance.reloadData.calls.reset();
+            });
         });
     });
 
