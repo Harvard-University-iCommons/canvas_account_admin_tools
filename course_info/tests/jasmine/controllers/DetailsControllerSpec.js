@@ -689,36 +689,42 @@ describe('Unit testing DetailsController', function () {
         it('should make the delete call to disasscociate a url with the course instance', function(){
             //delete by specifying the index
             siteListIndex = 1;
+            original_count = dc.courseInstance.sites.length
             var siteURL = '';
             var site_map_id = '';
-
             dc.dissociateSite(siteListIndex);
-            scope.$digest();// resolves modal
+            scope.$digest();// resolves modal init
             dc.confirmDissociateSiteModalInstance.close(siteURL, site_map_id);
             $httpBackend.expectDELETE(deleteSiteUrl).respond(204, {});
             $httpBackend.flush(1);
-            expect(dc.courseInstance.sites.length).toEqual(dc.courseInstance.sites.length);
+            //verify that the sites length is reduced by 1 after the delete
+            expect(dc.courseInstance.sites.length).toEqual(original_count-1);
         });
 
         it('doesn\'t delete any sites if the process if canceled', function() {
+            siteListIndex = 1;
+            original_count = dc.courseInstance.sites.length;
             dc.dissociateSite(siteListIndex);
-            scope.$digest()
-            dc.confirmDissociateSiteModalInstance.dismiss()
-            expect(dc.courseInstance.sites.length).toEqual(2);
+            scope.$digest();// resolves modal init
+            dc.confirmDissociateSiteModalInstance.dismiss();
+            //verify that the sites length is  unaffected.
+            expect(dc.courseInstance.sites.length).toEqual(original_count);
         });
 
         it('should show an alert if the delete fails', function(){
             //delete by specifying the index
             siteListIndex = 1;
+            original_count = dc.courseInstance.sites.length
             var siteURL = '';
             var site_map_id = '';
             dc.dissociateSite(siteListIndex);
-            scope.$digest();// resolves modal
+            scope.$digest();//resolves modal
             dc.confirmDissociateSiteModalInstance.close(siteURL, site_map_id);
             $httpBackend.expectDELETE(deleteSiteUrl).respond(404, {});
             $httpBackend.flush(1);
             expect(dc.alerts.form.siteOperationFailed.show).toEqual(true);
-            expect(dc.courseInstance.sites.length).toEqual(2);
+            //validate that the sites length is unaffected due to a failure in delete
+            expect(dc.courseInstance.sites.length).toEqual(original_count);
         });
     });
 
