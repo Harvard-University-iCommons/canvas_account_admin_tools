@@ -53,184 +53,285 @@
         </div>
       </div>
 
-      <form name="dc.courseDetailsForm" class="form-horizontal" ng-if="dc.courseInstance.title" ng-submit="dc.submitCourseDetailsForm(this)">
+      <form name="dc.courseDetailsForm"
+            class="form-horizontal"
+            ng-if="dc.courseInstance.title"
+            ng-show="dc.showForm()"
+            ng-submit="dc.submitCourseDetailsForm(this)">
         <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
           <ul class="list-group">
-            <hu-editable-input
-                is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
-                form-value="dc.courseInstance.registrar_code_display"
-                model-value="dc.formDisplayData.registrar_code_display"
-                field="registrar_code_display"
-                label="Course Code"></hu-editable-input>
+            <li class="list-group-item">
+              <hu-editable-input
+                  is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
+                  form-value="dc.courseInstance.registrar_code_display"
+                  model-value="dc.formDisplayData.registrar_code_display"
+                  field="registrar_code_display"
+                  label="Course Code"></hu-editable-input>
+            </li>
 
-            <hu-field-label-wrapper
-              field="xlist_status"
-              is-loading="dc.isUndefined(dc.courseInstance.xlist_status)"
-              label="Cross listing">
-                <div ng-switch on="dc.courseInstance.xlist_status"
-                     class="label label-info">
-                  <span ng-switch-when="Primary"> Primary </span>
-                  <span ng-switch-when="Secondary"> Secondary </span>
-                  <span ng-switch-default> N/A </span>
-                </div>
-            </hu-field-label-wrapper>
-
-            <hu-editable-input
-                is-loading="dc.isUndefined(dc.courseInstance.term)"
-                form-value="dc.courseInstance.term"
-                model-value="dc.courseInstance.term"
-                field="term"
-                label="Term"></hu-editable-input>
-
-            <hu-editable-input
-                is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
-                form-value="dc.courseInstance.course_instance_id"
-                model-value="dc.courseInstance.course_instance_id"
-                field="course_instance_id"
-                label="SIS/Course Instance ID"></hu-editable-input>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.title)"
-                form-value="dc.formDisplayData.title"
-                model-value="dc.courseInstance.title"
-                maxlength="500"
-                field="title"
-                label="Course Title"></hu-editable-input>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.short_title)"
-                form-value="dc.formDisplayData.short_title"
-                model-value="dc.courseInstance.short_title"
-                maxlength="200"
-                field="short_title"
-                label="Short Title"></hu-editable-input>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.sub_title)"
-                form-value="dc.formDisplayData.sub_title"
-                model-value="dc.courseInstance.sub_title"
-                maxlength="500"
-                field="sub_title"
-                label="Subtitle"></hu-editable-input>
-
-            <hu-editable-textarea
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.description)"
-                form-value="dc.formDisplayData.description"
-                model-value="dc.courseInstance.description"
-                field="description"
-                label="Description"></hu-editable-textarea>
-
-            <hu-editable-textarea
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.notes)"
-                form-value="dc.formDisplayData.notes"
-                model-value="dc.courseInstance.notes"
-                maxlength="2000"
-                field="notes"
-                label="Notes"></hu-editable-textarea>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.instructors_display)"
-                form-value="dc.formDisplayData.instructors_display"
-                model-value="dc.courseInstance.instructors_display"
-                maxlength="4000"
-                field="instructors_display"
-                label="Instructors (display)"></hu-editable-input>
-
-            <hu-field-label-wrapper
-                is-loading="dc.isUndefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
-                field="people"
-                label="People">
-              <div class="alert alert-danger" role="alert"
-                   id="alert-danger-fetch-course-members-failed"
-                   ng-if="dc.alertPresent('form', 'fetchMembersFailed')">
-                <p>
-                  <i class="fa fa-warning"></i>
-                  Error looking up course members.
-                  Error details: {{ dc.alerts.form.fetchMembersFailed.details }}
-                </p>
-                <p>
-                  <a href="#/people/{{dc.courseInstance.course_instance_id}}"
-                     id="people-error-link"
-                     class="alert-link">
-                    Go to course people page.
-                  </a>
-                </p>
-              </div>
-
-              <a id="people-link"
-                 href="#/people/{{dc.courseInstance.course_instance_id}}">
-                <ng-pluralize count="dc.courseInstance.members"
-                              when="{'0': 'There are no people in the course.',
-                    'one': 'There is one person in the course.',
-                    'other': 'There are {} people in the course.'}">
-                </ng-pluralize>
-              </a>
-            </hu-field-label-wrapper>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.location)"
-                form-value="dc.formDisplayData.location"
-                model-value="dc.courseInstance.location"
-                maxlength="500"
-                field="location"
-                label="Location"></hu-editable-input>
-
-            <hu-editable-input
-                editable="dc.editable"
-                is-loading="dc.isUndefined(dc.courseInstance.meeting_time)"
-                form-value="dc.formDisplayData.meeting_time"
-                model-value="dc.courseInstance.meeting_time"
-                maxlength="1000"
-                field="meeting_time"
-                label="Meeting time"></hu-editable-input>
-
-            <hu-field-label-wrapper
-                is-loading="dc.isUndefined(dc.courseInstance.departments)"
-                field="departments"
-                label="Departments">
-              <div class="row" ng-repeat="dept in dc.courseInstance.departments">
-                <div class="col-sm-12"> {{dept.name}} </div>
-              </div>
-            </hu-field-label-wrapper>
-
-            <hu-field-label-wrapper
-                is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
-                field="course_groups"
-                label="Course Groups">
-              <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
-                <div class="col-sm-12"> {{group.name}} </div>
-              </div>
-            </hu-field-label-wrapper>
-
-            <hu-field-label-wrapper
-                is-loading="dc.isUndefined(dc.courseInstance.sites)"
-                field="sites"
-                label="Associated Official and Unofficial Site(s)">
-                <div class="row" ng-repeat="site in dc.courseInstance.sites">
-                  <div class="col-sm-1">
-                    <span class="label label-primary" ng-if="site.map_type == 'official'">Official</span>
-                    <span class="label label-primary" ng-if="site.map_type == 'unofficial'">Unofficial</span>
+            <li class="list-group-item">
+              <hu-field-label-wrapper
+                field="xlist_status"
+                is-loading="dc.isUndefined(dc.courseInstance.xlist_status)"
+                label="Cross listing">
+                  <div ng-switch on="dc.courseInstance.xlist_status"
+                       class="label label-info">
+                    <span ng-switch-when="Primary"> Primary </span>
+                    <span ng-switch-when="Secondary"> Secondary </span>
+                    <span ng-switch-default> N/A </span>
                   </div>
-                  <div class="col-sm-11">
-                    <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
+              </hu-field-label-wrapper>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  is-loading="dc.isUndefined(dc.courseInstance.term)"
+                  form-value="dc.courseInstance.term"
+                  model-value="dc.courseInstance.term"
+                  field="term"
+                  label="Term"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
+                  form-value="dc.courseInstance.course_instance_id"
+                  model-value="dc.courseInstance.course_instance_id"
+                  field="course_instance_id"
+                  label="SIS/Course Instance ID"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.title)"
+                  form-value="dc.formDisplayData.title"
+                  model-value="dc.courseInstance.title"
+                  maxlength="500"
+                  field="title"
+                  label="Course Title"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.short_title)"
+                  form-value="dc.formDisplayData.short_title"
+                  model-value="dc.courseInstance.short_title"
+                  maxlength="200"
+                  field="short_title"
+                  label="Short Title"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.sub_title)"
+                  form-value="dc.formDisplayData.sub_title"
+                  model-value="dc.courseInstance.sub_title"
+                  maxlength="500"
+                  field="sub_title"
+                  label="Subtitle"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-textarea
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.description)"
+                  form-value="dc.formDisplayData.description"
+                  model-value="dc.courseInstance.description"
+                  field="description"
+                  label="Description"></hu-editable-textarea>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-textarea
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.notes)"
+                  form-value="dc.formDisplayData.notes"
+                  model-value="dc.courseInstance.notes"
+                  maxlength="2000"
+                  field="notes"
+                  label="Notes"></hu-editable-textarea>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.instructors_display)"
+                  form-value="dc.formDisplayData.instructors_display"
+                  model-value="dc.courseInstance.instructors_display"
+                  maxlength="4000"
+                  field="instructors_display"
+                  label="Instructors (display)"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-field-label-wrapper
+                  is-loading="dc.isUndefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
+                  field="people"
+                  label="People">
+                <div class="alert alert-danger" role="alert"
+                     id="alert-danger-fetch-course-members-failed"
+                     ng-if="dc.alertPresent('form', 'fetchMembersFailed')">
+                  <p>
+                    <i class="fa fa-warning"></i>
+                    Error looking up course members.
+                    Error details: {{ dc.alerts.form.fetchMembersFailed.details }}
+                  </p>
+                  <p>
+                    <a href="#/people/{{dc.courseInstance.course_instance_id}}"
+                       id="people-error-link"
+                       class="alert-link">
+                      Go to course people page.
+                    </a>
+                  </p>
+                </div>
+
+                <a id="people-link"
+                   href="#/people/{{dc.courseInstance.course_instance_id}}">
+                  <ng-pluralize count="dc.courseInstance.members"
+                                when="{'0': 'There are no people in the course.',
+                      'one': 'There is one person in the course.',
+                      'other': 'There are {} people in the course.'}">
+                  </ng-pluralize>
+                </a>
+              </hu-field-label-wrapper>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.location)"
+                  form-value="dc.formDisplayData.location"
+                  model-value="dc.courseInstance.location"
+                  maxlength="500"
+                  field="location"
+                  label="Location"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-editable-input
+                  editable="dc.editable"
+                  is-loading="dc.isUndefined(dc.courseInstance.meeting_time)"
+                  form-value="dc.formDisplayData.meeting_time"
+                  model-value="dc.courseInstance.meeting_time"
+                  maxlength="1000"
+                  field="meeting_time"
+                  label="Meeting time"></hu-editable-input>
+            </li>
+
+            <li class="list-group-item">
+              <hu-field-label-wrapper
+                  is-loading="dc.isUndefined(dc.courseInstance.departments)"
+                  field="departments"
+                  label="Departments">
+                <div class="row" ng-repeat="dept in dc.courseInstance.departments">
+                  <div class="col-sm-12"> {{dept.name}} </div>
+                </div>
+              </hu-field-label-wrapper>
+            </li>
+
+            <li class="list-group-item">
+              <hu-field-label-wrapper
+                  is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
+                  field="course_groups"
+                  label="Course Groups">
+                <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
+                  <div class="col-sm-12"> {{group.name}} </div>
+                </div>
+              </hu-field-label-wrapper>
+            </li>
+
+            <li class="list-group-item">
+              <hu-field-label-wrapper
+                  is-loading="dc.isUndefined(dc.courseInstance.sites)"
+                  field="sites"
+                  label="Associated Site(s)">
+                <div class="course-site-details"
+                     ng-repeat="site in dc.courseInstance.sites">
+                  <div class="row">
+                    <div class="col-sm-1">
+                    <span class="label label-primary"
+                          ng-if="site.map_type == 'official'">Official</span>
+                    <span class="label label-primary"
+                          ng-if="site.map_type == 'unofficial'">Unofficial</span>
+                    </div>
+                    <div class="col-sm-8">
+                      <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
+                    </div>
+                    <div class="col-sm-3">
+                      <button type="button" class="btn btn-default pull-right"
+                              ng-click="dc.dissociateSite($index)">
+                        <span
+                            ng-show="dc.dissociateSiteInProgressIndex == $index">
+                          <i class="fa fa-refresh fa-spin"></i>
+                          Dissociating Site...
+                        </span>
+                        <span
+                            ng-show="dc.dissociateSiteInProgressIndex != $index">
+                          Dissociate
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  <hr>
+                </div>
+                <div class="row">
+                  <div class="col-sm-1"></div>
+                  <div class="col-sm-8">
+                    <label class="sr-only" for="newAssociatedCourseURL">
+                      New associated course URL
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="newAssociatedCourseURL"
+                           name="newAssociatedCourseURL"
+                           ng-disabled="dc.associateNewSiteInProgress"
+                           ng-keypress="dc.associateNewSiteHandleKey($event)"
+                           ng-model="dc.newCourseSiteURL"
+                           placeholder="Type URL of new associated course"/>
+                  </div>
+                  <div class="col-sm-3">
+                    <button type="button" class="btn btn-primary pull-right"
+                            ng-disabled="!dc.validNewSiteURL()"
+                            ng-click="dc.associateNewSite()">
+                        <span ng-switch="dc.associateNewSiteInProgress">
+                          <span ng-switch-when="false">
+                            Associate
+                          </span>
+                          <span ng-switch-when="true">
+                            <i class="fa fa-refresh fa-spin"></i>
+                            Associating Site...
+                          </span>
+                        </span>
+                    </button>
                   </div>
                 </div>
-            </hu-field-label-wrapper>
+                <div class="row">
+                  <div class="alert alert-danger" role="alert"
+                       id="alert-danger-site-operation-failed"
+                       ng-if="dc.alertPresent('form', 'siteOperationFailed')">
+                    <p>
+                      <i class="fa fa-warning"></i>
+                      Error {{ dc.alerts.form.siteOperationFailed.operation }} site.
+                      Error details:
+                      {{dc.alerts.form.siteOperationFailed.details}}
+                    </p>
+                  </div>
+                </div>
+              </hu-field-label-wrapper>
+            </li>
 
-            <hu-editable-input
-                is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
-                form-value="dc.formDisplayData.conclude_date"
-                model-value="dc.courseInstance.conclude_date"
-                field="conclude_date"
-                label="Conclusion Date">
-            </hu-editable-input>
+            <li class="list-group-item">
+              <hu-editable-input
+                  is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
+                  form-value="dc.formDisplayData.conclude_date"
+                  model-value="dc.courseInstance.conclude_date"
+                  field="conclude_date"
+                  label="Conclusion Date">
+              </hu-editable-input>
+            </li>
 
             <li class="list-group-item">
               <div class="form-group">
