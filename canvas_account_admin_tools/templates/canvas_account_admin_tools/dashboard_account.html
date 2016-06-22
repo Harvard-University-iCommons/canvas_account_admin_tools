@@ -11,9 +11,115 @@
     <header>
       <nav>
         <h3>Admin Console</h3>
+          <!-- UI comment - adding padding between header and the cards -->
+          &nbsp;
       </nav>
     </header>
 
+    <div class="card card_color">
+      <a href="{% url 'course_info:index' %}" id="course-roster">
+        <div class="card-body">
+          <div class="card-header card-header_color5">
+          </div>
+          <div class="card-content card-content_normal">
+            <div class="card-content-width">
+              <div class="card-content-icon">
+                <i class="fa fa-search icon-size"></i>
+              </div>
+              <div class="card-content-data">
+                <h2 class="card-content-title ellipsis" title="Class Roster">
+                  <span class="content-link">
+                    Search Courses
+                  </span>
+                </h2>
+                <p title="Class Roster">
+                  Find courses in order to add people or edit course details
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+
+    {% if people_tool_allowed %}
+        <div class="card card_color">
+          <a href="{% url 'people_tool:index' %}" id="course-roster">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-users icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Manage People">
+                      <span class="content-link">
+                        Search People
+                      </span>
+                    </h2>
+                    <p title="Manage People">Find users by name, HUID, or e-mail address</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
+
+    {% if cross_listing_allowed %}
+        <div class="card card_color">
+          <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-link icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Manage Cross-listings">
+                      <span class="content-link">
+                        Cross-list Courses
+                      </span>
+                    </h2>
+                    <p title="Manage Cross-listing">Set up and modify cross-listings</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
+
+    {% if conclude_courses %}
+        <div class="card card_color">
+          <a href="{{ conclude_courses }}" target="_blank" id="conclude-courses">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-hand-stop-o icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Conclude Courses">
+                      <span class="content-link">
+                        Cross-list Courses
+                      </span>
+                    </h2>
+                    <p title="Conclude Courses">Set or modify a conclusion date for a specific course</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
 
       {% if canvas_site_creator %}
         <div class="list-group col-md-4">
@@ -24,14 +130,6 @@
         </div>
       {% endif %}
 
-      {% if conclude_courses %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" target="_blank">
-              <h4 class="list-group-item-heading">Conclude Courses</h4>
-              <p class="list-group-item-text">Change conclusion dates <br>for a selected course</p>
-          </a>
-        </div>
-      {% endif %}
 
       {% if lti_tools_usage %}
         <div class="list-group col-md-4">
@@ -51,28 +149,4 @@
         </div>
       {% endif %}
 
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}">
-              <h4 class="list-group-item-heading">Find Course Info</h4>
-              <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
-          </a>
-        </div>
-
-      {% if cross_listing_allowed %}
-        <div id="cross-listing-button" class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'cross_list_courses:index' %}">
-              <h4 class="list-group-item-heading">Cross-list Courses</h4>
-              <p class="list-group-item-text">Set up and modify cross-listings <br>&nbsp;</p>
-          </a>
-        </div>
-      {% endif %}
-
-      {% if people_tool_allowed %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'people_tool:index' %}">
-              <h4 class="list-group-item-heading">Find People</h4>
-              <p class="list-group-item-text">Search for users <br>&nbsp;</p>
-          </a>
-        </div>
-      {% endif %}
 {% endblock content %}

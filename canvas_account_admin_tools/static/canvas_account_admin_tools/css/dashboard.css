@@ -3,6 +3,153 @@
     background-repeat: repeat-x;
 }
 
+/* tag types */
+
+a {
+    text-decoration: none;
+}
+a:focus {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: none;
+}
+h1 {
+    font-size: 1.8em;
+    font-weight: 300;
+    line-height: 1.5;
+}
+h2 {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    -webkit-margin-before: 0.83em;
+    -webkit-margin-after: 0.83em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+p {
+    color: gray;
+    font-size: 14px;
+    line-height: 1;
+    margin: 0;
+    padding-top: 1em;
+}
+
+/* custom classes */
+
+.card {
+    box-sizing: border-box;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-bottom: 4px solid #eee;
+    background: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    margin: 0 36px 36px 0;
+    vertical-align: top;
+    width: 262px;
+}
+
+.card-body {
+    box-sizing: border-box;
+    position: relative;
+}
+.card-content {
+    box-sizing: border-box;
+    padding: 18px 18px 0;
+}
+
+.card-content_alert {
+    background: #ededed;
+    height: 12.5em;
+}
+
+.card_color {
+    border-bottom-color: #4E84C4;
+}
+.card-content-data {
+    float:right;
+    width:70%;
+}
+
+.card_disabled {
+    border-bottom-color: #ccc;
+    cursor: default;
+}
+.card-content-icon {
+    float:left;
+    width:30%;
+    margin-top:.75em;
+}
+.card-content_normal {
+    background: #fff;
+    height: 8em;
+    background-color:#e9eff6
+}
+
+.card-content-title {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
+    transition: all 0.2s ease-out;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+}
+.card-content-width {
+    width:100%;
+}
+.card-header {
+    height:.25em;
+}
+
+.card-header_color5 {
+    background-color: #4E84C4;
+}
+
+.card-header_disabled {
+    background-color:#ccc;
+}
+.content-link {
+    color: #0081bd;
+}
+.dashboard-header {
+    margin: 0 0 12px;
+    padding-bottom: 12px;
+    padding-top: 10px;
+}
+.dashboard-header_title {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.icon-size {
+    font-size:4em;
+    color:#a2c0df;
+}
+.notification {
+    background: #fff;
+    border: 2px solid #ff0000;
+    border-radius: 3px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+    color: #333;
+    display: flex;
+    flex: 1;
+    font-size: 12px;
+    line-height: 1;
+    margin-bottom: 12px;
+    margin-top: 1em;
+    padding: 12px;
+}
+
+
 /*
 UI comment - style needed to get buttons of similar width and to wrap with elegance and grace. This will be resolved with a new Bootstrap v4 style
 */
