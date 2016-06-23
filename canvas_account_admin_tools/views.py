@@ -59,9 +59,7 @@ def lti_launch(request):
 @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def dashboard_account(request):
-    custom_canvas_account_id = request.LTI['custom_canvas_account_id']
     custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
-    # canvas_user_id = request.LTI['custom_canvas_user_id']
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
     conclude_courses = settings.CONCLUDE_COURSES_URL
 
