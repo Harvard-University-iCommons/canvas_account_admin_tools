@@ -10,7 +10,6 @@ from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
-from canvas_account_admin_tools.models import ExternalTool
 from proxy.views import proxy_view
 
 from django_auth_lti import const
@@ -62,23 +61,9 @@ def lti_launch(request):
 def dashboard_account(request):
     custom_canvas_account_id = request.LTI['custom_canvas_account_id']
     custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
-    canvas_user_id = request.LTI['custom_canvas_user_id']
+    # canvas_user_id = request.LTI['custom_canvas_user_id']
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
-
-    canvas_site_creator = ExternalTool.objects.get_external_tool_url_by_name_and_canvas_account_id(
-        ExternalTool.CANVAS_SITE_CREATOR,
-        custom_canvas_account_id
-    )
-
     conclude_courses = settings.CONCLUDE_COURSES_URL
-    lti_tools_usage = ExternalTool.objects.get_external_tool_url_by_name_and_canvas_account_id(
-        ExternalTool.LTI_TOOLS_USAGE,
-        custom_canvas_account_id
-    )
-    courses_in_this_account = ExternalTool.objects.get_external_tool_url_by_name_and_canvas_account_id(
-        ExternalTool.COURSES_IN_THIS_ACCOUNT,
-        custom_canvas_account_id
-    )
 
     """
     Verify that the curernt user has permission to see the cross listing button
@@ -96,10 +81,7 @@ def dashboard_account(request):
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'canvas_site_creator': canvas_site_creator,
         'conclude_courses': conclude_courses,
-        'lti_tools_usage': lti_tools_usage,
-        'courses_in_this_account': courses_in_this_account,
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
 
