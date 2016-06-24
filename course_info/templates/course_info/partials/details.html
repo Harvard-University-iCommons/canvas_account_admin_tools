@@ -4,9 +4,10 @@
     <h3 class="breadcrumbs">
         {% endverbatim %}
         <a href="{% url 'dashboard_account' %}">Admin Console</a>
-        &gt; <a href="#/">Search Courses</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        <a href="#/">Search Courses</a>
         {% verbatim %}
-        &gt;
+        <small><i class="fa fa-chevron-right"></i></small>
         <span ng-if="dc.courseInstance.title">Details for {{dc.courseInstance.title}}</span>
         <span ng-if="!dc.courseInstance.title">Loading details for course instance {{dc.courseInstanceId}}... <i class="fa fa-refresh fa-spin"></i></span>
     </h3>
