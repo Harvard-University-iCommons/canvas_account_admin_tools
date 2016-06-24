@@ -8,11 +8,6 @@ a:focus {
 a:hover {
     text-decoration: none;
 }
-h1 {
-    font-size: 1.8em;
-    font-weight: 300;
-    line-height: 1.5;
-}
 h2 {
     display: block;
     font-size: 1.5em;
@@ -28,6 +23,9 @@ p {
     line-height: 1;
     margin: 0;
     padding-top: 1em;
+}
+h3 {
+    padding-bottom: 1em;
 }
 
 /* custom classes */
@@ -52,11 +50,6 @@ p {
 .card-content {
     box-sizing: border-box;
     padding: 18px 18px 0;
-}
-
-.card-content_alert {
-    background: #ededed;
-    height: 12.5em;
 }
 .card_color {
     border-bottom-color: #4E84C4;
@@ -88,10 +81,6 @@ p {
 .card-content-width {
     width:100%;
 }
-.card_disabled {
-    border-bottom-color: #ccc;
-    cursor: default;
-}
 .card-header {
     height:.25em;
 }
@@ -99,21 +88,8 @@ p {
 .card-header_color5 {
     background-color: #4E84C4;
 }
-
-.card-header_disabled {
-    background-color:#ccc;
-}
 .content-link {
     color: #0081bd;
-}
-.dashboard-header {
-    margin: 0 0 12px;
-    padding-bottom: 12px;
-    padding-top: 10px;
-}
-.dashboard-header_title {
-    margin-bottom: 0;
-    margin-top: 0;
 }
 .ellipsis {
     overflow: hidden;
@@ -128,23 +104,6 @@ p {
     background-image: linear-gradient(to bottom, #4e84c4 0%, #3b71b1 100%);
     background-repeat: repeat-x;
 }
-
-.notification {
-    background: #fff;
-    border: 2px solid #ff0000;
-    border-radius: 3px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-    box-sizing: border-box;
-    color: #333;
-    display: flex;
-    flex: 1;
-    font-size: 12px;
-    line-height: 1;
-    margin-bottom: 12px;
-    margin-top: 1em;
-    padding: 12px;
-}
-
 
 /*
 UI comment - style needed to get buttons of similar width and to wrap with elegance and grace. This will be resolved with a new Bootstrap v4 style
