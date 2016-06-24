@@ -75,6 +75,16 @@
                 $('#search-query-string').focus();
             }
         };
+        $scope.getNameLast = function(name_last) {
+            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            if(typeof course.title != "undefined" && course.title.trim().length > 0){
+                return course.title;
+            }
+            else if(typeof course.short_title != "undefined" && course.short_title.trim().length > 0){
+                return course.short_title;
+            }
+            return 'Untitled Course';
+        };
         $scope.getProfileRoleTypeCd = function(profile) {
             return profile ? profile.role_type_cd : '';
         };
@@ -82,6 +92,14 @@
             return '<badge ng-cloak role="'
                 + (full.role_type_cd ? full.role_type_cd : '')
                 + '"></badge> ' + full.univ_id;
+        };
+        $scope.renderPersonCoursesLink = function(data, type, full, meta) {
+            // If person has no name, indicate this with some text so that we
+            // can still display a clickable anchor link
+            var lastName = (full.name_last.trim().length > 0) ?
+                full.name_last : '(none)';
+            return '<a href="' + '#/people/' + full.univ_id + '/courses/">'
+                + lastName + '</a>';
         };
         $scope.searchPeople = function(event) {
             if ($scope.queryString.length > $scope.searchType.maxLength) {
@@ -184,7 +202,7 @@
 
         $scope.dtColumns = [
             {
-                data: 'name_last',
+                render: $scope.renderPersonCoursesLink,
                 title: 'Last Name'
             },
             {
