@@ -1,0 +1,32 @@
+[
+{
+    "fields": {
+        "canvas_account_id": "*",
+        "canvas_course_id": "*",
+        "name": "canvas_site_creator",
+        "external_tool_id": 1571
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 13
+},
+{
+    "fields": {
+        "canvas_account_id": "*",
+        "canvas_course_id": "*",
+        "name": "courses_in_this_account",
+        "external_tool_id": 279
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 14
+},
+{
+    "fields": {
+        "canvas_account_id": "*",
+        "canvas_course_id": "*",
+        "name": "lti_tools_usage",
+        "external_tool_id": 1521
+    },
+    "model": "canvas_account_admin_tools.externaltool",
+    "pk": 15
+}
+]
