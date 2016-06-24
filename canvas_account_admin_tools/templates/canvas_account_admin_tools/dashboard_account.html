@@ -11,68 +11,114 @@
     <header>
       <nav>
         <h3>Admin Console</h3>
+
       </nav>
     </header>
 
+    <div class="card card_color">
+      <a href="{% url 'course_info:index' %}" id="course-roster">
+        <div class="card-body">
+          <div class="card-header card-header_color5">
+          </div>
+          <div class="card-content card-content_normal">
+            <div class="card-content-width">
+              <div class="card-content-icon">
+                <i class="fa fa-search icon-size"></i>
+              </div>
+              <div class="card-content-data">
+                <h2 class="card-content-title ellipsis" title="Search Courses">
+                  <span class="content-link">
+                    Search Courses
+                  </span>
+                </h2>
+                <p title="Search Courses">
+                  Find courses in order to add people or edit course details
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
 
-      {% if canvas_site_creator %}
-        <div class="list-group col-md-4">
-          <a href="{{ canvas_site_creator }}" class="list-group-item active" target="_parent">
-              <h4 class="list-group-item-heading">Canvas Site Creator</h4>
-              <p class="list-group-item-text">Create Canvas sites for one or multiple courses</p>
+
+    {% if people_tool_allowed %}
+        <div class="card card_color">
+          <a href="{% url 'people_tool:index' %}" id="course-roster">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-users icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Search People">
+                      <span class="content-link">
+                        Search People
+                      </span>
+                    </h2>
+                    <p title="Search People">Find users by name, HUID, XID or e-mail address</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </a>
         </div>
-      {% endif %}
+    {% endif %}
 
-      {% if conclude_courses %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ conclude_courses }}" target="_blank">
-              <h4 class="list-group-item-heading">Conclude Courses</h4>
-              <p class="list-group-item-text">Change conclusion dates <br>for a selected course</p>
+    {% if cross_listing_allowed %}
+        <div class="card card_color">
+          <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-link icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Cross-list Courses">
+                      <span class="content-link">
+                        Cross-list Courses
+                      </span>
+                    </h2>
+                    <p title="Cross-list Courses">Set up and modify cross-listings</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </a>
         </div>
-      {% endif %}
+    {% endif %}
 
-      {% if lti_tools_usage %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ lti_tools_usage }}" target="_parent">
-              <h4 class="list-group-item-heading">LTI Tools Usage Report</h4>
-              <p class="list-group-item-text">See which LTI tools are installed in your account</p>
+    {% if conclude_courses %}
+        <div class="card card_color">
+          <a href="{{ conclude_courses }}" target="_blank" id="conclude-courses">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-hand-stop-o icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Conclude Courses">
+                      <span class="content-link">
+                        Conclude Courses
+                      </span>
+                    </h2>
+                    <p title="Conclude Courses">Set or modify a conclusion date for a specific course</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </a>
         </div>
-      {% endif %}
+    {% endif %}
 
-      {% if courses_in_this_account %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{{ courses_in_this_account }}" target="_parent">
-              <h4 class="list-group-item-heading">Courses in this Account</h4>
-              <p class="list-group-item-text">See information about the courses in your account combined in one view</p>
-          </a>
-        </div>
-      {% endif %}
 
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'course_info:index' %}">
-              <h4 class="list-group-item-heading">Find Course Info</h4>
-              <p class="list-group-item-text">Search for course information <br>&nbsp;</p>
-          </a>
-        </div>
-
-      {% if cross_listing_allowed %}
-        <div id="cross-listing-button" class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'cross_list_courses:index' %}">
-              <h4 class="list-group-item-heading">Cross-list Courses</h4>
-              <p class="list-group-item-text">Set up and modify cross-listings <br>&nbsp;</p>
-          </a>
-        </div>
-      {% endif %}
-
-      {% if people_tool_allowed %}
-        <div class="list-group col-md-4">
-          <a type="button" class="btn btn-primary list-group-item active" href="{% url 'people_tool:index' %}">
-              <h4 class="list-group-item-heading">Find People</h4>
-              <p class="list-group-item-text">Search for users <br>&nbsp;</p>
-          </a>
-        </div>
-      {% endif %}
 {% endblock content %}
