@@ -165,19 +165,13 @@
             ajax: function(data, callback, settings) {
                 $scope.toggleOperationInProgress(true);
 
-                // todo: needs to be hooked up to backend
-                // var url = djangoUrl.reverse('icommons_rest_api_proxy',
-                //                             [$scope.personCoursesUrl]);
-                // todo: this is just a test URL!
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
-                    [$scope.baseApiUrl + 'course_instances/']);
+                                            [$scope.personCoursesUrl]);
                 var queryParams = {
-                    academic_year: 2016,
                     limit: data.length,
                     offset: data.start,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
-                              + $scope.sortKeyByColumnId[data.order[0].column],
-                    sync_to_canvas: 'True'
+                              + $scope.sortKeyByColumnId[data.order[0].column]
                 };
 
                 $.ajax({
