@@ -6,10 +6,12 @@
     {% verbatim %}
     <small><i class="fa fa-chevron-right"></i></small>
     <a href="#/">Search People</a>
+
     <span ng-if="selectedPersonInfo.name_first">
         <small><i class="fa fa-chevron-right"></i></small>
         {{selectedPersonInfo.name_last}},&nbsp;{{selectedPersonInfo.name_first}}'s Courses
     </span>
+    <span ng-if="operationInProgress"><i class="fa fa-refresh fa-spin"></i></span>
   </h3>
 </nav>
 
