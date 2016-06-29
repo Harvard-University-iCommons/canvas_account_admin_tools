@@ -164,13 +164,11 @@
                     dataType: 'json'
                 }).done(function dataTableGetDone(data, textStatus, jqXHR) {
                     $scope.messages = [];
-                    console.log(" done ");
                     callback({
                         recordsTotal: data.count,
                         recordsFiltered: data.count,
                         data: data.results
                     });
-                    console.log(data.results);
                 })
                 .fail(function dataTableGetFail(data, textStatus, errorThrown) {
                     $log.error('Error getting data from ' + url + ': '
