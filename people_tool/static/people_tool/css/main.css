@@ -5,6 +5,12 @@
     pointer-events: none;
 }
 
+
+table.person-info-table {
+    display: table;
+    width: 920px;
+}
+
 table.dataTable thead .sorting,
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,
