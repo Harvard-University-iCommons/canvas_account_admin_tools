@@ -132,7 +132,9 @@
         $scope.renderCourseDetailLink = function(data, type, full, meta) {
             return '<a href="'
                 + window.globals.append_resource_link_id('../course_info/')
-                + '#/details/' + full.cid + '">' + full.description + '</a>';
+                + '#/details/' + full.cid + '?frompeoplecourses='
+                + $scope.personId + '"><i class="fa fa-search"></i>'
+                + '&nbsp;' + full.description + '</a>';
         };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="'

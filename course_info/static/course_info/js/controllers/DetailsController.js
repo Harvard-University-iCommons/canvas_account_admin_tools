@@ -13,6 +13,10 @@
         dc.alerts = {form: {}, global: {}};
         dc.apiBase = 'api/course/v2/course_instances/';
         dc.apiProxy = 'icommons_rest_api_proxy';
+        // $routeParams['fromsearchpeople'] expects a `univ_id` to build a link
+        // to the search people app's course list route
+        // todo: there may be a more generic, extensible approach
+        dc.arrivedFromPeopleCourses = $routeParams['frompeoplecourses'];
         dc.associateNewSiteInProgress = false;
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
@@ -203,6 +207,13 @@
             }
 
             return courseInstance;
+        };
+
+        dc.getPeopleCoursesRoute = function() {
+            // returns URL for the Search People app's course list
+            // route for the user specified by dc.arrivedFromPeopleCourses
+            return window.globals.append_resource_link_id('../people_tool/')
+                + '#/people/' + dc.arrivedFromPeopleCourses + '/courses/';
         };
 
         dc.handleAjaxErrorResponse = function(r) {
