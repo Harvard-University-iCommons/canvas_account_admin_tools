@@ -100,7 +100,7 @@
                 full.name_last : '(none)';
             return '<a href="' + '#/people/' + full.univ_id + '/courses/" ' +
                 'ng-click="setSelectedPersonInfo(\''+full.name_last+'\',\''+
-                full.name_first+'\','+full.univ_id+',\''+full.email_address+'\''+',\''+full.role_type_cd+'\')">'
+                full.name_first+'\',\''+full.univ_id+'\',\''+full.email_address+'\''+',\''+full.role_type_cd+'\')">'
                 + lastName + '</a>';
         };
         $scope.setSelectedPersonInfo =

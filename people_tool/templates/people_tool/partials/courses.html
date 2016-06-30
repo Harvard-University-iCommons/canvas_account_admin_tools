@@ -37,7 +37,7 @@
             <tr role="row" class="odd">
               <td class="sorting" tabindex="0">{{selectedPersonInfo.name_last}}</td>
               <td class="sorting" tabindex="0">{{selectedPersonInfo.name_first}}</td>
-              <td class="sorting" tabindex="0">{{selectedPersonInfo.univ_id}}</td>
+              <td class="sorting" tabindex="0"><badge ng-cloak role="{{selectedPersonInfo.role_type_cd}}"></badge>{{selectedPersonInfo.univ_id}}</td>
               <td class="sorting" tabindex="0">{{selectedPersonInfo.email_address}}</td>
             </tr>
           </tbody>
