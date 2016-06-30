@@ -9,6 +9,7 @@
 table.person-info-table {
     display: table;
     width: 920px;
+    margin-bottom: 15px;
 }
 
 table.dataTable thead .sorting,
