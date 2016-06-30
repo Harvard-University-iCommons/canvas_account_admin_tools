@@ -47,4 +47,25 @@ describe('Unit testing people_tool CoursesController', function() {
         });
     });
 
+    describe('dtOptions.ajax', function() {
+        it('sends expected GET params to backend');
+
+        it('updates scope with no error message when backend returns no error');
+
+        it('updates scope error message when backend returns error');
+    });
+
+    describe('getCourseDescription', function() {
+        it('returns short title of title is null');
+        it('returns default text if title and short title are both null')
+
+    });
+
+    describe('toggleOperationInProgress', function() {
+        it('turns off data table and notes operation in progress when ' +
+                'toggled ON');
+        it('turns on data table and notes operation not in progress when ' +
+                'toggled OFF');
+    });
+
 });
