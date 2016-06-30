@@ -2,7 +2,7 @@
     var app = angular.module('PeopleTool');
     app.controller('SearchController', SearchController);
 
-    function SearchController($scope, $compile, djangoUrl, $log, $timeout) {
+    function SearchController($scope, $compile, djangoUrl, $log, $timeout, personInfo) {
         // tracks state of interactive datatable elements
         $scope.datatableInteractiveElementTabIndexes = [];
         $scope.messages = [];
@@ -98,9 +98,23 @@
             // can still display a clickable anchor link
             var lastName = (full.name_last.trim().length > 0) ?
                 full.name_last : '(none)';
-            return '<a href="' + '#/people/' + full.univ_id + '/courses/">'
+            return '<a href="' + '#/people/' + full.univ_id + '/courses/" ' +
+                'ng-click="setSelectedPersonInfo(\''+full.name_last+'\',\''+
+                full.name_first+'\','+full.univ_id+',\''+full.email_address+'\''+',\''+full.role_type_cd+'\')">'
                 + lastName + '</a>';
         };
+        $scope.setSelectedPersonInfo =
+            function(name_last, name_first, univ_id, email, role_type_cd){
+                //Populate the  personInfo object  with the selected person's details
+                // to be used in the next screen
+            personInfo.details = {
+                name_last: name_last,
+                name_first: name_first,
+                univ_id: univ_id,
+                email_address: email,
+                role_type_cd: role_type_cd
+            };
+        }
         $scope.searchPeople = function(event) {
             if ($scope.queryString.length > $scope.searchType.maxLength) {
                 $scope.messages = [{

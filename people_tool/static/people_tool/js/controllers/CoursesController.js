@@ -3,13 +3,14 @@
     app.controller('CoursesController', CoursesController);
 
     function CoursesController($scope, $compile, djangoUrl, $log, $routeParams,
-                               $timeout) {
+                               $timeout, personInfo) {
         // tracks state of interactive datatable elements
         $scope.datatableInteractiveElementTabIndexes = [];
         $scope.messages = [];
         $scope.operationInProgress = false;
         $scope.baseApiUrl = 'api/course/v2/';
         $scope.personId = $routeParams.personId;
+        $scope.selectedPersonInfo = personInfo.details;
         $scope.personCoursesUrl = $scope.baseApiUrl + 'people/'
             + $scope.personId + '/course_instances/';
         $scope.showCourseListDataTable = false;
