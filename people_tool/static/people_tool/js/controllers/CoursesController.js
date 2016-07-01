@@ -10,7 +10,6 @@
         $scope.operationInProgress = false;
         $scope.baseApiUrl = 'api/course/v2/';
         $scope.personId = $routeParams.personId;
-        $scope.selectedPersonInfo = personInfo.details;
         $scope.personCoursesUrl = $scope.baseApiUrl + 'people/'
             + $scope.personId + '/course_instances/';
         $scope.showCourseListDataTable = false;
@@ -24,6 +23,38 @@
             6: 'course_instance_id'
         };
         $scope.courseInstanceDetailUrl = djangoUrl.reverse('course_info:index');
+
+        $scope.setPersonDetails = function(personId){
+            var url = djangoUrl.reverse(
+                              'icommons_rest_api_proxy',
+                              ['api/course/v2/people/']);
+            var queryParams = {};
+            queryParams['univ_id'] = personId;
+            $.ajax({
+                    url: url,
+                    method: 'GET',
+                    data: queryParams,
+                    dataType: 'json'
+            }).done(function dataTableGetDone(data, textStatus, jqXHR) {
+                $scope.messages = [];
+                var person = data.results[0];
+                $scope.selectedPersonInfo = person;
+            })
+            .fail(function dataTableGetFail(data, textStatus, errorThrown) {
+                $log.error('Error getting data from ' + url + ': '
+                           + textStatus + ', ' + errorThrown);
+            });
+        };
+
+        if  (angular.equals({}, personInfo.details)){
+            //if the personInfo is not set (eg: when the page is loaded
+            // from the course detail view), get the person detail from the backend
+            $scope.setPersonDetails($scope.personId);
+        }else{
+            $scope.selectedPersonInfo = personInfo.details;
+        }
+
+
 
         $scope.courseInstanceToTable = function(course) {
             // This logic is reused in the course_info app's PeopleController
