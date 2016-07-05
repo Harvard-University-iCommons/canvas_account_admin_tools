@@ -31,6 +31,10 @@
                 templateUrl: 'partials/search.html',
                 controller: 'SearchController',
             })
+            .when('/people/:personId/courses/', {
+                templateUrl: 'partials/courses.html',
+                controller: 'CoursesController',
+            })
             .otherwise({
                 redirectTo: '/',
             });

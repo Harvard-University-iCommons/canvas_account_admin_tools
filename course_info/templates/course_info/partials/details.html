@@ -11,6 +11,11 @@
         <span ng-if="dc.courseInstance.title">Details for {{dc.courseInstance.title}}</span>
         <span ng-if="!dc.courseInstance.title">Loading details for course instance {{dc.courseInstanceId}}... <i class="fa fa-refresh fa-spin"></i></span>
     </h3>
+  <p ng-if="dc.arrivedFromPeopleCourses">
+    <a href="{{ dc.getPeopleCoursesRoute() }}">
+      <i class="fa fa-users"></i> Back to person's courses
+    </a>
+  </p>
 </nav>
 
 <main class="course-info-details-page">
