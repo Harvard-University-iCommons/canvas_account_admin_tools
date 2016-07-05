@@ -9,7 +9,7 @@ class AccountAdminDashboardPageLocators(object):
     # if PAGE_TITLE uses contains() it will match for sub-pages as well, so
     # use text() for exact match (should only match on dashboard page)
     PAGE_TITLE = (By.XPATH, '//h3[text()="Admin Console"]')
-    COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Find Course Info')]")
+    COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Search Courses')]")
     CROSS_LISTING_DIV = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
 
 class AccountAdminDashboardPage(AccountAdminBasePage):

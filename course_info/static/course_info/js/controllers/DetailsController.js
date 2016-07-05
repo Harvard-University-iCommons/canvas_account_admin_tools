@@ -2,8 +2,9 @@
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController);
 
+    // todo: remove $timeout when backend is hooked up
     function DetailsController($scope, $routeParams, courseInstances, $compile,
-                               djangoUrl, $http, $q, $log, $uibModal, $sce) {
+                               djangoUrl, $http, $q, $log, $uibModal, $sce, $timeout) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -12,11 +13,14 @@
         dc.alerts = {form: {}, global: {}};
         dc.apiBase = 'api/course/v2/course_instances/';
         dc.apiProxy = 'icommons_rest_api_proxy';
+        dc.associateNewSiteInProgress = false;
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
         dc.courseInstances = courseInstances;
+        dc.dissociateSiteInProgressIndex = null;
         dc.editable = false;
+        dc.newCourseSiteURL = '';
 
         dc.init = function() {
             var instances = courseInstances.instances;
@@ -32,51 +36,83 @@
                     dc.alerts[alertType][alertKey].show);
         };
 
-        dc.isUndefined = function(obj) {
-            // calling angular.isUndefined() directly from the directive
-            // does not seem to work; wrapping it in a function that is watched
-            // on the controller scope works as expected
-            return angular.isUndefined(obj);
+        dc.associateNewSite = function() {
+            dc.associateNewSiteInProgress = true;
+            data = {
+              'external_id': dc.newCourseSiteURL
+            };
+            var post_course_site_url = djangoUrl.reverse(dc.apiProxy,
+                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/']);
+            $http.post(post_course_site_url, data).then(function(response){
+                var new_course = {
+                    course_site_url: dc.newCourseSiteURL,
+                    map_type: 'official',
+                    site_map_id: response.data.site_map_id
+                };
+                dc.courseInstance.sites.push(new_course);
+                dc.newCourseSiteURL = '';
+            }, function(response) {
+                dc.handleAjaxErrorResponse(response);
+                dc.alerts.form.siteOperationFailed = {
+                    show: true,
+                    operation: 'associating',
+                    details: response.statusText || 'None'};
+                }
+            ).finally(function(){
+                dc.associateNewSiteInProgress = false;
+            });
         };
 
-        dc.handleAjaxErrorResponse = function(r) {
-            dc.handleAjaxError(
-                r.data, r.status, r.headers, r.config, r.statusText);
-        };
-
-        dc.handleAjaxError = function (data, status, headers, config, statusText) {
-            $log.error('Error attempting to ' + config.method + ' ' + config.url +
-                ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
-        };
-
-        dc.isCourseInstanceEditable = function(courseRegistrarCode) {
-            // TLT-2376: sandbox and ILE courses are editable, and are
-            // identified by their course (registrar) code
-            return (courseRegistrarCode.startsWith('ILE-') ||
-                    courseRegistrarCode.startsWith('SB-'));
-        };
-
-        dc.handleCourseInstanceResponse = function(response) {
-            //check if the right data was obtained before storing it
-            if (response.data.course_instance_id == dc.courseInstanceId) {
-                courseInstances.instances[response.data.course_instance_id] = response.data;
-                // if people/members are fetched first, we don't want to
-                // overwrite the members attribute of dc.courseInstance
-                $.extend(dc.courseInstance,
-                    dc.getFormattedCourseInstance(response.data));
-                // TLT-2376: only sandbox and ILE courses are currently editable
-                var rc = response.data.course.registrar_code;
-                dc.editable = dc.isCourseInstanceEditable(rc);
-                dc.resetForm();
-            } else {
-                $log.error('CourseInstance record mismatch for id :'
-                    + dc.courseInstanceId + ', instead received record for '
-                    + response.data.id);
+        dc.associateNewSiteHandleKey = function(keypressEvent) {
+            // if user hits Enter in the new site URL form input field, capture
+            // it for handling by associateNewSite() and prevent it from
+            // triggering main form submission
+            if (keypressEvent.keyCode == 13) {
+                // swallow the enter key no matter what; this prevents a blank
+                // input causing the main form to be submitted
+                keypressEvent.preventDefault();
+                if (dc.validNewSiteURL()) {
+                    dc.associateNewSite();
+                }
             }
         };
 
-        dc.handlePeopleResponse = function(response) {
-            dc.courseInstance['members'] = response.data.count;
+        dc.dissociateSite = function(siteListIndex) {
+            dc.confirmDissociateSiteModalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'partials/dissociate-site-confirmation.html',
+                controller: function ($scope, $uibModalInstance, siteURL, site_map_id) {
+                    dc.siteURL = siteURL;
+                    dc.site_map_id = site_map_id;
+                },
+                resolve: {
+                    siteURL: function () {
+                        return dc.courseInstance.sites[siteListIndex].course_site_url;
+                    },
+                    site_map_id: function() {
+                        return dc.courseInstance.sites[siteListIndex].site_map_id;
+                    }
+                }
+            });
+            dc.confirmDissociateSiteModalInstance.result.then(
+                function modalConfirmed() {
+                    var delete_course_site_url = djangoUrl.reverse(dc.apiProxy,
+                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/' + dc.courseInstance.sites[siteListIndex].site_map_id + '/']);
+                    $http.delete(delete_course_site_url)
+                        .then(function(response){
+                            dc.dissociateSiteInProgressIndex = siteListIndex;
+                            dc.courseInstance.sites.splice(siteListIndex, 1);
+                        }, function(response){
+                            dc.handleAjaxErrorResponse(response);
+                            dc.alerts.form.siteOperationFailed = {
+                                show: true,
+                                operation: 'dissociating',
+                                details: response.statusText || 'None'};
+                        }).finally(function(){
+                            dc.dissociateSiteInProgressIndex = null;
+                        });
+
+            });
         };
 
         dc.fetchCourseInstanceDetails = function (id) {
@@ -110,14 +146,24 @@
                 });
 
         };
-
+        dc.getCourseDescription = function(course) {
+            // If a course's title is [NULL], attempt to display the short title.
+            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            if(typeof course.title != "undefined" && course.title.trim().length > 0){
+                return course.title;
+            }
+            else if(typeof course.short_title != "undefined" && course.short_title.trim().length > 0){
+                return course.short_title;
+            }
+            return 'Untitled Course';
+        };
         dc.getFormattedCourseInstance = function (ciData) {
             // This is a helper function that formats the raw CourseInstance
             // API response data for display in the UI
             var ci = ciData;  // shorten for brevity, preferable to `with()`
             var courseInstance = {};
             if (ci) {
-                courseInstance['title'] = ci.title;
+                courseInstance['title'] = dc.getCourseDescription(ci);
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
                 courseInstance['year'] = ci.term.academic_year;
@@ -142,7 +188,7 @@
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
-                
+
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
                     courseInstance['xlist_status'] = 'Primary';
@@ -157,6 +203,53 @@
             }
 
             return courseInstance;
+        };
+
+        dc.handleAjaxErrorResponse = function(r) {
+            dc.handleAjaxError(
+                r.data, r.status, r.headers, r.config, r.statusText);
+        };
+
+        dc.handleAjaxError = function (data, status, headers, config, statusText) {
+            $log.error('Error attempting to ' + config.method + ' ' + config.url +
+                ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
+        };
+
+        dc.handleCourseInstanceResponse = function(response) {
+            //check if the right data was obtained before storing it
+            if (response.data.course_instance_id == dc.courseInstanceId) {
+                courseInstances.instances[response.data.course_instance_id] = response.data;
+                // if people/members are fetched first, we don't want to
+                // overwrite the members attribute of dc.courseInstance
+                $.extend(dc.courseInstance,
+                    dc.getFormattedCourseInstance(response.data));
+                // TLT-2376: only sandbox and ILE courses are currently editable
+                var rc = response.data.course.registrar_code;
+                dc.editable = dc.isCourseInstanceEditable(rc);
+                dc.resetForm();
+            } else {
+                $log.error('CourseInstance record mismatch for id :'
+                    + dc.courseInstanceId + ', instead received record for '
+                    + response.data.id);
+            }
+        };
+
+        dc.handlePeopleResponse = function(response) {
+            dc.courseInstance['members'] = response.data.count;
+        };
+
+        dc.isCourseInstanceEditable = function(courseRegistrarCode) {
+            // TLT-2376: sandbox and ILE courses are editable, and are
+            // identified by their course (registrar) code
+            return (courseRegistrarCode.startsWith('ILE-') ||
+                    courseRegistrarCode.startsWith('SB-'));
+        };
+
+        dc.isUndefined = function(obj) {
+            // calling angular.isUndefined() directly from the directive
+            // does not seem to work; wrapping it in a function that is watched
+            // on the controller scope works as expected
+            return angular.isUndefined(obj);
         };
 
         dc.resetForm = function() {
@@ -175,6 +268,21 @@
 
         dc.scrollToTopOfViewport = function() {
             scrollTo(0, 0);  // scroll to top of form
+        };
+
+        dc.showForm = function() {
+            // li.list-group-item elements must be directly under ul.list-group
+            // for the proper bootstrap styling to be applied, but since <li>s
+            // wrap our hu-* directives, the li border styles appear before
+            // angular can render all of the hu-* directives. This code ensures
+            // that the form (and hence the <li>s in the form) is not visible
+            // until the first <li> has been rendered (has text in it) by
+            // angular via the digest cycle. Note that this makes assumptions
+            // about the structure of the DOM and that the first <li> contains
+            // only an hu-* directive that is entirely dynamically generated
+            // (hence there is no text to speak of inside the <li> until the
+            // directive is rendered).
+            return $('form ul li:first-child').text().trim() != '';
         };
 
         dc.showNewGlobalAlert = function(alertKey, alertDetail) {
@@ -227,6 +335,15 @@
                     // re-enables form, buttons
                     dc.courseDetailsUpdateInProgress = false;
                 });
+        };
+
+        dc.validNewSiteURL = function() {
+            // if we use the required or ngRequired directives on our new site
+            // URL input element then the main form will also recognize and
+            // require them; instead we need to use a combination of empty input
+            // checking and the angular input directive's built-in validation.
+            return (dc.newCourseSiteURL.trim() != '' &&
+                    dc.courseDetailsForm.newAssociatedCourseURL.$valid);
         };
 
         dc.init();

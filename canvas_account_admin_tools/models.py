@@ -1,6 +1,9 @@
 from django.db import models
 from django.conf import settings
 
+# Note: This model should go away along with a migration to delete the table,
+# but due to some issues with unit tests failing on deletion of this model, they
+# have been retained.
 
 class ExternalToolManager(models.Manager):
     def get_external_tool_url_by_name_and_canvas_account_id(self, name, canvas_account_id):

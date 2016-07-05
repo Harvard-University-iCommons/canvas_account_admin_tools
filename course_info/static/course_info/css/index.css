@@ -7,8 +7,17 @@
     margin-top: 20px;
 }
 
+#alert-danger-site-operation-failed {
+  margin-top: 1em;
+
+}
+
 .btn-group {
   margin-top: 1em;
+}
+
+.course-site-details {
+  margin-bottom: 1em;
 }
 
 #directoryLink {

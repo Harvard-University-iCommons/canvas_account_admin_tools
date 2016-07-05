@@ -14,7 +14,7 @@
                            href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}"
                            media="screen"/>
     <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.11/media/css/jquery.dataTables.min.css' %}" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'course_info/css/index.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'people_tool/css/main.css' %}" media="screen"/>
 
     {% if debug %}
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.js' %}"></script>
@@ -42,27 +42,16 @@
     <script src="{% static 'angular-drf/js/angular-drf.js' %}"></script>
     <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
     {% include 'django_auth_lti/resource_link_id.html' %}
-    <script>
-      window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
-      window.schoolOptions = {{ schools | safe }};
-    </script>
-    <title>Search Courses</title>
+
+    <title>Search People</title>
   </head>
 
-  <body class="lti-tool" role="application" ng-app="CourseInfo">
+  <body class="lti-tool" role="application" ng-app="PeopleTool">
     <div ng-view class="container-fluid">
     </div>
 
-    <script src="{% static 'course_info/js/app.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/SearchController.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/PeopleController.js' %}"></script>
-    <script src="{% static 'course_info/js/controllers/DetailsController.js' %}"></script>
-    <script src="{% static 'course_info/js/services/AngularDRFService.js' %}"></script>
-    <script src="{% static 'course_info/js/services/CourseInstancesService.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/BadgeDirective.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuEditableInput.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuEditableTextarea.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuEditableCheckbox.js' %}"></script>
-    <script src="{% static 'course_info/js/directives/HuFieldLabelWrapper.js' %}"></script>
+    <script src="{% static 'people_tool/js/app.js' %}"></script>
+    <script src="{% static 'people_tool/js/controllers/SearchController.js' %}"></script>
+    <script src="{% static 'people_tool/js/directives/BadgeDirective.js' %}"></script>
   </body>
 </html>
