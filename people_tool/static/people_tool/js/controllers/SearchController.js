@@ -229,6 +229,10 @@
                 width: '20%'
             },
             {
+                data: 'role_type_cd',
+                title: 'Role Type'
+            },
+            {
                 data: 'email_address',
                 title: 'Email'
             }
