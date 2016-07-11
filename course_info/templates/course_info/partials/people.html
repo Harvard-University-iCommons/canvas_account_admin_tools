@@ -176,15 +176,15 @@
             </ng-pluralize>
           </span>
           <span ng-if="messages.success.type == 'remove'">
-            <p><strong>{{ messages.success.searchTerm }}</strong>
-              was just removed from this course:</p>
-            <div class="course-membership-entry">
-              {{ getProfileFullName(messages.success.profile) }}
+            <p><strong>{{ messages.success.searchTerm }}</strong>,
               <badge role="{{ getProfileRoleTypeCd(messages.success.profile) }}"></badge>
-              {{ messages.success.user_id }}
-              <strong>Enrolled as {{ messages.success.role.role_name }}</strong>
-            </div>
+              {{ messages.success.user_id }}, 
+              <strong>({{ messages.success.role.role_name }})</strong>
+              was successfully removed from this course.
+            </p>
+
           </span>
+
         </uib-alert>
         <!-- end success alerts -->
 
