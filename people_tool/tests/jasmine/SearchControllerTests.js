@@ -97,6 +97,7 @@ describe('Unit testing people_tool SearchController', function() {
                     order: [{dir: 'asc', column: 0}]};
         var queryString = 'search term';
         var queryParams = {
+            include: 'id_type',
             offset: data.start,
             limit: data.length,
             ordering: 'name_last',  // column 0
