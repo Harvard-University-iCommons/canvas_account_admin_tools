@@ -89,8 +89,7 @@
             return profile ? profile.id_type : '';
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="'
-                + full.id_type + '"></badge> ' + full.univ_id;
+            return '<badge ng-cloak role="' + full.id_type + '"></badge> ' + full.univ_id;
         };
         $scope.renderPersonCoursesLink = function(data, type, full, meta) {
             // If person has no name, indicate this with some text so that we
