@@ -86,12 +86,11 @@
             return 'Untitled Course';
         };
         $scope.getProfileRoleTypeCd = function(profile) {
-            return profile ? profile.role_type_cd : '';
+            return profile ? profile.id_type : '';
         };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="'
-                + (full.role_type_cd ? full.role_type_cd : '')
-                + '"></badge> ' + full.univ_id;
+                + full.id_type + '"></badge> ' + full.univ_id;
         };
         $scope.renderPersonCoursesLink = function(data, type, full, meta) {
             // If person has no name, indicate this with some text so that we
@@ -100,11 +99,11 @@
                 full.name_last : '(none)';
             return '<a href="' + '#/people/' + full.univ_id + '/courses/" ' +
                 'ng-click="setSelectedPersonInfo(\''+full.name_last+'\',\''+
-                full.name_first+'\',\''+full.univ_id+'\',\''+full.email_address+'\''+',\''+full.role_type_cd+'\')">'
+                full.name_first+'\',\''+full.univ_id+'\',\''+full.email_address+'\''+',\''+full.id_type+'\')">'
                 + lastName + '</a>';
         };
         $scope.setSelectedPersonInfo =
-            function(name_last, name_first, univ_id, email, role_type_cd){
+            function(name_last, name_first, univ_id, email, id_type){
                 //Populate the  personInfo object  with the selected person's details
                 // to be used in the next screen
             personInfo.details = {
@@ -112,7 +111,7 @@
                 name_first: name_first,
                 univ_id: univ_id,
                 email_address: email,
-                role_type_cd: role_type_cd
+                id_type: id_type
             };
         }
         $scope.searchPeople = function(event) {
@@ -149,6 +148,7 @@
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
+                    include: 'id_type',
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
@@ -227,10 +227,6 @@
                 render: $scope.renderId,
                 title: 'ID',
                 width: '20%'
-            },
-            {
-                data: 'role_type_cd',
-                title: 'Role Type'
             },
             {
                 data: 'email_address',

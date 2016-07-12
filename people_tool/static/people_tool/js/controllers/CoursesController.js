@@ -53,9 +53,7 @@
         }else{
             $scope.selectedPersonInfo = personInfo.details;
         }
-
-
-
+        
         $scope.courseInstanceToTable = function(course) {
             // This logic is reused in the course_info app's PeopleController
             // and SearchController.
@@ -108,8 +106,8 @@
             }
             return 'Untitled Course';
         };
-        $scope.getProfileRoleTypeCd = function(profile) {
-            return profile ? profile.role_type_cd : '';
+        $scope.getProfileIdType = function(profile) {
+            return profile ? profile.id_type : '';
         };
         $scope.toggleOperationInProgress = function(toggle) {
             $timeout(function() {
@@ -169,9 +167,9 @@
                 + '&nbsp;' + full.description + '</a>';
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="'
-                + (full.role_type_cd ? full.role_type_cd : '')
-                + '"></badge> ' + full.univ_id;
+            return '<badge ng-cloak role="' +
+                full.id_type
+                + '"></badge>' + full.univ_id;
         };
         $scope.renderSites = function(data, type, full, meta) {
             if (data.length > 0) {

@@ -8,18 +8,6 @@
                 role: '@',
             },
             controller: function($scope) {
-                // convert from role_type_cd to a badge
-                $scope.roleToBadgeMap = {
-                    CLASPART: 'HUID',
-                    COUNTWAY: 'LIBRARY',
-                    EMPLOYEE: 'HUID',
-                    STUDENT: 'HUID',
-                    WIDENER: 'LIBRARY',
-                    XIDHOLDER: 'XID',
-                };
-                $scope.roleToBadge = function(role) {
-                    return $scope.roleToBadgeMap[role] || 'OTHER';
-                };
 
                 // get the css class we want for a badge
                 $scope.badgeToClassMap = {
@@ -32,7 +20,7 @@
                     return $scope.badgeToClassMap[badge];
                 };
             },
-            template: '<span class="label {{ badgeToClass(roleToBadge(role)) }}">{{ roleToBadge(role) }}</span>',
+            template: '<span class="label {{ badgeToClass(role) }}">{{ role }}</span>',
         };
     });
 })();
