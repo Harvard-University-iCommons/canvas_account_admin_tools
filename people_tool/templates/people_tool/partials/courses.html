@@ -9,13 +9,10 @@
 
     <span ng-if="selectedPersonInfo.univ_id">
         <small><i class="fa fa-chevron-right"></i></small>
-        <!-- If first and  last name are both null, dispaly the univ_id-->
-        <span ng-if="!selectedPersonInfo.name_last && !selectedPersonInfo.name_first">
-            {{selectedPersonInfo.univ_id}}
-        </span>
-        <span ng-if="selectedPersonInfo.name_last || selectedPersonInfo.name_first">
-            <span ng-if="selectedPersonInfo.name_last">{{selectedPersonInfo.name_last}},&nbsp;</span><span ng-if="selectedPersonInfo.name_first">{{selectedPersonInfo.name_first}}'s Courses</span>
-        </span>'s Courses
+
+        <displayname ng-cloak firstname="{{selectedPersonInfo.name_first}}"
+                     lastname="{{selectedPersonInfo.name_last}}"
+                     univid="{{selectedPersonInfo.univ_id}}"></displayname>'s Courses
     </span>
     <span ng-if="operationInProgress"><i class="fa fa-refresh fa-spin"></i></span>
   </h3>
