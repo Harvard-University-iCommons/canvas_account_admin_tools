@@ -147,7 +147,7 @@
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
-                    include: 'id_type',
+                    include: 'id_type', //this optional param collapses rows by role_type_cd
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
