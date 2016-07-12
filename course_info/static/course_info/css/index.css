@@ -80,3 +80,7 @@ table.course-info-table {
 #success-partial-failure-text-id {
     color: #ac2925;
 }
+
+#alert-pane-success {
+    border: none;
+}
