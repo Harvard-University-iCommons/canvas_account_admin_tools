@@ -28,8 +28,10 @@
             var url = djangoUrl.reverse(
                               'icommons_rest_api_proxy',
                               ['api/course/v2/people/']);
-            var queryParams = {};
-            queryParams['univ_id'] = personId;
+            var queryParams = {
+                include: 'id_type', //this optional param collapses rows by role_type_cd
+                univ_id: personId
+            };
             $.ajax({
                     url: url,
                     method: 'GET',
@@ -105,9 +107,6 @@
                 return course.short_title;
             }
             return 'Untitled Course';
-        };
-        $scope.getProfileIdType = function(profile) {
-            return profile ? profile.id_type : '';
         };
         $scope.toggleOperationInProgress = function(toggle) {
             $timeout(function() {

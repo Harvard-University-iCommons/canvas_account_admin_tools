@@ -85,9 +85,6 @@
             }
             return 'Untitled Course';
         };
-        $scope.getProfileRoleTypeCd = function(profile) {
-            return profile ? profile.id_type : '';
-        };
         $scope.renderId = function(data, type, full, meta) {
             return '<badge ng-cloak role="' + full.id_type + '"></badge> ' + full.univ_id;
         };
