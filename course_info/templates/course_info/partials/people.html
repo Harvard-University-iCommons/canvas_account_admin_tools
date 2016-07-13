@@ -30,18 +30,28 @@
                class="display dataTable course-info-table"
                role="grid" aria-describedby="courseInfoDT_info"
                cellspacing="0">
-          <tbody>
-            <tr role="row" class="odd">
-              <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
-            </tr>
-          </tbody>
+            <thead>
+              <th>School&nbsp;&nbsp;</th>
+              <th>Title&nbsp;&nbsp;</th>
+              <th>Term&nbsp;&nbsp;</th>
+              <th>Year&nbsp;&nbsp;</th>
+              <th>Associated Site&nbsp;&nbsp;</th>
+              <th>Course Code&nbsp;&nbsp;</th>
+              <th>SIS ID&nbsp;&nbsp;</th>
+              <th>Crosslisting Status&nbsp;&nbsp;</th>
+            </thead>
+            <tbody>
+                <tr role="row" class="odd">
+                  <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
+                </tr>
+            </tbody>
         </table>
       </div>
   </div>
