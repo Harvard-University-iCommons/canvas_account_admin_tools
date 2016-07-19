@@ -2,7 +2,7 @@
     var app = angular.module('PeopleTool');
     app.controller('SearchController', SearchController);
 
-    function SearchController($scope, $compile, djangoUrl, $log, $timeout) {
+    function SearchController($scope, $compile, djangoUrl, $log, $timeout, personInfo) {
         // tracks state of interactive datatable elements
         $scope.datatableInteractiveElementTabIndexes = [];
         $scope.messages = [];
@@ -75,14 +75,41 @@
                 $('#search-query-string').focus();
             }
         };
-        $scope.getProfileRoleTypeCd = function(profile) {
-            return profile ? profile.role_type_cd : '';
+        $scope.getNameLast = function(name_last) {
+            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            if(typeof course.title != "undefined" && course.title.trim().length > 0){
+                return course.title;
+            }
+            else if(typeof course.short_title != "undefined" && course.short_title.trim().length > 0){
+                return course.short_title;
+            }
+            return 'Untitled Course';
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="'
-                + (full.role_type_cd ? full.role_type_cd : '')
-                + '"></badge> ' + full.univ_id;
+            return '<badge ng-cloak role="' + full.id_type + '"></badge> ' + full.univ_id;
         };
+        $scope.renderPersonCoursesLink = function(data, type, full, meta) {
+            // If person has no name, indicate this with some text so that we
+            // can still display a clickable anchor link
+            var lastName = (full.name_last.trim().length > 0) ?
+                full.name_last : '(none)';
+            return '<a href="' + '#/people/' + full.univ_id + '/courses/" ' +
+                'ng-click="setSelectedPersonInfo(\''+full.name_last+'\',\''+
+                full.name_first+'\',\''+full.univ_id+'\',\''+full.email_address+'\''+',\''+full.id_type+'\')">'
+                + lastName + '</a>';
+        };
+        $scope.setSelectedPersonInfo =
+            function(name_last, name_first, univ_id, email, id_type){
+                //Populate the  personInfo object  with the selected person's details
+                // to be used in the next screen
+            personInfo.details = {
+                name_last: name_last,
+                name_first: name_first,
+                univ_id: univ_id,
+                email_address: email,
+                id_type: id_type
+            };
+        }
         $scope.searchPeople = function(event) {
             if ($scope.queryString.length > $scope.searchType.maxLength) {
                 $scope.messages = [{
@@ -117,6 +144,7 @@
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
+                    include: 'id_type', //this optional param collapses rows by role_type_cd
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
@@ -184,7 +212,7 @@
 
         $scope.dtColumns = [
             {
-                data: 'name_last',
+                render: $scope.renderPersonCoursesLink,
                 title: 'Last Name'
             },
             {

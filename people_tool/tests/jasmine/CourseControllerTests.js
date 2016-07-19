@@ -1,4 +1,4 @@
-describe('Unit testing people_tool SearchController', function() {
+describe('Unit testing people_tool CoursesController', function() {
     var $controller, $rootScope, $routeParams, $compile, djangoUrl,
         $httpBackend, $log, $templateCache, $timeout, $window;
     var controller, scope;
@@ -29,7 +29,7 @@ describe('Unit testing people_tool SearchController', function() {
             };
         });
         scope = $rootScope.$new();
-        controller = $controller('SearchController', {$scope: scope});
+        controller = $controller('CoursesController', {$scope: scope});
     });
 
     afterEach(function() {
@@ -47,61 +47,27 @@ describe('Unit testing people_tool SearchController', function() {
         });
     });
 
-    describe('searchPeople', function () {
-        beforeEach(function() {
-            scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
-        });
-
-        function repeatCharacter(char, times) {
-            // note that `char` appears n-1 times where n is size of array, so
-            // array size needs to be one larger than number of characters
-            // requested by times
-            return new Array(times+1).join(char);
-        }
-
-        it('does not hit backend if search string is too long', function() {
-            scope.searchTypeOptions.forEach(function(searchTypeOption) {
-                scope.messages = [];
-                scope.searchType = searchTypeOption;
-                scope.queryString = repeatCharacter('a',
-                    searchTypeOption.maxLength + 1);
-                scope.searchPeople();
-                expect($timeout.flush).toThrowError(
-                    'No deferred tasks to be flushed');
-                expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
-                expect(scope.messages.length).toBe(1);
-                expect(scope.messages[0].type).toEqual('warning');
-                expect(scope.messages[0].text).toContain(
-                    'search term cannot be greater than '
-                    + searchTypeOption.maxLength);
-            });
-        });
-        it('triggers backend call (datatable reload) if it meets validation', function() {
-            scope.searchTypeOptions.forEach(function(searchTypeOption) {
-                scope.searchType = searchTypeOption;
-                scope.queryString = repeatCharacter('a',
-                    searchTypeOption.maxLength);
-                scope.searchPeople();
-                $timeout.flush();
-                expect(scope.dtInstance.reloadData).toHaveBeenCalled();
-                expect(scope.messages).toEqual([]);
-                scope.dtInstance.reloadData.calls.reset();
-            });
-        });
-    });
-
     describe('dtOptions.ajax', function() {
-        var ajaxSpy, callbackSpy, digestSpy, logSpy,
+                var ajaxSpy, callbackSpy, digestSpy, logSpy,
             toggleOperationInProgressSpy;
         var data = {start: 0, length: 10,
                     order: [{dir: 'asc', column: 0}]};
-        var queryString = 'search term';
+
+        var course_data = {
+            description: 'Untitled Course',
+            year: '',
+            term: '',
+            term_code: '',
+            sites: [ { external_id: 'https://coursesite.com'} ],
+            code: '',
+            school: '',
+            cid: undefined,
+            xlist_status: '' };
+
         var queryParams = {
-            include: 'id_type',
             offset: data.start,
             limit: data.length,
-            ordering: 'name_last',  // column 0
-            univ_id: queryString
+            ordering: 'course__school_id'  // column 0
         };
 
         var expectedAjaxParams = {
@@ -114,7 +80,7 @@ describe('Unit testing people_tool SearchController', function() {
         var fakeAjaxResponse = {
             recordsTotal: 1,
             recordsFiltered: 1,
-            data: [{univ_id: '123'}]
+            data: [course_data]
         };
         var fakeAjaxResponseEmpty = {
             recordsTotal: 0,
@@ -124,7 +90,7 @@ describe('Unit testing people_tool SearchController', function() {
 
         var respondWithData = function() {
             var d = $.Deferred();
-            d.resolve({count: 1, results:[{univ_id: '123'}]});
+            d.resolve({count: 1, results:[course_data]});
             return d.promise();
         };
 
@@ -138,11 +104,10 @@ describe('Unit testing people_tool SearchController', function() {
             ajaxSpy = spyOn($, 'ajax');
             logSpy = spyOn($log, 'error');
             callbackSpy = jasmine.createSpy('callback');  // datatables callback
-
+            scope.personCoursesUrl = 'api/course/v2/people/12345/course_instances/';
             scope.messages = ['should be cleared!'];
-            scope.queryString = queryString;
             expectedAjaxParams.url = djangoUrl.reverse(
-                'icommons_rest_api_proxy', ['api/course/v2/people/']);
+                'icommons_rest_api_proxy', ['api/course/v2/people/12345/course_instances/']);
 
             // checks for finally()
             toggleOperationInProgressSpy = spyOn(scope, 'toggleOperationInProgress');
@@ -154,18 +119,20 @@ describe('Unit testing people_tool SearchController', function() {
             expect(digestSpy).toHaveBeenCalledTimes(1);
         });
 
-        it('sends expected GET params to backend', function() {
+        it('sends expected GET params to backend', function(){
             ajaxSpy.and.callFake(respondWithData);
             scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
             expect(ajaxSpy).toHaveBeenCalledWith(expectedAjaxParams);
             expect(callbackSpy).toHaveBeenCalledWith(fakeAjaxResponse);
             expect(logSpy).not.toHaveBeenCalled();
         });
+
         it('updates scope with no error message when backend returns no error', function () {
             ajaxSpy.and.callFake(respondWithData);
             scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
             expect(scope.messages).toEqual([]);
         });
+        
         it('updates scope error message when backend returns error', function() {
             ajaxSpy.and.callFake(respondWithError);
             scope.dtOptions.ajax(data, callbackSpy);  // `settings` not used
@@ -182,20 +149,43 @@ describe('Unit testing people_tool SearchController', function() {
             expect(logErrorFirstCall).toContain('errorThrown');
         });
     });
+
+    describe('getCourseDescription', function() {
+        it('returns short title of title is null', function(){
+            var course = {
+                title: '',
+                short_title: 'this is a short title'
+            };
+            result = scope.getCourseDescription(course);
+            expect(result).toBe('this is a short title');
+        });
+        it('returns default text if title and short title are both null', function(){
+            var course = {
+                title: '',
+                short_title: ''
+            };
+            result = scope.getCourseDescription(course);
+            expect(result).toBe('Untitled Course');
+        });
+    });
+
     describe('toggleOperationInProgress', function() {
         it('turns off data table and notes operation in progress when ' +
-                'toggled ON', function() {
-            spyOn(scope, 'toggleDataTableInteraction');
-            scope.toggleOperationInProgress(true);
-            $timeout.flush();  // resolves $timeout
-            expect(scope.toggleDataTableInteraction).toHaveBeenCalledWith(false);
-        });
-        it('turns on data table and notes operation not in progress when ' +
-                'toggled OFF', function() {
-            spyOn(scope, 'toggleDataTableInteraction');
+                'toggled ON', function(){
+            var toggleDataTableInteractionSpy = spyOn(scope, 'toggleDataTableInteraction');
             scope.toggleOperationInProgress(false);
-            $timeout.flush();  // resolves $timeout
-            expect(scope.toggleDataTableInteraction).toHaveBeenCalledWith(true);
+            $timeout.flush();
+            $timeout.verifyNoPendingTasks();
+            expect(toggleDataTableInteractionSpy).toHaveBeenCalledWith(true);
+        });
+
+        it('turns on data table and notes operation not in progress when ' +
+                'toggled OFF', function(){
+            var toggleDataTableInteractionSpy = spyOn(scope, 'toggleDataTableInteraction');
+            scope.toggleOperationInProgress(false);
+            $timeout.flush();
+            $timeout.verifyNoPendingTasks();
+            expect(toggleDataTableInteractionSpy).toHaveBeenCalledWith(true);
         });
     });
 });

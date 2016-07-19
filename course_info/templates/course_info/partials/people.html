@@ -30,18 +30,28 @@
                class="display dataTable course-info-table"
                role="grid" aria-describedby="courseInfoDT_info"
                cellspacing="0">
-          <tbody>
-            <tr role="row" class="odd">
-              <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
-              <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
-            </tr>
-          </tbody>
+            <thead>
+              <th>School&nbsp;&nbsp;</th>
+              <th>Title&nbsp;&nbsp;</th>
+              <th>Term&nbsp;&nbsp;</th>
+              <th>Year&nbsp;&nbsp;</th>
+              <th>Associated Site&nbsp;&nbsp;</th>
+              <th>Course Code&nbsp;&nbsp;</th>
+              <th>SIS ID&nbsp;&nbsp;</th>
+              <th>Crosslisting Status&nbsp;&nbsp;</th>
+            </thead>
+            <tbody>
+                <tr role="row" class="odd">
+                  <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>
+                </tr>
+            </tbody>
         </table>
       </div>
   </div>
@@ -157,8 +167,8 @@
 
 <div ng-if="messages.success" class="row add-top-margin">
   <div class="col-xs-12">
-    <div class="panel panel-default" id="alert-pane">
-      <div class="panel-body" id="alert-pane">
+    <div class="panel panel-default" id="alert-pane-success">
+      <div class="panel-body" id="alert-pane-success-body">
 
         <!-- begin success alerts -->
         <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
@@ -176,15 +186,15 @@
             </ng-pluralize>
           </span>
           <span ng-if="messages.success.type == 'remove'">
-            <p><strong>{{ messages.success.searchTerm }}</strong>
-              was just removed from this course:</p>
-            <div class="course-membership-entry">
-              {{ getProfileFullName(messages.success.profile) }}
+            <p><strong>{{ messages.success.searchTerm }}</strong>,
               <badge role="{{ getProfileRoleTypeCd(messages.success.profile) }}"></badge>
-              {{ messages.success.user_id }}
-              <strong>Enrolled as {{ messages.success.role.role_name }}</strong>
-            </div>
+              {{ messages.success.user_id }}, 
+              <strong>({{ messages.success.role.role_name }})</strong>
+              was successfully removed from this course.
+            </p>
+
           </span>
+
         </uib-alert>
         <!-- end success alerts -->
 
