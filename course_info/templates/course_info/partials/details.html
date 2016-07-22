@@ -81,14 +81,8 @@
   <form name="dc.courseDetailsForm"
         class="form-horizontal"
         ng-submit="dc.submitCourseDetailsForm(this)">
-
-    <div class="form-group" ng-if="dc.editable">
-      <div class="col-sm-12">
-        <h4>This course is editable.</h4>
-      </div>
-    </div>
-
     <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
+
       <hu-editable-input
           is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
           form-value="dc.courseInstance.registrar_code_display"
@@ -225,7 +219,7 @@
         </label>
         <div class="col-sm-10">
           <hu-editable-checkbox
-              editable="dc.editable && dc.editInProgress"
+              editable="dc.editInProgress"
               is-loading="dc.isUndefined(dc.courseInstance.sync_to_canvas)"
               form-value="dc.formDisplayData.sync_to_canvas"
               model-value="dc.courseInstance.sync_to_canvas"
@@ -233,7 +227,7 @@
               label="Sync To Canvas">
           </hu-editable-checkbox>
           <hu-editable-checkbox
-              editable="dc.editable && dc.editInProgress"
+              editable="dc.editInProgress"
               is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)"
               form-value="dc.formDisplayData.exclude_from_isites"
               model-value="dc.courseInstance.exclude_from_isites"
@@ -241,7 +235,7 @@
               label="Exclude from Course Sites">
           </hu-editable-checkbox>
           <hu-editable-checkbox
-              editable="dc.editable && dc.editInProgress"
+              editable="dc.editInProgress"
               is-loading="dc.isUndefined(dc.courseInstance.exclude_from_catalog)"
               form-value="dc.formDisplayData.exclude_from_catalog"
               model-value="dc.courseInstance.exclude_from_catalog"
@@ -257,13 +251,13 @@
       <div class="col-sm-12">
         <a type="link" class="btn btn-default" id="course-details-form-reset"
            ng-disabled="dc.courseDetailsUpdateInProgress"
-           ng-if="dc.editable && dc.editInProgress && dc.courseInstance != null"
+           ng-if="dc.editInProgress && dc.courseInstance != null"
            ng-click="dc.resetFormFromUI()">
           Cancel
         </a>
         <button id="course-details-form-edit"
                 class="btn btn-primary pull-right"
-                ng-if="!dc.editInProgress && dc.editable && dc.courseInstance != null"
+                ng-if="!dc.editInProgress && dc.courseInstance != null"
                 ng-click="dc.toggleEditMode()">
           Edit
         </button>

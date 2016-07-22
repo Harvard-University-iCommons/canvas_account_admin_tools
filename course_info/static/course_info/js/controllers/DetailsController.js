@@ -22,7 +22,10 @@
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
         dc.courseInstances = courseInstances;
-        dc.editable = false;  // is user allowed to edit the course
+        // if a course is `editable` then user can update fields other than
+        // course flags; all courses can be edited, but this `editable` value
+        // controls how many fields are available to edit
+        dc.editable = false;
         dc.editInProgress = false;  // has edit mode been activated by user
         dc.tabIndexesByView = {'details': 0, 'people': 1, 'sites': 2};
         // `view` comes from route resolve() function
