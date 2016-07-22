@@ -1,0 +1,147 @@
+{% verbatim %}
+
+<nav>
+  <h3 class="breadcrumbs">
+    {% endverbatim %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="#/">Search Courses</a>
+    {% verbatim %}
+    <small><i class="fa fa-chevron-right"></i></small>
+    <span ng-if="sc.courseInstance.term">
+      {{ sc.getCourseDescription(sc.courseInstance) }}
+    </span>
+    <span ng-if="!sc.courseInstance.term">
+      Loading details for course instance {{sc.courseInstanceId}}...
+      <i class="fa fa-refresh fa-spin"></i>
+    </span>
+  </h3>
+
+  <uib-tabset active="sc.activeTabIndex" class="nav-tabset">
+    <uib-tab index="0" heading="Details"
+             select="sc.switchToRoute('details', sc.courseInstanceId)"></uib-tab>
+    <!-- todo: standardize switch logic, remove dependence on controller -->
+    <uib-tab index="1" heading="{{ sc.getPeopleTabHeading() }}"
+             select="sc.switchToRoute('people', sc.courseInstanceId)"></uib-tab>
+    <uib-tab index="2" heading="{{ sc.getSitesTabHeading() }}"></uib-tab>
+  </uib-tabset>
+</nav>
+
+<main class="course-info-sites-page">
+
+  <div id="alerts">
+    <div class="alert alert-success" role="alert"
+         id="alert-success-update-succeeded"
+         ng-if="sc.alertPresent('global', 'updateSucceeded')">
+      <p>
+        <i class="fa fa-check"></i>
+        Course instance updated.
+      </p>
+    </div>
+    <div class="alert alert-danger" role="alert"
+         id="alert-danger-update-failed"
+         ng-if="sc.alertPresent('global', 'updateFailed')">
+      <p>
+        <i class="fa fa-warning"></i>
+        The course instance could not be updated. Please try again.
+        Error details: {{ sc.alerts.global.updateFailed.details }}
+      </p>
+    </div>
+    <div class="alert alert-danger" role="alert"
+         id="alert-danger-fetch-course-instance-failed"
+         ng-if="sc.alertPresent('global', 'fetchCourseInstanceFailed')">
+      <p>
+        <i class="fa fa-warning"></i>
+        The course instance details could not be fetched from the server.
+        Please try again.
+        Error details:
+        {{ sc.alerts.global.fetchCourseInstanceFailed.details }}
+      </p>
+    </div>
+  </div>
+
+  <form name="sc.courseSitesForm"
+        class="form-horizontal"
+        ng-submit="sc.submitCourseSitesForm(this)">
+    <fieldset ng-disabled="sc.courseSitesUpdateInProgress">
+      <hu-field-label-wrapper
+          is-loading="sc.isUndefined(sc.courseInstance.sites)"
+          field="sites"
+          label="Associated Site(s)">
+        <div class="course-site-details form-group"
+             ng-repeat="site in sc.courseInstance.sites">
+            <div class="col-sm-1">
+              <span class="label label-primary"
+                    ng-if="site.map_type == 'official'">Official</span>
+              <span class="label label-primary"
+                    ng-if="site.map_type == 'unofficial'">Unofficial</span>
+            </div>
+            <div class="col-sm-8">
+              <a href="{{site.course_site_url}}" target="_blank">
+                {{site.course_site_url}}
+              </a>
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn btn-default pull-right"
+                      ng-click="sc.dissociateSite($index)">
+                <span
+                    ng-show="sc.dissociateSiteInProgressIndex == $index">
+                  <i class="fa fa-refresh fa-spin"></i>
+                  Dissociating Site...
+                </span>
+                <span
+                    ng-show="sc.dissociateSiteInProgressIndex != $index">
+                  Dissociate
+                </span>
+              </button>
+            </div>
+            <hr>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-8 col-sm-offset-1">
+            <label class="sr-only" for="newAssociatedCourseURL">
+              New associated course URL
+            </label>
+            <input type="text"
+                   class="form-control"
+                   id="newAssociatedCourseURL"
+                   name="newAssociatedCourseURL"
+                   ng-disabled="sc.associateNewSiteInProgress"
+                   ng-keypress="sc.associateNewSiteHandleKey($event)"
+                   ng-model="sc.newCourseSiteURL"
+                   placeholder="Type the URL of a site to associate with this course"/>
+          </div>
+          <div class="col-sm-3">
+            <button type="button" class="btn btn-primary pull-right"
+                    ng-disabled="!sc.validNewSiteURL()"
+                    ng-click="sc.associateNewSite()">
+              <span ng-switch="sc.associateNewSiteInProgress">
+                <span ng-switch-when="false">
+                  Associate
+                </span>
+                <span ng-switch-when="true">
+                  <i class="fa fa-refresh fa-spin"></i>
+                  Associating Site...
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="form-group"
+             ng-if="sc.alertPresent('form', 'siteOperationFailed')">
+          <div class="alert alert-danger" role="alert"
+               id="alert-danger-site-operation-failed">
+            <p>
+              <i class="fa fa-warning"></i>
+              Error {{ sc.alerts.form.siteOperationFailed.operation }} site.
+              Error details:
+              {{sc.alerts.form.siteOperationFailed.details}}
+            </p>
+          </div>
+        </div>
+      </hu-field-label-wrapper>
+    </fieldset>
+  </form>
+</main>
+
+{% endverbatim %}

@@ -107,7 +107,7 @@
 
             $scope.getCourseDescription = function(course) {
                 // If a course's title is [NULL], attempt to display the short title.
-                // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+                // If the short title is also [NULL], display 'Untitled Course'
                 if(typeof course.title != "undefined" && course.title.trim().length > 0){
                     return course.title;
                 }

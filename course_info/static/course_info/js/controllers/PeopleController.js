@@ -1,10 +1,10 @@
-// TODO - split out add/remove into separate controllers?
 (function() {
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
 
     function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log, $uibModal, angularDRF) {
+                              djangoUrl, $http, $q, $log, $uibModal, angularDRF,
+                              $location, view) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -286,7 +286,7 @@
             // return the filtered list
             return filteredResults;
         };
-
+        // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
             // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
@@ -305,7 +305,7 @@
             // render functions.
             var courseInstance = {};
             if (ci) {
-                courseInstance['title']= $scope.getCourseDescription(ci);
+                courseInstance['title']= ci.title;
                 courseInstance['school'] = ci.course ?
                         ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
@@ -354,6 +354,18 @@
             });
             return membersByUserId;
         };
+        $scope.getPeopleTabHeading = function() {
+            var memberCount = ($scope.courseInstance || {}).members;
+            switch (memberCount) {
+                case undefined:
+                    return 'People';
+                case 1:
+                    return '1 Person';
+                default:
+                    return memberCount + ' People';
+            }
+        };
+
         $scope.getProfileFullName = function(profile) {
             if (profile) {
                 return profile.name_last + ', ' + profile.name_first;
@@ -373,6 +385,16 @@
             return searchTerms.split(new RegExp('\n|,', 'g'))
                 .map(function(s){return s.trim()})
                 .filter(function(s){return s.length});
+        };
+        // todo: refactor/collapse, and put in tab controller
+        $scope.getSitesTabHeading = function() {
+            var siteList = ($scope.courseInstance || {}).sites;
+            if (!angular.isArray(siteList)) { return 'Associated Sites'; }
+            if (siteList.length == 1) {
+                return '1 Associated Site';
+            } else {
+                return siteList.length + ' Associated Sites';
+            }
         };
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
@@ -586,6 +608,15 @@
             if ($scope.tracking.successes) { $scope.dtInstance.reloadData(); }
             $scope.operationInProgress = false;
         };
+        // todo: make this part of a service/app so it's reusable
+        $scope.switchToRoute = function(routeName, courseId) {
+            if (['details', 'people', 'sites'].indexOf(routeName) > -1) {
+                $location.path('/' + routeName + '/' + courseId);
+            } else {
+                // default to search view
+                $location.path('/');
+            }
+        };
         $scope.updateProgressBar = function(text) {
             /* Updates progress bar message with either `text` for a specific
              message or the progress of the add phase of the addPeopleToCourse
@@ -632,6 +663,11 @@
         $scope.searchTerms = '';
         $scope.selectedRole = $scope.roles[0];
         $scope.setCourseInstance($routeParams.courseInstanceId);
+
+        // configure tabs
+        $scope.tabIndexesByView = {'details': 0, 'people': 1, 'sites': 2};
+        // `view` comes from route resolve() function
+        $scope.activeTabIndex = $scope.tabIndexesByView[view];
 
         // configure the alert datatable
         $scope.dtOptionsWarning = {

@@ -7,20 +7,24 @@
     <small><i class="fa fa-chevron-right"></i></small>
     <a href="#/">Search Courses</a>
     <small><i class="fa fa-chevron-right"></i></small>
-    <a href="#/details/{{courseInstanceId}}">Details</a>
-
-    <small><i class="fa fa-chevron-right"></i></small>
-
     <span ng-if='!(courseInstance && initialCourseMembersFetched)'>
       Loading course membership for course instance {{courseInstanceId}}...
       <i class="fa fa-refresh fa-spin"></i>
     </span>
     <span ng-if='courseInstance && initialCourseMembersFetched'>
-      People in {{courseInstance.title}}
+      {{getCourseDescription(courseInstance)}}
     </span>
   </h3>
-</nav>
 
+  <uib-tabset active="activeTabIndex" class="nav-tabset">
+    <uib-tab index="0" heading="Details"
+             select="switchToRoute('details', courseInstanceId)"></uib-tab>
+    <!-- todo: standardize switch logic, remove dependence on controller -->
+    <uib-tab index="1" heading="{{ getPeopleTabHeading() }}"></uib-tab>
+    <uib-tab index="2" heading="{{ getSitesTabHeading() }}"
+             select="switchToRoute('sites', courseInstanceId)"></uib-tab>
+  </uib-tabset>
+</nav>
 
 <main>
 <div ng-if='courseInstance' class="row">
@@ -43,7 +47,7 @@
             <tbody>
                 <tr role="row" class="odd">
                   <td class="sorting" tabindex="0">{{courseInstance.school}}</td>
-                  <td class="sorting" tabindex="0">{{courseInstance.title}}</td>
+                  <td class="sorting" tabindex="0">{{getCourseDescription(courseInstance)}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>

@@ -34,11 +34,17 @@
             .when('/details/:courseInstanceId', {
                 templateUrl: 'partials/details.html',
                 controller: 'DetailsController as dc',
-                //dependencies: ['directives/editable_field']
+                resolve: { view: function () { return 'details'; }}
+            })
+            .when('/sites/:courseInstanceId', {
+                templateUrl: 'partials/sites.html',
+                controller: 'SitesController as sc',
+                resolve: { view: function () { return 'sites'; }}
             })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
                 controller: 'PeopleController',
+                resolve: { view: function () { return 'people'; }}
             })
             .otherwise({
                 redirectTo: '/',
