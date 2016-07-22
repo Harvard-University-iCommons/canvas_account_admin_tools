@@ -137,7 +137,7 @@
             var memberCount = (dc.courseInstance || {}).members;
             switch (memberCount) {
                 case undefined:
-                    return 'People';
+                    return '<i class="fa fa-refresh fa-spin"></i> People';
                 case 1:
                     return '1 Person';
                 default:
@@ -148,7 +148,9 @@
         // todo: refactor/collapse, and put in tab controller
         dc.getSitesTabHeading = function() {
             var siteList = (dc.courseInstance || {}).sites;
-            if (!angular.isArray(siteList)) { return 'Associated Sites'; }
+            if (!angular.isArray(siteList)) {
+                return '<i class="fa fa-refresh fa-spin"></i> Associated Sites';
+            }
             if (siteList.length == 1) {
                 return '1 Associated Site';
             } else {
@@ -270,7 +272,7 @@
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     // leaves 'edit' mode, re-enables edit button
                     dc.courseDetailsUpdateInProgress = false;
-                    dc.resetForm;
+                    dc.resetForm();
                 });
         };
 

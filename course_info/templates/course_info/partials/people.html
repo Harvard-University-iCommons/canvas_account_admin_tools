@@ -17,12 +17,16 @@
   </h3>
 
   <uib-tabset active="activeTabIndex" class="nav-tabset">
-    <uib-tab index="0" heading="Details"
+    <uib-tab index="0" heading="Course Details"
              select="switchToRoute('details', courseInstanceId)"></uib-tab>
     <!-- todo: standardize switch logic, remove dependence on controller -->
-    <uib-tab index="1" heading="{{ getPeopleTabHeading() }}"></uib-tab>
-    <uib-tab index="2" heading="{{ getSitesTabHeading() }}"
-             select="switchToRoute('sites', courseInstanceId)"></uib-tab>
+    <uib-tab index="1">
+      <uib-tab-heading ng-bind-html="getPeopleTabHeading()"></uib-tab-heading>
+    </uib-tab>
+    <uib-tab index="2"
+             select="switchToRoute('sites', courseInstanceId)">
+      <uib-tab-heading ng-bind-html="getSitesTabHeading()"></uib-tab-heading>
+    </uib-tab>
   </uib-tabset>
 </nav>
 
@@ -50,7 +54,7 @@
                   <td class="sorting" tabindex="0">{{getCourseDescription(courseInstance)}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.term}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.year}}</td>
-                  <td class="sorting" tabindex="0">{{courseInstance.sites}}</td>
+                  <td class="sorting" tabindex="0">{{courseInstance.site_list}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.registrar_code_display }}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.course_instance_id}}</td>
                   <td class="sorting" tabindex="0">{{courseInstance.xlist_status}}</td>

@@ -18,12 +18,16 @@
   </h3>
 
   <uib-tabset active="sc.activeTabIndex" class="nav-tabset">
-    <uib-tab index="0" heading="Details"
+    <uib-tab index="0" heading="Course Details"
              select="sc.switchToRoute('details', sc.courseInstanceId)"></uib-tab>
     <!-- todo: standardize switch logic, remove dependence on controller -->
-    <uib-tab index="1" heading="{{ sc.getPeopleTabHeading() }}"
-             select="sc.switchToRoute('people', sc.courseInstanceId)"></uib-tab>
-    <uib-tab index="2" heading="{{ sc.getSitesTabHeading() }}"></uib-tab>
+    <uib-tab index="1"
+             select="sc.switchToRoute('people', sc.courseInstanceId)">
+      <uib-tab-heading ng-bind-html="dc.getPeopleTabHeading()"></uib-tab-heading>
+    </uib-tab>
+    <uib-tab index="2"">
+      <uib-tab-heading ng-bind-html="dc.getSitesTabHeading()"></uib-tab-heading>
+    </uib-tab>
   </uib-tabset>
 </nav>
 

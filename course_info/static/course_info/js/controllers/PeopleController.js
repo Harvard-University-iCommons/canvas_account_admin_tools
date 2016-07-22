@@ -332,7 +332,8 @@
                     }
                     siteIds.push(site.site_id);
                 });
-                courseInstance['sites']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
+                courseInstance['sites'] = sites;  // needed for sites tab
+                courseInstance['site_list']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
             }
             return courseInstance;
         };
@@ -358,7 +359,7 @@
             var memberCount = ($scope.courseInstance || {}).members;
             switch (memberCount) {
                 case undefined:
-                    return 'People';
+                    return '<i class="fa fa-refresh fa-spin"></i> People';
                 case 1:
                     return '1 Person';
                 default:
@@ -389,7 +390,9 @@
         // todo: refactor/collapse, and put in tab controller
         $scope.getSitesTabHeading = function() {
             var siteList = ($scope.courseInstance || {}).sites;
-            if (!angular.isArray(siteList)) { return 'Associated Sites'; }
+            if (!angular.isArray(siteList)) {
+                return '<i class="fa fa-refresh fa-spin"></i> Associated Sites';
+            }
             if (siteList.length == 1) {
                 return '1 Associated Site';
             } else {
@@ -577,7 +580,11 @@
                         //check if the right data was obtained before storing it
                         if (data.course_instance_id == id){
                             courseInstances.instances[data.course_instance_id] = data;
-                            $scope.courseInstance = $scope.getFormattedCourseInstance(data)
+                            // if people/members are fetched first, we don't
+                            // want to overwrite the members attribute of
+                            // $scope.courseInstance
+                            $.extend($scope.courseInstance,
+                                $scope.getFormattedCourseInstance(data));
                         }else{
                             $log.error(' CourseInstance record mismatch for id :'
                                 + id +',  fetched record for :' +data.id);
@@ -643,6 +650,7 @@
         $scope.clearMessages();  // initialize user-facing messages
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
+        $scope.courseInstance = {};
         $scope.initialCourseMembersFetched = false;  // UI component visibility
 
         $scope.roles = [
@@ -699,6 +707,7 @@
                     dataSrc: 'data',
                     dataType: 'json'
                 }).done(function dataTableGetDone(data, textStatus, jqXHR) {
+                    $scope.courseInstance.members = data.count;
                     callback({
                         recordsTotal: data.count,
                         recordsFiltered: data.count,
