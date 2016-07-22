@@ -23,10 +23,10 @@
     <!-- todo: standardize switch logic, remove dependence on controller -->
     <uib-tab index="1"
              select="sc.switchToRoute('people', sc.courseInstanceId)">
-      <uib-tab-heading ng-bind-html="dc.getPeopleTabHeading()"></uib-tab-heading>
+      <uib-tab-heading ng-bind-html="sc.getPeopleTabHeading()"></uib-tab-heading>
     </uib-tab>
     <uib-tab index="2"">
-      <uib-tab-heading ng-bind-html="dc.getSitesTabHeading()"></uib-tab-heading>
+      <uib-tab-heading ng-bind-html="sc.getSitesTabHeading()"></uib-tab-heading>
     </uib-tab>
   </uib-tabset>
 </nav>
