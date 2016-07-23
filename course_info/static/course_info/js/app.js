@@ -29,22 +29,19 @@
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/search.html',
-                controller: 'SearchController',
+                controller: 'SearchController'
             })
             .when('/details/:courseInstanceId', {
                 templateUrl: 'partials/details.html',
-                controller: 'DetailsController as dc',
-                resolve: { view: function () { return 'details'; }}
+                controller: 'DetailsController as dc'
             })
             .when('/sites/:courseInstanceId', {
                 templateUrl: 'partials/sites.html',
-                controller: 'SitesController as sc',
-                resolve: { view: function () { return 'sites'; }}
+                controller: 'SitesController as sc'
             })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
-                controller: 'PeopleController',
-                resolve: { view: function () { return 'people'; }}
+                controller: 'PeopleController'
             })
             .otherwise({
                 redirectTo: '/',

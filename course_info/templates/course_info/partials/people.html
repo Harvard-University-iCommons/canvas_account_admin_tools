@@ -16,18 +16,12 @@
     </span>
   </h3>
 
-  <uib-tabset active="activeTabIndex" class="nav-tabset">
-    <uib-tab index="0" heading="Course Details"
-             select="switchToRoute('details', courseInstanceId)"></uib-tab>
-    <!-- todo: standardize switch logic, remove dependence on controller -->
-    <uib-tab index="1">
-      <uib-tab-heading ng-bind-html="getPeopleTabHeading()"></uib-tab-heading>
-    </uib-tab>
-    <uib-tab index="2"
-             select="switchToRoute('sites', courseInstanceId)">
-      <uib-tab-heading ng-bind-html="getSitesTabHeading()"></uib-tab-heading>
-    </uib-tab>
-  </uib-tabset>
+  <hu-course-info-nav-tabs
+      current-route="people"
+      course-instance-id="courseInstanceId"
+      people-count="(courseInstance || {}).members"
+      site-count="((courseInstance || {}).sites || {}).length">
+  </hu-course-info-nav-tabs>
 </nav>
 
 <main>

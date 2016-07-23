@@ -2,10 +2,8 @@
     angular.module('CourseInfo')
         .controller('SitesController', SitesController);
 
-    // todo: remove unused providers
-    function SitesController($scope, courseInstances, $compile, djangoUrl,
-                               $http, $location, $log, $q, $routeParams, $sce,
-                               $uibModal, view) {
+    function SitesController($scope, courseInstances, djangoUrl, $http, $log,
+                             $routeParams, $uibModal) {
 
         var sc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -22,9 +20,6 @@
         sc.dissociateSiteInProgressIndex = null;
         sc.editable = false;
         sc.newCourseSiteURL = '';
-        sc.tabIndexesByView = {'details': 0, 'people': 1, 'sites': 2};
-        // `view` comes from route resolve() function
-        sc.activeTabIndex = sc.tabIndexesByView[view];
 
         sc.init = function() {
             var instances = courseInstances.instances;
@@ -210,31 +205,6 @@
             return courseInstance;
         };
 
-        sc.getPeopleTabHeading = function() {
-            var memberCount = (sc.courseInstance || {}).members;
-            switch (memberCount) {
-                case undefined:
-                    return '<i class="fa fa-refresh fa-spin"></i> People';
-                case 1:
-                    return '1 Person';
-                default:
-                    return memberCount + ' People';
-            }
-        };
-
-        // todo: refactor/collapse, and put in tab controller
-        sc.getSitesTabHeading = function() {
-            var siteList = (sc.courseInstance || {}).sites;
-            if (!angular.isArray(siteList)) {
-                return '<i class="fa fa-refresh fa-spin"></i> Associated Sites';
-            }
-            if (siteList.length == 1) {
-                return '1 Associated Site';
-            } else {
-                return siteList.length + ' Associated Sites';
-            }
-        };
-
         sc.handleAjaxErrorResponse = function(r) {
             sc.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
@@ -301,16 +271,6 @@
                 show: true,
                 details: alertDetail || 'None'};
 
-        };
-
-        // todo: make this part of a service/app so it's reusable
-        sc.switchToRoute = function(routeName, courseId) {
-            if (['details', 'people', 'sites'].indexOf(routeName) > -1) { 
-                $location.path('/' + routeName + '/' + courseId);
-            } else {
-                // default to search view
-                $location.path('/');
-            }
         };
 
         sc.validNewSiteURL = function() {

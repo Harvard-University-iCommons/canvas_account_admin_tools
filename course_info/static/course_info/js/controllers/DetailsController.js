@@ -3,9 +3,8 @@
         .controller('DetailsController', DetailsController);
 
     // todo: remove unused providers
-    function DetailsController($scope, courseInstances, $compile, djangoUrl,
-                               $http, $location, $log, $q, $routeParams, $sce,
-                               $uibModal, view) {
+    function DetailsController($scope, courseInstances, djangoUrl, $http, $log,
+                               $routeParams) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -27,9 +26,6 @@
         // controls how many fields are available to edit
         dc.editable = false;
         dc.editInProgress = false;  // has edit mode been activated by user
-        dc.tabIndexesByView = {'details': 0, 'people': 1, 'sites': 2};
-        // `view` comes from route resolve() function
-        dc.activeTabIndex = dc.tabIndexesByView[view];
 
         dc.init = function() {
             var instances = courseInstances.instances;
@@ -134,31 +130,6 @@
             }
 
             return courseInstance;
-        };
-
-        dc.getPeopleTabHeading = function() {
-            var memberCount = (dc.courseInstance || {}).members;
-            switch (memberCount) {
-                case undefined:
-                    return '<i class="fa fa-refresh fa-spin"></i> People';
-                case 1:
-                    return '1 Person';
-                default:
-                    return memberCount + ' People';
-            }
-        };
-
-        // todo: refactor/collapse, and put in tab controller
-        dc.getSitesTabHeading = function() {
-            var siteList = (dc.courseInstance || {}).sites;
-            if (!angular.isArray(siteList)) {
-                return '<i class="fa fa-refresh fa-spin"></i> Associated Sites';
-            }
-            if (siteList.length == 1) {
-                return '1 Associated Site';
-            } else {
-                return siteList.length + ' Associated Sites';
-            }
         };
 
         dc.handleAjaxErrorResponse = function(r) {
@@ -277,16 +248,6 @@
                     dc.courseDetailsUpdateInProgress = false;
                     dc.resetForm();
                 });
-        };
-
-        // todo: make this part of a service/app so it's reusable
-        dc.switchToRoute = function(routeName, courseId) {
-            if (['details', 'people', 'sites'].indexOf(routeName) > -1) {
-                $location.path('/' + routeName + '/' + courseId);
-            } else {
-                // default to search view
-                $location.path('/');
-            }
         };
 
         dc.toggleEditMode = function() {
