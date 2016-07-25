@@ -75,6 +75,37 @@
   <form name="dc.courseDetailsForm"
         class="form-horizontal"
         ng-submit="dc.submitCourseDetailsForm(this)">
+
+    <div class="form-group">
+      <div class="col-sm-12">
+        <a type="link" class="btn btn-default" id="course-details-form-reset"
+           ng-disabled="dc.courseDetailsUpdateInProgress"
+           ng-if="dc.editInProgress && dc.courseInstance != null"
+           ng-click="dc.resetFormFromUI()">
+          Cancel
+        </a>
+        <button id="course-details-form-edit"
+                class="btn btn-primary pull-right"
+                ng-if="!dc.editInProgress && dc.courseInstance != null"
+                ng-click="dc.toggleEditMode()">
+          Edit
+        </button>
+        <button id="course-details-form-submit" type="submit"
+                class="btn btn-primary pull-right"
+                ng-if="dc.editInProgress"
+                ng-disabled="dc.courseDetailsUpdateInProgress">
+          <span ng-switch="dc.courseDetailsUpdateInProgress">
+            <span ng-switch-when="false">
+              Submit
+            </span>
+            <span ng-switch-when="true">
+              <i class="fa fa-refresh fa-spin"></i> Updating Course...
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+
     <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
 
       <hu-editable-input
@@ -241,35 +272,7 @@
 
     </fieldset>
 
-    <div class="form-group">
-      <div class="col-sm-12">
-        <a type="link" class="btn btn-default" id="course-details-form-reset"
-           ng-disabled="dc.courseDetailsUpdateInProgress"
-           ng-if="dc.editInProgress && dc.courseInstance != null"
-           ng-click="dc.resetFormFromUI()">
-          Cancel
-        </a>
-        <button id="course-details-form-edit"
-                class="btn btn-primary pull-right"
-                ng-if="!dc.editInProgress && dc.courseInstance != null"
-                ng-click="dc.toggleEditMode()">
-          Edit
-        </button>
-        <button id="course-details-form-submit" type="submit"
-                class="btn btn-primary pull-right"
-                ng-if="dc.editInProgress"
-                ng-disabled="dc.courseDetailsUpdateInProgress">
-          <span ng-switch="dc.courseDetailsUpdateInProgress">
-            <span ng-switch-when="false">
-              Submit
-            </span>
-            <span ng-switch-when="true">
-              <i class="fa fa-refresh fa-spin"></i> Updating Course...
-            </span>
-          </span>
-        </button>
-      </div>
-    </div>
+
 
   </form>
 </main>
