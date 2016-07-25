@@ -257,7 +257,7 @@ describe('Unit testing PeopleController', function() {
             var result = scope.addNewMember(newPerson, members);
             var postParams = {
                         user_id: '12345674',
-                        role_id: 0};
+                        role_id: 10};
             expect(scope.getProfileFullName).toHaveBeenCalledWith(newPerson[0]);
             expect(scope.addNewMemberToCourse).toHaveBeenCalledWith(postParams, 'Test New User', newPerson[1]);
             expect(result).toEqual({ result: 'success' });

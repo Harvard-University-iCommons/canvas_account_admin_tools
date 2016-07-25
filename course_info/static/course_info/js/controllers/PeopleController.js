@@ -622,21 +622,21 @@
 
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
-            {roleId: 0, roleName: 'Student'},
-            {roleId: 10, roleName: 'Guest'},
-            {roleId: 14, roleName: 'Shopper'},
-            {roleId: 9, roleName: 'Teacher'},
             {roleId: 1, roleName: 'Course Head'},
-            {roleId: 2, roleName: 'Faculty'},
-            {roleId: 12, roleName: 'Teaching Staff'},
-            {roleId: 5, roleName: 'TA'},
             {roleId: 11, roleName: 'Course Support Staff'},
             {roleId: 7, roleName: 'Designer'},
+            {roleId: 2, roleName: 'Faculty'},
+            {roleId: 10, roleName: 'Guest'},
             {roleId: 15, roleName: 'Observer'},
+            {roleId: 14, roleName: 'Shopper'},
+            {roleId: 0, roleName: 'Student'},
+            {roleId: 5, roleName: 'TA'},
+            {roleId: 9, roleName: 'Teacher'},
+            {roleId: 12, roleName: 'Teaching Staff'},
         ];
         $scope.operationInProgress = false;
         $scope.searchTerms = '';
-        $scope.selectedRole = $scope.roles[0];
+        $scope.selectedRole = $scope.roles[4];
         $scope.setCourseInstance($routeParams.courseInstanceId);
 
         // configure the alert datatable
