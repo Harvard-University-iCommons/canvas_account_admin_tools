@@ -59,6 +59,10 @@ i.fa-trash-disabled {
     color: #ccc;
 }
 
+.nav-tabset {
+    margin-bottom: 15px;
+}
+
 #privacyDropdown {
     padding: 1em;
     width: 30em;

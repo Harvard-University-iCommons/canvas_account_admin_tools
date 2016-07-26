@@ -1,16 +1,29 @@
 {% verbatim %}
 
 <nav>
-    <h3 class="breadcrumbs">
-        {% endverbatim %}
-        <a href="{% url 'dashboard_account' %}">Admin Console</a>
-        <small><i class="fa fa-chevron-right"></i></small>
-        <a href="#/">Search Courses</a>
-        {% verbatim %}
-        <small><i class="fa fa-chevron-right"></i></small>
-        <span ng-if="dc.courseInstance.title">Details for {{dc.courseInstance.title}}</span>
-        <span ng-if="!dc.courseInstance.title">Loading details for course instance {{dc.courseInstanceId}}... <i class="fa fa-refresh fa-spin"></i></span>
-    </h3>
+  <h3 class="breadcrumbs">
+      {% endverbatim %}
+      <a href="{% url 'dashboard_account' %}">Admin Console</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      <a href="#/">Search Courses</a>
+      {% verbatim %}
+      <small><i class="fa fa-chevron-right"></i></small>
+      <span ng-if="dc.courseInstance.term">
+        {{ dc.getCourseDescription(dc.courseInstance) }}
+      </span>
+      <span ng-if="!dc.courseInstance.term">
+        Loading details for course instance {{dc.courseInstanceId}}...
+        <i class="fa fa-refresh fa-spin"></i>
+      </span>
+  </h3>
+
+  <hu-course-info-nav-tabs
+      current-route="details"
+      course-instance-id="dc.courseInstanceId"
+      people-count="(dc.courseInstance || {}).members"
+      site-count="((dc.courseInstance || {}).sites || {}).length">
+  </hu-course-info-nav-tabs>
+
   <p ng-if="dc.arrivedFromPeopleCourses">
     <a href="{{ dc.getPeopleCoursesRoute() }}">
       <i class="fa fa-users"></i> Back to person's courses
@@ -20,385 +33,258 @@
 
 <main class="course-info-details-page">
 
-      <div id="alerts">
-        <div class="alert alert-success" role="alert"
-             id="alert-success-update-succeeded"
-             ng-if="dc.alertPresent('global', 'updateSucceeded')">
-          <p>
-            <i class="fa fa-check"></i>
-            Course instance updated.
-          </p>
+  <div id="alerts">
+    <div class="alert alert-success" role="alert"
+         id="alert-success-update-succeeded"
+         ng-if="dc.alertPresent('global', 'updateSucceeded')">
+      <p>
+        <i class="fa fa-check"></i>
+        The course details have been updated.
+      </p>
+    </div>
+    <div class="alert alert-info" role="alert"
+         id="alert-info-form-reset"
+         ng-if="dc.alertPresent('global', 'formReset')">
+      <p>
+        <i class="fa fa-check"></i>
+        Course instance details reset.
+      </p>
+    </div>
+    <div class="alert alert-danger" role="alert"
+         id="alert-danger-update-failed"
+         ng-if="dc.alertPresent('global', 'updateFailed')">
+      <p>
+        <i class="fa fa-warning"></i>
+        The course instance could not be updated. Please try again.
+        Error details: {{ dc.alerts.global.updateFailed.details }}
+      </p>
+    </div>
+    <div class="alert alert-danger" role="alert"
+         id="alert-danger-fetch-course-instance-failed"
+         ng-if="dc.alertPresent('global', 'fetchCourseInstanceFailed')">
+      <p>
+        <i class="fa fa-warning"></i>
+        The course instance details could not be fetched from the server.
+        Please try again.
+        Error details:
+        {{ dc.alerts.global.fetchCourseInstanceFailed.details }}
+      </p>
+    </div>
+  </div>
+
+  <div class="form-group">
+      <div class="col-sm-12">
+        <a type="link" class="btn btn-default" id="course-details-form-reset"
+           ng-disabled="dc.courseDetailsUpdateInProgress"
+           ng-if="dc.editInProgress && dc.courseInstance != null"
+           ng-click="dc.resetFormFromUI()">
+          Cancel
+        </a>
+        <button id="course-details-form-edit"
+                class="btn btn-primary pull-right"
+                ng-if="!dc.editInProgress && dc.courseInstance != null"
+                ng-click="dc.toggleEditMode()">
+          Edit
+        </button>
+        <button id="course-details-form-submit" type="submit"
+                class="btn btn-primary pull-right"
+                ng-if="dc.editInProgress"
+                ng-disabled="dc.courseDetailsUpdateInProgress">
+          <span ng-switch="dc.courseDetailsUpdateInProgress">
+            <span ng-switch-when="false">
+              Submit
+            </span>
+            <span ng-switch-when="true">
+              <i class="fa fa-refresh fa-spin"></i> Updating Course...
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <div class="col-sm-12"><hr></div>
+
+  <div class="col-sm-12">
+  <form name="dc.courseDetailsForm"
+        class="form-horizontal"
+        ng-submit="dc.submitCourseDetailsForm(this)">
+
+
+
+    <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
+
+      <hu-editable-input
+          is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
+          form-value="dc.courseInstance.registrar_code_display"
+          model-value="dc.formDisplayData.registrar_code_display"
+          field="registrar_code_display"
+          label="Course Code"></hu-editable-input>
+
+      <hu-editable-input
+          is-loading="dc.isUndefined(dc.courseInstance.section)"
+          form-value="dc.courseInstance.section"
+          model-value="dc.formDisplayData.section"
+          field="section"
+          label="Course Section"></hu-editable-input>
+
+      <hu-field-label-wrapper
+        field="xlist_status"
+        is-loading="dc.isUndefined(dc.courseInstance.xlist_status)"
+        label="Cross listing">
+          <div ng-switch on="dc.courseInstance.xlist_status"
+               class="label label-info">
+            <span ng-switch-when="Primary"> Primary </span>
+            <span ng-switch-when="Secondary"> Secondary </span>
+            <span ng-switch-default> N/A </span>
+          </div>
+      </hu-field-label-wrapper>
+
+      <hu-editable-input
+          is-loading="dc.isUndefined(dc.courseInstance.term)"
+          form-value="dc.courseInstance.term"
+          model-value="dc.courseInstance.term"
+          field="term"
+          label="Term"></hu-editable-input>
+
+      <hu-editable-input
+          is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
+          form-value="dc.courseInstance.course_instance_id"
+          model-value="dc.courseInstance.course_instance_id"
+          field="course_instance_id"
+          label="SIS/Course Instance ID"></hu-editable-input>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.title)"
+          form-value="dc.formDisplayData.title"
+          model-value="dc.courseInstance.title"
+          maxlength="500"
+          field="title"
+          label="Course Title"></hu-editable-input>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.short_title)"
+          form-value="dc.formDisplayData.short_title"
+          model-value="dc.courseInstance.short_title"
+          maxlength="200"
+          field="short_title"
+          label="Short Title"></hu-editable-input>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.sub_title)"
+          form-value="dc.formDisplayData.sub_title"
+          model-value="dc.courseInstance.sub_title"
+          maxlength="500"
+          field="sub_title"
+          label="Subtitle"></hu-editable-input>
+
+      <hu-editable-textarea
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.description)"
+          form-value="dc.formDisplayData.description"
+          model-value="dc.courseInstance.description"
+          field="description"
+          label="Description"></hu-editable-textarea>
+
+      <hu-editable-textarea
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.notes)"
+          form-value="dc.formDisplayData.notes"
+          model-value="dc.courseInstance.notes"
+          maxlength="2000"
+          field="notes"
+          label="Notes"></hu-editable-textarea>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.instructors_display)"
+          form-value="dc.formDisplayData.instructors_display"
+          model-value="dc.courseInstance.instructors_display"
+          maxlength="4000"
+          field="instructors_display"
+          label="Instructors (display)"></hu-editable-input>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.location)"
+          form-value="dc.formDisplayData.location"
+          model-value="dc.courseInstance.location"
+          maxlength="500"
+          field="location"
+          label="Location"></hu-editable-input>
+
+      <hu-editable-input
+          editable="dc.editable && dc.editInProgress"
+          is-loading="dc.isUndefined(dc.courseInstance.meeting_time)"
+          form-value="dc.formDisplayData.meeting_time"
+          model-value="dc.courseInstance.meeting_time"
+          maxlength="1000"
+          field="meeting_time"
+          label="Meeting time"></hu-editable-input>
+
+      <hu-field-label-wrapper
+          is-loading="dc.isUndefined(dc.courseInstance.departments)"
+          field="departments"
+          label="Departments">
+        <div class="row" ng-repeat="dept in dc.courseInstance.departments">
+          <div class="col-sm-12"> {{dept.name}} </div>
         </div>
-        <div class="alert alert-info" role="alert"
-             id="alert-info-form-reset"
-             ng-if="dc.alertPresent('global', 'formReset')">
-          <p>
-            <i class="fa fa-check"></i>
-            Course instance details reset.
-          </p>
+      </hu-field-label-wrapper>
+
+      <hu-field-label-wrapper
+          is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
+          field="course_groups"
+          label="Course Groups">
+        <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
+          <div class="col-sm-12"> {{group.name}} </div>
         </div>
-        <div class="alert alert-danger" role="alert"
-             id="alert-danger-update-failed"
-             ng-if="dc.alertPresent('global', 'updateFailed')">
-          <p>
-            <i class="fa fa-warning"></i>
-            The course instance could not be updated. Please try again.
-            Error details: {{ dc.alerts.global.updateFailed.details }}
-          </p>
-        </div>
-        <div class="alert alert-danger" role="alert"
-             id="alert-danger-fetch-course-instance-failed"
-             ng-if="dc.alertPresent('global', 'fetchCourseInstanceFailed')">
-          <p>
-            <i class="fa fa-warning"></i>
-            The course instance details could not be fetched from the server.
-            Please try again.
-            Error details:
-            {{ dc.alerts.global.fetchCourseInstanceFailed.details }}
-          </p>
+      </hu-field-label-wrapper>
+
+      <hu-editable-input
+          is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
+          form-value="dc.formDisplayData.conclude_date"
+          model-value="dc.courseInstance.conclude_date"
+          field="conclude_date"
+          label="Conclusion Date">
+      </hu-editable-input>
+
+      <div class="form-group">
+        <label class="col-sm-2">
+          Course Flags
+        </label>
+        <div class="col-sm-10">
+          <hu-editable-checkbox
+              editable="dc.editInProgress"
+              is-loading="dc.isUndefined(dc.courseInstance.sync_to_canvas)"
+              form-value="dc.formDisplayData.sync_to_canvas"
+              model-value="dc.courseInstance.sync_to_canvas"
+              field="sync_to_canvas"
+              label="Sync To Canvas">
+          </hu-editable-checkbox>
+          <hu-editable-checkbox
+              editable="dc.editInProgress"
+              is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)"
+              form-value="dc.formDisplayData.exclude_from_isites"
+              model-value="dc.courseInstance.exclude_from_isites"
+              field="exclude_from_isites"
+              label="Exclude from Course Sites">
+          </hu-editable-checkbox>
+          <hu-editable-checkbox
+              editable="dc.editInProgress"
+              is-loading="dc.isUndefined(dc.courseInstance.exclude_from_catalog)"
+              form-value="dc.formDisplayData.exclude_from_catalog"
+              model-value="dc.courseInstance.exclude_from_catalog"
+              field="exclude_from_catalog"
+              label="Exclude from Catalog">
+          </hu-editable-checkbox>
         </div>
       </div>
 
-      <form name="dc.courseDetailsForm"
-            class="form-horizontal"
-            ng-if="dc.courseInstance.title"
-            ng-show="dc.showForm()"
-            ng-submit="dc.submitCourseDetailsForm(this)">
-        <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
-          <ul class="list-group">
-            <li class="list-group-item">
-              <hu-editable-input
-                  is-loading="dc.isUndefined(dc.courseInstance.registrar_code_display)"
-                  form-value="dc.courseInstance.registrar_code_display"
-                  model-value="dc.formDisplayData.registrar_code_display"
-                  field="registrar_code_display"
-                  label="Course Code"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-field-label-wrapper
-                field="xlist_status"
-                is-loading="dc.isUndefined(dc.courseInstance.xlist_status)"
-                label="Cross listing">
-                  <div ng-switch on="dc.courseInstance.xlist_status"
-                       class="label label-info">
-                    <span ng-switch-when="Primary"> Primary </span>
-                    <span ng-switch-when="Secondary"> Secondary </span>
-                    <span ng-switch-default> N/A </span>
-                  </div>
-              </hu-field-label-wrapper>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  is-loading="dc.isUndefined(dc.courseInstance.term)"
-                  form-value="dc.courseInstance.term"
-                  model-value="dc.courseInstance.term"
-                  field="term"
-                  label="Term"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
-                  form-value="dc.courseInstance.course_instance_id"
-                  model-value="dc.courseInstance.course_instance_id"
-                  field="course_instance_id"
-                  label="SIS/Course Instance ID"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.title)"
-                  form-value="dc.formDisplayData.title"
-                  model-value="dc.courseInstance.title"
-                  maxlength="500"
-                  field="title"
-                  label="Course Title"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.short_title)"
-                  form-value="dc.formDisplayData.short_title"
-                  model-value="dc.courseInstance.short_title"
-                  maxlength="200"
-                  field="short_title"
-                  label="Short Title"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.sub_title)"
-                  form-value="dc.formDisplayData.sub_title"
-                  model-value="dc.courseInstance.sub_title"
-                  maxlength="500"
-                  field="sub_title"
-                  label="Subtitle"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-textarea
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.description)"
-                  form-value="dc.formDisplayData.description"
-                  model-value="dc.courseInstance.description"
-                  field="description"
-                  label="Description"></hu-editable-textarea>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-textarea
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.notes)"
-                  form-value="dc.formDisplayData.notes"
-                  model-value="dc.courseInstance.notes"
-                  maxlength="2000"
-                  field="notes"
-                  label="Notes"></hu-editable-textarea>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.instructors_display)"
-                  form-value="dc.formDisplayData.instructors_display"
-                  model-value="dc.courseInstance.instructors_display"
-                  maxlength="4000"
-                  field="instructors_display"
-                  label="Instructors (display)"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-field-label-wrapper
-                  is-loading="dc.isUndefined(dc.courseInstance.members) && !dc.alertPresent('form', 'fetchMembersFailed')"
-                  field="people"
-                  label="People">
-                <div class="alert alert-danger" role="alert"
-                     id="alert-danger-fetch-course-members-failed"
-                     ng-if="dc.alertPresent('form', 'fetchMembersFailed')">
-                  <p>
-                    <i class="fa fa-warning"></i>
-                    Error looking up course members.
-                    Error details: {{ dc.alerts.form.fetchMembersFailed.details }}
-                  </p>
-                  <p>
-                    <a href="#/people/{{dc.courseInstance.course_instance_id}}"
-                       id="people-error-link"
-                       class="alert-link">
-                      Go to course people page.
-                    </a>
-                  </p>
-                </div>
-
-                <a id="people-link"
-                   href="#/people/{{dc.courseInstance.course_instance_id}}">
-                  <ng-pluralize count="dc.courseInstance.members"
-                                when="{'0': 'There are no people in the course.',
-                      'one': 'There is one person in the course.',
-                      'other': 'There are {} people in the course.'}">
-                  </ng-pluralize>
-                </a>
-              </hu-field-label-wrapper>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.location)"
-                  form-value="dc.formDisplayData.location"
-                  model-value="dc.courseInstance.location"
-                  maxlength="500"
-                  field="location"
-                  label="Location"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  editable="dc.editable"
-                  is-loading="dc.isUndefined(dc.courseInstance.meeting_time)"
-                  form-value="dc.formDisplayData.meeting_time"
-                  model-value="dc.courseInstance.meeting_time"
-                  maxlength="1000"
-                  field="meeting_time"
-                  label="Meeting time"></hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <hu-field-label-wrapper
-                  is-loading="dc.isUndefined(dc.courseInstance.departments)"
-                  field="departments"
-                  label="Departments">
-                <div class="row" ng-repeat="dept in dc.courseInstance.departments">
-                  <div class="col-sm-12"> {{dept.name}} </div>
-                </div>
-              </hu-field-label-wrapper>
-            </li>
-
-            <li class="list-group-item">
-              <hu-field-label-wrapper
-                  is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
-                  field="course_groups"
-                  label="Course Groups">
-                <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
-                  <div class="col-sm-12"> {{group.name}} </div>
-                </div>
-              </hu-field-label-wrapper>
-            </li>
-
-            <li class="list-group-item">
-              <hu-field-label-wrapper
-                  is-loading="dc.isUndefined(dc.courseInstance.sites)"
-                  field="sites"
-                  label="Associated Site(s)">
-                <div class="course-site-details"
-                     ng-repeat="site in dc.courseInstance.sites">
-                  <div class="row">
-                    <div class="col-sm-1">
-                    <span class="label label-primary"
-                          ng-if="site.map_type == 'official'">Official</span>
-                    <span class="label label-primary"
-                          ng-if="site.map_type == 'unofficial'">Unofficial</span>
-                    </div>
-                    <div class="col-sm-8">
-                      <a href="{{site.course_site_url}}" target="_blank">{{site.course_site_url}}</a>
-                    </div>
-                    <div class="col-sm-3">
-                      <button type="button" class="btn btn-default pull-right"
-                              ng-click="dc.dissociateSite($index)">
-                        <span
-                            ng-show="dc.dissociateSiteInProgressIndex == $index">
-                          <i class="fa fa-refresh fa-spin"></i>
-                          Dissociating Site...
-                        </span>
-                        <span
-                            ng-show="dc.dissociateSiteInProgressIndex != $index">
-                          Dissociate
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                  <hr>
-                </div>
-                <div class="row">
-                  <div class="col-sm-1"></div>
-                  <div class="col-sm-8">
-                    <label class="sr-only" for="newAssociatedCourseURL">
-                      New associated course URL
-                    </label>
-                    <input type="text"
-                           class="form-control"
-                           id="newAssociatedCourseURL"
-                           name="newAssociatedCourseURL"
-                           ng-disabled="dc.associateNewSiteInProgress"
-                           ng-keypress="dc.associateNewSiteHandleKey($event)"
-                           ng-model="dc.newCourseSiteURL"
-                           placeholder="Type URL of new associated course"/>
-                  </div>
-                  <div class="col-sm-3">
-                    <button type="button" class="btn btn-primary pull-right"
-                            ng-disabled="!dc.validNewSiteURL()"
-                            ng-click="dc.associateNewSite()">
-                        <span ng-switch="dc.associateNewSiteInProgress">
-                          <span ng-switch-when="false">
-                            Associate
-                          </span>
-                          <span ng-switch-when="true">
-                            <i class="fa fa-refresh fa-spin"></i>
-                            Associating Site...
-                          </span>
-                        </span>
-                    </button>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="alert alert-danger" role="alert"
-                       id="alert-danger-site-operation-failed"
-                       ng-if="dc.alertPresent('form', 'siteOperationFailed')">
-                    <p>
-                      <i class="fa fa-warning"></i>
-                      Error {{ dc.alerts.form.siteOperationFailed.operation }} site.
-                      Error details:
-                      {{dc.alerts.form.siteOperationFailed.details}}
-                    </p>
-                  </div>
-                </div>
-              </hu-field-label-wrapper>
-            </li>
-
-            <li class="list-group-item">
-              <hu-editable-input
-                  is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
-                  form-value="dc.formDisplayData.conclude_date"
-                  model-value="dc.courseInstance.conclude_date"
-                  field="conclude_date"
-                  label="Conclusion Date">
-              </hu-editable-input>
-            </li>
-
-            <li class="list-group-item">
-              <div class="form-group">
-                <label class="col-sm-2">
-                  Course Flags
-                </label>
-                <div class="col-sm-10">
-                  <hu-editable-checkbox
-                      editable="dc.editable"
-                      is-loading="dc.isUndefined(dc.courseInstance.sync_to_canvas)"
-                      form-value="dc.formDisplayData.sync_to_canvas"
-                      model-value="dc.courseInstance.sync_to_canvas"
-                      field="sync_to_canvas"
-                      label="Sync To Canvas">
-                  </hu-editable-checkbox>
-                  <hu-editable-checkbox
-                      editable="dc.editable"
-                      is-loading="dc.isUndefined(dc.courseInstance.exclude_from_isites)"
-                      form-value="dc.formDisplayData.exclude_from_isites"
-                      model-value="dc.courseInstance.exclude_from_isites"
-                      field="exclude_from_isites"
-                      label="Exclude from Course Sites">
-                  </hu-editable-checkbox>
-                  <hu-editable-checkbox
-                      editable="dc.editable"
-                      is-loading="dc.isUndefined(dc.courseInstance.exclude_from_catalog)"
-                      form-value="dc.formDisplayData.exclude_from_catalog"
-                      model-value="dc.courseInstance.exclude_from_catalog"
-                      field="exclude_from_catalog"
-                      label="Exclude from Catalog">
-                  </hu-editable-checkbox>
-                </div>
-              </div>
-             </li>
-
-          </ul>
-        </fieldset>
-
-        <div class="form-group" >
-          <div class="col-sm-12">
-            <a type="link" class="btn btn-default" id="course-details-form-reset"
-               ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null"
-               ng-click="dc.resetFormFromUI()">
-              Reset
-            </a>
-            <button id="course-details-form-submit" type="submit"
-                    class="btn btn-primary pull-right"
-                    ng-disabled="dc.courseDetailsUpdateInProgress || dc.courseInstance == null">
-              <span ng-switch="dc.courseDetailsUpdateInProgress">
-                <span ng-switch-when="false">
-                  Submit
-                </span>
-                <span ng-switch-when="true">
-                  <i class="fa fa-refresh fa-spin"></i> Updating Course...
-                </span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-      </form>
+    </fieldset>
+  </form>
+</div>
 </main>
 
 {% endverbatim %}

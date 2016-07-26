@@ -1,0 +1,9 @@
+<uib-tabset active="activeTabIndex" class="nav-tabset">
+  <uib-tab index="0" heading="Course Details" select="goTo('details')"></uib-tab>
+  <uib-tab index="1" select="goTo('people')">
+    <uib-tab-heading ng-bind-html="getPeopleHeading()"></uib-tab-heading>
+  </uib-tab>
+  <uib-tab index="2" select="goTo('sites')">
+    <uib-tab-heading ng-bind-html="getSitesHeading()"></uib-tab-heading>
+  </uib-tab>
+</uib-tabset>
