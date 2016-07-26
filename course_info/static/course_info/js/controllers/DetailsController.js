@@ -115,6 +115,7 @@
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
+                courseInstance['section'] = ci.section;
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -230,6 +231,7 @@
                 'sync_to_canvas',
                 'exclude_from_isites',
                 'exclude_from_catalog',
+                'section',
             ];
             fields.forEach(function(field) {
                 patchData[field] = dc.formDisplayData[field];
