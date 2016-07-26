@@ -175,7 +175,7 @@ describe('Unit testing SitesController', function () {
 
     });
 
-    xdescribe('dissociateSite', function(){
+    describe('dissociateSite', function(){
         beforeEach(function () {
             var ci = {
                 course_instance_id: $routeParams.courseInstanceId,
