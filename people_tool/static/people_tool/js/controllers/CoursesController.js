@@ -65,6 +65,7 @@
             cinfo['year'] = course.term ? course.term.academic_year : '';
             cinfo['term'] = course.term ? course.term.display_name : '';
             cinfo['term_code'] = course.term ? course.term.term_code : '';
+            cinfo['section'] = course.section ? course.section : '';
             cinfo['sites'] = course.sites || [];
             cinfo['sites'].forEach(function (site) {
                 site.site_id = site.external_id;
@@ -84,7 +85,7 @@
                 cinfo['code'] = '';
                 cinfo['school'] = '';
             }
-            cinfo['section'] = course.section ? course.section : '';
+
             cinfo['cid'] = course.course_instance_id;
             if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
                 cinfo['xlist_status'] = 'Primary';
