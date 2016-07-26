@@ -145,7 +145,7 @@
                     cinfo['code'] = '';
                     cinfo['school'] = '';
                 }
-
+                cinfo['section'] = course.section ? course.section : '';
                 cinfo['cid'] = course.course_instance_id;
                 if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
                     cinfo['xlist_status'] = 'Primary';
@@ -272,6 +272,7 @@
                             }
                         },
                         {data: 'code'},
+                        {data: 'section'},
                         {data: 'cid'},
                         {
                             orderable: false,
