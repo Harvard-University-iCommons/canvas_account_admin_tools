@@ -58,6 +58,7 @@ describe('Unit testing people_tool CoursesController', function() {
             year: '',
             term: '',
             term_code: '',
+            section: '',
             sites: [ { external_id: 'https://coursesite.com'} ],
             code: '',
             school: '',

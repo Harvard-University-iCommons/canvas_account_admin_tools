@@ -19,7 +19,6 @@
                     } else {
                         if (lastname) {
                             displayname =lastname;
-                            console.log(displayname);
                             //Only add teh comma if the first name also exists
                             if (firstname) {
                                 displayname = displayname + ", ";

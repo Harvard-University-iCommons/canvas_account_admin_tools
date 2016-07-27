@@ -107,7 +107,7 @@
 
             $scope.getCourseDescription = function(course) {
                 // If a course's title is [NULL], attempt to display the short title.
-                // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+                // If the short title is also [NULL], display 'Untitled Course'
                 if(typeof course.title != "undefined" && course.title.trim().length > 0){
                     return course.title;
                 }
@@ -145,7 +145,7 @@
                     cinfo['code'] = '';
                     cinfo['school'] = '';
                 }
-
+                cinfo['section'] = course.section ? course.section : '';
                 cinfo['cid'] = course.course_instance_id;
                 if (course.secondary_xlist_instances && course.secondary_xlist_instances.length > 0) {
                     cinfo['xlist_status'] = 'Primary';
@@ -272,6 +272,7 @@
                             }
                         },
                         {data: 'code'},
+                        {data: 'section'},
                         {data: 'cid'},
                         {
                             orderable: false,
