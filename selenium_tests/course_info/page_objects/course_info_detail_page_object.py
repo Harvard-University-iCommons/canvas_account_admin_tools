@@ -8,6 +8,7 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
+    EDIT_FORM_BUTTON = (By.ID, "course-details-form-edit")
     PEOPLE_LINK = (By.ID, "course-details-people-tab-id")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
@@ -52,12 +53,10 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         self.find_element(*Locators.RESET_FORM_BUTTON).click()
 
     def verify_buttons_to_edit_page_are_present(self):
-        """Return true if both buttons are displayed"""
+        """Return true if the button appears on page"""
         try:
-            return (self.find_element(*Locators.RESET_FORM_BUTTON
-                                      ).is_displayed() and
-                    self.find_element(*Locators.SUBMIT_FORM_BUTTON
-                                      ).is_displayed())
+            return self.find_element(*Locators.EDIT_FORM_BUTTON
+                                      ).is_displayed()
         except NoSuchElementException:
             return False
 
