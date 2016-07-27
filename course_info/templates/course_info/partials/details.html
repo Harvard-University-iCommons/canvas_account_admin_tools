@@ -72,6 +72,13 @@
     </div>
   </div>
 
+
+
+  <div class="col-sm-12">
+  <form name="dc.courseDetailsForm"
+        class="form-horizontal"
+        ng-submit="dc.submitCourseDetailsForm(this)">
+
   <div class="form-group">
       <div class="col-sm-12">
         <a type="link" class="btn btn-default" id="course-details-form-reset"
@@ -102,14 +109,7 @@
       </div>
     </div>
 
-    <div class="col-sm-12"><hr></div>
-
-  <div class="col-sm-12">
-  <form name="dc.courseDetailsForm"
-        class="form-horizontal"
-        ng-submit="dc.submitCourseDetailsForm(this)">
-
-
+    <hr>
 
     <fieldset ng-disabled="dc.courseDetailsUpdateInProgress">
 
