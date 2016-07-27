@@ -46,22 +46,26 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         except NoSuchElementException:
             return False
 
-    def go_to_people_page(self):
-        self.find_element(*Locators.PEOPLE_LINK).click()
-
-    def reset_form(self):
-        self.find_element(*Locators.RESET_FORM_BUTTON).click()
-
     def verify_buttons_to_edit_page_are_present(self):
         """Return true if the button appears on page"""
         try:
-            return self.find_element(*Locators.EDIT_FORM_BUTTON
-                                      ).is_displayed()
+            return self.find_element(*Locators.EDIT_FORM_BUTTON).is_displayed()
         except NoSuchElementException:
             return False
 
+    def edit_form(self):
+        """Find and click on the Edit button"""
+        self.find_element(*Locators.EDIT_FORM_BUTTON).click()
+
+    def go_to_people_page(self):
+        self.find_element(*Locators.PEOPLE_LINK).click()
+
     def submit_form(self):
+        """Find and click on the submit button"""
         self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
+
+    def reset_form(self):
+        self.find_element(*Locators.RESET_FORM_BUTTON).click()
 
     def submit_was_successful(self):
         """ Returns true if the success message is shown after """
