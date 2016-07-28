@@ -2,9 +2,9 @@
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController);
 
-    // todo: remove $timeout when backend is hooked up
-    function DetailsController($scope, $routeParams, courseInstances, $compile,
-                               djangoUrl, $http, $q, $log, $uibModal, $sce, $timeout) {
+    // todo: remove unused providers
+    function DetailsController($scope, courseInstances, djangoUrl, $http, $log,
+                               $routeParams) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -17,14 +17,15 @@
         // to the search people app's course list route
         // todo: there may be a more generic, extensible approach
         dc.arrivedFromPeopleCourses = $routeParams['frompeoplecourses'];
-        dc.associateNewSiteInProgress = false;
         dc.courseDetailsUpdateInProgress = false;
         dc.courseInstanceId = $routeParams.courseInstanceId;
         dc.courseInstance = {};
         dc.courseInstances = courseInstances;
-        dc.dissociateSiteInProgressIndex = null;
+        // if a course is `editable` then user can update fields other than
+        // course flags; all courses can be edited, but this `editable` value
+        // controls how many fields are available to edit
         dc.editable = false;
-        dc.newCourseSiteURL = '';
+        dc.editInProgress = false;  // has edit mode been activated by user
 
         dc.init = function() {
             var instances = courseInstances.instances;
@@ -38,85 +39,6 @@
         dc.alertPresent = function(alertType, alertKey) {
             return (dc.alerts[alertType][alertKey] &&
                     dc.alerts[alertType][alertKey].show);
-        };
-
-        dc.associateNewSite = function() {
-            dc.associateNewSiteInProgress = true;
-            data = {
-              'external_id': dc.newCourseSiteURL
-            };
-            var post_course_site_url = djangoUrl.reverse(dc.apiProxy,
-                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/']);
-            $http.post(post_course_site_url, data).then(function(response){
-                var new_course = {
-                    course_site_url: dc.newCourseSiteURL,
-                    map_type: 'official',
-                    site_map_id: response.data.site_map_id
-                };
-                dc.courseInstance.sites.push(new_course);
-                dc.newCourseSiteURL = '';
-            }, function(response) {
-                dc.handleAjaxErrorResponse(response);
-                dc.alerts.form.siteOperationFailed = {
-                    show: true,
-                    operation: 'associating',
-                    details: response.statusText || 'None'};
-                }
-            ).finally(function(){
-                dc.associateNewSiteInProgress = false;
-            });
-        };
-
-        dc.associateNewSiteHandleKey = function(keypressEvent) {
-            // if user hits Enter in the new site URL form input field, capture
-            // it for handling by associateNewSite() and prevent it from
-            // triggering main form submission
-            if (keypressEvent.keyCode == 13) {
-                // swallow the enter key no matter what; this prevents a blank
-                // input causing the main form to be submitted
-                keypressEvent.preventDefault();
-                if (dc.validNewSiteURL()) {
-                    dc.associateNewSite();
-                }
-            }
-        };
-
-        dc.dissociateSite = function(siteListIndex) {
-            dc.confirmDissociateSiteModalInstance = $uibModal.open({
-                animation: true,
-                templateUrl: 'partials/dissociate-site-confirmation.html',
-                controller: function ($scope, $uibModalInstance, siteURL, site_map_id) {
-                    dc.siteURL = siteURL;
-                    dc.site_map_id = site_map_id;
-                },
-                resolve: {
-                    siteURL: function () {
-                        return dc.courseInstance.sites[siteListIndex].course_site_url;
-                    },
-                    site_map_id: function() {
-                        return dc.courseInstance.sites[siteListIndex].site_map_id;
-                    }
-                }
-            });
-            dc.confirmDissociateSiteModalInstance.result.then(
-                function modalConfirmed() {
-                    var delete_course_site_url = djangoUrl.reverse(dc.apiProxy,
-                        [dc.apiBase + dc.courseInstance.course_instance_id + '/sites/' + dc.courseInstance.sites[siteListIndex].site_map_id + '/']);
-                    $http.delete(delete_course_site_url)
-                        .then(function(response){
-                            dc.dissociateSiteInProgressIndex = siteListIndex;
-                            dc.courseInstance.sites.splice(siteListIndex, 1);
-                        }, function(response){
-                            dc.handleAjaxErrorResponse(response);
-                            dc.alerts.form.siteOperationFailed = {
-                                show: true,
-                                operation: 'dissociating',
-                                details: response.statusText || 'None'};
-                        }).finally(function(){
-                            dc.dissociateSiteInProgressIndex = null;
-                        });
-
-            });
         };
 
         dc.fetchCourseInstanceDetails = function (id) {
@@ -150,9 +72,10 @@
                 });
 
         };
+        // todo: move this into a service/app.js?
         dc.getCourseDescription = function(course) {
-            // If a course's title is [NULL], attempt to display the short title.
-            // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
+            // If a course's title is [NULL], attempt to display the short title
+            // If the short title is also [NULL], display 'Untitled Course'
             if(typeof course.title != "undefined" && course.title.trim().length > 0){
                 return course.title;
             }
@@ -167,7 +90,7 @@
             var ci = ciData;  // shorten for brevity, preferable to `with()`
             var courseInstance = {};
             if (ci) {
-                courseInstance['title'] = dc.getCourseDescription(ci);
+                courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
                 courseInstance['year'] = ci.term.academic_year;
@@ -192,6 +115,7 @@
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
+                courseInstance['section'] = ci.section ? ci.section : '';
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -207,13 +131,6 @@
             }
 
             return courseInstance;
-        };
-
-        dc.getPeopleCoursesRoute = function() {
-            // returns URL for the Search People app's course list
-            // route for the user specified by dc.arrivedFromPeopleCourses
-            return window.globals.append_resource_link_id('../people_tool/')
-                + '#/people/' + dc.arrivedFromPeopleCourses + '/courses/';
         };
 
         dc.handleAjaxErrorResponse = function(r) {
@@ -265,12 +182,12 @@
 
         dc.resetForm = function() {
             dc.formDisplayData = angular.copy(dc.courseInstance);
+            dc.editInProgress = false;
         };
 
         dc.resetFormFromUI = function() {
             dc.resetForm();
             dc.showNewGlobalAlert('formReset');
-            dc.alerts.global.formReset = {show:true};
         };
 
         dc.resetGlobalAlerts = function() {
@@ -279,21 +196,6 @@
 
         dc.scrollToTopOfViewport = function() {
             scrollTo(0, 0);  // scroll to top of form
-        };
-
-        dc.showForm = function() {
-            // li.list-group-item elements must be directly under ul.list-group
-            // for the proper bootstrap styling to be applied, but since <li>s
-            // wrap our hu-* directives, the li border styles appear before
-            // angular can render all of the hu-* directives. This code ensures
-            // that the form (and hence the <li>s in the form) is not visible
-            // until the first <li> has been rendered (has text in it) by
-            // angular via the digest cycle. Note that this makes assumptions
-            // about the structure of the DOM and that the first <li> contains
-            // only an hu-* directive that is entirely dynamically generated
-            // (hence there is no text to speak of inside the <li> until the
-            // directive is rendered).
-            return $('form ul li:first-child').text().trim() != '';
         };
 
         dc.showNewGlobalAlert = function(alertKey, alertDetail) {
@@ -329,6 +231,7 @@
                 'sync_to_canvas',
                 'exclude_from_isites',
                 'exclude_from_catalog',
+                'section',
             ];
             fields.forEach(function(field) {
                 patchData[field] = dc.formDisplayData[field];
@@ -343,18 +246,15 @@
                     dc.showNewGlobalAlert('updateFailed', response.statusText);
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
-                    // re-enables form, buttons
+                    // leaves 'edit' mode, re-enables edit button
                     dc.courseDetailsUpdateInProgress = false;
+                    dc.resetForm();
                 });
         };
 
-        dc.validNewSiteURL = function() {
-            // if we use the required or ngRequired directives on our new site
-            // URL input element then the main form will also recognize and
-            // require them; instead we need to use a combination of empty input
-            // checking and the angular input directive's built-in validation.
-            return (dc.newCourseSiteURL.trim() != '' &&
-                    dc.courseDetailsForm.newAssociatedCourseURL.$valid);
+        dc.toggleEditMode = function() {
+            dc.editInProgress = !dc.editInProgress;
+            dc.resetGlobalAlerts();
         };
 
         dc.init();

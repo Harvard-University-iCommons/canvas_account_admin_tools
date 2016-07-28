@@ -676,7 +676,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(scope.courseInstance['registrar_code_display']).toEqual(
                     ci.course.registrar_code_display);
-            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['sites']).toEqual([{ external_id: 'https://x.y.z/888', site_id: '888' }]);
             expect(scope.courseInstance['xlist_status']).toEqual('N/A');
         });
         it('uses registrar_code if registrar_code_display is blank', function() {
@@ -693,7 +693,7 @@ describe('Unit testing PeopleController', function() {
             expect(scope.courseInstance['course_instance_id']).toEqual(ci.course_instance_id);
             expect(scope.courseInstance['registrar_code_display']).toEqual(
                     ci.course.registrar_code);
-            expect(scope.courseInstance['sites']).toEqual('888');
+            expect(scope.courseInstance['sites']).toEqual([{ external_id: 'https://x.y.z/888', site_id: '888' }]);
             expect(scope.courseInstance['xlist_status']).toEqual('N/A');
 
         });
@@ -1025,7 +1025,7 @@ describe('Unit testing PeopleController', function() {
             $httpBackend.expectGET(courseInstanceURL)
                         .respond(200, JSON.stringify(ci));
             $httpBackend.flush(1);
-            expect(scope.courseInstance).not.toBeDefined();
+            expect(scope.courseInstance).toEqual({});
         });
     });
     describe('showAddNewMemberResults', function() {

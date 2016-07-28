@@ -29,16 +29,19 @@
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/search.html',
-                controller: 'SearchController',
+                controller: 'SearchController'
             })
             .when('/details/:courseInstanceId', {
                 templateUrl: 'partials/details.html',
-                controller: 'DetailsController as dc',
-                //dependencies: ['directives/editable_field']
+                controller: 'DetailsController as dc'
+            })
+            .when('/sites/:courseInstanceId', {
+                templateUrl: 'partials/sites.html',
+                controller: 'SitesController as sc'
             })
             .when('/people/:courseInstanceId', {
                 templateUrl: 'partials/people.html',
-                controller: 'PeopleController',
+                controller: 'PeopleController'
             })
             .otherwise({
                 redirectTo: '/',
