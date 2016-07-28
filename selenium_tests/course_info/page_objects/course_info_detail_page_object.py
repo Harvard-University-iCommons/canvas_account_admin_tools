@@ -8,7 +8,8 @@ from selenium_tests.course_info.page_objects.course_info_base_page_object \
 
 
 class Locators(object):
-    PEOPLE_LINK = (By.ID, "people-link")
+    EDIT_FORM_BUTTON = (By.ID, "course-details-form-edit")
+    PEOPLE_LINK = (By.ID, "course-details-people-tab-id")
     MAIN_TAG = (By.CSS_SELECTOR, "main.course-info-details-page")
     RESET_FORM_BUTTON = (By.ID, "course-details-form-reset")
     SUBMIT_FORM_BUTTON = (By.ID, "course-details-form-submit")
@@ -45,24 +46,26 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         except NoSuchElementException:
             return False
 
-    def go_to_people_page(self):
-        self.find_element(*Locators.PEOPLE_LINK).click()
-
-    def reset_form(self):
-        self.find_element(*Locators.RESET_FORM_BUTTON).click()
-
     def verify_buttons_to_edit_page_are_present(self):
-        """Return true if both buttons are displayed"""
+        """Return true if the button appears on page"""
         try:
-            return (self.find_element(*Locators.RESET_FORM_BUTTON
-                                      ).is_displayed() and
-                    self.find_element(*Locators.SUBMIT_FORM_BUTTON
-                                      ).is_displayed())
+            return self.find_element(*Locators.EDIT_FORM_BUTTON).is_displayed()
         except NoSuchElementException:
             return False
 
+    def edit_form(self):
+        """Find and click on the Edit button"""
+        self.find_element(*Locators.EDIT_FORM_BUTTON).click()
+
+    def go_to_people_page(self):
+        self.find_element(*Locators.PEOPLE_LINK).click()
+
     def submit_form(self):
+        """Find and click on the submit button"""
         self.find_element(*Locators.SUBMIT_FORM_BUTTON).click()
+
+    def reset_form(self):
+        self.find_element(*Locators.RESET_FORM_BUTTON).click()
 
     def submit_was_successful(self):
         """ Returns true if the success message is shown after """
