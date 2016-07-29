@@ -326,7 +326,7 @@
                 var sites = ci.sites || [];
                 var siteIds =[];
                 sites.forEach(function (site) {
-                    site.site_id = site.external_id;
+                    site.site_id = site.external_id ? site.external_id : site.course_site_url;
                     if (site.site_id.indexOf('http') === 0) {
                         site.site_id = site.site_id.substr(site.site_id.lastIndexOf('/')+1);
                     }
