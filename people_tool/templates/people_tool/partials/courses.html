@@ -22,11 +22,11 @@
  <div ng-if='selectedPersonInfo.univ_id' class="row">
 
   <div class="col-md-12">
-      <div id="personInfoDT_wrapper" class="dataTables_wrapper">
+      <div id="personInfoDT_wrapper" class="dataTables_wrapper" width="100%">
 
         <table id="personInfoDT"
                class="table table-striped table-hover dataTable person-info-table"
-               role="grid" cellspacing="0">
+               role="grid" cellspacing="0" width="100%">
           <thead>
             <tr role="row">
                 <th tabindex="0" id="lname"  rowspan="1" colspan="1">Last Name</th>
@@ -61,10 +61,10 @@
 
 <div class="row add-top-margin" id="person-courses-container"
      ng-show="showCourseListDataTable">
-  <div class="col-sm-12" id="person-courses-inner-container">
+  <div class="col-sm-12" id="person-courses-inner-container" width="100%">
     <table datatable="" dt-options="dtOptions" dt-columns="dtColumns"
            dt-instance="dtInstance" class="table table-striped table-hover"
-           id="person-courses-datatable">
+           id="person-courses-datatable" width="100%">
     </table>
   </div>
 </div>
