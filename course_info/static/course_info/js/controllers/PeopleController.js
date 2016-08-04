@@ -1,10 +1,10 @@
-// TODO - split out add/remove into separate controllers?
 (function() {
     var app = angular.module('CourseInfo');
     app.controller('PeopleController', PeopleController);
 
-    function PeopleController($scope, $routeParams, courseInstances, $compile,
-                              djangoUrl, $http, $q, $log, $uibModal, angularDRF) {
+    function PeopleController($scope, angularDRF, $compile, courseInstances,
+                              djangoUrl, $http, $log, $q, $routeParams,
+                              $uibModal) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -286,7 +286,7 @@
             // return the filtered list
             return filteredResults;
         };
-
+        // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
             // If the short title is also [NULL], display [School] 'Untitled Course' [Term Display]
@@ -305,7 +305,7 @@
             // render functions.
             var courseInstance = {};
             if (ci) {
-                courseInstance['title']= $scope.getCourseDescription(ci);
+                courseInstance['title']= ci.title;
                 courseInstance['school'] = ci.course ?
                         ci.course.school_id.toUpperCase() : '';
                 courseInstance['term'] = ci.term ? ci.term.display_name : '';
@@ -326,13 +326,14 @@
                 var sites = ci.sites || [];
                 var siteIds =[];
                 sites.forEach(function (site) {
-                    site.site_id = site.external_id;
+                    site.site_id = site.external_id ? site.external_id : site.course_site_url;
                     if (site.site_id.indexOf('http') === 0) {
                         site.site_id = site.site_id.substr(site.site_id.lastIndexOf('/')+1);
                     }
                     siteIds.push(site.site_id);
                 });
-                courseInstance['sites']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
+                courseInstance['sites'] = sites;  // needed for sites tab
+                courseInstance['site_list']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
             }
             return courseInstance;
         };
@@ -555,7 +556,11 @@
                         //check if the right data was obtained before storing it
                         if (data.course_instance_id == id){
                             courseInstances.instances[data.course_instance_id] = data;
-                            $scope.courseInstance = $scope.getFormattedCourseInstance(data)
+                            // if people/members are fetched first, we don't
+                            // want to overwrite the members attribute of
+                            // $scope.courseInstance
+                            $.extend($scope.courseInstance,
+                                $scope.getFormattedCourseInstance(data));
                         }else{
                             $log.error(' CourseInstance record mismatch for id :'
                                 + id +',  fetched record for :' +data.id);
@@ -612,25 +617,26 @@
         $scope.clearMessages();  // initialize user-facing messages
         $scope.confirmRemoveModalInstance = null;
         $scope.courseInstanceId = $routeParams.courseInstanceId;
+        $scope.courseInstance = {};
         $scope.initialCourseMembersFetched = false;  // UI component visibility
 
         $scope.roles = [
             // NOTE - these may need to be updated based on the db values
-            {roleId: 0, roleName: 'Student'},
-            {roleId: 10, roleName: 'Guest'},
-            {roleId: 14, roleName: 'Shopper'},
-            {roleId: 9, roleName: 'Teacher'},
             {roleId: 1, roleName: 'Course Head'},
-            {roleId: 2, roleName: 'Faculty'},
-            {roleId: 12, roleName: 'Teaching Staff'},
-            {roleId: 5, roleName: 'TA'},
             {roleId: 11, roleName: 'Course Support Staff'},
             {roleId: 7, roleName: 'Designer'},
+            {roleId: 2, roleName: 'Faculty'},
+            {roleId: 10, roleName: 'Guest'},
             {roleId: 15, roleName: 'Observer'},
+            {roleId: 14, roleName: 'Shopper'},
+            {roleId: 0, roleName: 'Student'},
+            {roleId: 5, roleName: 'TA'},
+            {roleId: 9, roleName: 'Teacher'},
+            {roleId: 12, roleName: 'Teaching Staff'},
         ];
         $scope.operationInProgress = false;
         $scope.searchTerms = '';
-        $scope.selectedRole = $scope.roles[0];
+        $scope.selectedRole = $scope.roles[4];
         $scope.setCourseInstance($routeParams.courseInstanceId);
 
         // configure the alert datatable
@@ -663,6 +669,7 @@
                     dataSrc: 'data',
                     dataType: 'json'
                 }).done(function dataTableGetDone(data, textStatus, jqXHR) {
+                    $scope.courseInstance.members = data.count;
                     callback({
                         recordsTotal: data.count,
                         recordsFiltered: data.count,

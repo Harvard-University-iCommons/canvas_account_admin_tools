@@ -65,6 +65,7 @@
             cinfo['year'] = course.term ? course.term.academic_year : '';
             cinfo['term'] = course.term ? course.term.display_name : '';
             cinfo['term_code'] = course.term ? course.term.term_code : '';
+            cinfo['section'] = course.section ? course.section : '';
             cinfo['sites'] = course.sites || [];
             cinfo['sites'].forEach(function (site) {
                 site.site_id = site.external_id;
@@ -290,6 +291,10 @@
             {
                 data: 'code',
                 title: 'Course Code'
+            },
+            {
+                data: 'section',
+                title: 'Course Section'
             },
             {
                 data: 'cid',

@@ -46,5 +46,5 @@ def _get_schools_context(canvas_user_id):
                     'query': True,
                     'text': a['name'] + ' <span class="caret"></span>',
                 } for a in accounts]
-    schools.sort(key=itemgetter('name'))
+    schools = sorted(schools, key=lambda s: s['name'].lower())
     return json.dumps(schools)
