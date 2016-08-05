@@ -63,6 +63,16 @@ i.fa-trash-disabled {
     margin-bottom: 15px;
 }
 
+p.inside-alert-box-extra-top-padding {  /* for messages in alert boxes */
+    margin-top: 10px;
+}
+
+/* breaks dash-separated convention because ng-class wants object keys to
+   conform to javascript language standards */
+p.insideAlertBoxNoBottomPadding {  /* for messages in alert boxes */
+    margin-bottom: 0;
+}
+
 #privacyDropdown {
     padding: 1em;
     width: 30em;
