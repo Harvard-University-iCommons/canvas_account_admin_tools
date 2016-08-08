@@ -78,20 +78,27 @@
 
             var handlePostError = function(response) {
                 $scope.handleAjaxErrorResponse(response);
-                if ((((response||{}).data||{}).detail||'').indexOf(
-                            'Canvas API error details') != -1) {
+                var errorMessage = (((response||{}).data||{}).detail||'');
+                if (errorMessage.indexOf('Canvas API error details') != -1) {
                     // There was a partial error (we caught
                     // a Canvas API error). The user has been added to the
                     // coursemanager db, but could not be added to Canvas.
                     // In this case it's possible that the user will be added
                     // during the next Canvas sync. We let the user know about
                     // the partial failure and that it may correct itself.
-                    $scope.messages.warnings.push({
-                        type: 'partialFailure',
-                        failureDetail: response.data.detail,
-                        name: userName,
-                        searchTerm: searchTerm
-                    });
+                    var concludedMessage = 'Can\'t add an enrollment to a concluded course';
+                    var partialFailureType = null;
+                    if (errorMessage.indexOf(concludedMessage) != -1) {
+                        $scope.tracking.concludedCourseSuccesses++;
+                    } else {
+                        $scope.messages.warnings.push({
+                            type: partialFailureType,
+                            failureDetail: errorMessage,
+                            name: userName,
+                            searchTerm: searchTerm
+                        });
+                        $scope.tracking.failures++;
+                    }
                 }
                 else {
                     $scope.messages.warnings.push({
@@ -99,8 +106,8 @@
                         name: userName,
                         searchTerm: searchTerm
                     });
+                    $scope.tracking.failures++;
                 }
-                $scope.tracking.failures++;
                 return response;
             };
 
@@ -159,10 +166,12 @@
         $scope.clearMessages = function() {
             $scope.messages = {progress: null, success: null, warnings: []};
             $scope.tracking = {
+                concludedCourseSuccesses: 0,
                 failures: 0,
                 successes: 0,
                 total: 0,
                 totalFailures: 0,
+                totalSuccesses: 0
             };
             $scope.removeFailure = null;
         };
@@ -573,12 +582,14 @@
             /* Updates page with summary message and failure details after all
              add person operations are finished.
              */
-            // use 'totalFailures' to avoid stomping existing 'failures'
+            // use 'totalX's to avoid stomping existing 'X's
+            $scope.tracking.totalSuccesses = $scope.tracking.successes +
+                                             $scope.tracking.concludedCourseSuccesses;
             $scope.tracking.totalFailures = $scope.tracking.total -
-                                            $scope.tracking.successes;
+                                            $scope.tracking.totalSuccesses;
             // figure out the alert type (ie. the color) here
             var alertType = '';
-            if ($scope.tracking.successes == 0) {
+            if ($scope.tracking.totalSuccesses == 0) {
                 alertType = 'danger';
             }
             else if ($scope.tracking.totalFailures == 0) {
@@ -588,7 +599,10 @@
                 alertType = 'warning';
             }
             $scope.messages.success = {type: 'add', alertType: alertType};
-            if ($scope.tracking.successes) { $scope.dtInstance.reloadData(); }
+            // only reload if we expect to see immediate changes to enrollment
+            if ($scope.tracking.totalSuccesses) {
+                $scope.dtInstance.reloadData();
+            }
             $scope.operationInProgress = false;
         };
         $scope.updateProgressBar = function(text) {
@@ -601,7 +615,9 @@
                 $scope.messages.progress = text;
                 return;
             }
-            var completed = $scope.tracking.successes + $scope.tracking.failures ;
+            var completed = $scope.tracking.successes +
+                            $scope.tracking.concludedCourseSuccesses +
+                            $scope.tracking.failures ;
             if (completed < $scope.tracking.total) {
                 $scope.messages.progress = 'Adding ' + (completed + 1)
                     + ' of ' + $scope.tracking.total;

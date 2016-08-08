@@ -176,11 +176,19 @@
         <uib-alert ng-if="messages.success" type="{{messages.success.alertType}}"
                    id="alert-success">
           <span ng-if="messages.success.type == 'add'">
-            <ng-pluralize count="tracking.successes"
+            <ng-pluralize count="tracking.successes + tracking.concludedCourseSuccesses"
                           when="{'0': 'No people were added to the course.',
                                  'one': '1 person was added to the course.',
                                  'other': '{} people were added to the course.'}">
             </ng-pluralize>
+            <p ng-if="tracking.concludedCourseSuccesses"
+               class="inside-alert-box-extra-top-padding"
+               ng-class="{insideAlertBoxNoBottomPadding: !tracking.totalFailures}">
+              This course has been concluded and new users may not appear in
+              Canvas for up to 5 minutes. Concluded enrollments can be viewed in
+              "Prior Enrollments" by clicking the settings gear in the upper
+              right corner of the People page.
+            </p>
             <ng-pluralize count="tracking.totalFailures"
                           when="{'0': '',
                                  'one': '1 person could not be added.',
