@@ -4,6 +4,7 @@ urlpatterns = [
     url(r'^icommons_ui/', include('icommons_ui.urls')),
     url(r'^canvas_whitelist/', include('canvas_whitelist.urls', namespace="cwl")),
     url(r'^course_conclusion/', include('course_conclusion.urls', namespace='cc')),
+    url(r'^course_selection/', include('course_selection.urls', namespace="cs")),
     url(r'^isites_export/', include('isites_export_tool.urls', namespace="et")),
     url(r'^not_authorized/', 'icommons_ui.views.not_authorized', name="not_authorized"),
     url(r'^pin/', include('icommons_common.auth.urls', namespace="pin")),
