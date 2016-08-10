@@ -6,8 +6,7 @@ django-cached-authentication-middleware==0.2.1
 django-crispy-forms==1.5.2
 django-datatables-view==1.13.0
 django-redis-cache==1.5.3
-#git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.11#egg=django-icommons-common==1.11
--e ../django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.11#egg=django-icommons-common==1.11
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.9.11#egg=django-icommons-ui==0.9.11
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@v0.8.3#egg=canvas-python-sdk==0.8.3
 hiredis==0.2.0
