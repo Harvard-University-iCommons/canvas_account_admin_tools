@@ -39,7 +39,7 @@ SELENIUM_CONFIG = {
          'term': 'Spring',
          'title': 'Caribbean Poetics',
          'registrar_code_display': 'HDS 2430',
-         'school': 'Divinity School',
+         'school': 'Harvard Divinity School',
          'type': 'All courses',
          'year': '2016',
       },
@@ -54,7 +54,7 @@ SELENIUM_CONFIG = {
          'cid': '354962',  # Canvas course 3591
          'term': 'Spring',
          'title': 'HDS Spring 2016',
-         'school': 'Divinity School',
+         'school': 'Harvard Divinity School',
          'type': 'All courses',
          'year': '2016',
       },
