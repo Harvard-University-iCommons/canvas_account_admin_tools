@@ -18,7 +18,7 @@ LTI_PERMISSIONS_DATA = [
     ('people_tool', '*', 'Librarian', False),
     ('people_tool', '*', 'ObserverEnrollment', False),
     ('people_tool', '*', 'SchoolLiaison', False),
-    ('people_tool', '*', 'Shopper', False),
+    ('people_tool', '*', 'Prospective Enrollee', False),
     ('people_tool', '*', 'StudentEnrollment', False),
     ('people_tool', '*', 'TaEnrollment', False),
     ('people_tool', '*', 'TeacherEnrollment', False),

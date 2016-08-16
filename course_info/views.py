@@ -10,7 +10,8 @@ from lti_permissions.decorators import lti_permission_required
 from course_info.canvas import get_administered_school_accounts
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-
+from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
+from canvas_sdk.exceptions import CanvasAPIError
 logger = logging.getLogger(__name__)
 
 
@@ -25,6 +26,7 @@ def index(request):
     # to the lti launch's user.
     context = {
         'schools': _get_schools_context(canvas_user_id),
+        'canvas_roles': _get_canvas_roles(),
     }
     return render(request, 'course_info/index.html', context)
 
@@ -35,6 +37,27 @@ def index(request):
 @require_http_methods(['GET'])
 def partials(request, path):
     return render(request, 'course_info/partials/' + path, {})
+
+
+def _get_canvas_roles():
+    """
+    Get the list of canvas roles from the canvas root account ('self') and
+    create a list in the format the front end wants.
+    :return:
+    """
+    roles = []
+    try:
+        canvas_roles = canvas_api_helpers_roles.get_roles_for_account_id('self')
+        for role_id in canvas_roles:
+            if role_id in settings.ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST:
+                role = {'roleId': role_id,
+                        'roleName': canvas_roles[role_id]['label']}
+                roles.append(role)
+    except CanvasAPIError:
+        logger.exception("Failed to retrieve roles for the root account from Canvas API")
+    roles.sort(key=lambda x: x['roleName'])
+
+    return json.dumps(roles)
 
 
 def _get_schools_context(canvas_user_id):

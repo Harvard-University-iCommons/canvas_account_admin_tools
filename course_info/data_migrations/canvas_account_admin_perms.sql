@@ -13,7 +13,7 @@ INSERT INTO lti_permissions_ltipermission (permission, school_id, canvas_role, a
 	('account_admin_tools', '*', 'Librarian', FALSE),
 	('account_admin_tools', '*', 'ObserverEnrollment', FALSE),
 	('account_admin_tools', '*', 'SchoolLiaison', TRUE),
-	('account_admin_tools', '*', 'Shopper', FALSE),
+	('account_admin_tools', '*', 'Prospective Enrollee', FALSE),
 	('account_admin_tools', '*', 'StudentEnrollment', FALSE),
 	('account_admin_tools', '*', 'TaEnrollment', FALSE),
 	('account_admin_tools', '*', 'TeacherEnrollment', FALSE),
