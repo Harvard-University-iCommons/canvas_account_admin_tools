@@ -639,7 +639,11 @@
         Array.prototype.push.apply($scope.roles, $window.roles);
         $scope.operationInProgress = false;
         $scope.searchTerms = '';
-        $scope.selectedRole = $scope.roles[3];
+
+        $scope.selectedRole = $scope.roles.filter(function(role){
+            return role['roleName']=="Guest";
+        })[0];
+
         $scope.setCourseInstance($routeParams.courseInstanceId);
 
         // configure the alert datatable

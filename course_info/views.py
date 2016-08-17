@@ -11,6 +11,7 @@ from course_info.canvas import get_administered_school_accounts
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
+from icommons_common.models import UserRole
 from canvas_sdk.exceptions import CanvasAPIError
 logger = logging.getLogger(__name__)
 
@@ -48,9 +49,10 @@ def _get_canvas_roles():
     roles = []
     try:
         canvas_roles = canvas_api_helpers_roles.get_roles_for_account_id('self')
-        for role_id, role in canvas_roles.items():
-            if role_id in settings.ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST:
-                roles.append({'roleId': role_id,'roleName': role['label']})
+        user_roles = UserRole.objects.filter(pk__in=settings.ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST)
+        for role in user_roles:
+            label = canvas_roles[role.canvas_role_id]['label']
+            roles.append({'roleId': role.role_id,'roleName': label})
     except CanvasAPIError:
         logger.exception("Failed to retrieve roles for the root account from Canvas API")
     roles.sort(key=lambda x: x['roleName'])
