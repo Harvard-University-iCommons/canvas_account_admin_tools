@@ -8,7 +8,6 @@ INSERT INTO lti_permissions_ltipermission (permission, school_id, canvas_role, a
 	('account_admin_tools', '*', 'DesignerEnrollment', FALSE),
 	('account_admin_tools', '*', 'Faculty', FALSE),
 	('account_admin_tools', '*', 'Guest', FALSE),
-	('account_admin_tools', '*', 'Harvard-Viewer', FALSE),
 	('account_admin_tools', '*', 'Help Desk', FALSE),
 	('account_admin_tools', '*', 'Librarian', FALSE),
 	('account_admin_tools', '*', 'ObserverEnrollment', FALSE),
