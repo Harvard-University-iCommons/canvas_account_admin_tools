@@ -55,6 +55,9 @@ def _get_canvas_roles():
             roles.append({'roleId': role.role_id,'roleName': label})
     except CanvasAPIError:
         logger.exception("Failed to retrieve roles for the root account from Canvas API")
+    except:
+        logger.exception("Unhandled exception in _get_canvas_roles; aborting.")
+
     roles.sort(key=lambda x: x['roleName'])
 
     return json.dumps(roles)
