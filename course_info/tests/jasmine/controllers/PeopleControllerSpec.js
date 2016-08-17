@@ -47,6 +47,13 @@ describe('Unit testing PeopleController', function() {
             $window.globals = {
                 append_resource_link_id: function(url) { return url; },
             };
+            $window.roles = [{"roleId": 1, "roleName": "Account Admin"},
+                             {"roleId": 15, "roleName": "Account Observer"},
+                             {"roleId": 12, "roleName": "Course Head"},
+                             {"roleId": 9, "roleName": "Guest"},
+                             {"roleId": 7, "roleName": "Observer"},
+                             {"roleId": 11, "roleName": "Prospective Enrollee"},
+                             {"roleId": 5, "roleName": "TA"}];
         });
         scope = $rootScope.$new();
         $routeParams.courseInstanceId = courseInstanceId;
@@ -257,7 +264,7 @@ describe('Unit testing PeopleController', function() {
             var result = scope.addNewMember(newPerson, members);
             var postParams = {
                         user_id: '12345674',
-                        role_id: 10};
+                        role_id: 9};
             expect(scope.getProfileFullName).toHaveBeenCalledWith(newPerson[0]);
             expect(scope.addNewMemberToCourse).toHaveBeenCalledWith(postParams, 'Test New User', newPerson[1]);
             expect(result).toEqual({ result: 'success' });
@@ -978,7 +985,7 @@ describe('Unit testing PeopleController', function() {
         });
 
         it('should have a bunch of non-null variables set up', function() {
-            ['dtColumns', 'dtOptions', 'roles', 'operationInProgress',
+            ['dtColumns', 'dtOptions', 'operationInProgress',
                 'selectedRole'].forEach(function(scopeAttr) {
                 expect(scope[scopeAttr]).not.toBeUndefined();
             });

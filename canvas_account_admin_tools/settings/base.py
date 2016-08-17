@@ -267,4 +267,7 @@ PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 
-
+# in search courses, when you add a person to a course. This list
+# controls which roles show up in the drop down. The list contains
+# user role id's from the course manager database
+ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 7, 9, 10, 11, 12, 15]

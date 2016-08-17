@@ -4,7 +4,7 @@
 
     function PeopleController($scope, angularDRF, $compile, courseInstances,
                               djangoUrl, $http, $log, $q, $routeParams,
-                              $uibModal) {
+                              $uibModal, $window) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -87,12 +87,11 @@
                     // during the next Canvas sync. We let the user know about
                     // the partial failure and that it may correct itself.
                     var concludedMessage = 'Can\'t add an enrollment to a concluded course';
-                    var partialFailureType = null;
                     if (errorMessage.indexOf(concludedMessage) != -1) {
                         $scope.tracking.concludedCourseSuccesses++;
                     } else {
                         $scope.messages.warnings.push({
-                            type: partialFailureType,
+                            type: 'partialFailure',
                             failureDetail: errorMessage,
                             name: userName,
                             searchTerm: searchTerm
@@ -636,23 +635,15 @@
         $scope.courseInstance = {};
         $scope.initialCourseMembersFetched = false;  // UI component visibility
 
-        $scope.roles = [
-            // NOTE - these may need to be updated based on the db values
-            {roleId: 1, roleName: 'Course Head'},
-            {roleId: 11, roleName: 'Course Support Staff'},
-            {roleId: 7, roleName: 'Designer'},
-            {roleId: 2, roleName: 'Faculty'},
-            {roleId: 10, roleName: 'Guest'},
-            {roleId: 15, roleName: 'Observer'},
-            {roleId: 14, roleName: 'Shopper'},
-            {roleId: 0, roleName: 'Student'},
-            {roleId: 5, roleName: 'TA'},
-            {roleId: 9, roleName: 'Teacher'},
-            {roleId: 12, roleName: 'Teaching Staff'},
-        ];
+        $scope.roles = [];
+        Array.prototype.push.apply($scope.roles, $window.roles);
         $scope.operationInProgress = false;
         $scope.searchTerms = '';
-        $scope.selectedRole = $scope.roles[4];
+
+        $scope.selectedRole = $scope.roles.filter(function(role){
+            return role['roleName']=="Guest";
+        })[0];
+
         $scope.setCourseInstance($routeParams.courseInstanceId);
 
         // configure the alert datatable
