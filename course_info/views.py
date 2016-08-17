@@ -26,7 +26,7 @@ def index(request):
     # to the lti launch's user.
     context = {
         'schools': _get_schools_context(canvas_user_id),
-        'canvas_roles': _get_canvas_roles(),
+        'user_roles': _get_canvas_roles(),
     }
     return render(request, 'course_info/index.html', context)
 
@@ -48,11 +48,9 @@ def _get_canvas_roles():
     roles = []
     try:
         canvas_roles = canvas_api_helpers_roles.get_roles_for_account_id('self')
-        for role_id in canvas_roles:
+        for role_id, role in canvas_roles.items():
             if role_id in settings.ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST:
-                role = {'roleId': role_id,
-                        'roleName': canvas_roles[role_id]['label']}
-                roles.append(role)
+                roles.append({'roleId': role_id,'roleName': role['label']})
     except CanvasAPIError:
         logger.exception("Failed to retrieve roles for the root account from Canvas API")
     roles.sort(key=lambda x: x['roleName'])
