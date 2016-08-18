@@ -45,6 +45,7 @@
     <script>
       window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
       window.schoolOptions = {{ schools | safe }};
+      window.roles = {{ user_roles | safe }};
     </script>
     <title>Search Courses</title>
   </head>
