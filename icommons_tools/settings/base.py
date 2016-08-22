@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'term_tool',
     'qualtrics_taker_auth',
     'canvas_shopping',
+    'course_selection',
     'qualtrics_whitelist',
     'canvas_whitelist',
     'crispy_forms',
@@ -247,6 +248,11 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'propagate': False,
         },
+        'course_selection': {
+            'handlers': ['default'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
         'isites_export_tool': {
             'handlers': ['default'],
             'level': _DEFAULT_LOG_LEVEL,
@@ -346,6 +352,17 @@ TERM_TOOL = {
 CANVAS_SHOPPING = {
     'SHOPPER_ROLE': 'Shopper',
     'ROOT_ACCOUNT': '1',
+}
+
+COURSE_SELECTION = {
+    'sis_base_url': 'https://portal.my.harvard.edu/psp/hrvihprd/EMPLOYEE/EMPL/h/',
+    'sis_query_add_course_params': {
+        'tab': 'HU_CLASS_SEARCH',
+        'jsconfig': '{"OpenLightbox":true}'
+    },
+    'sis_query_search_params': {
+        'tab': 'HU_CLASS_SEARCH'
+    }
 }
 
 EXCLUDE_COURSES = {

@@ -19,16 +19,14 @@ class TermToolBaseTestCase(BaseSeleniumTestCase):
         super(TermToolBaseTestCase, cls).setUpClass()
         cls.USERNAME = settings.SELENIUM_CONFIG.get('selenium_username')
         cls.PASSWORD = settings.SELENIUM_CONFIG.get('selenium_password')
-        cls.TERM_TOOL_BASE_URL = settings.SELENIUM_CONFIG.get(
-            'project_base_url')
-        cls.TERM_TOOL_RELATIVE_URL = settings.SELENIUM_CONFIG.get(
-            'term_tool_relative_url')
-        cls.TOOL_URL = urljoin(cls.TERM_TOOL_BASE_URL,
-                               cls. TERM_TOOL_RELATIVE_URL)
+        cls.TERM_TOOL_URL = '{}{}'.format(
+            settings.SELENIUM_CONFIG['project_base_url'],
+            settings.SELENIUM_CONFIG['exclude_courses_relative_url']
+        )
 
         #  Login to Term Tool Index Page
         cls.term_tool_index_page = IndexPageObject(cls.driver)
-        cls.term_tool_index_page.get(cls.TOOL_URL)
+        cls.term_tool_index_page.get(cls.TERM_TOOL_URL)
         login_page = PinLoginPageObject(cls.driver)
         # TODO: check that the term_tool_index_page.is_loaded()
         if login_page.is_loaded():

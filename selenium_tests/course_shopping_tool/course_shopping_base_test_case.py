@@ -27,7 +27,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             'canvas_base_url')
         cls.shopping_url = '{}{}'.format(
             cls.canvas_base_dev_url, shopping_data['relative_url'])
-
+        
         if not (cls.username and cls.password):
             missing_required_var = 'shopping user credentials'
 
@@ -49,7 +49,7 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
             login_page = PinLoginPageObject(cls.driver)
             # Verify if we need to logon
             if login_page.is_loaded():
-                login_page.login_huid(cls.username, cls.password)
+                login_page.login_xid(cls.username, cls.password)
             else:
                 raise RuntimeError(
                     'Could not determine if canvas main page loaded as'
@@ -58,4 +58,4 @@ class CourseShoppingBaseTestCase(BaseSeleniumTestCase):
                 )
 
         # adding more time for the shopping banner to appear
-        cls.driver.implicitly_wait(30)
+        
