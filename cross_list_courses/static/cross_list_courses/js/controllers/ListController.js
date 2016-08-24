@@ -139,8 +139,9 @@
             $timeout(function() {
                 // notify UI to start/stop showing in-progress messaging
                 $scope.operationInProgress = newSetting;
+                var isOperationInProgress = (!!newSetting);  // cast to boolean
                 // enable/disable interactive data table elements
-                $scope.setDataTableInteraction(!newSetting);
+                $scope.setDataTableInteraction(!isOperationInProgress);
                 if (!newSetting) {  // when initial load is complete, show table
                     $scope.showDataTable = true;
                 }
@@ -239,6 +240,8 @@
                             'and try again.';
                     }
                     $scope.message = {alertType: 'danger', text: errorText};
+                    // datatable doesn't reload, so hide the progress bar
+                    $scope.setOperationInProgress(false);
                 });
         };
 
