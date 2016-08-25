@@ -20,6 +20,9 @@ TEST_USERS_WITH_ROLES_PATH = join(dirname(abspath(__file__)),
     'test_data', 'admin_console_roles.xlsx')
 TEST_USER_SEARCH_TERMS_PATH = join(dirname(abspath(__file__)),
     'test_data', 'add_people_search_terms.xlsx')
+PERMISSIONS_ROLES = join(dirname(abspath(__file__)), 'test_data',
+                         'permissions_roles_access.xlsx')
+
 
 
 class CourseInfoBaseTestCase(BaseSeleniumTestCase):
@@ -61,7 +64,7 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
             self.course_info_parent_page.get(self.TOOL_URL)
 
         # navigate to course info page
-        self.course_info_parent_page.select_course_info_link()
+        self.course_info_parent_page.select_search_courses_link()
 
         # check if page is loaded (which will also set the focus on the tool)
         self.assertTrue(self.search_page.is_loaded())
