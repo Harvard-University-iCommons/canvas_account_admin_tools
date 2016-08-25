@@ -11,11 +11,11 @@ class AddCrossListingTests(CrossListingBaseTestCase):
 
     @data(*get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
-    def test_add_cross_listing_pairing(self, test_case,
+    def test_add_cross_listing_pairing(self, unused_test_case_id,
                                        primary_cid,
                                        secondary_cid,
                                        expected_result,
-                                       expected_text):
+                                       expected_alert_text):
         """
         Jira requirement story: TLT-1314
         Selenium sub-task: TLT-2589.
@@ -23,32 +23,34 @@ class AddCrossListingTests(CrossListingBaseTestCase):
 
         This test adds a valid cross-list pairing to the cross-listing table
         """
+
+        if expected_result not in ['success', 'fail']:
+            raise ValueError(
+                'given_access column for user {} must be either \'success\' '
+                'or \'fail\''.format(expected_result))
+
+        # Removes cross-listed courses if it exists before testing add
+        try:
+            self.api.remove_xlisted_course(primary_cid, secondary_cid)
+        except RuntimeError as e:
+            if 'CanvasAPIError' in e.message and \
+                    'section is not cross-listed' in e.message:
+                # this is a known possibility with test cases that
+                # result in a partial success (e.g. the Canvas side failed)
+                pass
+            else:
+                raise e
+
         # This adds a pairing to cross-list table, clicks submit,
         # and confirm an alert box appears.
         self.assertTrue(self.main_page.add_cross_listing_pairing(primary_cid,
                                                                  secondary_cid))
+        #  Verifies expected alert text
+        #  (e.g. confirmation if successful, error message if unsuccessful)
+        self.assertTrue(
+            self.main_page.confirmation_contains_text(expected_alert_text))
 
         # Verify a successful cross-list add
         if expected_result == 'success':
-
-            # Removes cross-listed courses if it exists before testing add
-            self.api.remove_xlisted_course(primary_cid, secondary_cid)
-
-            #  Verifies successful add confirmation
-            self.assertTrue(
-                self.main_page.is_locator_text_present(expected_text))
-
             # Clean up and remove the cross-listed course when test is done
             self.api.remove_xlisted_course(primary_cid, secondary_cid)
-
-        #  Verify an unsuccessful cross-list
-        elif expected_result == 'fail':
-            #  Verifies successful add confirmation
-            self.assertTrue(
-                self.main_page.is_locator_text_present(expected_text))
-
-        else:
-            raise ValueError(
-                'given_access column for user {} must be either \'success\' '
-                'or \'fail\''.format(expected_result)
-            )
