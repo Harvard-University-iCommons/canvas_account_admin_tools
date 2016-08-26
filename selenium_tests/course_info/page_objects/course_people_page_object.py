@@ -3,8 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
-    import Locators as CourseInfoBasePageObjectLocators
-from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
 
 
@@ -29,6 +27,16 @@ class Locators(object):
         """ returns a locator for the delete person link for sis_user_id """
         return By.CSS_SELECTOR, "a[data-sisID='{}']".format(sis_user_id)
 
+    @classmethod
+    def COURSE_MEMBER_LIST_TD_CONTAINING(cls, lookup_text):
+        """
+        returns True if the lookup_text is found in the course member table.
+        Meant to be used in an execute_script() call; bypasses webdriver cache
+        in order to avoid stale element exceptions when used in a WebDriverWait
+        construction
+        """
+        return "return $('table[datatable] tbody td:contains(\"{}\")').length == 0".format(lookup_text)
+
 
 class CoursePeoplePageObject(CourseInfoBasePageObject):
     page_loaded_locator = Locators.ADD_PEOPLE_BUTTON
@@ -40,15 +48,15 @@ class CoursePeoplePageObject(CourseInfoBasePageObject):
             return True
         return False
 
-    def is_person_removed_from_list(self, lookup_text):
+    def is_person_removed_from_list(self, lookup_text, timeout=5):
         """
         verifies that a person is absent from the people list by name or
         user id
         """
         try:
-            WebDriverWait(self._driver, 60).until_not(lambda s: s.find_element(
-                *CourseInfoBasePageObjectLocators.TD_TEXT_XPATH(lookup_text)
-                ).is_displayed())
+            WebDriverWait(self._driver, timeout).until(
+                lambda s: s.execute_script(
+                    Locators.COURSE_MEMBER_LIST_TD_CONTAINING(lookup_text)))
         except TimeoutException:
             return False
         return True
