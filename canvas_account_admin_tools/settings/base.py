@@ -263,9 +263,17 @@ ICOMMONS_REST_API_HOST = SECURE_SETTINGS.get('icommons_rest_api_host', 'http://l
 ICOMMONS_REST_API_TOKEN = SECURE_SETTINGS.get('icommons_rest_api_token')
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
-PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
-PERMISSION_PEOPLE_TOOL = 'people_tool'
-PERMISSION_XLIST_TOOL = 'cross_listing'
+# TOOL_PERMISSIONS is used to map app names to SchoolPermission.permission names
+# to determine visibility of tools on dashboard and access to tool views/pages
+TOOL_PERMISSIONS = {
+    # NOTE: canvas_account_admin_tools permission name is shortened to
+    # account_admin_tools due to SchoolPermission.permission field max length
+    'canvas_account_admin_tools': 'account_admin_tools',  # dashboard
+    'conclude_courses': 'conclude_courses',  # external tool
+    'course_info': 'course_info',
+    'cross_list_courses': 'cross_list_courses',
+    'people_tool': 'people_tool',
+}
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains

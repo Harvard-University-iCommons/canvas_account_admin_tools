@@ -3,122 +3,141 @@
 {% load static %}
 
 {% block stylesheets %}
-<link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+<link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}"
+      rel="stylesheet" />
+{# todo: move this to icommons_common along with no tools available template #}
+{% if no_tools_allowed %}
+  {% if debug == True %}
+    <link rel="stylesheet/less" type="text/css"
+          href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" />
+  {% else %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}"
+          media="screen"/>
+  {% endif %}
+{% endif %}
 {% endblock stylesheets %}
 
 {% block content %}
 
-    <header>
-      <nav>
-        <h3>Admin Console</h3>
+<header>
+  <nav>
+    <h3>Admin Console</h3>
+  </nav>
+</header>
 
-      </nav>
-    </header>
+<main>
 
-    <div class="card card_color">
-      <a href="{% url 'course_info:index' %}" id="course-roster">
-        <div class="card-body">
-          <div class="card-header card-header_color5">
-          </div>
-          <div class="card-content card-content_normal">
-            <div class="card-content-width">
-              <div class="card-content-icon">
-                <i class="fa fa-search icon-size"></i>
-              </div>
-              <div class="card-content-data">
-                <h2 class="card-content-title ellipsis" title="Search Courses">
-                  <span class="content-link">
-                    Search Courses
-                  </span>
-                </h2>
-                <p title="Search Courses">
-                  Find courses in order to add people or edit course details
-                </p>
-              </div>
+{% if no_tools_allowed %}
+  {% include 'canvas_account_admin_tools/_no_tools_available.html' %}
+{% endif %}
+
+{% if allowed.course_info %}
+  <div class="card card_color">
+    <a href="{% url 'course_info:index' %}" id="course-info">
+      <div class="card-body">
+        <div class="card-header card-header_color5">
+        </div>
+        <div class="card-content card-content_normal">
+          <div class="card-content-width">
+            <div class="card-content-icon">
+              <i class="fa fa-search icon-size"></i>
+            </div>
+            <div class="card-content-data">
+              <h2 class="card-content-title ellipsis" title="Search Courses">
+                <span class="content-link">
+                  Search Courses
+                </span>
+              </h2>
+              <p title="Search Courses">
+                Find courses in order to add people or edit course details
+              </p>
             </div>
           </div>
         </div>
-      </a>
-    </div>
+      </div>
+    </a>
+  </div>
+{% endif %}
 
-
-    {% if people_tool_allowed %}
-        <div class="card card_color">
-          <a href="{% url 'people_tool:index' %}" id="course-roster">
-            <div class="card-body">
-              <div class="card-header card-header_color5">
-              </div>
-              <div class="card-content card-content_normal">
-                <div class="card-content-width">
-                  <div class="card-content-icon">
-                    <i class="fa fa-users icon-size"></i>
-                  </div>
-                  <div class="card-content-data">
-                    <h2 class="card-content-title ellipsis" title="Search People">
-                      <span class="content-link">
-                        Search People
-                      </span>
-                    </h2>
-                    <p title="Search People">Find users by name, HUID, XID or e-mail address</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
+{% if allowed.people_tool %}
+  <div class="card card_color">
+    <a href="{% url 'people_tool:index' %}" id="people-tool">
+      <div class="card-body">
+        <div class="card-header card-header_color5">
         </div>
-    {% endif %}
-
-    {% if cross_listing_allowed %}
-        <div class="card card_color">
-          <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
-            <div class="card-body">
-              <div class="card-header card-header_color5">
-              </div>
-              <div class="card-content card-content_normal">
-                <div class="card-content-width">
-                  <div class="card-content-icon">
-                    <i class="fa fa-link icon-size"></i>
-                  </div>
-                  <div class="card-content-data">
-                    <h2 class="card-content-title ellipsis" title="Cross-list Courses">
-                      <span class="content-link">
-                        Cross-list Courses
-                      </span>
-                    </h2>
-                    <p title="Cross-list Courses">Set up and modify cross-listings</p>
-                  </div>
-                </div>
-              </div>
+        <div class="card-content card-content_normal">
+          <div class="card-content-width">
+            <div class="card-content-icon">
+              <i class="fa fa-users icon-size"></i>
             </div>
-          </a>
-        </div>
-    {% endif %}
-
-    {% if conclude_courses %}
-        <div class="card card_color">
-          <a href="{{ conclude_courses }}" target="_blank" id="conclude-courses">
-            <div class="card-body">
-              <div class="card-header card-header_color5">
-              </div>
-              <div class="card-content card-content_normal">
-                <div class="card-content-width">
-                  <div class="card-content-icon">
-                    <i class="fa fa-hand-stop-o icon-size"></i>
-                  </div>
-                  <div class="card-content-data">
-                    <h2 class="card-content-title ellipsis" title="Conclude Courses">
-                      <span class="content-link">
-                        Conclude Courses
-                      </span>
-                    </h2>
-                    <p title="Conclude Courses">Set or modify a conclusion date for a specific course</p>
-                  </div>
-                </div>
-              </div>
+            <div class="card-content-data">
+              <h2 class="card-content-title ellipsis" title="Search People">
+                <span class="content-link">
+                  Search People
+                </span>
+              </h2>
+              <p title="Search People">Find users by name, HUID, XID or e-mail address</p>
             </div>
-          </a>
+          </div>
         </div>
-    {% endif %}
+      </div>
+    </a>
+  </div>
+{% endif %}
 
+{% if allowed.cross_list_courses %}
+  <div class="card card_color">
+    <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
+      <div class="card-body">
+        <div class="card-header card-header_color5">
+        </div>
+        <div class="card-content card-content_normal">
+          <div class="card-content-width">
+            <div class="card-content-icon">
+              <i class="fa fa-link icon-size"></i>
+            </div>
+            <div class="card-content-data">
+              <h2 class="card-content-title ellipsis" title="Cross-list Courses">
+                <span class="content-link">
+                  Cross-list Courses
+                </span>
+              </h2>
+              <p title="Cross-list Courses">Set up and modify cross-listings</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+{% endif %}
+
+{% if allowed.conclude_courses %}
+  <div class="card card_color">
+    <a href="{{ conclude_courses_url }}" target="_blank" id="conclude-courses">
+      <div class="card-body">
+        <div class="card-header card-header_color5">
+        </div>
+        <div class="card-content card-content_normal">
+          <div class="card-content-width">
+            <div class="card-content-icon">
+              <i class="fa fa-hand-stop-o icon-size"></i>
+            </div>
+            <div class="card-content-data">
+              <h2 class="card-content-title ellipsis" title="Conclude Courses">
+                <span class="content-link">
+                  Conclude Courses
+                </span>
+              </h2>
+              <p title="Conclude Courses">Set or modify a conclusion date for a specific course</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+{% endif %}
+
+</main>
 
 {% endblock content %}
