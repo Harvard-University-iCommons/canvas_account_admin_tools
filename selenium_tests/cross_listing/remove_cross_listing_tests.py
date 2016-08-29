@@ -10,11 +10,11 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
 
     @data(*get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
-    def test_remove_and_search_successful(self, unused_test_case_id,
+    def test_remove_and_search_successful(self, _unused_test_case_id,
                                           primary_cid,
                                           secondary_cid,
                                           expected_result,
-                                          unused_expected_alert_text):
+                                          _unused_expected_alert_text):
 
         """
         Jira requirement stories: TLT-1979 (remove), TLT-2670 (search
@@ -27,7 +27,7 @@ class RemoveCrossListingTests(CrossListingBaseTestCase):
         2.  Add cross-listing via rest api of the pairing that we
         want to test the 'remove' functionality on.
         3.  Find this new cross-listing using the search box
-        3.  Test remove by clicking on the cross-list remove icon via UI
+        4.  Test remove by clicking on the cross-list remove icon via UI
 
         """
         # Remove tests only apply those those cases where there is an expected

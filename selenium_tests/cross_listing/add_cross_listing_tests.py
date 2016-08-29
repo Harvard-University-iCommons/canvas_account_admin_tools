@@ -11,7 +11,7 @@ class AddCrossListingTests(CrossListingBaseTestCase):
 
     @data(*get_xl_data(TEST_DATA_CROSS_LISTING_MAPPINGS))
     @unpack
-    def test_add_cross_listing_pairing(self, unused_test_case_id,
+    def test_add_cross_listing_pairing(self, _unused_test_case_id,
                                        primary_cid,
                                        secondary_cid,
                                        expected_result,
