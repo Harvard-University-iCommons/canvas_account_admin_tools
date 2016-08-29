@@ -7,17 +7,33 @@ describe('Unit testing ListController', function () {
         '/angular/reverse/?djng_url_name=icommons_rest_api_proxy&djng_url_args' +
         '=api%2Fcourse%2Fv2%2Fxlist_maps%2F';
 
+    /* Helpers */
 
-    function clearInitialxlistFetch() {
-        // ignore the initial template fetch
+    function clearTemplateFetch() {
         $httpBackend.expectGET("partials/list.html").respond(200, '');
         $httpBackend.flush(1);
     }
-
+    function runTimeout() {
+        // use this when logic is wrapped in a timeout so it will be kicked off
+        // (immediately) in the next digest cycle
+        $timeout.flush();
+        $timeout.verifyNoPendingTasks();
+    }
     function setupController() {
         controller = $controller('ListController', {$scope: scope});
-        clearInitialxlistFetch();
+        // initial call to search() interacts with the dtInstance, so mock it
+        // right away for all tests
+        scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
+        // ignore the initial template loading
+        clearTemplateFetch();
+        runTimeout();  // so that initial search() is processed
+        // emulate a successful datatable reloadData()
+        // todo: we should probably implement progress tracking as a queue
+        // so it's easier to track complex, overlapping calls to backend
+        scope.operationInProgress = false;
     }
+
+    /* Setup, teardown, sanity checks */
 
     // set up the test environment
     beforeEach(function () {
@@ -51,13 +67,12 @@ describe('Unit testing ListController', function () {
         scope = $rootScope.$new();
         setupController();
     });
-
+    // sanity checks
     afterEach(function () {
         // sanity checks to make sure no http calls are still pending
         $httpBackend.verifyNoOutstandingExpectation();
         $httpBackend.verifyNoOutstandingRequest();
     });
-
     // DI sanity check
     it('should inject the providers we requested', function () {
         [$controller, $rootScope, $timeout, $document, $window, $compile,
@@ -66,6 +81,8 @@ describe('Unit testing ListController', function () {
             expect(thing).not.toBeNull();
         });
     });
+
+    /* Main test methods */
 
     describe('confirmRemove', function() {
         var xlistMap = {
@@ -217,10 +234,10 @@ describe('Unit testing ListController', function () {
 
         beforeEach(function () {
             deleteCrosslistingDeferred = $q.defer();
-            scope.dtInstance = jasmine.createSpyObj('dtInstance', ['reloadData']);
             spyOn(scope, 'deleteCrosslisting').and
                 .returnValue(deleteCrosslistingDeferred.promise);
             spyOn(scope, 'handleAjaxErrorResponse');
+            spyOn(scope, 'setOperationInProgress');
         });
 
         it('calls deleteCrosslisting with the correct id', function() {
@@ -228,36 +245,85 @@ describe('Unit testing ListController', function () {
             expect(scope.deleteCrosslisting).toHaveBeenCalledWith(1);
         });
 
-        it('shows failure message and cleans up on failure', function() {
+        it('shows failure message and reloads even on failure', function() {
             scope.removeCrosslisting(1, 1, 2);
 
-            expect(scope.operationInProgress).toBe('remove');
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith('remove');
             expect(scope.message).toBe(null);
 
             deleteCrosslistingDeferred.reject('failure!');
             scope.$digest();
 
-            expect(scope.operationInProgress).toBeNull();
+            // cleanup performed dtInstance.reloadData()
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+
             expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
             expect(scope.message.alertType).toBe('danger');
         });
 
-        it('shows success message and cleans up on success', function() {
+        it('shows success message and reloads on success', function() {
             scope.removeCrosslisting(1, 1, 2);
 
-            expect(scope.operationInProgress).toBe('remove');
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith('remove');
             expect(scope.message).toBe(null);
 
             deleteCrosslistingDeferred.resolve('success!');
             scope.$digest();
 
-            expect(scope.operationInProgress).toBeNull();
+            // cleanup performed dtInstance.reloadData()
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+
             expect(scope.handleAjaxErrorResponse).not.toHaveBeenCalled();
             expect(scope.message.alertType).toBe('success');
         });
 
+    });
+
+    describe('search', function() {
+        // the actual search params are handled elsewhere on the scope,
+        // and included in the query params during the datatable reloadData()
+        // so not tested here
+        beforeEach(function () {
+            spyOn(scope, 'clearMessages');
+            spyOn(scope, 'setOperationInProgress');
+            expect(scope.operationInProgress).toBe(false);
+            // reloadData was already called by search() when controller was
+            // initialized, so reset it to track this new invocation of search()
+            scope.dtInstance.reloadData.calls.reset();
+            scope.search();
+        });
+        it('kicks off datatable reload and notes operation in progress', function() {
+            expect(scope.clearMessages).toHaveBeenCalled();
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith('search');
+            runTimeout();
+            expect(scope.dtInstance.reloadData).toHaveBeenCalled();
+        });
+    });
+
+    describe('setOperationInProgress', function() {
+        beforeEach(function () {
+            expect(scope.operationInProgress).toBe(false);
+            spyOn(scope, 'setDataTableInteraction');
+        });
+        it('turns off data table and notes operation in progress when ' +
+                'set to a truthy value', function() {
+            scope.setOperationInProgress('doSomething');
+            runTimeout();
+            expect(scope.operationInProgress).toBe('doSomething');
+            expect(scope.setDataTableInteraction).toHaveBeenCalledWith(false);
+        });
+
+        it('turns on data table and notes operation not in progress when ' +
+                'set to a falsy value', function() {
+            scope.setOperationInProgress('');
+            runTimeout();
+            expect(scope.operationInProgress).toBe('');
+            expect(scope.setDataTableInteraction).toHaveBeenCalledWith(true);
+        });
+    });
+
+    xdescribe('setDataTableInteraction', function() {
+        // this is heavily DOM-dependent, so skipping for now
     });
 
     describe('submitAddCrosslisting', function() {
@@ -271,41 +337,46 @@ describe('Unit testing ListController', function () {
             spyOn(scope, 'postNewCrosslisting').and
                 .returnValue(postNewCrosslistingDeferred.promise);
             spyOn(scope, 'handleAjaxErrorResponse');
+            spyOn(scope, 'setOperationInProgress');
             scope.rawFormInput.primary = primary;
             scope.rawFormInput.secondary = secondary;
 
             scope.submitAddCrosslisting();
 
-            expect(scope.operationInProgress).toBe('add');
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith('add');
             expect(scope.message).toBe(null);
         });
 
-        it('should make sure the postNewCrosslisting is called with the correct values', function(){
+        it('should make sure the postNewCrosslisting is called with the ' +
+           'correct values', function(){
             expect(scope.postNewCrosslisting)
                 .toHaveBeenCalledWith(primary, secondary);
         });
 
-        it('shows correct scope.message on success', function(){
+        it('shows correct scope.message on success and reloads datatable',
+           function(){
             postNewCrosslistingDeferred.resolve('success!');
             scope.$digest();
 
-            expect(scope.operationInProgress).toBeNull();
             expect(scope.dtInstance.reloadData).toHaveBeenCalled();
             expect(scope.handleAjaxErrorResponse).not.toHaveBeenCalled();
             expect(scope.message.alertType).toBe('success');
         });
 
-        it('shows correct scope.message on failure', function(){
+        it('shows correct scope.message on failure and cleans up without ' +
+           'reloading datatable', function(){
             postNewCrosslistingDeferred.reject('failure!');
             scope.$digest();
 
-            expect(scope.operationInProgress).toBeNull();
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith(false);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
             expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
             expect(scope.message.alertType).toBe('danger');
         });
 
-        it('shows something friendlier than the default DRF error when already cross-listed', function(){
+        it('shows something friendlier than the default DRF error when ' +
+           'already cross-listed, and cleans up without reloading datatable',
+           function(){
             var alreadyXlistedResponse = {
                 data: {non_field_errors:['unique set']},
                 status: 400
@@ -314,7 +385,7 @@ describe('Unit testing ListController', function () {
             postNewCrosslistingDeferred.reject(alreadyXlistedResponse);
             scope.$digest();
 
-            expect(scope.operationInProgress).toBeNull();
+            expect(scope.setOperationInProgress).toHaveBeenCalledWith(false);
             expect(scope.dtInstance.reloadData).not.toHaveBeenCalled();
             expect(scope.handleAjaxErrorResponse).toHaveBeenCalled();
             expect(scope.message.alertType).toBe('danger');
