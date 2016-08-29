@@ -1,7 +1,5 @@
 from os.path import abspath, dirname, join
-from urlparse import urljoin
 
-from selenium_common.base_test_case import BaseSeleniumTestCase
 from selenium_tests.canvas_account_admin_tools_base_test_case \
     import AccountAdminBaseTestCase
 from selenium_tests.cross_listing.page_objects.cross_listing_main_page \
@@ -9,6 +7,9 @@ from selenium_tests.cross_listing.page_objects.cross_listing_main_page \
 
 TEST_DATA_CROSS_LISTING_MAPPINGS = join(dirname(abspath(__file__)),
     'test_data', 'cross_listing_mappings.xlsx')
+
+PERMISSIONS_ROLES = join(dirname(abspath(__file__)), 'test_data',
+                         'permissions_roles_access.xlsx')
 
 
 class CrossListingBaseTestCase(AccountAdminBaseTestCase):
