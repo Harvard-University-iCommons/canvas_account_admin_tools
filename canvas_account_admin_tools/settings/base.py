@@ -265,15 +265,15 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
 # TOOL_PERMISSIONS is used to map app names to SchoolPermission.permission names
 # to determine visibility of tools on dashboard and access to tool views/pages
-TOOL_PERMISSIONS = {
+TOOL_PERMISSIONS = (
     # NOTE: canvas_account_admin_tools permission name is shortened to
     # account_admin_tools due to SchoolPermission.permission field max length
-    'canvas_account_admin_tools': 'account_admin_tools',  # dashboard
-    'conclude_courses': 'conclude_courses',  # external tool
-    'course_info': 'course_info',
-    'cross_list_courses': 'cross_list_courses',
-    'people_tool': 'people_tool',
-}
+    'account_admin_tools',  # dashboard
+    'conclude_courses',  # external tool
+    'course_info',
+    'cross_listing',  # cross_list_courses app (name difference is historical)
+    'people_tool',
+)
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains

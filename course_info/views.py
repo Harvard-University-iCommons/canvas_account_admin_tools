@@ -13,11 +13,10 @@ from icommons_common.models import UserRole
 from lti_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
-PERMISSIONS = settings.TOOL_PERMISSIONS
 
 
 @login_required
-@lti_permission_required(PERMISSIONS['course_info'])
+@lti_permission_required('course_info')
 @require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
@@ -32,7 +31,7 @@ def index(request):
 
 
 @login_required
-@lti_permission_required(PERMISSIONS['course_info'])
+@lti_permission_required('course_info')
 @require_http_methods(['GET'])
 def partials(request, path):
     return render(request, 'course_info/partials/' + path, {})

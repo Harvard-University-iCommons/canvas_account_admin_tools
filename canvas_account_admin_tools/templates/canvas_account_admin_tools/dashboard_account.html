@@ -5,16 +5,9 @@
 {% block stylesheets %}
 <link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}"
       rel="stylesheet" />
-{# todo: move this to icommons_common along with no tools available template #}
 {% if no_tools_allowed %}
-  {% if debug == True %}
-    <link rel="stylesheet/less" type="text/css"
-          href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" />
-  {% else %}
-    <link rel="stylesheet" type="text/css"
-          href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}"
-          media="screen"/>
-  {% endif %}
+    <link rel="stylesheet" type="text/css" media="screen"
+          href="{% static "lti-css/errors.css" %}" />
 {% endif %}
 {% endblock stylesheets %}
 
@@ -29,7 +22,7 @@
 <main>
 
 {% if no_tools_allowed %}
-  {% include 'canvas_account_admin_tools/_no_tools_available.html' %}
+  {% include 'icommons_ui/_custom_error.html' %}
 {% endif %}
 
 {% if allowed.course_info %}
@@ -86,7 +79,7 @@
   </div>
 {% endif %}
 
-{% if allowed.cross_list_courses %}
+{% if allowed.cross_listing %}
   <div class="card card_color">
     <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
       <div class="card-body">

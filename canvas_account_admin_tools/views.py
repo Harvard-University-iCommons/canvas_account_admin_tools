@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import logging
 import os
@@ -17,7 +19,6 @@ from lti_permissions.decorators import (
     lti_permission_required_check)
 
 logger = logging.getLogger(__name__)
-PERMISSIONS = settings.TOOL_PERMISSIONS
 
 
 @require_http_methods(['GET'])
@@ -55,27 +56,38 @@ def lti_launch(request):
 
 
 @login_required
-@lti_permission_required(PERMISSIONS['canvas_account_admin_tools'])
+@lti_permission_required('account_admin_tools')
 @require_http_methods(['GET'])
 def dashboard_account(request):
     tools = ['conclude_courses',
              'course_info',
-             'cross_list_courses',
+             'cross_listing',
              'people_tool']
 
     # Verify current user permissions to see the apps on the dashboard
-    allowed = {tool: lti_permission_required_check(request, PERMISSIONS[tool])
+    allowed = {tool: lti_permission_required_check(request, tool)
                for tool in tools}
     no_tools_allowed = not any(allowed.values())
 
-    return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
+    template_vars = {
         'allowed': allowed,
         'conclude_courses_url': settings.CONCLUDE_COURSES_URL,
-        'no_tools_allowed': no_tools_allowed})
+        'no_tools_allowed': no_tools_allowed}
+
+    if no_tools_allowed:
+        template_vars['custom_error_title'] = u'Not available'
+        template_vars['custom_error_message'] = \
+            u"You do not currently have access to any of the tools available " \
+            u"in Admin Console. If you think you should have access, please " \
+            u"use the ‘Help’ link in the bottom left corner of the screen to " \
+            u"contact Canvas support from Harvard."
+
+    return render(request,
+        'canvas_account_admin_tools/dashboard_account.html', template_vars)
 
 
 @login_required
-@lti_permission_required(PERMISSIONS['canvas_account_admin_tools'])
+@lti_permission_required('account_admin_tools')
 def icommons_rest_api_proxy(request, path):
     request_args = {
         'headers': {
