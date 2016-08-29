@@ -4,6 +4,7 @@ This page models the main (landing) page of the Cross Listing Tool
 
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium_tests.cross_listing.page_objects.cross_listing_base_page_object\
@@ -16,6 +17,8 @@ class Locators(object):
     DATA_TABLE = (By.ID, 'DataTables_Table_0_wrapper')
     HEADING_ELEMENT = (By.XPATH, '//h3[contains(.,"Cross Listing")]')
     PRIMARY_CID_ADD_FIELD = (By.ID, 'primary-course')
+    SEARCH_FIELD = (By.ID, 'search-query-string')
+    SEARCH_BUTTON = (By.ID, 'search-submit-button')
     SECONDARY_CID_ADD_FIELD = (By.ID, 'secondary-course')
     SUBMIT_BUTTON = (By.ID, 'submit-new-cross-listing-btn')
 
@@ -35,10 +38,18 @@ class Locators(object):
 class MainPageObject(CrossListingBasePageObject):
     page_loaded_locator = Locators.HEADING_ELEMENT
 
+    # todo: consider moving into the BasePageObject, with override flexibility
+    def __init__(self, driver):
+        super(MainPageObject, self).__init__(driver)
+        self.wait = WebDriverWait(driver, 60)
+
     def add_cross_listing_pairing(self, primary_cid, secondary_cid):
         """Add two cross listed ID to be paired in cross-listing tool
         and confirms that an alert box returns after add.
         """
+
+        if not self.form_input_available():
+            return False
 
         # Fills in the primary CID for cross-listing
         primary_cid_field = self.find_element(*Locators.PRIMARY_CID_ADD_FIELD)
@@ -53,7 +64,7 @@ class MainPageObject(CrossListingBasePageObject):
         self.find_element(*Locators.SUBMIT_BUTTON).click()
 
         try:
-            WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+            self.wait.until(lambda s: s.find_element(
                 *Locators.CONFIRMATION_ALERT).is_displayed())
         except TimeoutException:
             return False
@@ -67,18 +78,30 @@ class MainPageObject(CrossListingBasePageObject):
                 data_xlist_map_id)).click()
         self.find_element(*Locators.DELETE_MODAL_CONFIRM).click()
 
-    def is_locator_text_present(self, expected_text):
+    def confirmation_contains_text(self, expected_text):
         """
-        Check that the locator text appears in the confirmation text box
+        Check that the expected text appears in the confirmation text box
         """
         try:
-            WebDriverWait(self._driver, 60).until(lambda s: s.find_element(
+            self.wait.until(lambda s: s.find_element(
                 *Locators.CONFIRMATION_ALERT).is_displayed())
             self.find_element(*Locators.ERROR_TEXT_LOCATOR(expected_text))
         except NoSuchElementException:
             return False
         else:
             return True
+
+    def form_input_available(self):
+        """
+        if datatable is still loading, the primary, secondary, and search form
+        fields are disabled; wait until they are available for user input
+        """
+        try:
+            self.wait.until(EC.element_to_be_clickable(
+                Locators.PRIMARY_CID_ADD_FIELD))
+        except TimeoutException:
+            return False  # forms were never clickable after a long wait
+        return True  # forms are now available
 
     def get_confirmation_text(self):
         """
@@ -87,3 +110,19 @@ class MainPageObject(CrossListingBasePageObject):
         alert = self.find_element(*Locators.CONFIRMATION_ALERT)
         confirmation_text = alert.text.strip()
         return confirmation_text
+
+    def search(self, query_text):
+        """
+        Uses the search box to find a specific (set of) cross-listing map(s)
+        :param query_text: string to search for using cross-listing search form
+        :return: True if search was successful, False if error or datatable
+                 never reloaded
+        """
+
+        if not self.form_input_available():
+            return False
+
+        self.find_element(*Locators.SEARCH_FIELD).send_keys(query_text)
+        self.find_element(*Locators.SEARCH_BUTTON).click()
+
+        return self.form_input_available()  # True once datatable reloads
