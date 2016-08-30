@@ -59,14 +59,15 @@ def lti_launch(request):
 @lti_permission_required('account_admin_tools')
 @require_http_methods(['GET'])
 def dashboard_account(request):
-    tools = ['conclude_courses',
-             'course_info',
-             'cross_listing',
-             'people_tool']
+    tool_access_permission_names = [
+        'conclude_courses',
+        'course_info',
+        'cross_listing',
+        'people_tool']
 
     # Verify current user permissions to see the apps on the dashboard
     allowed = {tool: lti_permission_required_check(request, tool)
-               for tool in tools}
+               for tool in tool_access_permission_names}
     no_tools_allowed = not any(allowed.values())
 
     template_vars = {
