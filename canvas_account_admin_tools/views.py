@@ -78,9 +78,8 @@ def dashboard_account(request):
         template_vars['custom_error_title'] = u'Not available'
         template_vars['custom_error_message'] = \
             u"You do not currently have access to any of the tools available " \
-            u"in Admin Console. If you think you should have access, please " \
-            u"use the ‘Help’ link in the bottom left corner of the screen to " \
-            u"contact Canvas support from Harvard."
+            u"in Manage Course. If you think you should have access, please " \
+            u"use \"Help\" to contact Canvas support from Harvard."
 
     return render(request,
         'canvas_account_admin_tools/dashboard_account.html', template_vars)
