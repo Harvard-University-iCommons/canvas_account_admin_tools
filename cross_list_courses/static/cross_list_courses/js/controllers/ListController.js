@@ -7,14 +7,19 @@
 
     function ListController($scope, $http, $timeout, $document, $window,
                             $compile, djangoUrl, $log, $q, $uibModal) {
+        $scope.datatableInteractiveElementTabIndexes = [];
         // expected $scope.message format:
         //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         // operationInProgress can be 'add' or 'remove' -- the distinction is
         // made so that the submit button for the add doesn't show a spinning
         // progress icon while the modal is processing a remove request
-        $scope.operationInProgress = null;
+        $scope.operationInProgress = false;
+        $scope.queryString = '';
         $scope.rawFormInput = {primary: '', secondary: ''};
+        // the datatable emptytable message can be deceiving on first load, so
+        // do not show datatable until data loaded
+        $scope.showDataTable = false;
 
         $scope.cleanCourseInstanceInput = function (courseInstanceString) {
             return courseInstanceString.trim();
@@ -92,8 +97,14 @@
                 secondary_course_instance: secondary
             });
         };
+        $scope.queryStringInvalid = function() {
+            // placeholder for future validation if required; for now, allow
+            // zero-length strings (so that search results can be 'reset')
+            return false;
+        };
         $scope.removeCrosslisting = function(xlistMapId, primary, secondary) {
-            $scope.operationInProgress = 'remove';
+            $scope.clearMessages();
+            $scope.setOperationInProgress('remove');
 
             var promise = $scope.deleteCrosslisting(xlistMapId)
                 .then(function deleteSucceeded(response) {
@@ -110,14 +121,88 @@
                 }).finally(function cleanupAfterDelete() {
                     // always reload, in case the failure was a 404
                     $scope.dtInstance.reloadData();
-                    $scope.operationInProgress = null;
                 });
 
             return promise;
         };
-        $scope.submitAddCrosslisting = function () {
+        $scope.search = function() {
             $scope.clearMessages();
-            $scope.operationInProgress = 'add';
+            $scope.setOperationInProgress('search');
+            // Call within timeout to prevent
+            // https://docs.angularjs.org/error/$rootScope/inprog?p0=$apply
+            $timeout(function () {
+                $scope.dtInstance.reloadData();
+            }, 0);
+        };
+        $scope.setOperationInProgress = function(newSetting) {
+            // disable datatable and show progress bar if newSetting is truthy
+            $timeout(function() {
+                // notify UI to start/stop showing in-progress messaging
+                $scope.operationInProgress = newSetting;
+                var isOperationInProgress = (!!newSetting);  // cast to boolean
+                // enable/disable interactive data table elements
+                $scope.setDataTableInteraction(!isOperationInProgress);
+                if (!newSetting) {  // when initial load is complete, show table
+                    $scope.showDataTable = true;
+                }
+            }, 0);
+        };
+        $scope.setDataTableInteraction = function(toggle) {
+            // enable/disable mouse and keyboard events, including pointer style
+            // changes, for all page length and sorting headers and pagination
+            // buttons; assumes all columns are sortable by default and that
+            // page length is editable by default (otherwise need to store
+            // element state before disabling)
+
+            // all datatable input elements (<select> is for page size dropdown)
+            var $inputs = $('#results-datatable_length select');
+
+            // all clickable datatable link-style elements
+            // (headers, page navigation)
+            var $links = $('#results-datatable th, #results-datatable-container a.paginate_button');
+
+            // all row-specific interactive elements
+            var $rowControls = $('#results-datatable td a');
+
+            $.merge($links, $rowControls);
+
+            // update styling for link-style elements
+            $links.toggleClass('inert', !toggle);
+
+            if (toggle) {
+                // restore tabindex state to enable keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $links[i].setAttribute('tabindex',
+                        $scope.datatableInteractiveElementTabIndexes[i]);
+                }
+                $scope.datatableInteractiveElementTabIndexes = [];
+                $inputs.removeAttr('disabled');
+            } else {
+                // save tabindex state before disabling keyboard interaction
+                for (i=0; i < $links.length; i++) {
+                    $scope.datatableInteractiveElementTabIndexes.push(
+                        $links[i].getAttribute('tabindex'));
+                }
+
+                // disable keyboard access
+                $links.attr('tabindex', -1);
+                $inputs.attr('disabled', '');
+
+                // if user has tabbed to interactive element and activated it
+                // by hitting enter, this prevents it from being activated again
+                // by the keyboard while operationInProgress
+                var $activeElement = $(document.activeElement);
+                if ($links.index($activeElement) > -1 ||
+                    $inputs.index($activeElement) > -1) {
+                    $('#search-query-string').focus();
+                }
+            }
+        };
+        $scope.submitAddCrosslisting = function () {
+            // note that this does not currently reset the query terms, so if
+            // there is a filter on the table it will remain in place
+            $scope.clearMessages();
+            $scope.setOperationInProgress('add');
 
             var primary = $scope.cleanCourseInstanceInput(
                 $scope.rawFormInput.primary);
@@ -155,9 +240,9 @@
                             'and try again.';
                     }
                     $scope.message = {alertType: 'danger', text: errorText};
-                }).finally(function cleanupAfterPost() {
-                    $scope.operationInProgress = null;
-            });
+                    // datatable doesn't reload, so hide the progress bar
+                    $scope.setOperationInProgress(false);
+                });
         };
 
         /**
@@ -184,17 +269,25 @@
 
         $scope.dtOptions = {
             ajax: function (data, callback, settings) {
+                // datatable interaction (e.g. page size or page number) kicks
+                // off the reload; operationInProgress needs to be manually set
+                // to show the progress bar
+                if (!$scope.operationInProgress) {
+                    $scope.setOperationInProgress('datatableReload');
+                }
+
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                     ['api/course/v2/xlist_maps/']);
 
                 var queryParams = {
-                    offset: data.start,
-                    limit: data.length,
-                    ordering: '-primary_course_instance__term__calendar_year,primary_course_instance__term__school_id',
                     include: 'course_instance',
+                    limit: data.length,
+                    offset: data.start,
+                    ordering: '-primary_course_instance__term__calendar_year,primary_course_instance__term__school_id',
+                    search: $scope.queryString.trim()
                 };
 
-                $.ajax({
+                var dtAjaxRequestPending = $.ajax({
                     url: url,
                     method: 'GET',
                     data: queryParams,
@@ -216,13 +309,20 @@
                             data: [],
                         });
                     },
+                    complete: function (jqXHR, status) {
+                        if ($scope.operationInProgress != '') {
+                            $scope.setOperationInProgress(false);
+                        }
+                    }
                 });
+                return dtAjaxRequestPending;
             },
             createdRow: function( row, data, dataIndex ) {
                 // to use angular directives within the rendered datatable,
                 // we have to compile those elements ourselves.  joy.
                 $compile(angular.element(row).contents())($scope);
             },
+            deferLoading: 0,  // wait until an explicit interaction loads data
             drawCallback: function() {
                 $('[data-toggle="tooltip"]').tooltip();
             },
@@ -239,11 +339,10 @@
             lengthMenu: [10, 25, 50, 100],
             // yes, this is a deprecated param.  yes, it's still required.
             // see https://datatables.net/forums/discussion/27287/using-an-ajax-custom-get-function-don-t-forget-to-set-sajaxdataprop
+            ordering: false,
             sAjaxDataProp: 'data',
             searching: false,
             serverSide: true,
-            processing: true,
-            ordering: false,
         };
 
         $scope.dtColumns = [
@@ -272,5 +371,12 @@
             },
         ];
 
+        // initialize by focusing on first input field
+        $('#primary-course').focus();
+        // initial load: using deferLoading and hiding using ng-show means the
+        // datatable can expand to the full width of its container (allowing the
+        // datatable to load its default result set automatically on
+        // initialization means it looks compressed on wider screens)
+        $scope.search();
     }
 })();
