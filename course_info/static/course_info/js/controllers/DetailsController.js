@@ -2,8 +2,7 @@
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController);
 
-    // todo: remove unused providers
-    function DetailsController($scope, courseInstances, djangoUrl, $http, $log,
+    function DetailsController(courseInstances, djangoUrl, $http, $log,
                                $routeParams) {
 
         var dc = this;
@@ -132,7 +131,12 @@
 
             return courseInstance;
         };
-
+        dc.getPeopleCoursesRoute = function() {
+            // returns URL for the Search People app's course list
+            // route for the user specified by dc.arrivedFromPeopleCourses
+            return window.globals.append_resource_link_id('../people_tool/')
+                + '#/people/' + dc.arrivedFromPeopleCourses + '/courses/';
+        };
         dc.handleAjaxErrorResponse = function(r) {
             dc.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
