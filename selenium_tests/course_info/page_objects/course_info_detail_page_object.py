@@ -1,7 +1,8 @@
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support.expected_conditions \
+    import element_to_be_clickable
 
 from selenium_tests.course_info.page_objects.course_info_base_page_object \
     import CourseInfoBasePageObject
@@ -55,6 +56,10 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
 
     def edit_form(self):
         """Find and click on the Edit button"""
+        self._wait_for_angular()
+        # element_to_be_clickable works better with Angular than is_displayed()
+        WebDriverWait(self._driver, 10).until(element_to_be_clickable(
+            Locators.EDIT_FORM_BUTTON))
         self.find_element(*Locators.EDIT_FORM_BUTTON).click()
 
     def go_to_people_page(self):
@@ -77,8 +82,20 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
         return True
 
     def _wait_for_input_field_to_be_visible(self, field_name):
-        # only want to access input elements once the values are loaded from the
-        # server (which in this case means the spinner disappears and the input
-        # element becomes visible)
-        WebDriverWait(self._driver, 10).until(lambda s: s.find_element(
-            *Locators.INPUT_BY_FIELD_NAME(field_name)).is_displayed())
+        self._wait_for_angular()
+        # element_to_be_clickable works better with Angular than is_displayed()
+        WebDriverWait(self._driver, 10).until(element_to_be_clickable(
+            Locators.INPUT_BY_FIELD_NAME(field_name)))
+
+    def _wait_for_angular(self):
+        self._driver.set_script_timeout(10)  # (default is 0)
+        self._driver.execute_async_script(
+            """
+            // selenium passes a callback as the final arg; we need to access
+            // it and pass it to angular's internals so selenium can be notified
+            // when the async angular digest cycle completes
+            var callback = arguments[arguments.length - 1];
+            // todo: the injector base element should be configurable ultimately
+            var $browser = angular.element('body').injector().get('$browser');
+            $browser.notifyWhenNoOutstandingRequests(callback);
+            """)
