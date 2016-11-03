@@ -1,3 +1,4 @@
+i.fa-exchange { font-size:1.5em; }
 .inert {
     /* disables mouse events (elements can still be accessed via
        keyboard/tabindex) and greys them out to indicate a disabled state */

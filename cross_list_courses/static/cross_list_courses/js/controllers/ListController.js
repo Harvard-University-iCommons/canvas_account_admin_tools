@@ -244,6 +244,49 @@
                     $scope.setOperationInProgress(false);
                 });
         };
+        $scope.swap = function(xlistMap) {
+            var primaryId = xlistMap.primary_course_instance.course_instance_id;
+            var secondaryId = xlistMap.secondary_course_instance.course_instance_id;
+
+            $scope.clearMessages();
+            $scope.setOperationInProgress('swap');
+
+            // note we're swapping primary and secondary in this step
+            $scope.updateCrosslisting(xlistMap.xlist_map_id, secondaryId, primaryId)
+                .then(function postSucceeded(response) {
+                    $scope.message = {
+                        alertType: 'success',
+                        text: 'The cross-listed courses were successfully ' +
+                              'swapped. ' + secondaryId + ' is now the ' +
+                              'primary, and ' + primaryId + ' is the secondary.'
+                    };
+                    if (angular.isDefined(response.data.errors)) {
+                        $scope.message.text += '\nThe Canvas cross-listing ' +
+                            'may not be completely up-to-date. The following ' +
+                            'errors occurred:';
+                        response.data.errors.forEach(function(errorMsg) {
+                            $scope.message.text += '\n' + errorMsg;
+                        });
+                    }
+                    $scope.dtInstance.reloadData();
+                }, function postFailed(response) {
+                    $scope.handleAjaxErrorResponse(response);
+                    var errorText = 'The cross-listed courses ' + primaryId +
+                        ' and ' + secondaryId + ' could not be swapped at ' +
+                        'this time.';
+                    $scope.message = {alertType: 'danger', text: errorText};
+                    // datatable doesn't reload, so hide the progress bar
+                    $scope.setOperationInProgress(false);
+                });
+        };
+        $scope.updateCrosslisting = function (xlistMapId, primaryId, secondaryId) {
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                ['api/course/v2/xlist_maps/' + xlistMapId + '/']);
+            return $http.patch(url, {
+                primary_course_instance: primaryId,
+                secondary_course_instance: secondaryId
+            });
+        };
 
         /**
          * Datatable setup and helpers
@@ -262,6 +305,15 @@
             var link = '<a href="" data-toggle="tooltip" ' +
                 'data-placement="left" title="De-cross-list courses"' +
                 'ng-click="confirmRemove(dtInstance.DataTable.data()[' +
+                meta.row + '])" ' + 'data-xlist-map-id="' +
+                full.xlist_map_id + '">' + icon + '</a>';
+            return '<div class="text-center">' + link + '</div>';
+        }
+        function renderSwap(data, type, full, meta) {
+            var icon = '<i class="fa fa-exchange"></i>';
+            var link = '<a href="" data-toggle="tooltip" ' +
+                'data-placement="left" title="Swap cross-listed courses"' +
+                'ng-click="swap(dtInstance.DataTable.data()[' +
                 meta.row + '])" ' + 'data-xlist-map-id="' +
                 full.xlist_map_id + '">' + icon + '</a>';
             return '<div class="text-center">' + link + '</div>';
@@ -354,6 +406,12 @@
                 },
                 title: 'Primary',
                 bSortable: false,
+            },
+            {
+                data: null,
+                orderable: false,
+                render: renderSwap,
+                width: '10%'
             },
             {
                 data: null,
