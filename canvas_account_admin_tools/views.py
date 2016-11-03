@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import logging
 import os
@@ -12,10 +14,9 @@ from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
 from proxy.views import proxy_view
 
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
-from lti_permissions.decorators import lti_permission_required
-from lti_permissions.verification import is_allowed
+from lti_permissions.decorators import (
+    lti_permission_required,
+    lti_permission_required_check)
 
 logger = logging.getLogger(__name__)
 
@@ -55,40 +56,38 @@ def lti_launch(request):
 
 
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@lti_permission_required('account_admin_tools')
 @require_http_methods(['GET'])
 def dashboard_account(request):
-    custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
-    custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
-    conclude_courses = settings.CONCLUDE_COURSES_URL
+    tool_access_permission_names = [
+        'conclude_courses',
+        'course_info',
+        'cross_listing',
+        'people_tool']
 
-    """
-    Verify that the curernt user has permission to see the cross listing button
-    on the dashboard TLT-2569
-    """
-    cross_listing_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_XLIST_TOOL,
-                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+    # Verify current user permissions to see the apps on the dashboard
+    allowed = {tool: lti_permission_required_check(request, tool)
+               for tool in tool_access_permission_names}
+    no_tools_allowed = not any(allowed.values())
 
-    """
-    verify that user has permissions to view the People tool
-    """
-    people_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_PEOPLE_TOOL,
-                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+    template_vars = {
+        'allowed': allowed,
+        'conclude_courses_url': settings.CONCLUDE_COURSES_URL,
+        'no_tools_allowed': no_tools_allowed}
 
-    return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'conclude_courses': conclude_courses,
-        'cross_listing_allowed': cross_listing_is_allowed,
-        'people_tool_allowed': people_tool_is_allowed,
+    if no_tools_allowed:
+        template_vars['custom_error_title'] = u'Not available'
+        template_vars['custom_error_message'] = \
+            u"You do not currently have access to any of the tools available " \
+            u"in Manage Course. If you think you should have access, please " \
+            u"use \"Help\" to contact Canvas support from Harvard."
 
-    })
+    return render(request,
+        'canvas_account_admin_tools/dashboard_account.html', template_vars)
 
 
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@lti_permission_required('account_admin_tools')
 def icommons_rest_api_proxy(request, path):
     request_args = {
         'headers': {
