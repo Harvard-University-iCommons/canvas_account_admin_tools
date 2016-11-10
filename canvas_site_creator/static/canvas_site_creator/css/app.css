@@ -1,0 +1,70 @@
+
+#audit-link {
+    text-decoration: underline;
+}
+
+body.lti-tool-bootstrap {
+    /* overrides body.lti-tool from lti-css/bulkSiteCreator.css */
+    /* matches bootstrap.css body font-size default that we use elsewhere */
+    font-size: 14px;
+}
+
+.bsc-btn-fixed-width {
+    width: 70px;  /* gives enough room to display options list labels */
+}
+
+.col-align-center {
+    text-align: center;
+}
+
+/* this is a select element on create new course form.
+   combines with #course-code-type to form an input group inside
+   #course-code-input-group container */
+#course-code {
+    width: 88%;
+}
+
+/* container for #course-code and #course-code-type to form an input group */
+#course-code-input-group {
+    width: 100%;
+}
+
+/* this is a select element on create new course form.
+   combines with #course-code to form an input group inside
+   #course-code-input-group container */
+#course-code-type {
+    width: 12%;
+}
+
+#courseSelectionDT .remove-selection {
+    color: #a51c30;
+}
+
+#createSitesButton, #createNewCourseButton{
+    text-decoration:none;
+    font-weight: bold;
+}
+.lti-tool .dataTables_wrapper {
+    margin-top: 20px;
+}
+
+.lti-tool .dataTables_wrapper .dataTables_processing {
+    top: 0;
+}
+
+.margin-bottom-md {
+    /* nicer spacing for responsive forms. For a full-width row, can apply to
+       row; otherwise apply to cols only (applying to row would double the
+       margin) so that they look consistent when wrapping at small screen sizes
+       */
+    margin-bottom: 1em;
+}
+
+#new-course-info-container tbody td {
+    /* same border properties as table.dataTable.display tbody td */
+    border-bottom: 1px solid #111;
+}
+.required-field-marker {
+    color: red;
+}
+

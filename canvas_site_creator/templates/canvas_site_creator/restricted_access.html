@@ -1,0 +1,43 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% block stylesheet %}
+
+    {% if debug == True %}
+      <link rel="stylesheet/less" type="text/css" href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" media="screen"/>
+    {% else %}
+      <link rel="stylesheet" type="text/css" href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}" media="screen"/>
+    {% endif %}
+ {% endblock stylesheet %}
+</head>
+
+{% block body %}
+  <body class="lti">
+    <div id="content" role="main" class="col-md-6 col-md-offset-3">
+        <div id="unauthorized_holder">
+            <div id="unauthorized_message" class="">
+                <h4 class="ui-state-error">
+                    <i class="fa fa-warning error-icon"></i>Access Restricted
+                </h4>
+                <div class="ui-error-msg">
+                    <p>
+                        You are attempting to access the Canvas Site Creator at
+                        the department level. If you are a School Liaison or
+                        Account Admin, please navigate to your sub-account
+                        homepage to use this tool.
+                    </p>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    {% block javascript %}
+        <script src="{% static "harvard-bootstrap/js/less-1.5.0.min.js" %}"></script>
+        <script src="{% static "jquery-2.2.2/jquery-2.2.2.min.js"  %}"></script>
+        <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
+        {% endblock javascript %}
+  </body>
+{% endblock body %}
+</html>

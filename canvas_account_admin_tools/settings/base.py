@@ -35,6 +35,8 @@ INSTALLED_APPS = (
     'canvas_account_admin_tools',
     'course_info',
     'cross_list_courses',
+    'canvas_site_creator',
+    'canvas_course_site_wizard',
     'djangular',
     'people_tool',
 )
@@ -218,6 +220,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'canvas_site_creator': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
@@ -266,6 +273,8 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
+PERMISSION_SITE_CREATOR = 'manage_courses'
+
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains

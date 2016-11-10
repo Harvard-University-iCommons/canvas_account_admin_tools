@@ -1,0 +1,53 @@
+{% extends 'canvas_site_creator/base.html' %}
+
+{% load static %}
+{% load collections %}
+{% load django_helpers %}
+
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
+{% endblock css %}
+
+{% block js %}
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
+    <script>
+        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+    </script>
+    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/controllers/AuditController.js' %}"></script>
+{% endblock js %}
+
+{% block body %}
+<body class="lti-tool" role="application" ng-app="app">
+    <header>
+        <h1><a href="{% url 'canvas_site_creator:index' %}">Canvas Site Creator</a> <i class="fa fa-chevron-right"></i> Audit Log</h1>
+    </header>
+    <main>
+        <table id="bulkJobDT" ng-cloak class="display" cellspacing="0" width="100%" ng-controller="AuditController">
+            <thead>
+                {% include 'canvas_site_creator/_bulk_job_table_header.html' %}
+            </thead>
+            <tbody>
+                {% for bulk_job in bulk_job_data %}
+                <tr>
+                    <td>{{ bulk_job.created_at }}</td>
+                    <td><a href="{% url 'canvas_site_creator:bulk_job_detail' bulk_job.id %}">{{ bulk_job.status }}</a></td>
+                    <td>{{ bulk_job.created_by }}</td>
+                    <td>{{ bulk_job.count_course_jobs }}</td>
+                    <td>{{ bulk_job.school }}</td>
+                    <td>{{ bulk_job.term }}</td>
+                    <td>{{ bulk_job.subaccount }}</td>
+                    <td>
+                        <a href="{{ bulk_job.template_canvas_course.canvas_course_url }}">{{ bulk_job.template_canvas_course.canvas_course_name }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                {% include 'canvas_site_creator/_bulk_job_table_header.html' %}
+            </tfoot>
+        </table>
+    </main>
+</body>
+{% endblock body %}

@@ -1,0 +1,10 @@
+{% load json_filters %}
+
+
+<script>
+    window.globals = window.globals || {};
+    window.globals.canvas_site_creator_schools = {{ schools|jsonify }};
+    window.globals.canvas_site_creator_terms = {{ terms|jsonify }};
+    window.globals.canvas_site_creator_departments = {{ departments|jsonify }};
+    window.globals.canvas_site_creator_course_groups = {{ course_groups|jsonify }};
+</script>

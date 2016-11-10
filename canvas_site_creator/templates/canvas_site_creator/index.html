@@ -1,0 +1,151 @@
+{% extends 'canvas_site_creator/base.html' %}
+
+{% load static %}
+{% load collections %}
+{% load django_helpers %}
+
+
+{% block css %}
+
+    {% if debug %}
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" media="screen"/>
+    {% else %}
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
+    {% endif %}
+
+{#    {% if debug %}#}
+{#        <link rel="stylesheet" href="/lti_tools/static/css/bootstrap.css" media="screen"/>#}
+{#    {% else %}#}
+{#        <link rel="stylesheet" href="/lti_tools/static/css/bootstrap.min.css" media="screen"/>#}
+{#    {% endif %}#}
+
+ {% endblock css %}
+
+{% block js %}
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
+    <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
+    <script>
+        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+    </script>
+    {% include 'canvas_site_creator/_selected_filters.html' %}
+    {% include 'canvas_site_creator/_filter_options.html' %}
+    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/models/ErrorModel.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/models/CourseInstanceFilterModel.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/models/CourseInstanceModel.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/controllers/IndexController.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/controllers/ErrorController.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/controllers/CourseInstanceFilterController.js' %}"></script>
+{% endblock js %}
+
+{% block body %}
+<body role="application" ng-app="app" ng-controller="IndexController">
+    <div class="container">
+    <header>
+        <h3>Canvas Site Creator</h3>
+    </header>
+
+    <div class="row">
+
+     <div class="col-sm-6">
+         <div class="panel panel-default">
+             <div class="panel-heading"><h4>Create sites for existing courses</h4></div>
+             <div class="panel-body">
+            {% include 'canvas_site_creator/views/ErrorView.html' %}
+            <main>
+                {% include 'canvas_site_creator/views/CourseInstanceFilterView.html' %}
+                <div ng-cloak ng-show="showSummaryLoading()">
+                    <img src="{% static 'images/ajax-loader-large.gif' %}"/>
+                </div>
+
+                <div ng-cloak ng-show="showSummary()">
+                    <h3>
+                        <ng-pluralize count="courseInstanceModel.totalCourses"
+                                      when="{'0': 'There are 0 courses in this term:',
+                                             '1': 'There is 1 course in this term:',
+                                             'other': 'There are {} courses in this term:'}">
+                        </ng-pluralize>
+                    </h3>
+                    <ul>
+                        <li>
+                            <ng-pluralize count="courseInstanceModel.totalCoursesWithCanvasSite"
+                                      when="{'0': '0 courses with Canvas sites ',
+                                             '1': '1 course with a Canvas site ',
+                                             'other': '{} courses with Canvas sites '}">
+                            </ng-pluralize>
+                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithCanvasSiteWithISite"
+                                      when="{'0': '0 iSites, ',
+                                             '1': '1 iSites, ',
+                                             'other': '{} iSites, '}">
+                            </ng-pluralize>
+                            {% verbatim %}
+                            {{ courseInstanceModel.totalCoursesWithCanvasSiteWithExternal }} external)
+                            {% endverbatim %}
+                        </li>
+                        <li>
+                            <ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSite"
+                                      when="{'0': '0 courses without Canvas sites ',
+                                             '1': '1 course without a Canvas site ',
+                                             'other': '{} courses without Canvas sites '}">
+                            </ng-pluralize>
+                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteWithISite"
+                                      when="{'0': '0 iSites, ',
+                                             '1': '1 iSites, ',
+                                             'other': '{} iSites, '}">
+                            </ng-pluralize>
+                            {% verbatim %}
+                            {{ courseInstanceModel.totalCoursesWithoutCanvasSiteWithExternal }} external)
+                            {% endverbatim %}
+                            <br>
+                            <button type="button" class="btn btn-link pull-right" id="createSitesButton" ng-disabled="createDisabled()" ng-click="handleCreate($event)" data-href="{% url 'canvas_site_creator:course_selection' %}">Continue</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-12">
+                    <hr>
+                </div>
+                <div class="col-md-12">
+                    <div class="alert alert-info" role="alert">
+                        <p>Visit the <a id="audit-link" href="{% url 'canvas_site_creator:audit' %}">site creator audit log</a> to view previously created Canvas course sites.</p>
+                    </div>
+                </div>
+
+            </main>
+            </div>
+            </div>
+     </div>
+
+     <div class="col-sm-6">
+          <div class="panel panel-default">
+              <div class="panel-heading"><h4>Create a site for a new course</h4></div>
+              <div class="panel-body">
+                <p>Create a Sandbox or Informal Learning Experience (ILE) site in Canvas. This site will not be attached to a course fed from the Registrar's office.
+                  <a class="hidden" data-toggle="tooltip" data-placement="bottom"
+                     title="Create a Sandbox or Informal Learning Experience (ILE) site in Canvas. These sites are not attached to a course fed from the Registrar's office.">
+                      <i class="fa fa-info-circle"></i></a>
+                </p>
+                {% if in_school_account %}
+                <p>
+                  <a id="createNewCourseButton" class="pull-right" href="{% url 'canvas_site_creator:create_new_course' %}">Continue</a>
+                </p>
+                {% else %}
+                <div class="alert alert-warning" role="alert">
+                  <p>
+                    {# TODO: replace this placeholder text #}
+                    This feature is only available from school-level sub-accounts.
+                    If you have School Liaison or Account Admin access, please
+                    open the Course Site Creator from the account homepage to
+                    use this feature.
+                  </p>
+                </div>
+                {% endif %}
+              </div>
+          </div>
+     </div>
+
+    </div>
+
+</div>
+
+</body>
+{% endblock body %}
