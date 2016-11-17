@@ -190,6 +190,14 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         # Log to a text file that can be rotated by logrotate
         'default': {
@@ -197,6 +205,19 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.join(_LOG_ROOT, 'django-canvas_account_admin_tools.log'),
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        },
+        # Log to a text file that can be rotated by logrotate
+        'app_logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.join(_LOG_ROOT, 'django-icommons_lti_tools.log'),
+            'formatter': 'verbose',
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -225,6 +246,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'canvas_course_site_wizard': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'app_logfile'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
@@ -246,6 +272,12 @@ ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
 LTI_OAUTH_CREDENTIALS = SECURE_SETTINGS.get('lti_oauth_credentials', None)
 
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.instructure.com')
+
+# Used by canvas course site wizard jobs
+
+CANVAS_SITE_SETTINGS = {
+    'base_url': CANVAS_URL + '/',
+}
 
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
@@ -280,3 +312,38 @@ PERMISSION_SITE_CREATOR = 'manage_courses'
 # controls which roles show up in the drop down. The list contains
 # user role id's from the course manager database
 ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 7, 9, 10, 11, 12, 15]
+
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Sites created for {school} {term} term',
+    'notification_email_body': 'Canvas course sites have been created for the '
+                               '{school} {term} term.\n\n - {success_count} '
+                               'course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not '
+                                            'created.',
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment': ENV_NAME.capitalize(),
+}
