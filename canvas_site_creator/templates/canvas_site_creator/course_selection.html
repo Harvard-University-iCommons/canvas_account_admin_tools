@@ -52,7 +52,7 @@
         </p>
 
         <div class="courses">
-            <form id="createForm" action="{% url 'canvas_site_creator:create_job' %}" method="POST">
+            <form id="createForm" action="{% url 'canvas_site_creator:create_job' %}" method="POST">{% csrf_token %}
                 <h2>
                     <span ng-hide="courseInstanceModel.getSelectedCourseIdsCount()">
                         {{ course_instance_summary.recordsTotalWithoutCanvasSite }} course{{ course_instance_summary.recordsTotalWithoutCanvasSite|pluralize }}
