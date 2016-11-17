@@ -8,26 +8,23 @@
 
 {% block content %}
 
-{#    <header>#}
+    <header>
       <nav>
         <h3>Admin Console</h3>
         <!-- UI comment - adding padding between header and the cards -->
         &nbsp;
       </nav>
-{#    </header>#}
-    <main>
-    <!-- UI comment, forcing the color of the card borders and background color
-     to the same Harvard crimson color. Please introduce a new class to replace
-     the following classes: card_color*, card-header_color* and card-content_normal. -->
-    <div class="card card_color4" style="border-bottom-color:#4E84C4">
+    </header>
+
+    <div class="card card_color">
       <a href="{% url 'course_info:index' %}" id="course-roster">
         <div class="card-body">
-          <div class="card-header card-header_color4" style="background-color:#4E84C4">
+          <div class="card-header card-header_color5">
           </div>
-          <div class="card-content card-content_normal" style="background-color:#e9eff6">
-            <div style="width:100%;">
-              <div class="card-content-icon" style="float:left; width:30%; margin-top:.75em;">
-                <i class="fa fa-search icon-size" style="font-size:4em; color:#a2c0df;"></i>
+          <div class="card-content card-content_normal">
+            <div class="card-content-width">
+              <div class="card-content-icon">
+                <i class="fa fa-search icon-size"></i>
               </div>
               <div class="card-content-data">
                 <h2 class="card-content-title ellipsis" title="Search Courses">
@@ -44,7 +41,6 @@
         </div>
       </a>
     </div>
-
 
     {% if people_tool_allowed %}
         <div class="card card_color">
@@ -73,21 +69,21 @@
     {% endif %}
 
     {% if site_creator_is_allowed %}
-        <div class="card card_color3" style="border-bottom-color:#4E84C4">
+        <div class="card card_color">
             <a href="{% url 'canvas_site_creator:index' %}" id="canvas-site-creator">
             <div class="card-body">
-              <div class="card-header card-header_color5" style="background-color:#4E84C4">
+              <div class="card-header card-header_color5">
               </div>
-              <div class="card-content card-content_normal" style="background-color:#e9eff6">
-                <div style="width:100%;">
-                  <div style="float:left; width:30%; margin-top:.75em;">
-                    <i class="fa fa-magic" style="font-size:4em; color:#a2c0df;"></i>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-magic icon-size"></i>
                   </div>
-                  <div style="float:right; width:70%;">
-                    <h2 class="card-content-title ellipsis" title="Manage Sections">
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Create Canvas Sites">
                       <span class="content-link">Create Canvas Sites</span>
                     </h2>
-                    <p title="Manage Sections">Create sites for new or existing courses</p>
+                    <p title="Create Canvas Sites">Create sites for new or existing courses</p>
                   </div>
                 </div>
               </div>
@@ -147,5 +143,4 @@
         </div>
     {% endif %}
 
-</main>
 {% endblock content %}
