@@ -83,8 +83,20 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
+DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'contenttypes': 'default',
+    'icommons_common': 'termtool',
+    'lti_permissions': 'default',
+    'canvas_account_admin_tools': 'default',
+    'course_info': 'default',
+    'cross_list_courses': 'default',
+    'canvas_site_creator': 'default',
+    'people_tool': 'default',
+    'canvas_course_site_wizard': 'termtool',
+}
+DATABASE_MIGRATION_WHITELIST = ['default']
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
 
 DATABASES = {
     'default': {
