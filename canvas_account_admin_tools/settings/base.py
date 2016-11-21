@@ -17,7 +17,31 @@ from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
+# Note: If this list (technically a tuple) has only one element, that
+#       element must be followed by a comma for it to be processed
+#       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+)
 
+MANAGERS = ADMINS
+ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
+
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+SERVER_EMAIL_DISPLAY_NAME = 'canvas_account_admin_tools - %s' % ENV_NAME
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
+
+# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
+# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
+# So this overrides the default and removes that unhelpful [Django] prefix.
+# Specific settings files can override, for example to show the settings file being used:
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
+# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
+#          is not being overridden in environment settings files at present.
+EMAIL_SUBJECT_PREFIX = ''
 
 # Application definition
 
