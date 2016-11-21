@@ -269,13 +269,11 @@ def create_job(request):
     term = filters.get('term')
 
     school_account_id = filters['school']
-    # account_id = school_account_id
     (account_type, school_id) = canvas_api_accounts.parse_canvas_account_id(school_account_id)
 
     department = None
     department_account_id = filters.get('department')
     if department_account_id:
-        # account_id = department_account_id
         (account_type, department) = department_account_id.split(':')
 
     course_group = None
