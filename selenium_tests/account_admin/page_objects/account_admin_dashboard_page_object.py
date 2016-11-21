@@ -9,6 +9,8 @@ class AccountAdminDashboardPageLocators(object):
     # if PAGE_TITLE uses contains() it will match for sub-pages as well, so
     # use text() for exact match (should only match on dashboard page)
     PAGE_TITLE = (By.XPATH, '//h3[text()="Admin Console"]')
+    CREATE_CANVAS_SITE_LINK = (By.XPATH, "//a[contains(.,'Create Canvas "
+                                        "Sites')]")
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Search Courses')]")
     CROSS_LISTING_DIV = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
 
@@ -46,6 +48,14 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         self.find_element(
             *AccountAdminDashboardPageLocators.COURSE_INFO_LINK).click()
 
+    def select_create_canvas_site_link(self):
+        """
+        select the bulk create card and and click it
+        """
+        self.focus_on_tool_frame()
+        self.find_element(
+            *AccountAdminDashboardPageLocators.CREATE_CANVAS_SITE_LINK).click()
+
     def select_cross_listing_link(self):
         """
         select the cross list link element and click it
@@ -53,5 +63,4 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         self.focus_on_tool_frame()
         self.find_element(
             *AccountAdminDashboardPageLocators.CROSS_LISTING_DIV).click()
-
 

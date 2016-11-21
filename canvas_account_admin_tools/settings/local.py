@@ -54,11 +54,7 @@ SELENIUM_CONFIG = {
                 'registrar_code_display': '109581',
                 'sis_id_value': '342916',
             },
-
-
         },
-        'url': 'accounts/10/external_tools/11',
-
     },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
