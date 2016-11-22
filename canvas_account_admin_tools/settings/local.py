@@ -43,16 +43,16 @@ SELENIUM_CONFIG = {
             'course_short_title': 'Selenium Auto Test 101',
             'course_title': 'Selenium Automated Test Course 101',
             'template': 'None',  # No Template
-            'term': '1',
+            'term': 'string:5209',
 
             #TLT-2522 - Testing course with and without registrar_code_display
             'course_with_registrar_code_display': {
-                'registrar_code_display': 'selenium_test',
-                'sis_id_value': '341697',
+                'registrar_code_display': 'Automated_Test',
+                'sis_id_value': '362568',
             },
             'course_without_registrar_code_display': {
-                'registrar_code_display': '109581',
-                'sis_id_value': '342916',
+                'registrar_code_display': '117138',
+                'sis_id_value': '360031',
             },
         },
     },
