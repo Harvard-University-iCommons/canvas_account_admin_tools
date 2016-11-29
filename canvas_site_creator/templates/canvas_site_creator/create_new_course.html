@@ -16,9 +16,9 @@
 
 {% block js %}
   {% if debug %}
-    <script src="{% static 'bootstrap-3.3.6/js/bootstrap.js' %}"></script>
+    <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.js' %}"></script>
   {% else %}
-    <script src="{% static 'bootstrap-3.3.6/js/bootstrap.min.js' %}"></script>
+    <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
   {% endif %}
   <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
   <script>
