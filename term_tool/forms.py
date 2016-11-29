@@ -63,7 +63,7 @@ class EditTermForm(forms.ModelForm):
         self.helper.field_class = 'col-lg-8'
         self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
-        self.helper.form_error_title = u"There were problems with the information you submitted."        
+        self.helper.form_error_title = u"There were problems with the information you submitted."
         self.helper.layout = Layout(
             Field('academic_year'),
             Field('calendar_year'),
@@ -139,24 +139,24 @@ class EditTermForm(forms.ModelForm):
 
         # make sure that the start date is before the end date
         if start_date and end_date and start_date > end_date:
-            self._errors['start_date'] = self.error_class(['']) 
-            self._errors['end_date'] = self.error_class(['']) 
+            self._errors['start_date'] = self.error_class([''])
+            self._errors['end_date'] = self.error_class([''])
             raise forms.ValidationError("The start date must be before the end date.")
 
         # make sure that the interval between the start date and end date is less than one year
         if start_date and end_date and (end_date.toordinal() - start_date.toordinal()) > 365:
-            self._errors['start_date'] = self.error_class(['']) 
-            self._errors['end_date'] = self.error_class(['']) 
+            self._errors['start_date'] = self.error_class([''])
+            self._errors['end_date'] = self.error_class([''])
             raise forms.ValidationError("The start date and end date cannot be more than one year apart.")
 
-        if not school.school_id == 'sum' and not school.school_id == 'ext':   
+        if not school.school_id == 'sum' and not school.school_id == 'ext':
             if xreg_available is True:
-                if (xreg_start_date is None or xreg_start_date == ''): 
-                    self._errors['xreg_start_date'] = self.error_class(['']) 
+                if (xreg_start_date is None or xreg_start_date == ''):
+                    self._errors['xreg_start_date'] = self.error_class([''])
                     raise forms.ValidationError("The cross-reg start date field cannot be empty.")
 
                 if (xreg_end_date is None or xreg_end_date == ''):
-                    self._errors['xreg_end_date'] = self.error_class(['']) 
+                    self._errors['xreg_end_date'] = self.error_class([''])
                     raise forms.ValidationError("The cross-reg end date field cannot be empty.")
 
 
@@ -164,25 +164,25 @@ class EditTermForm(forms.ModelForm):
             There was a request to remove the validation check below. This check validated
             that the start and end dates for cross reg were between the start and end dates of the term.
             If this is reinstated it needs to be indented to fall in line with the if block above.
-            Alternativly you could add a check for xreg_end_date in the if block below and indent out. 
+            Alternativly you could add a check for xreg_end_date in the if block below and indent out.
             '''
             # make sure that the xreg end date is between the term start and end
             #if xreg_end_date > end_date or xreg_end_date < start_date:
             #    logger.warn("xreg_end_date outside of term start/end")
-            #    self._errors['xreg_start_date'] = self.error_class(['']) 
+            #    self._errors['xreg_start_date'] = self.error_class([''])
             #    raise forms.ValidationError("The cross-reg end date must be between the term start and end dates.")
 
         # make sure that the xreg start date is before the xreg end date
         if xreg_start_date and xreg_end_date and xreg_start_date > xreg_end_date:
-            self._errors['xreg_start_date'] = self.error_class(['']) 
-            self._errors['xreg_end_date'] = self.error_class(['']) 
+            self._errors['xreg_start_date'] = self.error_class([''])
+            self._errors['xreg_end_date'] = self.error_class([''])
             raise forms.ValidationError("The cross-reg start date must be before the cross-reg end date.")
 
         # make sure that the interval between the xreg_start date and xreg_end date is less than one year
         if xreg_start_date and xreg_end_date and (xreg_end_date.toordinal() - xreg_start_date.toordinal()) > 365:
             logger.warn("xreg_interval too greater than one year")
-            self._errors['xreg_start_date'] = self.error_class(['']) 
-            self._errors['xreg_end_date'] = self.error_class(['']) 
+            self._errors['xreg_start_date'] = self.error_class([''])
+            self._errors['xreg_end_date'] = self.error_class([''])
             raise forms.ValidationError("The cross-registration start date and end date cannot be more than one year apart.")
 
         # make sure that the xreg end date is before the term end date (replaces the xreg_end_date between term start and end check)
@@ -212,19 +212,19 @@ class EditTermForm(forms.ModelForm):
 
             logger.debug('start_day_of_year / aug15 day of year: %s / %s' % (start_day_of_year, aug15_day_of_year))
 
-            # the set of schools that use proper academic_year values for spring terms (not the calendar year)
-            academic_year_schools = ['colgsas', 'ext', 'sum', 'hms', 'hsdm']
+            # the set of schools that use the prior calendar as the academic_yearfor spring terms (not the current calendar year)
+            academic_year_schools = ['colgsas', 'ext', 'sum', 'hms', 'hsdm', 'hilr']
 
-            # if the school is not colgsas,ext,sum,hms,hsdm then start date year must equal AY for all terms
+            # if the school is not in the academic_year_schools list defined above then start date year must equal AY for all terms
             if school.school_id not in academic_year_schools:
                 logger.debug('school %s is not in the list of schools that use a proper academic year' % school.school_id)
                 if academic_year != start_date.year:
-                    self._errors['start_date'] = self.error_class(['']) 
-                    raise forms.ValidationError("The academic year of this term is %s. The start date of the term must be in that year." % academic_year) 
+                    self._errors['start_date'] = self.error_class([''])
+                    raise forms.ValidationError("The academic year of this term is %s. The start date of the term must be in that year." % academic_year)
 
             # else if the term start date is between aug 15 and the end of the year, AY must equal start date year
             elif start_day_of_year >= aug15_day_of_year and academic_year != start_date.year:
-                self._errors['start_date'] = self.error_class(["The start date must be in %s." % academic_year]) 
+                self._errors['start_date'] = self.error_class(["The start date must be in %s." % academic_year])
                 raise forms.ValidationError("The academic year of this term is %s.  For terms that take place during the Fall, the start date must be in that year." % academic_year)
 
             # else if the term start date is between the first of the year and Aug 15 start date year must equal AY+1
@@ -235,28 +235,28 @@ class EditTermForm(forms.ModelForm):
         # for all end dates, make sure the time portion is 11:59:59 PM
         # not sure if we should do this here or somewhere else...
 
-        # make sure that the calendar_year matches the start_date       
+        # make sure that the calendar_year matches the start_date
         if start_date and calendar_year != start_date.year:
             logger.warn('setting the calendar year to %s' % start_date.year)
             cleaned_data['calendar_year'] = start_date.year
 
         if shopping_end_date and (shopping_end_date < start_date or shopping_end_date > end_date):
             msg = u"The shopping end date, if provided, must fall between the term start and end dates."
-            self._errors['shopping_end_date'] = self.error_class([msg]) 
+            self._errors['shopping_end_date'] = self.error_class([msg])
             del cleaned_data['shopping_end_date']
-            raise forms.ValidationError(msg) 
+            raise forms.ValidationError(msg)
 
         if enrollment_end_date and enrollment_end_date > end_date:
             msg = u"The enrollment end date, if provided, must be before the term end date."
-            self._errors['enrollment_end_date'] = self.error_class([msg]) 
+            self._errors['enrollment_end_date'] = self.error_class([msg])
             del cleaned_data['enrollment_end_date']
-            raise forms.ValidationError(msg) 
+            raise forms.ValidationError(msg)
 
         if drop_date and (drop_date < start_date or drop_date > end_date):
             msg = u"The drop date, if provided, must fall between the term start and end dates."
-            self._errors['drop_date'] = self.error_class([msg]) 
+            self._errors['drop_date'] = self.error_class([msg])
             del cleaned_data['drop_date']
-            raise forms.ValidationError(msg) 
+            raise forms.ValidationError(msg)
 
         if withdrawal_date and (withdrawal_date < start_date or withdrawal_date > end_date):
             msg = u"The withdrawal date, if provided, must fall between the term start and end dates."
@@ -283,7 +283,7 @@ class EditTermForm(forms.ModelForm):
             del cleaned_data['exam_end_date']
             raise forms.ValidationError(msg)
 
-        """        
+        """
         if calendar_year and start_date and calendar_year != start_date.year:
             msg = u"The calendar year must match the year in the start date."
             self._errors['calendar_year'] = self.error_class([msg])
@@ -331,7 +331,7 @@ class CreateTermForm(EditTermForm):
         self.helper.field_class = 'col-lg-8'
         self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
-        self.helper.form_error_title = u"There were problems with the information you submitted."        
+        self.helper.form_error_title = u"There were problems with the information you submitted."
         self.helper.layout = Layout(
             Field('academic_year'),
             Field('calendar_year'),
@@ -400,8 +400,8 @@ class xCreateTermForm(forms.ModelForm):
     xreg_end_date = forms.DateField(required=True)
 
     """
-    override the clean method so that we can perform custom validation; this is done at the form level because some validation 
-    rules depend on the values of multiple fields. 
+    override the clean method so that we can perform custom validation; this is done at the form level because some validation
+    rules depend on the values of multiple fields.
     """
     def clean(self):
         cleaned_data = super(CreateTermForm, self).clean()
@@ -416,7 +416,7 @@ class xCreateTermForm(forms.ModelForm):
         display_name = cleaned_data.get('display_name')
 
         # check to see if this term already exists.
-        if Term.objects.filter(school_id=school_id.school_id, term_code=term_code.term_code, academic_year=academic_year): 
+        if Term.objects.filter(school_id=school_id.school_id, term_code=term_code.term_code, academic_year=academic_year):
             raise forms.ValidationError("A term record already exists for this school/year/term_code")
 
         # default the display_name if it's not set
