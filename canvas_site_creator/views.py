@@ -2,17 +2,12 @@ import logging
 import json
 
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from ims_lti_py.tool_config import ToolConfig
 
 from canvas_course_site_wizard.models import BulkCanvasCourseCreationJob, \
     CanvasCourseGenerationJob
@@ -45,15 +40,6 @@ COURSE_INSTANCE_FILTERS = ['school', 'term', 'department', 'course_group']
 
 def lti_auth_error(request):
     raise PermissionDenied
-
-
-#
-# @login_required
-# @require_http_methods(['POST'])
-# @csrf_exempt
-# def lti_launch(request):
-#     logger.debug("canvas_site_creator launched with params: %s", json.dumps(request.POST.dict(), indent=4))
-#     return redirect('canvas_site_creator:index')
 
 
 @login_required
@@ -93,7 +79,6 @@ def index(request):
     # display unauthorized message
     if len(schools) == 0:
         return redirect('not_authorized')
-    print(schools)
     if school:
         # Populate term, department, and course_group filter options if we already have a school
         school_sis_account_id = school['id']
@@ -284,13 +269,11 @@ def create_job(request):
     term = filters.get('term')
 
     school_account_id = filters['school']
-    account_id = school_account_id
     (account_type, school_id) = canvas_api_accounts.parse_canvas_account_id(school_account_id)
 
     department = None
     department_account_id = filters.get('department')
     if department_account_id:
-        account_id = department_account_id
         (account_type, department) = department_account_id.split(':')
 
     course_group = None

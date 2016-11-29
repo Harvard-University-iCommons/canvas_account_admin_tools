@@ -17,28 +17,52 @@ from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
+# Note: If this list (technically a tuple) has only one element, that
+#       element must be followed by a comma for it to be processed
+#       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+)
 
+MANAGERS = ADMINS
+ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
+
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+SERVER_EMAIL_DISPLAY_NAME = 'canvas_account_admin_tools - %s' % ENV_NAME
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
+
+# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
+# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
+# So this overrides the default and removes that unhelpful [Django] prefix.
+# Specific settings files can override, for example to show the settings file being used:
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
+# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
+#          is not being overridden in environment settings files at present.
+EMAIL_SUBJECT_PREFIX = ''
 
 # Application definition
 
 INSTALLED_APPS = (
+    'canvas_account_admin_tools',
+    'canvas_course_site_wizard',
+    'canvas_site_creator',
+    'course_info',
+    'cross_list_courses',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'icommons_common',
-    'lti_permissions',
-    'icommons_ui',
-    'proxy',
-    'canvas_account_admin_tools',
-    'course_info',
-    'cross_list_courses',
-    'canvas_site_creator',
-    'canvas_course_site_wizard',
     'djangular',
+    'icommons_common',
+    'icommons_ui',
+    'lti_permissions',
     'people_tool',
+    'proxy',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -85,15 +109,15 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_APPS_MAPPING = {
     'auth': 'default',
-    'contenttypes': 'default',
-    'icommons_common': 'termtool',
-    'lti_permissions': 'default',
     'canvas_account_admin_tools': 'default',
+    'canvas_course_site_wizard': 'termtool',
+    'canvas_site_creator': 'default',
+    'contenttypes': 'default',
     'course_info': 'default',
     'cross_list_courses': 'default',
-    'canvas_site_creator': 'default',
+    'icommons_common': 'termtool',
+    'lti_permissions': 'default',
     'people_tool': 'default',
-    'canvas_course_site_wizard': 'termtool',
 }
 DATABASE_MIGRATION_WHITELIST = ['default']
 DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
@@ -219,17 +243,10 @@ LOGGING = {
             'filename': os.path.join(_LOG_ROOT, 'django-canvas_account_admin_tools.log'),
         },
         'console': {
-            'level': 'DEBUG',
+            'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
             'filters': ['require_debug_true'],
-        },
-        # Log to a text file that can be rotated by logrotate
-        'app_logfile': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.join(_LOG_ROOT, 'django-icommons_lti_tools.log'),
-            'formatter': 'verbose',
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -259,8 +276,8 @@ LOGGING = {
             'propagate': False,
         },
         'canvas_course_site_wizard': {
-            'level': 'DEBUG',
-            'handlers': ['console', 'app_logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'course_info': {
@@ -285,7 +302,7 @@ LTI_OAUTH_CREDENTIALS = SECURE_SETTINGS.get('lti_oauth_credentials', None)
 
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.instructure.com')
 
-# Used by canvas course site wizard jobs
+# Used by canvas_course_site_wizard jobs invoked by Canvas Site creator
 
 CANVAS_SITE_SETTINGS = {
     'base_url': CANVAS_URL + '/',
