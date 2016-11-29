@@ -64,7 +64,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
 
         """
         self._load_bulk_create_tool()
-        expected_registrar_code = self.test_data_course1[
+        expected_registrar_code = self.test_data_course_with_registrar_code_display[
             'registrar_code_display']
 
         # This returns the text of a specific locator on bulk_create table
@@ -88,7 +88,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
 
         """
         self._load_bulk_create_tool()
-        expected_registrar_code = self.test_data_course2[
+        expected_registrar_code = self.test_data_course_without_registrar_code_display[
             'registrar_code_display']
 
         # This returns the text of a specific locator on bulk_create table

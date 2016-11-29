@@ -17,9 +17,9 @@ class BulkCreateBaseTestCase(AccountAdminBaseTestCase):
         super(AccountAdminBaseTestCase, self).setUp()
 
         self.test_data = settings.SELENIUM_CONFIG['bulk_create']['test_data']
-        self.test_data_course1 = settings.SELENIUM_CONFIG['bulk_create'][
+        self.test_data_course_with_registrar_code_display = settings.SELENIUM_CONFIG['bulk_create'][
             'test_data']['course_with_registrar_code_display']
-        self.test_data_course2 = settings.SELENIUM_CONFIG['bulk_create'][
+        self.test_data_course_without_registrar_code_display = settings.SELENIUM_CONFIG['bulk_create'][
             'test_data']['course_without_registrar_code_display']
         self.main_page = IndexPageObject(self.driver)
 
