@@ -43,7 +43,10 @@ SELENIUM_CONFIG = {
             'course_short_title': 'Selenium Auto Test 101',
             'course_title': 'Selenium Automated Test Course 101',
             'template': 'None',  # No Template
-            'term': 'string:5209',
+            'term': 'string:5209', # Term value in dropdown when creating a
+            # site for existing course
+            'term_new_course': 'number:5209',  # Term value in dropdown when
+            # creating a site for a new course
 
             #TLT-2522 - Testing course with and without registrar_code_display
             'course_with_registrar_code_display': {
