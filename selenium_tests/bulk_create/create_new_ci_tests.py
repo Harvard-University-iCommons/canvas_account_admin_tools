@@ -1,5 +1,5 @@
 from selenium_common.canvas.canvas_course_page_object import \
-    CanvasCoursePage, Locators
+    CanvasCoursePage
 from selenium_common.canvas.course_settings_page_object import CourseSettingsPage
 from selenium_common.decorators import screenshot_on_test_exception
 from selenium_tests.bulk_create.bulk_create_base_test_case \
@@ -31,13 +31,14 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
         # (2) Using same course_title, to get the modal window
 
         # If a course has course title, the course code is the short title.
+
         expected_course_code_text = self.test_data['course_short_title']
 
         self._test_create_site(
             self.test_data['course_code'],
             self.test_data['course_title'],
             self.test_data['course_short_title'],
-            self.test_data['term'],
+            self.test_data['term_new_course'],
             expected_course_code_text)
 
     @screenshot_on_test_exception
@@ -54,11 +55,12 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             self.test_data['course_code'],
             self.test_data['course_title'],
             '',  # simulates no short title entered in form
-            self.test_data['term'],
+            self.test_data['term_new_course'],
             expected_course_code_text)
 
-    def _test_create_site(self, course_code, course_title, course_short_title,
-                          course_term, expected_course_code):
+    def _test_create_site(self, course_code, course_title,
+                          course_short_title, term_new_course,
+                          expected_course_code):
         """
         Common logic for testing site creation.
         """
@@ -67,8 +69,9 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
         canvas_course = CanvasCoursePage(self.driver)
         canvas_settings = CourseSettingsPage(self.driver)
 
-        # Go to the Course Site Creator Tool
-        self.driver.get(self.base_url)
+        # Go to Course Site Creator Tool
+        self.driver.get(self.TOOL_URL)
+        self.acct_admin_dashboard_page.select_create_canvas_site_link()
 
         # Switch to active frame
         canvas_course.focus_on_tool_frame()
@@ -81,7 +84,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             course_code,
             course_title,
             course_short_title,
-            course_term
+            term_new_course
         )
 
         # Verify confirmation modal window, if course for term and

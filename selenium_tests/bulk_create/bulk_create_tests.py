@@ -15,8 +15,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
         self.index_page = IndexPageObject(self.driver)
         self.course_selection_page = CourseSelectionPageObject(self.driver)
 
-        # Get base_url and switch frame whenever loading up bulk create tool
-        self.driver.get(self.base_url)
+        # Switch frame after loading up bulk create tool
         self.index_page.focus_on_tool_frame()
 
         self.assertTrue(self.index_page.is_loaded())
@@ -51,7 +50,6 @@ class BulkCreateTests(BulkCreateBaseTestCase):
             self.course_selection_page.is_create_selected_button_enabled()
         )
 
-
     def test_course_with_registrar_code_display(self):
 
         """
@@ -66,17 +64,15 @@ class BulkCreateTests(BulkCreateBaseTestCase):
 
         """
         self._load_bulk_create_tool()
-        expected_registrar_code = self.test_data_course1[
+        expected_registrar_code = self.test_data_course_with_registrar_code_display[
             'registrar_code_display']
 
         # This returns the text of a specific locator on bulk_create table
         registrar_code_element = self.driver.find_element(
                 *Locators.COURSE_CODE_LOCATOR_R4_C3)
         actual_registrar_code = registrar_code_element.text
-
         self.assertEqual(expected_registrar_code, actual_registrar_code,
                          "Registrar code display does not match")
-
 
     def test_course_without_registrar_code_display(self):
 
@@ -92,7 +88,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
 
         """
         self._load_bulk_create_tool()
-        expected_registrar_code = self.test_data_course2[
+        expected_registrar_code = self.test_data_course_without_registrar_code_display[
             'registrar_code_display']
 
         # This returns the text of a specific locator on bulk_create table
@@ -100,5 +96,8 @@ class BulkCreateTests(BulkCreateBaseTestCase):
                 *Locators.COURSE_CODE_LOCATOR_R3_C3)
         actual_registrar_code = registrar_code_element.text
 
+        # Compare the expected registrar code with actual registrar code on the
+        # page
         self.assertEqual(expected_registrar_code, actual_registrar_code,
                          "Registrar code does not match")
+
