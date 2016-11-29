@@ -59,7 +59,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             expected_course_code_text)
 
     def _test_create_site(self, course_code, course_title,
-                          course_short_title, course_term,
+                          course_short_title, term_new_course,
                           expected_course_code):
         """
         Common logic for testing site creation.
@@ -84,7 +84,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             course_code,
             course_title,
             course_short_title,
-            course_term
+            term_new_course
         )
 
         # Verify confirmation modal window, if course for term and
