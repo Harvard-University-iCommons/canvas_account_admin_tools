@@ -38,7 +38,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             self.test_data['course_code'],
             self.test_data['course_title'],
             self.test_data['course_short_title'],
-            self.test_data['term_new_course'],
+            self.test_data['term'],
             expected_course_code_text)
 
     @screenshot_on_test_exception
@@ -55,11 +55,11 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             self.test_data['course_code'],
             self.test_data['course_title'],
             '',  # simulates no short title entered in form
-            self.test_data['term_new_course'],
+            self.test_data['term'],
             expected_course_code_text)
 
     def _test_create_site(self, course_code, course_title,
-                          course_short_title, term_new_course,
+                          course_short_title, term,
                           expected_course_code):
         """
         Common logic for testing site creation.
@@ -84,7 +84,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             course_code,
             course_title,
             course_short_title,
-            term_new_course
+            term
         )
 
         # Verify confirmation modal window, if course for term and

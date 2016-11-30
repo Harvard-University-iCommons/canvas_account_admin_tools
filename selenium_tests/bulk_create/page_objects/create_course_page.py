@@ -31,7 +31,7 @@ class CreateCoursePageObject(BulkCreateBasePageObject):
                                 course_code,
                                 course_title,
                                 course_short_title,
-                                term_new_course):
+                                term):
         """
         This function will fill the form and button click to create the
         course
@@ -40,7 +40,7 @@ class CreateCoursePageObject(BulkCreateBasePageObject):
         self.get_course_code(course_code)
         self.get_course_title(course_title)
         self.get_short_title(course_short_title)
-        self.get_term(term_new_course)
+        self.get_term(term)
 
         add_course_link = self.find_element(*Locators.CREATE_NEW_COURSE_BUTTON)
         if add_course_link.is_enabled():
@@ -57,7 +57,7 @@ class CreateCoursePageObject(BulkCreateBasePageObject):
 
         element_select = self.find_element(*Locators.TERM_CODE)
         selenium_select = Select(element_select)
-        selenium_select.select_by_value(term_code)
+        selenium_select.select_by_visible_text(term_code)
         return selenium_select
 
     def get_course_title(self, course_title):
