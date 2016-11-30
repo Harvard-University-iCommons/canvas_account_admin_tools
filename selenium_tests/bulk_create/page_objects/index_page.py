@@ -53,6 +53,8 @@ class IndexPageObject(BulkCreateBasePageObject):
         select.select_by_visible_text(department)
 
     def select_term(self, term):
+        WebDriverWait(self._driver, 30).until(EC.visibility_of_element_located(
+                Locators.TERM_SELECT_DROPDOWN))
         select = Select(self.find_element(*Locators.TERM_SELECT_DROPDOWN))
         select.select_by_value(term)
 
