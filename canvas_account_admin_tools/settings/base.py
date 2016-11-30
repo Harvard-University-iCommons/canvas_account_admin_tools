@@ -17,26 +17,52 @@ from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
+# Note: If this list (technically a tuple) has only one element, that
+#       element must be followed by a comma for it to be processed
+#       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+)
 
+MANAGERS = ADMINS
+ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
+
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+SERVER_EMAIL_DISPLAY_NAME = 'canvas_account_admin_tools - %s' % ENV_NAME
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
+
+# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
+# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
+# So this overrides the default and removes that unhelpful [Django] prefix.
+# Specific settings files can override, for example to show the settings file being used:
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
+# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
+#          is not being overridden in environment settings files at present.
+EMAIL_SUBJECT_PREFIX = ''
 
 # Application definition
 
 INSTALLED_APPS = (
+    'canvas_account_admin_tools',
+    'canvas_course_site_wizard',
+    'canvas_site_creator',
+    'course_info',
+    'cross_list_courses',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
-    'icommons_common',
-    'lti_permissions',
-    'icommons_ui',
-    'proxy',
-    'canvas_account_admin_tools',
-    'course_info',
-    'cross_list_courses',
     'djangular',
+    'icommons_common',
+    'icommons_ui',
+    'lti_permissions',
     'people_tool',
+    'proxy',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -81,8 +107,20 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
+DATABASE_APPS_MAPPING = {
+    'auth': 'default',
+    'canvas_account_admin_tools': 'default',
+    'canvas_course_site_wizard': 'termtool',
+    'canvas_site_creator': 'default',
+    'contenttypes': 'default',
+    'course_info': 'default',
+    'cross_list_courses': 'default',
+    'icommons_common': 'termtool',
+    'lti_permissions': 'default',
+    'people_tool': 'default',
+}
+DATABASE_MIGRATION_WHITELIST = ['default']
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
 
 DATABASES = {
     'default': {
@@ -188,6 +226,14 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         # Log to a text file that can be rotated by logrotate
         'default': {
@@ -195,6 +241,12 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.join(_LOG_ROOT, 'django-canvas_account_admin_tools.log'),
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -218,6 +270,16 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'canvas_site_creator': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
+        'canvas_course_site_wizard': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
@@ -239,6 +301,12 @@ ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
 LTI_OAUTH_CREDENTIALS = SECURE_SETTINGS.get('lti_oauth_credentials', None)
 
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://canvas.instructure.com')
+
+# Used by canvas_course_site_wizard jobs invoked by Canvas Site creator
+
+CANVAS_SITE_SETTINGS = {
+    'base_url': CANVAS_URL + '/',
+}
 
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
@@ -266,8 +334,45 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
+PERMISSION_SITE_CREATOR = 'manage_courses'
+
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains
 # user role id's from the course manager database
 ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 7, 9, 10, 11, 12, 15]
+
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Sites created for {school} {term} term',
+    'notification_email_body': 'Canvas course sites have been created for the '
+                               '{school} {term} term.\n\n - {success_count} '
+                               'course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not '
+                                            'created.',
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment': ENV_NAME.capitalize(),
+}

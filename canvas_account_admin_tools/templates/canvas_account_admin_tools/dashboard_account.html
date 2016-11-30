@@ -10,8 +10,7 @@
 
     <header>
       <nav>
-        <h3>Admin Console</h3>
-
+        <h3 class="card-header_padding">Admin Console</h3>
       </nav>
     </header>
 
@@ -41,7 +40,6 @@
       </a>
     </div>
 
-
     {% if people_tool_allowed %}
         <div class="card card_color">
           <a href="{% url 'people_tool:index' %}" id="course-roster">
@@ -68,6 +66,29 @@
         </div>
     {% endif %}
 
+    {% if site_creator_is_allowed %}
+        <div class="card card_color">
+            <a href="{% url 'canvas_site_creator:index' %}" id="canvas-site-creator">
+            <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-magic icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Create Canvas Sites">
+                      <span class="content-link">Create Canvas Sites</span>
+                    </h2>
+                    <p title="Create Canvas Sites">Create sites for new or existing courses</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
     {% if cross_listing_allowed %}
         <div class="card card_color">
           <a href="{% url 'cross_list_courses:index' %}" id="manage-cross-listings">
@@ -119,6 +140,5 @@
           </a>
         </div>
     {% endif %}
-
 
 {% endblock content %}

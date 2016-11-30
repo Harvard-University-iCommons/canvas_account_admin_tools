@@ -1,0 +1,16 @@
+[
+  {
+    "id": 296,
+    "name": "No Department",
+    "parent_account_id": 345,
+    "root_account_id": 1,
+    "workflow_state": "active",
+    "default_storage_quota_mb": 500,
+    "default_user_storage_quota_mb": 50,
+    "default_group_storage_quota_mb": 50,
+    "default_time_zone": "America/New_York",
+    "sis_account_id": "dept:57",
+    "sis_import_id": 926,
+    "integration_id": null
+  }
+]

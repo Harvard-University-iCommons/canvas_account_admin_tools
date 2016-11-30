@@ -1,0 +1,15 @@
+[
+  {
+    "id": 345,
+    "name": "Harvard College/GSAS",
+    "parent_account_id": 1,
+    "root_account_id": 1,
+    "workflow_state": "active",
+    "default_storage_quota_mb": 500,
+    "default_user_storage_quota_mb": 50,
+    "default_group_storage_quota_mb": 50,
+    "default_time_zone": "America/New_York",
+    "sis_account_id": "school:colgsas",
+    "integration_id": null
+  }
+]
