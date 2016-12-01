@@ -288,6 +288,30 @@ describe('Unit testing CreateNewCourseController', function() {
         });
     });
 
+    describe('setCourseCode', function() {
+        it('should allow valid registrar codes', function() {
+            scope.course = {
+                codeString: 'abc-123_456..XYZ',
+                codeType: 'test'
+            };
+            scope.setCourseCode();
+            expect(scope.errorInCourseCode).toBeNull();
+            expect(scope.course.code).toBe('test-abc-123_456..XYZ');
+        });
+        it('should show error for invalid registrar codes', function() {
+            invalidCodes = ['a v', '', '^&*(', 'é'];
+            for (var i=0, len=invalidCodes.length; i < len; i++) {
+                scope.course = {
+                    codeString: invalidCodes[i],
+                    codeType: 'test'
+                };
+                scope.setCourseCode();
+                expect(scope.errorInCourseCode).not.toBeNull();
+                expect(scope.course.code).toBe('');
+            }
+        });
+    });
+
     describe('createCanvasCourse', function(){
         var  mockCopyFromTemplate = function() {
             var deferred = $qGlobal.defer();
