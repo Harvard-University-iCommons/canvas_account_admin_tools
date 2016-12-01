@@ -7,6 +7,7 @@
 
     function CreateNewCourseController($scope, $http, $uibModal, $log,
                                        djangoUrl, $q, school) {
+        var validCourseCodeRegex = new RegExp('^[a-zA-Z0-9\-_\.]+$');
         $scope.course = {
             code: '',
             codeString: '',
@@ -20,6 +21,7 @@
         $scope.templateUsed = false;
         $scope.departments = {};
         $scope.errorCreatingCourse = null;
+        $scope.errorInCourseCode = null;
         $scope.errorMessageSupport = "Please contact tlt_support@harvard.edu.";
         $scope.existingCourse = null;
         $scope.existingCourseModal = null;
@@ -29,12 +31,19 @@
         $scope.sectionId = '';
         $scope.selectedTerm = null;
         $scope.terms = [];
+
         $scope.setCourseCode = function() {
-            if ($scope.course.codeType && $scope.course.codeString) {
+            if ($scope.course.codeType
+                    && validCourseCodeRegex.test($scope.course.codeString)) {
                 $scope.course.code = $scope.course.codeType + '-'
                     + $scope.course.codeString;
+                $scope.errorInCourseCode = null;
             } else {
                 $scope.course.code = '';
+                $scope.errorInCourseCode = 'Please only include ' +
+                  'alphanumeric characters and the following symbols in the ' +
+                  'course code: Period [ . ] Dash [ - ] Underscore [ _ ]. ' +
+                  'Spaces are not allowed.';
             }
         };
 

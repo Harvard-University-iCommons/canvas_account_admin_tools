@@ -184,6 +184,15 @@
 
         </div> <!-- End Form row: term, course code -->
 
+        <!-- alert triggered upon submission of illegal characters in registrar code -->
+        <div ng-show="errorInCourseCode" class="row">
+          <div id="code-warning" class="col-md-12">
+            <div class="alert alert-warning" role="alert">
+            {{ errorInCourseCode }}
+            </div>
+          </div>
+        </div> <!-- End Form row: ng-show=errorInCourseCode -->
+
         <div class="row"> <!-- Form row: course title, short title -->
 
           <div class="col-sm-6 margin-bottom-md">
