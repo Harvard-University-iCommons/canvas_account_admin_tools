@@ -38,6 +38,9 @@
                 $scope.course.code = $scope.course.codeType + '-'
                     + $scope.course.codeString;
                 $scope.errorInCourseCode = null;
+            } else if ($scope.course.codeString.trim().length == 0) {
+                $scope.course.code = '';
+                $scope.errorInCourseCode = null;
             } else {
                 $scope.course.code = '';
                 $scope.errorInCourseCode = 'Please only include ' +
