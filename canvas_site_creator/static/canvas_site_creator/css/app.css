@@ -9,6 +9,13 @@ body.lti-tool-bootstrap {
     font-size: 14px;
 }
 
+.breadcrumb-font{
+     font-size: 24px;
+}
+.breadcrumb-font a{
+    text-decoration:none;
+}
+
 .bsc-btn-fixed-width {
     width: 70px;  /* gives enough room to display options list labels */
 }
