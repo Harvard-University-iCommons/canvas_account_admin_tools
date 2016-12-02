@@ -26,7 +26,7 @@
 {% block body %}
 <body class="lti-tool" role="application" ng-app="app">
     <header>
-        <h3 class="breadcrumbs breadcrumb-font" >
+        <h3 class="breadcrumbs" >
             <a href="{% url 'dashboard_account' %}">Admin Console</a>
             <small><i class="fa fa-chevron-right"></i></small>
             <a href="{% url 'canvas_site_creator:index' %}">Canvas Site Creator</a>
@@ -86,7 +86,7 @@
                 {% endif %}
 
                 {% verbatim %}
-                <button type="button" ng-cloak class="btn btn-submit" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
+                <button type="button" ng-cloak class="btn btn-submit btn-primary" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
                 </button>
                 {% endverbatim %}
 

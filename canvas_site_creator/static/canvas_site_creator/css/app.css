@@ -3,12 +3,6 @@
     text-decoration: underline;
 }
 
-body.lti-tool-bootstrap {
-    /* overrides body.lti-tool from lti-css/bulkSiteCreator.css */
-    /* matches bootstrap.css body font-size default that we use elsewhere */
-    font-size: 14px;
-}
-
 .breadcrumb-font{
      font-size: 24px;
 }
@@ -22,6 +16,12 @@ body.lti-tool-bootstrap {
 
 .col-align-center {
     text-align: center;
+}
+.courses {
+    padding: 1em 0.5em;
+    border-top: 1px solid #e9e9e9;
+    border-bottom: 1px solid #e9e9e9;
+    margin-bottom: 1em;
 }
 
 /* this is a select element on create new course form.
@@ -47,6 +47,17 @@ body.lti-tool-bootstrap {
     color: #a51c30;
 }
 
+#createForm {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+#createForm h2{
+    font-size : 1.5em;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
 #createSitesButton, #createNewCourseButton{
     text-decoration:none;
     font-weight: bold;
