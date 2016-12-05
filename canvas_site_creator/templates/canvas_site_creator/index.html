@@ -5,17 +5,7 @@
 {% load django_helpers %}
 
 
-{% block css %}
-
-    {% if debug %}
-        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" media="screen"/>
-    {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
-    {% endif %}
- {% endblock css %}
-
 {% block js %}
-    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
     <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';

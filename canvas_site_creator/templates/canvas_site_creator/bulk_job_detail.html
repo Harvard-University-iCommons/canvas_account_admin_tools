@@ -5,12 +5,10 @@
 
 
 {% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
     <link rel="stylesheet" href="{% static 'lti-css/progressbar.css' %}">
 {% endblock css %}
 
 {% block js %}
-    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
         window.globals.CANVAS_URL = '{% settings_value "CANVAS_URL" %}';

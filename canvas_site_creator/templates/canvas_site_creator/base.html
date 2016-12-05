@@ -8,16 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="{% static 'font-awesome-4.5.0/css/font-awesome.min.css' %}">
     <link rel="stylesheet" href="{% static 'canvas_site_creator/css/app.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
 
-    {% block css %}
-      {% if debug %}
-        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" media="screen"/>
-      {% else %}
-        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
-      {% endif %}
-    {% endblock css %}
 {% if debug %}
+    {#  Note: retain the order for proper styles, first load the jquery.datatables.css and then bootstrap   #}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" media="screen"/>
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.js' %}"></script>
     <script src="{% static 'underscore-1.8.2/underscore.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular.js' %}"></script>
@@ -25,8 +20,13 @@
     <script src="{% static 'angular-1.5.2/angular-sanitize.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular-animate.js' %}"></script>
     <script src="{% static 'angular-ui-bootstrap-0.14.3/ui-bootstrap-tpls-0.14.3.js' %}"></script>
+    <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.js' %}"></script>
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
     <script src="{% static 'djangular/js/django-angular.js' %}"></script>
+
 {% else %}
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
     <script src="{% static 'jquery-2.2.2/jquery-2.2.2.min.js' %}"></script>
     <script src="{% static 'underscore-1.8.2/underscore.min.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular.min.js' %}"></script>
@@ -34,6 +34,8 @@
     <script src="{% static 'angular-1.5.2/angular-sanitize.min.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular-animate.min.js' %}"></script>
     <script src="{% static 'angular-ui-bootstrap-0.14.3/ui-bootstrap-tpls-0.14.3.min.js' %}"></script>
+    <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'djangular/js/django-angular.min.js' %}"></script>
 {% endif %}
     {# fixes safari autocomplete issue #}
