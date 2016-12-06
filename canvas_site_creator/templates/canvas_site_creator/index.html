@@ -6,13 +6,11 @@
 
 
 {% block js %}
-    <script src="{% static 'datatables-bootstrap3/BS3/assets/js/datatables.js' %}"></script>
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
     </script>
     {% include 'canvas_site_creator/_selected_filters.html' %}
     {% include 'canvas_site_creator/_filter_options.html' %}
-    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/ErrorModel.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/CourseInstanceFilterModel.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/CourseInstanceModel.js' %}"></script>

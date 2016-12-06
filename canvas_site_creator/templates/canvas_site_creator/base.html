@@ -34,13 +34,15 @@
     <script src="{% static 'angular-1.5.2/angular-sanitize.min.js' %}"></script>
     <script src="{% static 'angular-1.5.2/angular-animate.min.js' %}"></script>
     <script src="{% static 'angular-ui-bootstrap-0.14.3/ui-bootstrap-tpls-0.14.3.min.js' %}"></script>
-    <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
+    <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.min.js' %}"></script>
     <script src="{% static 'djangular/js/django-angular.min.js' %}"></script>
 {% endif %}
     {# fixes safari autocomplete issue #}
     {# (see https://github.com/angular/angular.js/issues/1460) #}
     <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
+    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
+
     {% include 'django_auth_lti/resource_link_id.html' %}
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';

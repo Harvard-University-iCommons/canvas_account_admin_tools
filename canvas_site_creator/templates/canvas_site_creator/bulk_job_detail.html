@@ -13,7 +13,6 @@
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
         window.globals.CANVAS_URL = '{% settings_value "CANVAS_URL" %}';
     </script>
-    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/ErrorModel.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/controllers/ErrorController.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/BulkJobDetailModel.js' %}"></script>
@@ -57,7 +56,7 @@
             <form>
                 <div class="progress">
                     {% verbatim %}
-                    <div class="progress-bar" role="progressbar" aria-valuenow="{{ bulkJobDetailModel.completeCourseJobs }}" aria-valuemin="0" aria-valuemax="100" ng-style="getProgressBarStyle()">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{ bulkJobDetailModel.completeCourseJobs }}" aria-valuemin="0" aria-valuemax="100" ng-style="getProgressBarStyle()">
                         <span ng-cloak ng-show="bulkJobDetailModel.completeCourseJobs">
                             {{ bulkJobDetailModel.completeCourseJobs }} out of {{ bulkJobDetailModel.totalCourseJobs }} course site creation jobs completed
                         </span>
