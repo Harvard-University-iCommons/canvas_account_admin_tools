@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium_common.webelements import Select
 
-from selenium_tests.bulk_create.page_objects.base_page_object \
+from selenium_tests.canvas_site_creator.page_objects.base_page_object \
     import BulkCreateBasePageObject
 
 

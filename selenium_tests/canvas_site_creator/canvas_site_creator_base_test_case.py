@@ -4,7 +4,7 @@ from urlparse import urljoin
 
 from selenium_tests.canvas_account_admin_tools_base_test_case \
     import AccountAdminBaseTestCase
-from selenium_tests.bulk_create.page_objects.index_page import IndexPageObject
+from selenium_tests.canvas_site_creator.page_objects.index_page import IndexPageObject
 
 CANVAS_PERMISSION_ROLES = join(dirname(abspath(__file__)),
                                'test_data', 'roles_access.xlsx')
@@ -16,10 +16,10 @@ class BulkCreateBaseTestCase(AccountAdminBaseTestCase):
 
         super(AccountAdminBaseTestCase, self).setUp()
 
-        self.test_data = settings.SELENIUM_CONFIG['bulk_create']['test_data']
-        self.test_data_course_with_registrar_code_display = settings.SELENIUM_CONFIG['bulk_create'][
+        self.test_data = settings.SELENIUM_CONFIG['canvas_site_creator']['test_data']
+        self.test_data_course_with_registrar_code_display = settings.SELENIUM_CONFIG['canvas_site_creator'][
             'test_data']['course_with_registrar_code_display']
-        self.test_data_course_without_registrar_code_display = settings.SELENIUM_CONFIG['bulk_create'][
+        self.test_data_course_without_registrar_code_display = settings.SELENIUM_CONFIG['canvas_site_creator'][
             'test_data']['course_without_registrar_code_display']
         self.main_page = IndexPageObject(self.driver)
 

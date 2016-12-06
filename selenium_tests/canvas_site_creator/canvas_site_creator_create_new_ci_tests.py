@@ -2,11 +2,11 @@ from selenium_common.canvas.canvas_course_page_object import \
     CanvasCoursePage
 from selenium_common.canvas.course_settings_page_object import CourseSettingsPage
 from selenium_common.decorators import screenshot_on_test_exception
-from selenium_tests.bulk_create.bulk_create_base_test_case \
+from selenium_tests.canvas_site_creator.canvas_site_creator_base_test_case \
     import BulkCreateBaseTestCase
-from selenium_tests.bulk_create.page_objects.create_course_page import \
+from selenium_tests.canvas_site_creator.page_objects.create_course_page import \
     CreateCoursePageObject
-from selenium_tests.bulk_create.page_objects.index_page import \
+from selenium_tests.canvas_site_creator.page_objects.index_page import \
     IndexPageObject
 
 

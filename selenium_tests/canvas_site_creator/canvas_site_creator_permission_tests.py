@@ -5,9 +5,9 @@ from selenium_common.canvas.canvas_masquerade_page_object \
     import CanvasMasqueradePageObject
 from selenium_tests.account_admin.account_admin_base_test_case \
     import AccountAdminBaseTestCase
-from selenium_tests.bulk_create.bulk_create_base_test_case \
+from selenium_tests.canvas_site_creator.canvas_site_creator_base_test_case \
     import CANVAS_PERMISSION_ROLES
-from selenium_tests.bulk_create.page_objects.index_page import IndexPageObject
+from selenium_tests.canvas_site_creator.page_objects.index_page import IndexPageObject
 
 
 @ddt

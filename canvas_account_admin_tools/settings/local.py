@@ -36,7 +36,7 @@ SELENIUM_CONFIG = {
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       #'relative_url': 'accounts/10/external_tools/99',  # qa (Admin Console)
    },
-   'bulk_create': {
+   'canvas_site_creator': {
         'test_data': {
             'course_code': 'Selenium-Automated',  # defaults to ILE
             'course_group': 'Anthropology',
