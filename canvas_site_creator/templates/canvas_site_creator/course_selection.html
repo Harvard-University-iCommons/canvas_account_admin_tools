@@ -3,17 +3,8 @@
 {% load static %}
 {% load collections %}
 
-
-{% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
-    <link rel="stylesheet" href="{% static 'lti-css/tooltipModal.css' %}">
-{% endblock css %}
-
 {% block js %}
-    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
-    <script type="text/javascript" language="javascript" src="{% static 'js/tooltipModal.js' %}"></script>
     {% include 'canvas_site_creator/_selected_filters.html' %}
-    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/ErrorModel.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/CourseInstanceModel.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/models/CourseInstanceFilterModel.js' %}"></script>
@@ -26,7 +17,7 @@
 {% block body %}
 <body class="lti-tool" role="application" ng-app="app">
     <header>
-        <h3 class="breadcrumbs">
+        <h3 class="breadcrumbs" >
             <a href="{% url 'dashboard_account' %}">Admin Console</a>
             <small><i class="fa fa-chevron-right"></i></small>
             <a href="{% url 'canvas_site_creator:index' %}">Canvas Site Creator</a>
@@ -47,9 +38,9 @@
             {{ school.name }} <i class="fa fa-chevron-right"></i>
             {{ term.name }}
             {% if department %}
-            <i class="fa fa-chevron-right"></i> {{ department.name }}
+            <small><i class="fa fa-chevron-right"></i></small> {{ department.name }}
             {% elif course_group %}
-            <i class="fa fa-chevron-right"></i> {{ course_group.name }}
+            <small><i class="fa fa-chevron-right"></i></small> {{ course_group.name }}
             {% endif %}
             <a href="{% url 'canvas_site_creator:index' %}&school={{ school.id }}&term={{ term.id }}&department={{ department.id }}&course_group={{ course_group.id }}">
                 Edit Selection
@@ -86,7 +77,7 @@
                 {% endif %}
 
                 {% verbatim %}
-                <button type="button" ng-cloak class="btn btn-submit" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
+                <button type="button" ng-cloak class="btn btn-primary" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
                 </button>
                 {% endverbatim %}
 
@@ -119,7 +110,7 @@
                     <div class="modal-footer">
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 
-                        <button ng-show="courseInstanceModel.getSelectedCourseIdsCount()" id="createCoursesConfirmed" type="button" class="btn btn-submit" ng-click="handleCreate()">
+                        <button ng-show="courseInstanceModel.getSelectedCourseIdsCount()" id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="handleCreate()">
                             Yes, Create
                             <span ng-show="courseInstanceModel.getSelectedCourseIdsCount()">
                                 <ng-pluralize count="courseInstanceModel.getSelectedCourseIdsCount()"

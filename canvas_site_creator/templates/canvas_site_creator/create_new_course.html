@@ -3,24 +3,7 @@
 {% load static %}
 {% load collections %}
 
-{% block css %}
-  <link rel="stylesheet" type="text/css" href="{% static 'datatables-bootstrap3/BS3/assets/css/datatables.css' %}" media="screen"/>
-  {% if debug %}
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.css' %}" media="screen"/>
-  {% else %}
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" media="screen"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
-  {% endif %}
-{% endblock css %}
-
 {% block js %}
-  {% if debug %}
-    <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.js' %}"></script>
-  {% else %}
-    <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
-  {% endif %}
-  <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
   <script>
     // NOTE: Should come after loading app.js (because it defines the
     //       module), but before CreateNewCourseController.js (because it
@@ -35,7 +18,7 @@
 {% endblock js %}
 
 {% block body %}
-  <body class="lti-tool lti-tool-bootstrap" role="application" ng-app="app">
+  <body class="lti-tool" role="application" ng-app="app">
   <header>
     <h3 class="breadcrumbs">
       <a href="{% url 'dashboard_account' %}">Admin Console</a>

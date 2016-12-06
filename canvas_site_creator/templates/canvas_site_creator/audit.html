@@ -5,23 +5,17 @@
 {% load django_helpers %}
 
 
-{% block css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables-1.10.7/media/css/jquery.dataTables.min.css' %}" media="screen"/>
-{% endblock css %}
-
 {% block js %}
-    <script src="{% static 'datatables-1.10.7/media/js/jquery.dataTables.js' %}"></script>
     <script>
         window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
     </script>
-    <script src="{% static 'canvas_site_creator/js/app.js' %}"></script>
     <script src="{% static 'canvas_site_creator/js/controllers/AuditController.js' %}"></script>
 {% endblock js %}
 
 {% block body %}
 <body class="lti-tool" role="application" ng-app="app">
     <header>
-        <h3>
+        <h3 class="breadcrumbs">
             <a href="{% url 'dashboard_account' %}">Admin Console</a>
             <small><i class="fa fa-chevron-right"></i></small>
            <a href="{% url 'canvas_site_creator:index' %}">Canvas Site Creator</a>
