@@ -4,7 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium_common.webelements import Select
 
-from selenium_tests.bulk_create.page_objects.base_page_object \
+from selenium_tests.canvas_site_creator.page_objects.base_page_object \
     import BulkCreateBasePageObject
 
 
@@ -56,7 +56,7 @@ class IndexPageObject(BulkCreateBasePageObject):
         WebDriverWait(self._driver, 30).until(EC.visibility_of_element_located(
                 Locators.TERM_SELECT_DROPDOWN))
         select = Select(self.find_element(*Locators.TERM_SELECT_DROPDOWN))
-        select.select_by_value(term)
+        select.select_by_visible_text(term)
 
     def get_new_course_link(self):
         """

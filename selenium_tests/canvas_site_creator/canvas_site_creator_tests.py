@@ -1,8 +1,8 @@
-from selenium_tests.bulk_create.bulk_create_base_test_case \
+from selenium_tests.canvas_site_creator.canvas_site_creator_base_test_case \
     import BulkCreateBaseTestCase
-from selenium_tests.bulk_create.page_objects.course_selection_page import \
+from selenium_tests.canvas_site_creator.page_objects.course_selection_page import \
     CourseSelectionPageObject
-from selenium_tests.bulk_create.page_objects.index_page import \
+from selenium_tests.canvas_site_creator.page_objects.index_page import \
     IndexPageObject, Locators
 
 
@@ -67,7 +67,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
         expected_registrar_code = self.test_data_course_with_registrar_code_display[
             'registrar_code_display']
 
-        # This returns the text of a specific locator on bulk_create table
+        # This returns the text of a specific locator on canvas_site_creator table
         registrar_code_element = self.driver.find_element(
                 *Locators.COURSE_CODE_LOCATOR_R4_C3)
         actual_registrar_code = registrar_code_element.text
@@ -91,7 +91,7 @@ class BulkCreateTests(BulkCreateBaseTestCase):
         expected_registrar_code = self.test_data_course_without_registrar_code_display[
             'registrar_code_display']
 
-        # This returns the text of a specific locator on bulk_create table
+        # This returns the text of a specific locator on canvas_site_creator table
         registrar_code_element = self.driver.find_element(
                 *Locators.COURSE_CODE_LOCATOR_R3_C3)
         actual_registrar_code = registrar_code_element.text

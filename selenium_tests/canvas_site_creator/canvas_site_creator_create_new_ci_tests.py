@@ -2,11 +2,11 @@ from selenium_common.canvas.canvas_course_page_object import \
     CanvasCoursePage
 from selenium_common.canvas.course_settings_page_object import CourseSettingsPage
 from selenium_common.decorators import screenshot_on_test_exception
-from selenium_tests.bulk_create.bulk_create_base_test_case \
+from selenium_tests.canvas_site_creator.canvas_site_creator_base_test_case \
     import BulkCreateBaseTestCase
-from selenium_tests.bulk_create.page_objects.create_course_page import \
+from selenium_tests.canvas_site_creator.page_objects.create_course_page import \
     CreateCoursePageObject
-from selenium_tests.bulk_create.page_objects.index_page import \
+from selenium_tests.canvas_site_creator.page_objects.index_page import \
     IndexPageObject
 
 
@@ -38,7 +38,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             self.test_data['course_code'],
             self.test_data['course_title'],
             self.test_data['course_short_title'],
-            self.test_data['term_new_course'],
+            self.test_data['term'],
             expected_course_code_text)
 
     @screenshot_on_test_exception
@@ -55,11 +55,11 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             self.test_data['course_code'],
             self.test_data['course_title'],
             '',  # simulates no short title entered in form
-            self.test_data['term_new_course'],
+            self.test_data['term'],
             expected_course_code_text)
 
     def _test_create_site(self, course_code, course_title,
-                          course_short_title, term_new_course,
+                          course_short_title, term,
                           expected_course_code):
         """
         Common logic for testing site creation.
@@ -84,7 +84,7 @@ class CreateCourseInstanceTests(BulkCreateBaseTestCase):
             course_code,
             course_title,
             course_short_title,
-            term_new_course
+            term
         )
 
         # Verify confirmation modal window, if course for term and
