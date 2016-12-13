@@ -1,0 +1,7 @@
+<span ng-controller="ErrorController">
+    <span class="infoBlock-error" ng-cloak ng-show="errorModel.hasError">
+        <i class="fa fa-exclamation-circle"></i>
+        <strong>Oops!</strong> We were unable to process your request, please
+        <a href="{% url 'canvas_site_creator:index' %}" class="alert-link">try again</a>.
+    </span>
+</span>

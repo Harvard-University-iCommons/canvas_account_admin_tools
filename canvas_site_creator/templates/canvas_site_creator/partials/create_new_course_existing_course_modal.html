@@ -1,0 +1,25 @@
+{% verbatim %}
+<div class="modal-header">
+	<button type="button" class="close" ng-click="$dismiss()"
+          id="existing-course-modal-close">
+    &times;
+  </button>
+	<h4 class="modal-title">Warning</h4>
+</div>
+<div class="modal-body" id="course-already-exists-msg">
+  <p>
+    A course instance with this course code already exists in this term.
+    Would you like to create a new course instance?
+  </p>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default pull-left"
+          id="existing-course-modal-cancel" ng-click="$dismiss()">
+    Cancel
+  </button>
+  <button type="button" class="btn btn-primary" ng-click="$close()"
+          id="existing-course-modal-confirm">
+    OK
+  </button>
+</div>
+{% endverbatim %}

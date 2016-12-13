@@ -10,6 +10,12 @@ SECRET_KEY = "q9frwftd7&)vn9zonjy2&vgmq1i9csn20+f0r5whb%%u-mzm_i"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+CANVAS_EMAIL_NOTIFICATION['course_migration_success_subject'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
+
+
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
@@ -30,6 +36,31 @@ SELENIUM_CONFIG = {
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       #'relative_url': 'accounts/10/external_tools/99',  # qa (Admin Console)
    },
+   'canvas_site_creator': {
+        'test_data': {
+            'course_code': 'Selenium-Automated',  # defaults to ILE
+            'course_group': 'Anthropology',
+            'course_short_title': 'Selenium Auto Test 101',
+            'course_title': 'Selenium Automated Test Course 101',
+            'template': 'None',  # No Template
+            # Term used to be by value, but since the tool is displaying
+            # two different dropdown element values
+            # (see: https://github.com/Harvard-University-iCommons/
+            # canvas_account_admin_tools/pull/176#discussion_r90055379)
+            # the term value is modified to look by term display text.
+            'term': 'Fall 2016',
+
+            #TLT-2522 - Testing course with and without registrar_code_display
+            'course_with_registrar_code_display': {
+                'registrar_code_display': 'Automated_Test',
+                'sis_id_value': '362568',
+            },
+            'course_without_registrar_code_display': {
+                'registrar_code_display': '117138',
+                'sis_id_value': '360031',
+            },
+        },
+    },
    'canvas_base_url': CANVAS_URL,
    'course_info_tool': {
       # 'relative_url': 'accounts/8/external_tools/68',  # local

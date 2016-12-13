@@ -1,0 +1,88 @@
+
+#audit-link {
+    text-decoration: underline;
+}
+
+.breadcrumb-font{
+     font-size: 24px;
+}
+.breadcrumb-font a{
+    text-decoration:none;
+}
+
+.bsc-btn-fixed-width {
+    width: 70px;  /* gives enough room to display options list labels */
+}
+
+.col-align-center {
+    text-align: center;
+}
+.courses {
+    padding: 1em 0.5em;
+    border-top: 1px solid #e9e9e9;
+    border-bottom: 1px solid #e9e9e9;
+    margin-bottom: 1em;
+}
+
+/* this is a select element on create new course form.
+   combines with #course-code-type to form an input group inside
+   #course-code-input-group container */
+#course-code {
+    width: 88%;
+}
+
+/* container for #course-code and #course-code-type to form an input group */
+#course-code-input-group {
+    width: 100%;
+}
+
+/* this is a select element on create new course form.
+   combines with #course-code to form an input group inside
+   #course-code-input-group container */
+#course-code-type {
+    width: 12%;
+}
+
+#courseSelectionDT .remove-selection {
+    color: #a51c30;
+}
+
+#createForm {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+#createForm h2{
+    font-size : 1.5em;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+#createSitesButton, #createNewCourseButton{
+    text-decoration:none;
+    font-weight: bold;
+}
+.lti-tool .dataTables_wrapper {
+    margin-top: 20px;
+}
+
+.lti-tool .dataTables_wrapper .dataTables_processing {
+    top: 0;
+}
+
+.margin-bottom-md {
+    /* nicer spacing for responsive forms. For a full-width row, can apply to
+       row; otherwise apply to cols only (applying to row would double the
+       margin) so that they look consistent when wrapping at small screen sizes
+       */
+    margin-bottom: 1em;
+}
+
+#new-course-info-container tbody td {
+    /* same border properties as table.dataTable.display tbody td */
+    border-bottom: 1px solid #111;
+}
+.required-field-marker {
+    color: red;
+}
+

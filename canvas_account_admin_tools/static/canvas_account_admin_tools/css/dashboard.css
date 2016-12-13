@@ -88,6 +88,9 @@ h3 {
 .card-header_color5 {
     background-color: #4E84C4;
 }
+.card-header_padding {
+padding-bottom: 1em;
+}
 .content-link {
     color: #0081bd;
 }
