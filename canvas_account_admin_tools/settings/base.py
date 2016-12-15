@@ -63,6 +63,7 @@ INSTALLED_APPS = (
     'lti_permissions',
     'people_tool',
     'proxy',
+    'publish_courses'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,6 +119,7 @@ DATABASE_APPS_MAPPING = {
     'icommons_common': 'termtool',
     'lti_permissions': 'default',
     'people_tool': 'default',
+    'publish_courses': 'default',
 }
 DATABASE_MIGRATION_WHITELIST = ['default']
 DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
@@ -290,6 +292,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'publish_courses': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
     }
 }
 
@@ -335,6 +342,7 @@ PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
+PERMISSION_PUBLISH_COURSES = 'publish_courses'
 
 
 # in search courses, when you add a person to a course. This list
