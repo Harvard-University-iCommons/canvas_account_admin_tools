@@ -88,9 +88,8 @@ def dashboard_account(request):
     """
     verify that user has permissions to view the publish courses tool
     """
-
     publish_courses_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_SITE_CREATOR,
+                                          settings.PERMISSION_PUBLISH_COURSES,
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
