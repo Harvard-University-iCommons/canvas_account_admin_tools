@@ -36,9 +36,10 @@
 
             };
 
+        // todo: we actually need the year as well; it would be easiest to fetch terms from Canvas (although we might have to do that in Django instead of here)
         $http.get('/icommons_rest_api/api/course/v2/term_codes/?limit=100')
             .then(function successCallback(response) {
-                console.log(" in here1");
+                $log.debug(" in here1");
                 $scope.filterOptions.terms =
                     $scope.filterOptions.terms.concat(response.data.results.map(function (tc) {
                         return {
@@ -49,12 +50,13 @@
                             text: tc.term_name + ' <span class="caret"></span>',
                         };
                     }));
+                // todo: implement fetch-until-exhausted
                 if (response.data.next && response.data.next !== '') {
                     // API returns next=null if there are no more pages
-                    console.log('Warning: Some terms missing from dropdown!');
+                    $log.warn('Warning: Some terms missing from dropdown!');
                 }
             }, function errorCallback(response) {
-                console.log(response.statusText);
+                $log.error(response.statusText);
             });
 
             Array.prototype.push.apply(
@@ -84,5 +86,18 @@
                 r.data, r.status, r.headers, r.config, r.statusText);
         };
 
+        // todo: move this into a resource component
+        $scope.publish = function() {
+            // todo: button enable/disable (disable if this account-term is queued by anyone)
+            // todo: response message for user (e.g. process in audit log table)
+            $log.debug($scope.filters);
+            $http.post('/publish_courses/api/publish', {
+                account: $scope.filters.schools.value,
+                term: $scope.filters.terms.value
+            }).then(function logPublishResponse(response) {
+                $log.debug(response);
+                $log.debug(response.data);
+            }).catch($scope.handleAjaxErrorResponse);
+        }
     }
 })();

@@ -46,6 +46,8 @@ EMAIL_SUBJECT_PREFIX = ''
 # Application definition
 
 INSTALLED_APPS = (
+    'async',
+    'bulk_utilities',
     'canvas_account_admin_tools',
     'canvas_course_site_wizard',
     'canvas_site_creator',
@@ -57,6 +59,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
+    'django_rq',
     'djangular',
     'icommons_common',
     'icommons_ui',
@@ -109,6 +112,7 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_APPS_MAPPING = {
+    'async': 'default',
     'auth': 'default',
     'canvas_account_admin_tools': 'default',
     'canvas_course_site_wizard': 'termtool',
@@ -173,6 +177,26 @@ CACHES = {
         },
         'KEY_PREFIX': 'tlt_shared',
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
+    }
+}
+
+# RQ
+# http://python-rq.org/docs/
+
+# todo: is this going to use the proper prefixes?
+# todo: do we want to use https://github.com/ui/django-rq#support-for-django-redis-and-django-redis-cache?
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 180),
+    },
+    'bulk_publish_canvas_sites': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 180),
     }
 }
 
@@ -267,17 +291,22 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'bulk_utilities': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'canvas_account_admin_tools': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
             'propagate': False,
         },
-        'canvas_site_creator': {
+        'canvas_course_site_wizard': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
-        'canvas_course_site_wizard': {
+        'canvas_site_creator': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,
@@ -294,7 +323,12 @@ LOGGING = {
         },
         'publish_courses': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'rq.worker': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
     }
