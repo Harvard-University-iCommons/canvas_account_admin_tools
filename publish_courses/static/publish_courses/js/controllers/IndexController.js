@@ -80,14 +80,14 @@
         $scope.loadCoursesSummary = function(){
             var selectedAccountId= $scope.school.id;
             var selectedTermId= $scope.filters.terms.value;
-            console.log("selectedAccountId="+selectedAccountId);
-            console.log("selectedTermId="+selectedTermId);
+            var config = {params: {
+                    term_id: selectedTermId,
+                    account_id: selectedAccountId
+                }};
 
-            var url = djangoUrl.reverse(
-                'publish_courses:api_show_summary',[selectedTermId, selectedAccountId]);
-            console.log("url="+url);
+            var url = '/publish_courses/api/show_summary';
             self.dataLoading = true;
-            $http.get(url).success(
+            $http.get(url, config).success(
                     function (data, status, headers, config) {
                         $scope.totalCourses = data.recordsTotal;
                         $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;

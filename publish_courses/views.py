@@ -27,25 +27,6 @@ COURSE_INSTANCE_FILTERS = ['school', 'term']
 def index(request):
     account_sis_id = request.LTI['custom_canvas_account_sis_id']
     context = {'school': account_sis_id.lstrip('school:')}
-#     # prep context data, used to fill filter dropdowns with data targeted
-#     # to the lti launch's user.
-#     canvas_user_id = request.LTI['custom_canvas_user_id']
-#     sis_account_id = request.LTI['custom_canvas_account_sis_id']
-#     school_id = sis_account_id.split(':')[1]
-#     ci_filters = {key: request.GET.get(key, '')
-#                   for key in COURSE_INSTANCE_FILTERS}
-#     schools = json.loads(_get_schools_context(canvas_user_id))
-#     print schools
-#
-#     # fetch the current school data
-#     school = [school for school in schools if school['value'] == school_id]
-#     print "school=====", school
-#     context = {
-#         'schools': _get_schools_context(canvas_user_id),
-#         'filters': ci_filters,
-#         'school': json.dumps(school),
-#     }
-# >>>>>>> Stashed changes
     return render(request, 'publish_courses/index.html', context)
 
 

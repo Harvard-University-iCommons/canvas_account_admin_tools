@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @require_http_methods(['GET'])
-def show_summary(request, term_id, account_id):
+def show_summary(request):
+# def show_summary(request, term_id, account_id):
     """
     Return counts of published courses using the GET parameters given
 
@@ -28,11 +29,10 @@ def show_summary(request, term_id, account_id):
     :param account_id: The Canvas account ID for the school to count course instances for
     :return: JSON response containing the course instance counts
     """
-    print(" in api_show_summary....")
-    year = '1900' if term_id == '99' else '2015'
-    sis_term_id = 'sis_term_id:{}-{}'.format(year, term_id)
+    term_id = request.GET.get("term_id")
+    account_id = request.GET.get("account_id")
+    sis_term_id = 'sis_term_id:{}'.format(term_id)
     sis_account_id = 'sis_account_id:school:{}'.format(account_id)
-    print(sis_term_id, sis_account_id)
     result = {}
     try:
         # get published and total number of courses in term
@@ -42,13 +42,14 @@ def show_summary(request, term_id, account_id):
         total_courses = _get_courses_by_published_state(sis_term_id,
                                                         sis_account_id,
                                                         False)
-        result= {
+        result = {
             'recordsTotal': len(total_courses),
             'recordsTotalPublishedCourses': len(published_courses),
         }
     except Exception:
         logger.exception("Failed to get published courses summary")
-        result['error'] = 'There was a problem counting courses. Please try again.'
+        result['error'] = 'There was a problem counting courses. Please ' \
+                          'try again.'
         return create_json_500_response(result)
 
     return create_json_200_response(result)
@@ -60,11 +61,8 @@ def _get_courses_by_published_state(sis_term_id, sis_account_id, published):
         'account': sis_account_id,
         'term': sis_term_id,
     }
-    print(op_config)
     op = BulkCourseSettingsOperation(op_config)
     op._get_canvas_courses()
-    courses = op.canvas_courses
-
     return op.canvas_courses
 
 # todo: lock it down
