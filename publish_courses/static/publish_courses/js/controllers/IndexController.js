@@ -18,23 +18,22 @@
         $scope.school = {id: $window.school};
 
         $scope.filterOptions = {
-                // `key` and `value` are the GET params sent to the server when
-                // the option is chosen. `value` must be unique in its option list,
-                // as it is also used for the HTML input element value. `value` can
-                // be arbitrarily set to something unique if there are duplicate
-                // values; in that case, an optional `query_value` attribute can be
-                // included in the option object to indicate what to send to the
-                // server. `query` is `true` if this option should trigger a GET
-                // param included in the request, or `false` if it is e.g. the
-                // default and should not be appended to the request params.
-
-                terms: [
-                  // todo: move a 'no terms found' into the template, remove this
-                    {key:'term', value: '', name:'', query: false, text: 'Choose a term <span class="caret"></span>'}
-                    // specific terms are filled out dynamically below
-                ],
-
-            };
+            // `key` and `value` are the GET params sent to the server when
+            // the option is chosen. `value` must be unique in its option list,
+            // as it is also used for the HTML input element value. `value` can
+            // be arbitrarily set to something unique if there are duplicate
+            // values; in that case, an optional `query_value` attribute can be
+            // included in the option object to indicate what to send to the
+            // server. `query` is `true` if this option should trigger a GET
+            // param included in the request, or `false` if it is e.g. the
+            // default and should not be appended to the request params.
+            terms: [
+              // todo: move a 'no terms found' into the template, remove this
+                {key:'term', value: '', name:'', query: false, text: 'Choose a term <span class="caret"></span>'}
+                // specific terms are filled out dynamically below
+            ],
+        };
+        $scope.filters = {terms: $scope.filterOptions.terms[0]};
 
         var schoolUrl = '/icommons_rest_api/api/course/v2/schools/'
             + $scope.school.id + '/';
@@ -74,15 +73,16 @@
                     // API returns next=null if there are no more pages
                     $log.warn('Warning: Some terms missing from dropdown!');
                 }
-                $scope.filters = {
-                // default to first in list on load
-                terms: $scope.filterOptions.terms[0],
-
-                };
+                // todo: default to most recent, like in site creator?
             }, $scope.handleAjaxErrorResponse);
+
+        $scope.clearMessages = function () { $scope.message = null; };
 
         // todo: move this into directive
         $scope.selectTerm = function (selectedTermIndex) {
+            $scope.clearMessages();
+            // user is initiating a new action, so re-enable the Publish button
+            $scope.operationInProgress = false;
             $scope.filters.terms = $scope.filterOptions.terms[selectedTermIndex];
         };
 
@@ -98,19 +98,37 @@
                 r.data, r.status, r.headers, r.config, r.statusText);
         };
 
+        $scope.publishButtonDisabled = function() {
+            return $scope.operationInProgress || !$scope.filters.terms.value;
+        };
+
         // todo: move this into a resource component
         $scope.publish = function() {
-            // todo: button enable/disable (disable if this account-term is queued by anyone)
-            // todo: response message for user (e.g. process in audit log table)
-            $log.debug($scope.filters);
-            $http.post('/publish_courses/api/publish', {
+            var postParams = {
                 account: $scope.school.id,
                 term: $scope.filters.terms.value
-            }).then(function logPublishResponse(response) {
-                // todo: show a message
+            };
+            $scope.clearMessages();
+            // disable Publish button (until user changes term)
+            $scope.operationInProgress = true;
+            $http.post('/publish_courses/api/publish', postParams
+            ).then(function logPublishResponse(response) {
+                $scope.message = {
+                    alertType: 'success',
+                    text: 'These courses will be published momentarily. ' +
+                    'Please check the summary on this page, or the reports ' +
+                    'in your account settings, to verify that all courses ' +
+                    'are published.'
+                };
                 $log.debug(response);
                 $log.debug(response.data);
-            }).catch($scope.handleAjaxErrorResponse);
+            }).catch(function publishFailed(response) {
+                $scope.message = {
+                    alertType: 'danger',
+                    text: 'There was a problem publishing these courses.'};
+                $scope.handleAjaxErrorResponse(response);
+
+            });
         };
     }
 })();

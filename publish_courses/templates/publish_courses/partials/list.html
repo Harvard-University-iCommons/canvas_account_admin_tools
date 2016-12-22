@@ -10,10 +10,10 @@
 
 <main>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-xs-6">
       {{ school.name }}
     </div>
-    <div class="col-md-6">
+    <div class="col-xs-6">
       <div class="btn-group" uib-dropdown>
         <button id="dropdownMenuTerm"
                 ng-bind-html="filters.terms.text"
@@ -33,18 +33,27 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-xs-6">
         (stats)
     </div>
-    <div class="col-md-6">
+    <div class="col-xs-6">
       <button class="btn btn-primary"
               id="publishAllButton"
               ng-click="publish()"
-              ng-disabled="!filters.terms.value"
+              ng-disabled="publishButtonDisabled()"
               type="button">
         <i class="fa fa-search"></i>
         Publish All
       </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <uib-alert ng-if="message"
+                 type="{{message.alertType}}"
+                 id="result-message">
+        <span> {{ message.text }} </span>
+      </uib-alert>
     </div>
   </div>
 </main>
