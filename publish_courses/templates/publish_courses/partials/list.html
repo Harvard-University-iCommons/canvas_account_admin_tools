@@ -11,9 +11,11 @@
 <main>
   <div class="row">
     <div class="col-md-6">
+      <label for="currentSchool">School:</label>
       {{ school.name }}
     </div>
     <div class="col-md-6">
+        <label for="currentSchool">Term:</label>
       <div class="btn-group" uib-dropdown>
         <button id="dropdownMenuTerm"
                 ng-bind-html="filters.terms.text"
@@ -26,16 +28,43 @@
             role="menu"
             aria-labelledby="dropdownMenuTerm">
           <li ng-repeat="t in filterOptions.terms track by $index">
-            <a href ng-click="$parent.selectTerm($index)">{{ t.name }}</a>
+            <a href ng-click="$parent.selectTerm($index);loadCoursesSummary()" >{{ t.name }}</a>
           </li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-6">
-        (stats)
+    <div ng-cloak>
+        <h3>
+            <ng-pluralize count="totalCourses"
+                          when="{'0': 'There are 0 courses in this term:',
+                                 '1': 'There is 1 course in this term:',
+                                 'other': 'There are {} courses in this term:'}">
+            </ng-pluralize>
+        </h3>
+        <ul>
+            <li>
+                <ng-pluralize count="totalPublishedCourses"
+                          when="{'0': '0 courses are published ',
+                                 '1': '1 course is published ',
+                                 'other': '{} courses are published '}">
+                </ng-pluralize>
+
+            </li>
+            <li>
+                <ng-pluralize count="totalUnpublishedCourses"
+                          when="{'0': '0 courses are unpublished ',
+                                 '1': '1 course is inpublished ',
+                                 'other': '{} courses are unpublished '}">
+                </ng-pluralize>
+
+             </li>
+        </ul>
     </div>
+
+
+  <div class="row">
+
     <div class="col-md-6">
       <button class="btn btn-primary"
               id="publishAllButton"

@@ -76,8 +76,11 @@ class BulkCourseSettingsOperation(object):
                     list_active_courses_in_account,
                     account_id=self.options.get('account'),
                     enrollment_term_id=self.options.get('term'),
-                    search_term=self.options.get('search_term'),
-                    state=self.options.get('course_state'))
+                    search_term=self.options.get('search_term', None),
+                    state=self.options.get('course_state', None),
+                    published=self.options.get('published', None),
+                )
+
             except Exception as e:
                 message = 'Error listing active courses in account'
                 if isinstance(e, CanvasAPIError):

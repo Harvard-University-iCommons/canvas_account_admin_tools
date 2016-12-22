@@ -8,14 +8,16 @@
     function IndexController($scope, $http, $timeout, $document, $window,
                             $compile, djangoUrl, $log, $q, $uibModal) {
         $scope.datatableInteractiveElementTabIndexes = [];
-        // expected $scope.message format:
-        //   {alertType: 'bootstrap alert class', text: 'actual message'}
+
         $scope.message = null;
         $scope.operationInProgress = false;
         $scope.queryString = '';
         $scope.rawFormInput = {primary: '', secondary: ''};
         // todo: move this into shared component
         $scope.school = {id: $window.school};
+        $scope.totalCourse = 0;
+        $scope.totalPublishedCourses = 0;
+        $scope.totalUnpublishedCourses = 0;
 
         $scope.filterOptions = {
                 // `key` and `value` are the GET params sent to the server when
@@ -33,8 +35,7 @@
                     {key:'term', value: '', name:'', query: false, text: 'Choose a term <span class="caret"></span>'}
                     // specific terms are filled out dynamically below
                 ],
-
-            };
+        };
 
         var schoolUrl = '/icommons_rest_api/api/course/v2/schools/'
             + $scope.school.id + '/';
@@ -56,7 +57,6 @@
             with_start_date: 'True',
         }};
 
-        // todo: move this into shared component
         $http.get('/icommons_rest_api/api/course/v2/terms/', httpGetConfig)
             .then(function successCallback(response) {
                 var dropdownSuffix = ' <span class="caret"></span>';
@@ -80,6 +80,36 @@
 
                 };
             }, $scope.handleAjaxErrorResponse);
+
+        $scope.loadCoursesSummary = function(){
+            var selectedAccountId= $scope.school.id;
+            var selectedTermId= $scope.filters.terms.value;
+            console.log("selectedAccountId="+selectedAccountId);
+            console.log("selectedTermId="+selectedTermId);
+
+            var url = djangoUrl.reverse(
+                'publish_courses:api_show_summary',[selectedTermId, selectedAccountId]);
+            console.log("url="+url);
+            self.dataLoading = true;
+            $http.get(url).success(
+                    function (data, status, headers, config) {
+                        $scope.totalCourses = data.recordsTotal;
+                        $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;
+                        $scope.totalUnpublishedCourses =
+                            $scope.totalCourses-$scope.totalPublishedCourses;
+            }).error(function (data, status, headers, config) {
+                // status == 0 indicates that the request was cancelled,
+                // which means that (a) the user navigated away from the
+                // page before an AJAX request had a chance to return with a
+                // response, or (b) we manually canceled it because it was
+                // superseded by a more recent request; in any case, ignore
+                // this error condition
+                if (status != 0) {
+                    self.dataLoading = false;
+                }
+            });
+        };
+
 
         // todo: move this into directive
         $scope.selectTerm = function (selectedTermIndex) {
