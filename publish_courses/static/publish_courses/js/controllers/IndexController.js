@@ -17,7 +17,8 @@
         $scope.school = {id: $window.school};
         $scope.totalCourse = 0;
         $scope.totalPublishedCourses = 0;
-        $scope.totalUnpublishedCourses = 0;
+        $scope.totalUnpublishedCourses = 0
+        $scope.summaryLoaded = false;
 
         $scope.filterOptions = {
             // `key` and `value` are the GET params sent to the server when
@@ -104,6 +105,7 @@
                     self.dataLoading = false;
                 }
             });
+            $scope.summaryLoaded = true;
         };
 
         $scope.clearMessages = function () { $scope.message = null; };

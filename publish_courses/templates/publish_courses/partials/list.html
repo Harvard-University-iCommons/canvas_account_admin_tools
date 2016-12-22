@@ -35,13 +35,14 @@
       </div>
     </div>
   </div>
-    <div ng-cloak>
+    <div ng-cloak ng-show="summaryLoaded">
         <h3>
             <ng-pluralize count="totalCourses"
                           when="{'0': 'There are 0 courses in this term:',
                                  '1': 'There is 1 course in this term:',
                                  'other': 'There are {} courses in this term:'}">
             </ng-pluralize>
+
         </h3>
         <ul>
             <li>
