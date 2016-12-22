@@ -12,11 +12,10 @@
   <div class="row">
     <div class="col-xs-6">
       <label for="currentSchool">School:</label>
-      {{ school.name }}
+      <span id="currentSchool"> {{ school.name }} </span>
     </div>
     <div class="col-xs-6">
-        <label for="currentSchool">Term:</label>
-
+      <label for="dropdownMenuTerm">Term:</label>
       <div class="btn-group" uib-dropdown>
         <button id="dropdownMenuTerm"
                 ng-bind-html="filters.terms.text"
@@ -29,7 +28,7 @@
             role="menu"
             aria-labelledby="dropdownMenuTerm">
           <li ng-repeat="t in filterOptions.terms track by $index">
-            <a href ng-click="$parent.selectTerm($index);loadCoursesSummary()" >{{ t.name }}</a>
+            <a href ng-click="$parent.selectTerm($index);" >{{ t.name }}</a>
           </li>
         </ul>
       </div>
