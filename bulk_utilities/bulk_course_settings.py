@@ -59,7 +59,7 @@ class BulkCourseSettingsOperation(object):
                 canvas_course = canvas_course_response.json()
                 self.canvas_courses.append(canvas_course)
 
-    def _get_canvas_courses(self):
+    def get_canvas_courses(self):
         if self.options.get('list_file_name'):
             # open the list file and get all of the canvas courses
             list_file = open(self.options.get('list_file_name'), 'r')
@@ -76,9 +76,9 @@ class BulkCourseSettingsOperation(object):
                     list_active_courses_in_account,
                     account_id=self.options.get('account'),
                     enrollment_term_id=self.options.get('term'),
-                    search_term=self.options.get('search_term', None),
-                    state=self.options.get('course_state', None),
-                    published=self.options.get('published', None),
+                    search_term=self.options.get('search_term'),
+                    state=self.options.get('course_state'),
+                    published=self.options.get('published'),
                 )
 
             except Exception as e:
@@ -92,7 +92,7 @@ class BulkCourseSettingsOperation(object):
         logger.info('executing BulkCourseSettingsOperation with '
                     'options: %s' % self.options)
 
-        self._get_canvas_courses()
+        self.get_canvas_courses()
 
         self.total_count = len(self.canvas_courses)
 

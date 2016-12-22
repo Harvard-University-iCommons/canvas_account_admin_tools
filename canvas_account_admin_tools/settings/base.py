@@ -66,7 +66,8 @@ INSTALLED_APPS = (
     'lti_permissions',
     'people_tool',
     'proxy',
-    'publish_courses'
+    'publish_courses',
+    'rest_framework'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -417,4 +418,15 @@ CANVAS_EMAIL_NOTIFICATION = {
             '{2}\n'+
             'Environment: {3}\n',
     'environment': ENV_NAME.capitalize(),
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,  # default result set size without a limit GET param
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }

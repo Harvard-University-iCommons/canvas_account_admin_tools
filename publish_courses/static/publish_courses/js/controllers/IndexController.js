@@ -7,15 +7,15 @@
 
     function IndexController($scope, $http, $timeout, $document, $window,
                             $compile, djangoUrl, $log, $q, $uibModal) {
-        $scope.datatableInteractiveElementTabIndexes = [];
-
+        // expected $scope.message format:
+        //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         $scope.operationInProgress = false;
         $scope.queryString = '';
         $scope.rawFormInput = {primary: '', secondary: ''};
         // todo: move this into shared component
         $scope.school = {id: $window.school};
-        $scope.totalCourse = 0;
+        $scope.totalCourses = 0;
         $scope.totalPublishedCourses = 0;
         $scope.totalUnpublishedCourses = 0
         $scope.summaryLoaded = false;
@@ -58,6 +58,7 @@
             with_start_date: 'True',
         }};
 
+        // todo: move this into shared component
         $http.get('/icommons_rest_api/api/course/v2/terms/', httpGetConfig)
             .then(function successCallback(response) {
                 var dropdownSuffix = ' <span class="caret"></span>';
@@ -88,13 +89,12 @@
 
             var url = '/publish_courses/api/show_summary';
             self.dataLoading = true;
-            $http.get(url, config).success(
-                    function (data, status, headers, config) {
-                        $scope.totalCourses = data.recordsTotal;
-                        $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;
-                        $scope.totalUnpublishedCourses =
-                            $scope.totalCourses-$scope.totalPublishedCourses;
-            }).error(function (data, status, headers, config) {
+            $http.get(url, config).success(function (data) {
+                $scope.totalCourses = data.recordsTotal;
+                $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;
+                $scope.totalUnpublishedCourses =
+                    $scope.totalCourses-$scope.totalPublishedCourses;
+            }).error(function (data, status, headers, config, statusText) {
                 // status == 0 indicates that the request was cancelled,
                 // which means that (a) the user navigated away from the
                 // page before an AJAX request had a chance to return with a
@@ -104,6 +104,7 @@
                 if (status != 0) {
                     self.dataLoading = false;
                 }
+                $scope.handleAjaxError(data, status, headers, config, statusText);
             });
             $scope.summaryLoaded = true;
         };
@@ -116,6 +117,7 @@
             // user is initiating a new action, so re-enable the Publish button
             $scope.operationInProgress = false;
             $scope.filters.terms = $scope.filterOptions.terms[selectedTermIndex];
+            $scope.loadCoursesSummary();
         };
 
         // todo: move this into shared library component
@@ -143,7 +145,7 @@
             $scope.clearMessages();
             // disable Publish button (until user changes term)
             $scope.operationInProgress = true;
-            $http.post('/publish_courses/api/publish', postParams
+            $http.post('/publish_courses/api/jobs', postParams
             ).then(function logPublishResponse(response) {
                 $scope.message = {
                     alertType: 'success',
