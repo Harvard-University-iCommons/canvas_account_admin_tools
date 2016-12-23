@@ -29,17 +29,6 @@ class CanvasAPIError(APIException):
     default_detail = u'Canvas API error'
 
 
-def _get_courses_by_published_state(sis_term_id, sis_account_id, published):
-    op_config = {
-        'published': published,
-        'account': sis_account_id,
-        'term': sis_term_id,
-    }
-    op = BulkCourseSettingsOperation(op_config)
-    op.get_canvas_courses()
-    return op.canvas_courses
-
-
 class ProcessSerializer(ModelSerializer):
     details = JSONField()
 
