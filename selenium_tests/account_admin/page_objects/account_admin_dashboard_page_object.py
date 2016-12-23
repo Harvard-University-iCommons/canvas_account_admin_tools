@@ -13,6 +13,8 @@ class AccountAdminDashboardPageLocators(object):
                                         "Sites')]")
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Search Courses')]")
     CROSS_LISTING_DIV = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
+    PUBLISH_COURSES_DIV = (By.XPATH, "//a[contains(., 'Publish Courses')]")
+
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
 
@@ -63,4 +65,12 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         self.focus_on_tool_frame()
         self.find_element(
             *AccountAdminDashboardPageLocators.CROSS_LISTING_DIV).click()
+
+    def select_publish_courses_link(self):
+        """
+        select the cross list link element and click it
+        """
+        self.focus_on_tool_frame()
+        self.find_element(
+            *AccountAdminDashboardPageLocators.PUBLISH_COURSES_DIV).click()
 
