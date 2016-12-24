@@ -6,7 +6,7 @@
     app.controller('IndexController', IndexController);
 
     function IndexController($scope, $http, $timeout, $document, $window,
-                            $compile, djangoUrl, $log, $q, $uibModal) {
+                            $compile, djangoUrl, $log, $q, $uibModal, angularDRF) {
         // expected $scope.message format:
         //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
@@ -38,6 +38,7 @@
         };
         $scope.filters = {terms: $scope.filterOptions.terms[0]};
 
+        // todo: move into service
         var schoolUrl = '/icommons_rest_api/api/course/v2/schools/'
             + $scope.school.id + '/';
         $http.get(schoolUrl)
@@ -48,36 +49,33 @@
         // fetch active, complete terms for last five years; note this does not
         // include Ongoing term (year==1900)
         var currentYear = new Date().getFullYear();
-        var httpGetConfig = {params: {
-            active: 1,
-            calendar_year__gte: currentYear-4,  // last five years
-            limit: 100,
-            ordering: '-end_date,term_code__sort_order',
-            school: $scope.school.id,
-            with_end_date: 'True',
-            with_start_date: 'True',
-        }};
+        var getTermsConfig = {
+            params: {
+                active: 1,
+                calendar_year__gte: currentYear - 4,  // last five years
+                limit: 100,
+                ordering: '-end_date,term_code__sort_order',
+                school: $scope.school.id,
+                with_end_date: 'True',
+                with_start_date: 'True'}};
 
-        // todo: move this into shared component
-        $http.get('/icommons_rest_api/api/course/v2/terms/', httpGetConfig)
-            .then(function successCallback(response) {
+      // todo: move this into shared component
+        var termURL = djangoUrl.reverse('icommons_rest_api_proxy',
+                                          ['api/course/v2/terms/']);
+        angularDRF.get(termURL, getTermsConfig)
+            .then(function gotTerms(terms) {
                 var dropdownSuffix = ' <span class="caret"></span>';
+                // todo: is there a better way to apply this to $scope.filterOptions.terms?
                 $scope.filterOptions.terms =
-                    $scope.filterOptions.terms.concat(
-                        response.data.results.map(function (t) {
-                            return {
-                                key: 'term',
-                                name: t.display_name,  // todo: do we need this?
-                                query: true,
-                                text: t.display_name + dropdownSuffix,  // todo: move into selectTerm()?
-                                value: t.meta_term_id }; }));
-                // todo: implement fetch-until-exhausted
-                if (response.data.next && response.data.next !== '') {
-                    // API returns next=null if there are no more pages
-                    $log.warn('Warning: Some terms missing from dropdown!');
-                }
+                    $scope.filterOptions.terms.concat(terms.map(function (t) {
+                        return {
+                            key: 'term',
+                            name: t.display_name,  // todo: do we need this?
+                            query: true,
+                            text: t.display_name + dropdownSuffix,  // todo: move into selectTerm()?
+                            value: t.meta_term_id }; }));
                 // todo: default to most recent, like in site creator?
-            }, $scope.handleAjaxErrorResponse);
+            }, $log.error);
 
         $scope.loadCoursesSummary = function(){
             var selectedAccountId= $scope.school.id;

@@ -34,8 +34,8 @@
     {% endif %}
     {# fixes safari autocomplete issue #}
     {# (see https://github.com/angular/angular.js/issues/1460) #}
-    <script src="{% static 'angular-drf/js/angular-drf.js' %}"></script>
     <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
+    <script src="{% static 'angular-drf/js/angular-drf.js' %}"></script>
     {% include 'django_auth_lti/resource_link_id.html' %}
     <script>
       window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
@@ -47,8 +47,9 @@
   <body class="lti-tool" role="application" ng-app="PublishCourses">
     <div ng-view class="container-fluid"></div>
     <script src="{% static 'publish_courses/js/app.js' %}"></script>
-    <script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkConfigService.js' %}"></script>
+    <script src="{% static 'canvas_account_admin_tools/js/services/angularDRFService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/DjangoAJAXConfigService.js' %}"></script>
+    <script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkConfigService.js' %}"></script>
     <script src="{% static 'publish_courses/js/controllers/IndexController.js' %}"></script>
   </body>
 </html>
