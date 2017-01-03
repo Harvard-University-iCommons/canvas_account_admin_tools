@@ -13,9 +13,7 @@
         $scope.school = {id: AppConfig.school};
         $scope.selectedTerm = null;
         $scope.terms = null;
-        $scope.totalCourses = 0;
-        $scope.totalPublishedCourses = 0;
-        $scope.totalUnpublishedCourses = 0;
+        $scope.coursesSummary = {};
         $scope.loadingSummary = false;
         $scope.messages = {
             success: {
@@ -54,10 +52,7 @@
             var accountId = $scope.school.id;
             var termId = $scope.selectedTerm.meta_term_id;
             pcapi.CourseSummary.get(accountId, termId).then(function (data) {
-                $scope.totalCourses = data.recordsTotal;
-                $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;
-                $scope.totalUnpublishedCourses =
-                    $scope.totalCourses-$scope.totalPublishedCourses;
+                $scope.coursesSummary = data;
                 $scope.loadingSummary = false;
             });
         };
@@ -81,7 +76,7 @@
         $scope.publishButtonDisabled = function() {
             return ($scope.operationInProgress
                     || !$scope.selectedTerm
-                    || $scope.totalUnpublishedCourses == 0);
+                    || $scope.coursesSummary.unpublished == 0);
         };
         $scope.termSelected = function(selectedTerm) {
             $scope.selectedTerm = selectedTerm;

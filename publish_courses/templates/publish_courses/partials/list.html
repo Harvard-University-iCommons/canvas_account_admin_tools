@@ -42,30 +42,34 @@
         </div>
         <div ng-show="!loadingSummary">
           <h3>
-              <ng-pluralize count="totalCourses"
+              <ng-pluralize count="coursesSummary.total"
                             when="{'0': 'There are 0 courses in this term:',
                                    '1': 'There is 1 course in this term:',
                                    'other': 'There are {} courses in this term:'}">
               </ng-pluralize>
-
           </h3>
           <ul>
               <li>
-                  <ng-pluralize count="totalPublishedCourses"
+                  <ng-pluralize count="coursesSummary.published"
                             when="{'0': '0 courses are published',
                                    '1': '1 course is published',
                                    'other': '{} courses are published'}">
                   </ng-pluralize>
-
               </li>
               <li>
-                  <ng-pluralize count="totalUnpublishedCourses"
+                  <ng-pluralize count="coursesSummary.unpublished"
                             when="{'0': '0 courses are unpublished',
                                    '1': '1 course is unpublished',
                                    'other': '{} courses are unpublished'}">
                   </ng-pluralize>
-
-               </li>
+              </li>
+              <li ng-if="coursesSummary.concluded">
+                  <ng-pluralize count="coursesSummary.concluded"
+                            when="{'0': '0 courses are concluded',
+                                   '1': '1 course is concluded',
+                                   'other': '{} courses are concluded'}">
+                  </ng-pluralize>
+              </li>
           </ul>
         </div>
       </div>

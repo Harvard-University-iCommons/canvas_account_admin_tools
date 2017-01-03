@@ -57,24 +57,26 @@ class SummaryList(ListAPIView):
         self.sis_term_id = 'sis_term_id:{}'.format(self.term_id)
         self.sis_account_id = 'sis_account_id:school:{}'.format(self.account_id)
         try:
-            # get published and total number of courses in term
-            published_courses = self._get_courses_by_published_state(True)
-            total_courses = self._get_courses_by_published_state(False)
-            result = {
-                'recordsTotal': len(total_courses),
-                'recordsTotalPublishedCourses': len(published_courses),
+            total_courses = self._get_courses()
+            state_map = {
+                'published': 'available',
+                'unpublished': 'unpublished',
+                'concluded': 'completed',
             }
+            summary_counts_by_state = {'total': len(total_courses)}
+            for k, v in state_map.items():
+                summary_counts_by_state[k] = len(
+                    [c for c in total_courses if c['workflow_state'] == v])
         except Exception as e:
             logger.exception(
                 "Failed to get published courses summary for term_id={} and "
                 "account_id={}".format(self.term_id, self.account_id))
             raise CanvasAPIError('There was a problem counting courses. '
                                  'Please try again.')
-        return Response(result)
+        return Response(summary_counts_by_state)
 
-    def _get_courses_by_published_state(self, published):
+    def _get_courses(self):
         op_config = {
-            'published': published,
             'account': self.sis_account_id,
             'term': self.sis_term_id,
         }
