@@ -79,7 +79,6 @@
             // - there are no publishable sites in the term
             // - submitting a job
             // - user has successfully submitted a job
-            // Note: failed jobs will still
             return !$scope.selectedTerm
                    || $scope.coursesSummary.unpublished == 0
                    || $scope.operationInProgress
