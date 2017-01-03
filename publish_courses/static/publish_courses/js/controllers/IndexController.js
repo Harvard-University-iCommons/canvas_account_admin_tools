@@ -33,16 +33,18 @@
                                      || r.title_long
                                      || $scope.school.id;});
 
-        // fetch active, complete terms for last two years and any future years;
-        // note this does not include Ongoing term (year==1900)
-        var currentYear = new Date().getFullYear();
-        var termsGetConfig = { params: {
-                // calendar_year__gte: currentYear - 1,  // last two years
-                calendar_year__gte: currentYear - 2,  // last three years
-                school: $scope.school.id}};
-
+        // fetch active, un-concluded terms
+        var termsGetConfig = {params: {school: $scope.school.id}};
         atrapi.Terms.getList(termsGetConfig)
-            .then(function gotTerms(terms) { $scope.terms = terms; });
+            .then(function gotTerms(terms) {
+                var currentDate = new Date();
+                terms = terms.filter(function filterOutConcludedTerms(term) {
+                    var comparisonDate = new Date(term.conclude_date
+                                                  || term.end_date);
+                    return comparisonDate >= currentDate;
+                });
+                $scope.terms = terms;
+            });
 
         $scope.clearMessages = function () {
             $scope.message = null;
