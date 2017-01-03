@@ -74,9 +74,16 @@
             });
         };
         $scope.publishButtonDisabled = function() {
-            return ($scope.operationInProgress
-                    || !$scope.selectedTerm
-                    || $scope.coursesSummary.unpublished == 0);
+            // disable button when:
+            // - nothing is selected in the term dropdown
+            // - there are no publishable sites in the term
+            // - submitting a job
+            // - user has successfully submitted a job
+            // Note: failed jobs will still
+            return !$scope.selectedTerm
+                   || $scope.coursesSummary.unpublished == 0
+                   || $scope.operationInProgress
+                   || ($scope.message && ($scope.message == $scope.messages.success));
         };
         $scope.termSelected = function(selectedTerm) {
             $scope.selectedTerm = selectedTerm;
