@@ -41,13 +41,13 @@
           </h3>
         </div>
         <div ng-show="!loadingSummary">
-          <h3>
+          <h4>
               <ng-pluralize count="coursesSummary.total"
                             when="{'0': 'There are 0 courses in this term:',
                                    '1': 'There is 1 course in this term:',
                                    'other': 'There are {} courses in this term:'}">
               </ng-pluralize>
-          </h3>
+          </h4>
           <ul>
               <li>
                   <ng-pluralize count="coursesSummary.published"
@@ -83,12 +83,11 @@
               ng-click="publish()"
               ng-disabled="publishButtonDisabled()"
               type="button">
-        <i class="fa fa-search"></i>
         Publish All
       </button>
     </div>
   </div>
-  <div class="row">
+  <div class="row alert-container">
     <div class="col-xs-12">
       <uib-alert ng-if="message"
                  type="{{message.alertType}}"
