@@ -1,0 +1,17 @@
+<div class="btn-group" uib-dropdown>
+  <button id="dropdownMenuTerm"
+          ng-bind-html="dropdownText"
+          type="button"
+          class="btn btn-default"
+          uib-dropdown-toggle>
+  </button>
+  <ul class="dropdown-menu"
+      uib-dropdown-menu
+      role="menu"
+      aria-labelledby="dropdownMenuTerm">
+    <li ng-repeat="t in terms track by $index">
+      <a ng-click="$parent.selectTerm($index);" href
+         ng-bind-html="t.display_name"></a>
+    </li>
+  </ul>
+</div>

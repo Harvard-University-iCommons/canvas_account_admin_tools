@@ -5,162 +5,88 @@
     var app = angular.module('PublishCourses');
     app.controller('IndexController', IndexController);
 
-    function IndexController($scope, $http, $timeout, $document, $window,
-                            $compile, djangoUrl, $log, $q, $uibModal, angularDRF) {
+    function IndexController($scope, $log, atrapi, AppConfig, pcapi) {
         // expected $scope.message format:
         //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         $scope.operationInProgress = false;
-        $scope.queryString = '';
-        $scope.rawFormInput = {primary: '', secondary: ''};
-        // todo: move this into shared component
-        $scope.school = {id: $window.school};
+        $scope.school = {id: AppConfig.school};
+        $scope.selectedTerm = null;
+        $scope.terms = null;
         $scope.totalCourses = 0;
         $scope.totalPublishedCourses = 0;
-        $scope.totalUnpublishedCourses = 0
-        $scope.summaryLoaded = false;
+        $scope.totalUnpublishedCourses = 0;
+        $scope.loadingSummary = false;
+        $scope.messages = {
+            success: {
+                alertType: 'success',
+                text: 'These courses will be published momentarily. ' +
+                'Please check the summary on this page, or the reports ' +
+                'in your account settings, to verify that all courses ' +
+                'are published.'},
+            failure: {
+                alertType: 'danger',
+                text: 'There was a problem publishing these courses.'} };
 
-        $scope.filterOptions = {
-            // `key` and `value` are the GET params sent to the server when
-            // the option is chosen. `value` must be unique in its option list,
-            // as it is also used for the HTML input element value. `value` can
-            // be arbitrarily set to something unique if there are duplicate
-            // values; in that case, an optional `query_value` attribute can be
-            // included in the option object to indicate what to send to the
-            // server. `query` is `true` if this option should trigger a GET
-            // param included in the request, or `false` if it is e.g. the
-            // default and should not be appended to the request params.
-            terms: [
-              // todo: move a 'no terms found' into the template, remove this
-                {key:'term', value: '', name:'', query: false, text: 'Choose a term <span class="caret"></span>'}
-                // specific terms are filled out dynamically below
-            ],
-        };
-        $scope.filters = {terms: $scope.filterOptions.terms[0]};
+        // get school display name from the sis_account_id context
+        atrapi.Schools.get($scope.school.id)
+            .then(function gotSchool(r) {
+                $scope.school.name = r.title_short
+                                     || r.title_long
+                                     || $scope.school.id;});
 
-        // todo: move into service
-        var schoolUrl = '/icommons_rest_api/api/course/v2/schools/'
-            + $scope.school.id + '/';
-        $http.get(schoolUrl)
-            .then(function successCallback(response) {
-                $scope.school.name = response.data.title_short || response.data.title_long;
-            }, $scope.handleAjaxErrorResponse);
-
-        // fetch active, complete terms for last five years; note this does not
-        // include Ongoing term (year==1900)
+        // fetch active, complete terms for last two years and any future years;
+        // note this does not include Ongoing term (year==1900)
         var currentYear = new Date().getFullYear();
-        var getTermsConfig = {
-            params: {
-                active: 1,
-                calendar_year__gte: currentYear - 4,  // last five years
-                limit: 100,
-                ordering: '-end_date,term_code__sort_order',
-                school: $scope.school.id,
-                with_end_date: 'True',
-                with_start_date: 'True'}};
+        var termsGetConfig = { params: {
+                // calendar_year__gte: currentYear - 1,  // last two years
+                calendar_year__gte: currentYear - 2,  // last three years
+                school: $scope.school.id}};
 
-      // todo: move this into shared component
-        var termURL = djangoUrl.reverse('icommons_rest_api_proxy',
-                                          ['api/course/v2/terms/']);
-        angularDRF.get(termURL, getTermsConfig)
-            .then(function gotTerms(terms) {
-                var dropdownSuffix = ' <span class="caret"></span>';
-                // todo: is there a better way to apply this to $scope.filterOptions.terms?
-                $scope.filterOptions.terms =
-                    $scope.filterOptions.terms.concat(terms.map(function (t) {
-                        return {
-                            key: 'term',
-                            name: t.display_name,  // todo: do we need this?
-                            query: true,
-                            text: t.display_name + dropdownSuffix,  // todo: move into selectTerm()?
-                            value: t.meta_term_id }; }));
-                // todo: default to most recent, like in site creator?
-            }, $log.error);
+        atrapi.Terms.getList(termsGetConfig)
+            .then(function gotTerms(terms) { $scope.terms = terms; });
 
+        $scope.clearMessages = function () {
+            $scope.message = null;
+        };
         $scope.loadCoursesSummary = function(){
-            var selectedAccountId= $scope.school.id;
-            var selectedTermId= $scope.filters.terms.value;
-            var config = {params: {
-                    term_id: selectedTermId,
-                    account_id: selectedAccountId
-                }};
-
-            var url = '/publish_courses/api/show_summary';
-            self.dataLoading = true;
-            $http.get(url, config).success(function (data) {
+            $scope.loadingSummary = true;
+            var accountId = $scope.school.id;
+            var termId = $scope.selectedTerm.meta_term_id;
+            pcapi.CourseSummary.get(accountId, termId).then(function (data) {
                 $scope.totalCourses = data.recordsTotal;
                 $scope.totalPublishedCourses = data.recordsTotalPublishedCourses;
                 $scope.totalUnpublishedCourses =
                     $scope.totalCourses-$scope.totalPublishedCourses;
-            }).error(function (data, status, headers, config, statusText) {
-                // status == 0 indicates that the request was cancelled,
-                // which means that (a) the user navigated away from the
-                // page before an AJAX request had a chance to return with a
-                // response, or (b) we manually canceled it because it was
-                // superseded by a more recent request; in any case, ignore
-                // this error condition
-                if (status != 0) {
-                    self.dataLoading = false;
-                }
-                $scope.handleAjaxError(data, status, headers, config, statusText);
+                $scope.loadingSummary = false;
             });
-            $scope.summaryLoaded = true;
         };
-
-        $scope.clearMessages = function () { $scope.message = null; };
-
-        // todo: move this into directive
-        $scope.selectTerm = function (selectedTermIndex) {
-            $scope.clearMessages();
-            // user is initiating a new action, so re-enable the Publish button
-            $scope.operationInProgress = false;
-            $scope.filters.terms = $scope.filterOptions.terms[selectedTermIndex];
-            $scope.loadCoursesSummary();
-        };
-
-        // todo: move this into shared library component
-        $scope.handleAjaxError = function (data, status, headers, config, statusText) {
-            $log.error('Error attempting to ' + config.method + ' ' + config.url +
-                ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
-        };
-        $scope.handleAjaxErrorResponse = function (r) {
-            // angular promise then() function returns a response object,
-            // unpack for our old-style error handler
-            $scope.handleAjaxError(
-                r.data, r.status, r.headers, r.config, r.statusText);
-        };
-
-        $scope.publishButtonDisabled = function() {
-            return $scope.operationInProgress || !$scope.filters.terms.value;
-        };
-
-        // todo: move this into a resource component
         $scope.publish = function() {
-            var postParams = {
-                account: $scope.school.id,
-                term: $scope.filters.terms.value
-            };
             $scope.clearMessages();
+            var accountId = $scope.school.id;
+            var termId = $scope.selectedTerm.meta_term_id;
             // disable Publish button (until user changes term)
             $scope.operationInProgress = true;
-            $http.post('/publish_courses/api/jobs', postParams
-            ).then(function logPublishResponse(response) {
-                $scope.message = {
-                    alertType: 'success',
-                    text: 'These courses will be published momentarily. ' +
-                    'Please check the summary on this page, or the reports ' +
-                    'in your account settings, to verify that all courses ' +
-                    'are published.'
-                };
+            pcapi.Jobs.create(accountId, termId
+            ).then(function publishSucceeded(response) {
+                $scope.message = $scope.messages.success;
                 $log.debug(response);
                 $log.debug(response.data);
-            }).catch(function publishFailed(response) {
-                $scope.message = {
-                    alertType: 'danger',
-                    text: 'There was a problem publishing these courses.'};
-                $scope.handleAjaxErrorResponse(response);
-
+            }, function publishFailed(response) {
+                $scope.message = $scope.messages.failure;
+            }).finally(function cleanUpAfterPublish() {
+                $scope.operationInProgress = false;
             });
+        };
+        $scope.publishButtonDisabled = function() {
+            return ($scope.operationInProgress
+                    || !$scope.selectedTerm
+                    || $scope.totalUnpublishedCourses == 0);
+        };
+        $scope.termSelected = function(selectedTerm) {
+            $scope.selectedTerm = selectedTerm;
+            $scope.clearMessages();
+            $scope.loadCoursesSummary();
         };
     }
 })();

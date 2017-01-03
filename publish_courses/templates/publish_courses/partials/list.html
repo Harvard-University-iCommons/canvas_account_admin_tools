@@ -11,63 +11,69 @@
 <main>
   <div class="row">
     <div class="col-xs-6">
-      <label for="currentSchool">School:</label>
-      <span id="currentSchool"> {{ school.name }} </span>
+      <label for="currentSchool">School</label>
     </div>
     <div class="col-xs-6">
-      <label for="dropdownMenuTerm">Term:</label>
-      <div class="btn-group" uib-dropdown>
-        <button id="dropdownMenuTerm"
-                ng-bind-html="filters.terms.text"
-                type="button"
-                class="btn btn-default"
-                uib-dropdown-toggle>
-        </button>
-        <ul class="dropdown-menu"
-            uib-dropdown-menu
-            role="menu"
-            aria-labelledby="dropdownMenuTerm">
-          <li ng-repeat="t in filterOptions.terms track by $index">
-            <a href ng-click="$parent.selectTerm($index);" >{{ t.name }}</a>
-          </li>
-        </ul>
+      <label for="dropdownMenuTerm">Term</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <div ng-show="!school.name">
+        Loading school...
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+      <div ng-show="school.name">
+        <span id="currentSchool"> {{ school.name }} </span>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <term-dropdown terms="terms" on-select="termSelected(term)"></term-dropdown>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <div ng-cloak ng-show="selectedTerm">
+        <div ng-show="loadingSummary">
+          <h3>
+            Loading courses...
+            <i class="fa fa-refresh fa-spin"></i>
+          </h3>
+        </div>
+        <div ng-show="!loadingSummary">
+          <h3>
+              <ng-pluralize count="totalCourses"
+                            when="{'0': 'There are 0 courses in this term:',
+                                   '1': 'There is 1 course in this term:',
+                                   'other': 'There are {} courses in this term:'}">
+              </ng-pluralize>
+
+          </h3>
+          <ul>
+              <li>
+                  <ng-pluralize count="totalPublishedCourses"
+                            when="{'0': '0 courses are published',
+                                   '1': '1 course is published',
+                                   'other': '{} courses are published'}">
+                  </ng-pluralize>
+
+              </li>
+              <li>
+                  <ng-pluralize count="totalUnpublishedCourses"
+                            when="{'0': '0 courses are unpublished',
+                                   '1': '1 course is unpublished',
+                                   'other': '{} courses are unpublished'}">
+                  </ng-pluralize>
+
+               </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-    <div ng-cloak ng-show="summaryLoaded">
-        <h3>
-            <ng-pluralize count="totalCourses"
-                          when="{'0': 'There are 0 courses in this term:',
-                                 '1': 'There is 1 course in this term:',
-                                 'other': 'There are {} courses in this term:'}">
-            </ng-pluralize>
-
-        </h3>
-        <ul>
-            <li>
-                <ng-pluralize count="totalPublishedCourses"
-                          when="{'0': '0 courses are published ',
-                                 '1': '1 course is published ',
-                                 'other': '{} courses are published '}">
-                </ng-pluralize>
-
-            </li>
-            <li>
-                <ng-pluralize count="totalUnpublishedCourses"
-                          when="{'0': '0 courses are unpublished ',
-                                 '1': '1 course is inpublished ',
-                                 'other': '{} courses are unpublished '}">
-                </ng-pluralize>
-
-             </li>
-        </ul>
-    </div>
-
 
   <div class="row">
-
     <div class="col-xs-6">
-
       <button class="btn btn-primary"
               id="publishAllButton"
               ng-click="publish()"
