@@ -10,6 +10,7 @@
         //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
         $scope.operationInProgress = false;
+        $scope.currentDate = new Date();
         $scope.school = {id: AppConfig.school};
         $scope.selectedTerm = null;
         $scope.terms = null;
@@ -26,24 +27,29 @@
                 alertType: 'danger',
                 text: 'There was a problem publishing these courses.'} };
 
-        // get school display name from the sis_account_id context
-        atrapi.Schools.get($scope.school.id)
-            .then(function gotSchool(r) {
-                $scope.school.name = r.title_short
-                                     || r.title_long
-                                     || $scope.school.id;});
+        $scope.filterOutOngoingTerms = function(term) {
+          return term.term_code != 99;  // ongoing term
+        };
+        $scope.filterOutConcludedTerms = function(term) {
+            var comparisonDate = new Date(term.conclude_date || term.end_date);
+            return comparisonDate >= $scope.currentDate;
+        };
+        $scope.initialize = function() {
+            // get school display name from the sis_account_id context
+            atrapi.Schools.get($scope.school.id)
+                .then(function gotSchool(r) {
+                    $scope.school.name = r.title_short
+                                         || r.title_long
+                                         || $scope.school.id;});
 
-        // fetch active, complete terms for last two years and any future years;
-        // note this does not include Ongoing term (year==1900)
-        var currentYear = new Date().getFullYear();
-        var termsGetConfig = { params: {
-                // calendar_year__gte: currentYear - 1,  // last two years
-                calendar_year__gte: currentYear - 2,  // last three years
-                school: $scope.school.id}};
-
-        atrapi.Terms.getList(termsGetConfig)
-            .then(function gotTerms(terms) { $scope.terms = terms; });
-
+            // fetch active, un-concluded terms
+            var termsGetConfig = {params: {school: $scope.school.id}};
+            atrapi.Terms.getList(termsGetConfig)
+                .then(function gotTerms(terms) {
+                    var currentTerms = terms.filter($scope.filterOutConcludedTerms);
+                    $scope.terms = currentTerms.filter($scope.filterOutOngoingTerms);
+                });
+        };
         $scope.clearMessages = function () {
             $scope.message = null;
         };
@@ -89,5 +95,7 @@
             $scope.clearMessages();
             $scope.loadCoursesSummary();
         };
+
+        $scope.initialize();
     }
 })();
