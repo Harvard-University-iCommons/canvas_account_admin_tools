@@ -13,7 +13,8 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 logger = logging.getLogger(__name__)
 
 
-def bulk_publish_canvas_sites(process_id, account=None, course_list=None, term=None, published=True):
+def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
+                              term=None, published=True, dry_run=False):
     logger.info("Starting bulk_publish_canvas_sites job")  # todo: more info
 
     # todo: validate input
@@ -25,17 +26,19 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None, term=N
             "Failed to find Process with id {}".format(process_id))
         raise
 
-    process.update_state(Process.ACTIVE)
-
     # todo: put options (e.g. published, dry-run, etc) into the details section of process as well
     op_config = {
         'published': 'true' if published else None,
         'account': account,
         'courses': course_list,
         'term': term,
-        # todo: remove after debugging
-        'dry_run': True
+        'dry_run': dry_run
     }
+    process.state = Process.ACTIVE
+    # todo: might want to de-duplicate some of this info?
+    process.details['op_config'] = op_config
+    process.save(update_fields=['state', 'details'])
+
     op = BulkCourseSettingsOperation(op_config)
     try:
         op.execute()
@@ -45,11 +48,12 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None, term=N
         process.status = 'failed'
         process.details['error'] = str(e)
         process.details['stats'] = op.get_stats_dict()
-        process.save()
+        process.save(update_fields=['state', 'status', 'details'])
         raise
 
     process.details['stats'] = op.get_stats_dict()
-    process.update_state(Process.COMPLETE)
+    process.state = Process.COMPLETE
+    process.save(update_fields=['state', 'details'])
 
     logger.info("Finished bulk_publish_canvas_sites job")  # todo: more info
     return process

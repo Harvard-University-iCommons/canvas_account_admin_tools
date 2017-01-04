@@ -112,6 +112,7 @@ class BulkCourseSettingsOperation(object):
 
         # check the settings, and change only if necessary
         update_args = self._build_update_args_for_course(course)
+        # todo: better context for this log line
         logger.debug(update_args)
 
         if not len(update_args):
