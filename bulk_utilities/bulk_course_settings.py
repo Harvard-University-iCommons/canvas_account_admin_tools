@@ -66,8 +66,8 @@ class BulkCourseSettingsOperation(object):
             self._fetch_courses_from_id_list(list_file)
             list_file.close()
 
-        elif self.options.get('course_list'):
-            self._fetch_courses_from_id_list(self.options.get('course_list'))
+        elif self.options.get('courses'):
+            self._fetch_courses_from_id_list(self.options.get('courses'))
 
         else:
             try:
@@ -78,7 +78,6 @@ class BulkCourseSettingsOperation(object):
                     enrollment_term_id=self.options.get('term'),
                     search_term=self.options.get('search_term'),
                     state=self.options.get('course_state'),
-                    published=self.options.get('published'),
                 )
 
             except Exception as e:
@@ -112,8 +111,8 @@ class BulkCourseSettingsOperation(object):
 
         # check the settings, and change only if necessary
         update_args = self._build_update_args_for_course(course)
-        # todo: better context for this log line
-        logger.debug(update_args)
+        logger.debug('update args for course {}: '
+                     '{}'.format(course['id'], update_args))
 
         if not len(update_args):
             return  # nothing to do, go to next course
@@ -210,7 +209,8 @@ class BulkCourseSettingsOperation(object):
             logger.exception(message)
             self.failure_count += 1
         else:
-            logger.debug(update_result)
+            logger.debug('update result for course {}: '
+                         '{}'.format(course['id'], update_result))
 
     def _log_output(self):
         if self.options.get('dry_run'):
@@ -222,6 +222,7 @@ class BulkCourseSettingsOperation(object):
                 'updated %d/%d courses (%d failures; skipped %d)'
                 % (self.update_count, self.total_count, self.failure_count,
                    self.skipped_count))
+            # todo: it would be helpful to have a space-delimited list of courses updated to easily undo the operation
 
     def get_stats_dict(self):
         stats = {
