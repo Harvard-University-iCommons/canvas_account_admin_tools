@@ -99,6 +99,12 @@ SELENIUM_CONFIG = {
    'icommons_rest_api': {
       'base_path': 'api/course/v2'
    },
+    # TODO: Need to set up proper terms for use with the test cases
+    'publish_courses': {
+        'term_with_unpublished_courses': 'Fall 2016',
+        'term_with_all_published_courses': 'Fall 2016',
+    },
+
    'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
