@@ -26,7 +26,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
             "Failed to find Process with id {}".format(process_id))
         raise
 
-    # todo: put options (e.g. published, dry-run, etc) into the details section of process as well
     op_config = {
         'published': 'true' if published else None,
         'account': account,
@@ -35,7 +34,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
         'dry_run': dry_run
     }
     process.state = Process.ACTIVE
-    # todo: might want to de-duplicate some of this info?
     process.details['op_config'] = op_config
     process.save(update_fields=['state', 'details'])
 
