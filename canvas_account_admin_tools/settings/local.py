@@ -112,7 +112,7 @@ SELENIUM_CONFIG = {
             'account': 10,
             #'courses': [],
             'term': "sis_term_id:2016-2",
-            'dry_run': True
+            'dry_run': False
             },
      },
 

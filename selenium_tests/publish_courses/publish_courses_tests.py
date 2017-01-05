@@ -46,12 +46,13 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
             'term_with_all_published_courses']
         main_page.select_term(term_with_all_published_courses)
 
-        #TODO: Cannot assume that the term will always be in the published
-        # state. Probably best to set all courses to publish first before
-        # running this test.
-
-        #  Check that Publish All button is enabled
-        self.assertFalse(main_page.is_publish_all_button_enabled())
+        # If there are courses are not yet published, publish it now.
+        # Otherwise, all courses are published, so the "Publish All button
+        # should be disabled.
+        if main_page.is_publish_all_button_enabled():
+            main_page.publish_courses()
+        else:
+            self.assertFalse(main_page.is_publish_all_button_enabled())
 
     def bulk_unpublish_canvas_sites(self):
         """
