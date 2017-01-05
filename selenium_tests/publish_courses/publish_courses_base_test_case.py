@@ -15,7 +15,7 @@ class PublishCoursesBaseTestCase(AccountAdminBaseTestCase):
         self.main_page = MainPageObject(self.driver)
 
         # Test data for use in tests
-        self.test_data = settings.SELENIUM_CONFIG['publish_courses']
+        self.term = settings.SELENIUM_CONFIG['publish_courses']
 
         # initialize
         if not self.acct_admin_dashboard_page.is_loaded():
