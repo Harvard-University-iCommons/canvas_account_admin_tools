@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
                               term=None, published=True, dry_run=False):
-    logger.info("Starting bulk_publish_canvas_sites job")  # todo: more info
+    logger.info("Starting bulk_publish_canvas_sites job for "
+                "process_id:{}".format(process_id))
 
     # todo: validate input
 
@@ -53,5 +54,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
     process.state = Process.COMPLETE
     process.save(update_fields=['state', 'details'])
 
-    logger.info("Finished bulk_publish_canvas_sites job")  # todo: more info
+    logger.info("Finished bulk_publish_canvas_sites job for "
+                "process_id:{}".format(process_id))
     return process
