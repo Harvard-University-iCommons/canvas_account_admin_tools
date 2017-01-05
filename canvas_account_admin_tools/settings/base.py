@@ -299,7 +299,7 @@ LOGGING = {
         },
         'canvas_account_admin_tools': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_course_site_wizard': {
