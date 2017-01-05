@@ -103,11 +103,6 @@ class BulkCourseSettingsOperation(object):
         for course in self.canvas_courses:
             self.check_and_update_course(course)
 
-        self.update_count = len(self.update_courses)
-        self.skipped_count = len(self.skipped_courses)
-        # self.failure_count tracked separately in case of errors with
-        # interpreting course results
-
         self._log_output()
 
     def check_and_update_course(self, course):
@@ -115,6 +110,7 @@ class BulkCourseSettingsOperation(object):
                         str(course['id']) in self.options.get('skip'):
             logger.info('skipping course %s' % course['id'])
             self.skipped_courses.append(course['id'])
+            self.skipped_count += 1
             return  # don't proceed, go to next course
 
         # check the settings, and change only if necessary
@@ -129,6 +125,7 @@ class BulkCourseSettingsOperation(object):
 
         self.update_course(course, update_args)
         self.update_courses.append(course['id'])
+        self.update_count += 1
 
     def _log_update_args(self, course, update_args):
         logger.debug(
@@ -217,7 +214,7 @@ class BulkCourseSettingsOperation(object):
             if isinstance(e, CanvasAPIError):
                 message += ', SDK error details={}'.format(e)
             logger.exception(message)
-            self.failure_count += 1  # track in case we can't inspect `course`
+            self.failure_count += 1
             failure = True
 
         if failure:

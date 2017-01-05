@@ -18,8 +18,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
     logger.info("Starting bulk_publish_canvas_sites job for "
                 "process_id:{}".format(process_id))
 
-    # todo: validate input
-
     try:
         process = Process.objects.get(id=process_id)
     except Process.DoesNotExist:
@@ -42,7 +40,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
     try:
         op.execute()
     except Exception as e:
-        # todo: examine possible error conditions and how to know if we've accomplished what we want
         process.state = Process.COMPLETE
         process.status = 'failed'
         process.details['error'] = str(e)
