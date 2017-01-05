@@ -1,5 +1,5 @@
 describe('ATRAPIService test', function () {
-    var atrapi, httpBackend;
+    var atrapi, $httpBackend, $http, $log, $q;
     var angularDRF, djangoUrl;  // required by atrapi; mock these
 
     /* Setup, teardown, sanity checks */
@@ -15,15 +15,18 @@ describe('ATRAPIService test', function () {
 
     beforeEach(function setupTestEnvironment() {
         module('ATRAPIModule');
-        inject(function ($httpBackend, _atrapi_) {
+        inject(function (_$httpBackend_, _atrapi_, _$http_, _$log_, _$q_) {
             atrapi = _atrapi_;
-            httpBackend = $httpBackend;
+            $httpBackend = _$httpBackend_;
+            $http = _$http_;
+            $log = _$log_;
+            $q = _$q_;
         });
     });
 
     describe('Sanity check on dependency injection', function() {
         it('injects the providers we requested', function () {
-            [httpBackend, atrapi].forEach(function (thing) {
+            [$httpBackend, $http, $q, $log, atrapi].forEach(function (thing) {
                 expect(thing).not.toBeUndefined();
                 expect(thing).not.toBeNull();
             });

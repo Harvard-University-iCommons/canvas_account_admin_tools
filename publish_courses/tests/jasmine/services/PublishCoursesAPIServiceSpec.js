@@ -1,21 +1,43 @@
-describe('Unit testing CourseInstancesService', function() {
-    beforeEach(module('CourseInfo'));
+describe('PublishCoursesAPIService test', function() {
+    var pcapi, $httpBackend, $http, $log, $q;
+    var djangoUrl;  // required by pcapi; mock these
 
-    var courseInstances;
-    beforeEach(inject(function($injector) {
-        courseInstances = $injector.get('courseInstances');
+    beforeEach(module(function mockDjangoUrl($provide) {
+        djangoUrl = {reverse: function() {}};
+        $provide.value('djangoUrl', djangoUrl)
     }));
 
-    // sanity check the test framework
-    it('should retrieve the service', function() {
-        expect(courseInstances).not.toBeUndefined();
-        expect(courseInstances).not.toBeNull();
+    beforeEach(function setupTestEnvironment() {
+        module('PublishCoursesAPIModule');
+        inject(function (_$httpBackend_, _pcapi_, _$http_, _$log_, _$q_) {
+            pcapi = _pcapi_;
+            $httpBackend = _$httpBackend_;
+            $http = _$http_;
+            $log = _$log_;
+            $q = _$q_;
+        });
     });
 
-    // it's really just a place to stash an object
-    it('should return the same object you stored in it', function() {
-        var testInstances = {test: 'test'};
-        courseInstances.instances = testInstances;
-        expect(courseInstances.instances).toEqual(testInstances);
+    describe('Sanity check on dependency injection', function() {
+        it('injects the providers we requested', function () {
+            [$httpBackend, $http, $q, $log, pcapi].forEach(function (thing) {
+                expect(thing).not.toBeUndefined();
+                expect(thing).not.toBeNull();
+            });
+        });
+    });
+
+    describe('getCourseSummary', function() {
+        it('GETs course summary with expected params');
+        it('cancels pending request');
+        it('returns data on success');
+        it('resets pending request tracker on success');
+        it('stops error propagation for canceled pending requests');
+        it('reports status text on non-canceled error');
+    });
+    describe('createJob', function() {
+        it('POSTs job with expected params');
+        it('returns async promise that resolves on success with data');
+        it('returns status text on error');
     });
 });
