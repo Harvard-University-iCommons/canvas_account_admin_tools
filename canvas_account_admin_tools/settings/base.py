@@ -186,6 +186,11 @@ CACHES = {
 
 # todo: is this going to use the proper prefixes?
 # todo: do we want to use https://github.com/ui/django-rq#support-for-django-redis-and-django-redis-cache?
+# todo: This will be the queue name for the whole project, possible modify this
+# to be app level. The queue name is made  configurable so that it  can be
+# reused by the ansible scripts to deploy the rqworker in the various environments
+RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
+                                          'bulk_publish_canvas_sites')
 RQ_QUEUES = {
     'default': {
         'HOST': REDIS_HOST,
@@ -193,7 +198,7 @@ RQ_QUEUES = {
         'DB': 0,
         'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 180),
     },
-    'bulk_publish_canvas_sites': {
+    RQWORKER_QUEUE_NAME: {
         'HOST': REDIS_HOST,
         'PORT': REDIS_PORT,
         'DB': 0,
