@@ -102,7 +102,7 @@ SELENIUM_CONFIG = {
 
     'publish_courses': {
         'test_terms': {
-            'term_with_unpublished_courses': 'Spring 2016-2017',
+            'term_with_unpublished_courses': 'Fall 2016',
             'term_with_all_published_courses': 'Full Year 2016',
         },
         # When testing on a term with large number of courses, test in dry
