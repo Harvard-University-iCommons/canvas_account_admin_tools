@@ -193,16 +193,10 @@ RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
                                           'bulk_publish_canvas_sites')
 RQ_QUEUES = {
     'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 180),
+        'USE_REDIS_CACHE' : 'default'
     },
     RQWORKER_QUEUE_NAME: {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 180),
+        'USE_REDIS_CACHE' : 'default'
     }
 }
 
