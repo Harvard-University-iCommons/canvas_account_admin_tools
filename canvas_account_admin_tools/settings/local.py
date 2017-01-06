@@ -109,10 +109,10 @@ SELENIUM_CONFIG = {
         # run mode first to verify that numbers match expected results.
         'op_config': {
             'account': 10,
-            'published': 'false',
             #'courses': [],
-            'term': "sis_term_id:2016-2",
-            # 'dry_run': False
+            #'dry_run': False
+            'term': "sis_term_id:2016-1",
+            'published': 'false',
             },
      },
 
