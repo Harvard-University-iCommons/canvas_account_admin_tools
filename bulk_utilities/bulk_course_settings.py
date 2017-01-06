@@ -38,8 +38,11 @@ class BulkCourseSettingsOperation(object):
         self.canvas_course_ids = set()
         self.canvas_courses = []
         self.total_count = 0
+        self.update_courses = []
         self.update_count = 0
+        self.failure_courses = []
         self.failure_count = 0
+        self.skipped_courses = []
         self.skipped_count = 0
 
     def _fetch_courses_from_id_list(self, id_list):
@@ -106,6 +109,7 @@ class BulkCourseSettingsOperation(object):
         if self.options.get('skip') and \
                         str(course['id']) in self.options.get('skip'):
             logger.info('skipping course %s' % course['id'])
+            self.skipped_courses.append(course['id'])
             self.skipped_count += 1
             return  # don't proceed, go to next course
 
@@ -120,6 +124,7 @@ class BulkCourseSettingsOperation(object):
         self._log_update_args(course, update_args)
 
         self.update_course(course, update_args)
+        self.update_courses.append(course['id'])
         self.update_count += 1
 
     def _log_update_args(self, course, update_args):
@@ -197,7 +202,9 @@ class BulkCourseSettingsOperation(object):
         if self.options.get('dry_run'):
             return
 
-        # do the update
+        failure = False
+        update_result = None
+
         try:
             update_result = update_course(
                 self.SDK_CONTEXT, course['id'], **update_args)
@@ -208,6 +215,14 @@ class BulkCourseSettingsOperation(object):
                 message += ', SDK error details={}'.format(e)
             logger.exception(message)
             self.failure_count += 1
+            failure = True
+
+        if failure:
+            try:
+                self.failure_courses.append(course['id'])
+            except Exception as e:
+                logger.exception(
+                    'Error recording course as failure: {}'.format(course))
         else:
             logger.debug('update result for course {}: '
                          '{}'.format(course['id'], update_result))
@@ -215,14 +230,19 @@ class BulkCourseSettingsOperation(object):
     def _log_output(self):
         if self.options.get('dry_run'):
             logger.info(
-                'DRY-RUN: would have updated %d/%d courses (skipped %d)'
+                'DRY-RUN: would have updated %d/%d courses (%d skipped)'
                 % (self.update_count, self.total_count, self.skipped_count))
         else:
             logger.info(
-                'updated %d/%d courses (%d failures; skipped %d)'
+                'updated %d/%d courses (%d failures; %d skipped)'
                 % (self.update_count, self.total_count, self.failure_count,
                    self.skipped_count))
-            # todo: it would be helpful to have a space-delimited list of courses updated to easily undo the operation
+            if self.update_count > 0:
+                logger.info('updated courses: {}'.format(self.update_courses))
+            if self.failure_count > 0:
+                logger.info('failed courses: {}'.format(self.failure_courses))
+            if self.skipped_count > 0:
+                logger.info('skipped courses: {}'.format(self.skipped_courses))
 
     def get_stats_dict(self):
         stats = {

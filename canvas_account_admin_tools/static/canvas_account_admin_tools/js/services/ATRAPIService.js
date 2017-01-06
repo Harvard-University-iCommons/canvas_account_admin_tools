@@ -55,7 +55,7 @@
     var logError = function(response, operationText) {
       handleAjaxErrorResponse(response);
       $log.error('Unable to ' + operationText || 'perform operation'
-                 + ' with params ' + angular.toJson(config)
+                 + ' with params ' + angular.toJson(response.config)
                  +'. (Reason given: ' +
                  (response.statusText || 'none') + ')');
       return $q.reject(response.statusText);

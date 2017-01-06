@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    # todo: update help text
     help = 'Finds all of the Canvas sites in a particular account and term ' \
-           'and changes the settings to the values specified'
+           'and changes the settings to the values specified. Can also ' \
+           'operate on a specific list of courses.'
     can_import_settings = True
 
     def add_arguments(self, parser):
@@ -35,4 +35,3 @@ class Command(BaseCommand):
         logger.info('bulk_course_settings Command running with options: %s' % options)
         op = BulkCourseSettingsOperation(options=options)
         op.execute()
-

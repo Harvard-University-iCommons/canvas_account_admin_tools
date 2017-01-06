@@ -15,9 +15,8 @@ logger = logging.getLogger(__name__)
 
 def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
                               term=None, published=True, dry_run=False):
-    logger.info("Starting bulk_publish_canvas_sites job")  # todo: more info
-
-    # todo: validate input
+    logger.info("Starting bulk_publish_canvas_sites job for "
+                "process_id:{}".format(process_id))
 
     try:
         process = Process.objects.get(id=process_id)
@@ -26,7 +25,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
             "Failed to find Process with id {}".format(process_id))
         raise
 
-    # todo: put options (e.g. published, dry-run, etc) into the details section of process as well
     op_config = {
         'published': 'true' if published else None,
         'account': account,
@@ -35,7 +33,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
         'dry_run': dry_run
     }
     process.state = Process.ACTIVE
-    # todo: might want to de-duplicate some of this info?
     process.details['op_config'] = op_config
     process.save(update_fields=['state', 'details'])
 
@@ -43,7 +40,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
     try:
         op.execute()
     except Exception as e:
-        # todo: examine possible error conditions and how to know if we've accomplished what we want
         process.state = Process.COMPLETE
         process.status = 'failed'
         process.details['error'] = str(e)
@@ -55,5 +51,6 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
     process.state = Process.COMPLETE
     process.save(update_fields=['state', 'details'])
 
-    logger.info("Finished bulk_publish_canvas_sites job")  # todo: more info
+    logger.info("Finished bulk_publish_canvas_sites job for "
+                "process_id:{}".format(process_id))
     return process
