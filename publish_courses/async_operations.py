@@ -18,8 +18,12 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
                               term=None, published=True, dry_run=False):
     logger.info("Starting bulk_publish_canvas_sites job {}".format(process_id))
 
+    job = None
+
     try:
         job = get_current_job()
+        job.meta['process_id'] = process_id
+        job.save()
         logger.debug("RQ job details: {}".format(job.to_dict()))
     except Exception as e:
         logger.exception(
@@ -42,6 +46,7 @@ def bulk_publish_canvas_sites(process_id, account=None, course_list=None,
         'dry_run': dry_run
     }
     process.state = Process.ACTIVE
+    process.details['rq_job_id'] = getattr(job, 'id', 'None')
     process.details['op_config'] = op_config
     process.save(update_fields=['state', 'details'])
 

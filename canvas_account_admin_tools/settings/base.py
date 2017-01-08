@@ -288,7 +288,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'async': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'bulk_utilities': {
