@@ -15,6 +15,7 @@
       courses: {url: getUrl('api_show_summary'), pending: null}
     };
 
+    // todo: implement as an http interceptor
     var handleAjaxError = function (response, data, status, headers, config,
                                     statusText) {
       var method = (config||{}).method;
@@ -59,10 +60,13 @@
         resources.courses.pending = null;
         return response.data;
       }).catch(function errorCallback(response) {
-        // status == -1 indicates that the request was cancelled by the timeout
-        if (response.status != -1) {
+          if (response.status == -1) {
+            // request was cancelled by the timeout
+            // return never-resolving promise, otherwise calling function
+            // will resolve with an undefined response
+            return $q.defer().promise;
+          }
           return logResponseError(response, 'fetch school');
-        }
       });
     };
 

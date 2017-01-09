@@ -4,36 +4,45 @@
                             ATRAPIServiceFactory]);
   function ATRAPIServiceFactory(djangoUrl, $http, $log, $q, angularDRF) {
     // todo: cache results (for configurable window of time)?
-    // todo: make baseUrl and defaults configurable by application
-    // todo: refactor common fetch code (e.g. defaults resolution, cancel/resolve pending)
+    // todo: refactor common fetch code (e.g. cancel/resolve pending)
     // todo: common library for error handling
-    var baseUrl = 'api/course/v2/';
-    var resources = {
-      Schools: {url: baseUrl + 'schools/', pending: {}},
-      Terms: {url: baseUrl + 'terms/', pending: {}}
+    var config = {baseUrl: 'api/course/v2/'};
+    var api = {
+      config: config,
+      Schools: {url: 'schools', pending: {}, defaultConfig: {}},
+      Terms: {url: 'terms', pending: {}, defaultConfig: {
+        params: {
+          active: 1,
+          ordering: '-end_date,term_code__sort_order',
+          with_end_date: 'True',
+          with_start_date: 'True'
+        }
+      }}
     };
 
+    // todo: implement as an http interceptor
     var cancelAnyPending = function(resourceName, config, pendingRequestTag) {
       pendingRequestTag = pendingRequestTag || 'default';
-      if (resources[resourceName].pending[pendingRequestTag]) {
+      if (api[resourceName].pending[pendingRequestTag]) {
         // data still loading from previous request, cancel it
-        resources[resourceName].pending[pendingRequestTag].resolve();
+        api[resourceName].pending[pendingRequestTag].resolve();
         $log.debug('cancelling pending "' + pendingRequestTag + '" request '
                    + 'for resource ' + resourceName);
       }
       // need new Deferred object (and its promise) to cancel request if need be
-      resources[resourceName].pending[pendingRequestTag] = $q.defer();
-      config.timeout = resources[resourceName].pending[pendingRequestTag].promise;
+      api[resourceName].pending[pendingRequestTag] = $q.defer();
+      config.timeout = api[resourceName].pending[pendingRequestTag].promise;
       $log.debug('updated config: ' + angular.toJson(config));
     };
 
     var resolvePending = function(resourceName, pendingRequestTag) {
       pendingRequestTag = pendingRequestTag || 'default';
-      resources[resourceName].pending[pendingRequestTag] = null;
+      api[resourceName].pending[pendingRequestTag] = null;
       $log.debug('resolving pending "' + pendingRequestTag + '" request '
                  + 'for resource ' + resourceName);
     };
 
+    // todo: implement as an http interceptor
     var handleAjaxError = function (response, data, status, headers, config,
                                     statusText) {
       var method = (config||{}).method;
@@ -61,46 +70,49 @@
       return $q.reject(response.statusText);
     };
 
-    resources.Schools.get = function(id, cancelActiveRequestsTag) {
-      var url = djangoUrl.reverse('icommons_rest_api_proxy', [resources.Schools.url + id + '/']);
-      var getConfig = {};
+    var resourceUrl = function(resourceName) {
+      return api.config.baseUrl + resourceName + '/';
+    };
+
+    var getConfig = function(resource, customConfig, useDefaults) {
+      useDefaults = (useDefaults != null) ? useDefaults : true;
+      var configDefaults = useDefaults ? api[resource].defaultConfig : {};
+      return angular.merge({}, configDefaults, customConfig);
+    };
+
+    api.Schools.get = function(id, cancelActiveRequestsTag, customConfig, useDefaults) {
+      var config = getConfig('Schools', customConfig, useDefaults);
+      var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                  [resourceUrl(api.Schools.url) + id + '/']);
       if (cancelActiveRequestsTag) {
-        cancelAnyPending('Schools', getConfig, cancelActiveRequestsTag);
+        cancelAnyPending('Schools', config, cancelActiveRequestsTag);
       }
-      return $http.get(url, getConfig).then(function(response) {
+      return $http.get(url, config).then(function(response) {
         if (cancelActiveRequestsTag) {
           resolvePending('Schools', cancelActiveRequestsTag);
         }
         return response.data;
       }, function errorCallback(response) {
-          // status == -1 indicates that the request was cancelled by the timeout
-          if (response.status != -1) {
-            return logError(response, 'get school information')
+          if (response.status == -1) {
+            // request was cancelled by the timeout
+            // return never-resolving promise, otherwise calling function
+            // will resolve with an undefined response
+            return $q.defer().promise;
           }
+          return logError(response, 'get school information')
       });
     };
 
-    resources.Terms.getList = function(customConfig, useDefaults) {
-      var configDefaults = {
-        params: {
-          active: 1,
-          ordering: '-end_date,term_code__sort_order',
-          with_end_date: 'True',
-          with_start_date: 'True'
-        }
-      };
-      useDefaults = (useDefaults != null) ? useDefaults : true;
-      var getConfig = customConfig;  // if !useDefaults, just use the params provided
-      if (useDefaults) {
-        getConfig = angular.merge({}, configDefaults, customConfig);
-      }
-      var url = djangoUrl.reverse('icommons_rest_api_proxy', [resources.Terms.url]);
-      return angularDRF.get(url, getConfig)
+    api.Terms.getList = function(customConfig, useDefaults) {
+      var config = getConfig('Terms', customConfig, useDefaults);
+      var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                  [resourceUrl(api.Terms.url)]);
+      return angularDRF.get(url, config)
         .catch(function errorCallback(response) {
           return logError(response, 'fetch terms');
         });
     };
 
-    return resources;
+    return api;
   }
 })();
