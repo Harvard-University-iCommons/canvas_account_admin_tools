@@ -29,7 +29,7 @@ ARG_ATTR_PAIRS = {
 
 
 class BulkCourseSettingsOperation(object):
-    canvas_course_id_pattern = re.compile("^\d+$")
+    course_id_pattern = re.compile("^(sis_course_id:){0,1}\d+$")
 
     def __init__(self, options=None):
         self.SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -66,15 +66,15 @@ class BulkCourseSettingsOperation(object):
     def _fetch_courses_from_id_list(self, id_list):
         for id in id_list:
             id = str(id)
-            if self.canvas_course_id_pattern.match(id):
+            if self.course_id_pattern.match(id):
                 id = id.strip()
-                logger.info('fetching Canvas course {}'.format(id))
+                logger.info('fetching course {}'.format(id))
                 try:
                     canvas_course_response = get_single_course_courses(
                         self.SDK_CONTEXT, id, ['permissions'])
                     self.canvas_course_ids.add(id)
                 except CanvasAPIError as e:
-                    logger.error('failed to find Canvas course {}. '
+                    logger.error('failed to find course {}. '
                                  'Maybe deleted?'.format(id))
                     continue
                 canvas_course = canvas_course_response.json()

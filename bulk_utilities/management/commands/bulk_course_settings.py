@@ -18,8 +18,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--account', help='limit to a specific Canvas account; can be either a numeric Canvas account ID or an SIS account ID (e.g. sis_account_id:school:colgsas)')
-        group.add_argument('--courses', nargs='*', help='limit to a specific set of Canvas course IDs separated by spaces')
-        group.add_argument('--list', help='file containing list of Canvas course IDs to operate on')
+        group.add_argument('--courses', nargs='*', help='limit to a specific set of course IDs separated by spaces (either Canvas IDs or SIS IDs in the form sis_course_id:x)')
+        group.add_argument('--list', help='file containing list of course IDs to operate on (either Canvas IDs or SIS IDs in the form sis_course_id:x)')
         parser.add_argument('--term', help='In conjunction with the --account argument, limit to a specific Canvas term; can be either a numeric Canvas term ID or an SIS term ID (e.g. sis_term_id:2015-1)')
         parser.add_argument('--state', help='created|claimed|available|completed|deleted|all - If set, only return courses that are in the given state(s). By default, all states but "deleted" are returned.')
         parser.add_argument('--dry-run', action='store_true')
