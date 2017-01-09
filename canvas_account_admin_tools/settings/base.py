@@ -193,10 +193,16 @@ RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
                                           'bulk_publish_canvas_sites')
 RQ_QUEUES = {
     'default': {
-        'USE_REDIS_CACHE' : 'default'
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
     },
     RQWORKER_QUEUE_NAME: {
-        'USE_REDIS_CACHE' : 'default'
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
     }
 }
 
@@ -288,12 +294,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
-            'propagate': False,
-        },
-        'async': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'bulk_utilities': {
