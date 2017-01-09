@@ -104,9 +104,6 @@ class BulkPublishListCreate(ListCreateAPIView):
         if not account_sis_id[len('school:'):] == account:
             raise PermissionDenied
 
-        #  Note: The default timeout for rq is the same as
-        # 'default_cache_timeout_secs'(currently set to 300ms) as django_rq is
-        # using the same connection information as the Redis cache.
         process = Process.enqueue(
             bulk_publish_canvas_sites,
             'bulk_publish_canvas_sites',
