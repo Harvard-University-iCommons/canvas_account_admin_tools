@@ -5,7 +5,6 @@
   function ATRAPIServiceFactory(djangoUrl, $http, $log, $q, angularDRF) {
     // todo: cache results (for configurable window of time)?
     // todo: refactor common fetch code (e.g. cancel/resolve pending)
-    // todo: common library for error handling
     var config = {baseUrl: 'api/course/v2/'};
     var api = {
       config: config,

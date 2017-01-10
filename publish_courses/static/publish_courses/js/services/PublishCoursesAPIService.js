@@ -3,16 +3,37 @@
   module.factory('pcapi', ['djangoUrl', '$http', '$log', '$q',
                             PublishCoursesAPIServiceFactory]);
   function PublishCoursesAPIServiceFactory(djangoUrl, $http, $log, $q) {
-    // todo: common library for error handling
     // todo: refactor pending request resolution (see ATRAPIService)
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
       return djangoUrl.reverse(djangoApp + resource);
     };
 
-    var resources = {
-      jobs: {url: getUrl('api_jobs'), pending: null},
-      courses: {url: getUrl('api_show_summary'), pending: null}
+    var api = {
+      jobs: {url: getUrl('api_jobs'), pending: {}},
+      courses: {url: getUrl('api_show_summary'), pending: {}}
+    };
+
+        // todo: implement as an http interceptor
+    var cancelAnyPending = function(resourceName, config, pendingRequestTag) {
+      pendingRequestTag = pendingRequestTag || 'default';
+      if (api[resourceName].pending[pendingRequestTag]) {
+        // data still loading from previous request, cancel it
+        api[resourceName].pending[pendingRequestTag].resolve();
+        $log.debug('cancelling pending "' + pendingRequestTag + '" request '
+                   + 'for resource ' + resourceName);
+      }
+      // need new Deferred object (and its promise) to cancel request if need be
+      api[resourceName].pending[pendingRequestTag] = $q.defer();
+      config.timeout = api[resourceName].pending[pendingRequestTag].promise;
+      $log.debug('updated config: ' + angular.toJson(config));
+    };
+
+    var resolvePending = function(resourceName, pendingRequestTag) {
+      pendingRequestTag = pendingRequestTag || 'default';
+      api[resourceName].pending[pendingRequestTag] = null;
+      $log.debug('resolving pending "' + pendingRequestTag + '" request '
+                 + 'for resource ' + resourceName);
     };
 
     // todo: implement as an http interceptor
@@ -45,19 +66,14 @@
 
     // todo: cache responses?
     var getCourseSummary = function(accountId, termId) {
-      if (resources.courses.pending) {
-        // data still loading from previous request, cancel it
-        resources.courses.pending.resolve();
-      }
-      // need new Deferred object (and its promise) to cancel request if need be
-      resources.courses.pending = $q.defer();
       var config = {params: {
         account_id: accountId,
         term_id: termId
-      }, timeout: resources.courses.pending.promise};
-      return $http.get(resources.courses.url, config
+      }};
+      cancelAnyPending('courses', config);
+      return $http.get(api.courses.url, config
       ).then(function gotCourseSummary(response) {
-        resources.courses.pending = null;
+        resolvePending('courses');
         return response.data;
       }).catch(function errorCallback(response) {
           if (response.status == -1) {
@@ -75,7 +91,7 @@
         account: accountId,
         term: termId
       };
-      return $http.post(resources.jobs.url, params)
+      return $http.post(api.jobs.url, params)
       .catch(function errorCallback(response) {
         return logResponseError(response, 'create publish courses');
       });
