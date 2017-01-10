@@ -101,8 +101,11 @@ SELENIUM_CONFIG = {
    },
 
     'publish_courses': {
+        'test_course': {
+            'relative_url': 'courses/2601'
+        },
         'test_terms': {
-            'term_with_unpublished_courses': 'Fall 2016',
+            'term_with_unpublished_courses': 'Summer 2017',
             'term_with_all_published_courses': 'Full Year 2016',
         },
         # When testing on a term with large number of courses, test in dry
@@ -111,7 +114,7 @@ SELENIUM_CONFIG = {
             'account': 10,
             #'courses': [],
             #'dry_run': False
-            'term': "sis_term_id:2016-1",
+            'term': "sis_term_id:2016-0",
             'published': 'false',
             },
      },

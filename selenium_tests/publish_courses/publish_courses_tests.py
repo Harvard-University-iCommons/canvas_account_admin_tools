@@ -1,9 +1,11 @@
+from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
+
+from selenium_common.canvas.canvas_course_page_object import CanvasCoursePage
+
 from selenium_tests.publish_courses.publish_courses_base_test_case import \
     PublishCoursesBaseTestCase
 from selenium_tests.publish_courses.page_objects.main_page import \
     MainPageObject
-
-from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 
 
 class PublishCoursesTests(PublishCoursesBaseTestCase):
@@ -38,7 +40,14 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         #  Verify that a confirmation appears on screen
         self.assertTrue(main_page.result_message_visible())
 
-        #  Setting the course state back to unpublished as part of test cleanup.
+        #  Go to a test course to spotcheck
+        self.driver.get(self.test_course_url)
+
+        # Verify that the Canvas site is now published
+        canvas_course = CanvasCoursePage(self.driver)
+        self.assertFalse(canvas_course.is_canvas_site_unpublished())
+
+        #  Set course state back to unpublished as part of test cleanup.
         self.bulk_unpublish_canvas_sites()
 
     def test_cannot_publish_courses(self):
@@ -81,3 +90,8 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         self.acct_admin_dashboard_page.select_publish_courses_link()
         # Go select the term
         self.main_page.select_term(term)
+
+    def site_is_unpublished(self):
+        self.driver.get(self.test_course_url)
+        canvas_course = CanvasCoursePage(self.driver)
+        canvas_course.is_canvas_site_unpublished()
