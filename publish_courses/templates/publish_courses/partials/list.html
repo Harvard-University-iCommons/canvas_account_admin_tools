@@ -1,0 +1,101 @@
+{% verbatim %}
+
+<nav>
+  {% endverbatim %}
+  <h3><a href="{% url 'dashboard_account' %}">Admin Console</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      Publish Courses</h3>
+  {% verbatim %}
+</nav>
+
+<main>
+  <div class="row">
+    <div class="col-xs-6">
+      <label for="currentSchool">School</label>
+    </div>
+    <div class="col-xs-6">
+      <label for="dropdownMenuTerm">Term</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <div ng-show="!school.name">
+        Loading school...
+        <i class="fa fa-refresh fa-spin"></i>
+      </div>
+      <div ng-show="school.name">
+        <span id="currentSchool"> {{ school.name }} </span>
+      </div>
+    </div>
+    <div class="col-xs-6">
+      <term-dropdown terms="terms" on-select="termSelected(term)"></term-dropdown>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6">
+      <div ng-cloak ng-show="selectedTerm">
+        <div ng-show="loadingSummary">
+          <h3>
+            Loading courses...
+            <i class="fa fa-refresh fa-spin"></i>
+          </h3>
+        </div>
+        <div ng-show="!loadingSummary">
+          <h4>
+              <ng-pluralize count="coursesSummary.total"
+                            when="{'0': 'There are 0 courses in this term:',
+                                   '1': 'There is 1 course in this term:',
+                                   'other': 'There are {} courses in this term:'}">
+              </ng-pluralize>
+          </h4>
+          <ul>
+              <li>
+                  <ng-pluralize count="coursesSummary.published"
+                            when="{'0': '0 courses are published',
+                                   '1': '1 course is published',
+                                   'other': '{} courses are published'}">
+                  </ng-pluralize>
+              </li>
+              <li>
+                  <ng-pluralize count="coursesSummary.unpublished"
+                            when="{'0': '0 courses are unpublished',
+                                   '1': '1 course is unpublished',
+                                   'other': '{} courses are unpublished'}">
+                  </ng-pluralize>
+              </li>
+              <li ng-if="coursesSummary.concluded">
+                  <ng-pluralize count="coursesSummary.concluded"
+                            when="{'0': '0 courses are concluded',
+                                   '1': '1 course is concluded',
+                                   'other': '{} courses are concluded'}">
+                  </ng-pluralize>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-6">
+      <button class="btn btn-primary"
+              id="publishAllButton"
+              ng-click="publish()"
+              ng-disabled="publishButtonDisabled()"
+              type="button">
+        Publish All
+      </button>
+    </div>
+  </div>
+  <div class="row alert-container">
+    <div class="col-xs-12">
+      <uib-alert ng-if="message"
+                 type="{{message.alertType}}"
+                 id="result-message">
+        <span> {{ message.text }} </span>
+      </uib-alert>
+    </div>
+  </div>
+</main>
+
+{% endverbatim %}

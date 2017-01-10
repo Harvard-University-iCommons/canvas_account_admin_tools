@@ -46,6 +46,8 @@ EMAIL_SUBJECT_PREFIX = ''
 # Application definition
 
 INSTALLED_APPS = (
+    'async',
+    'bulk_utilities',
     'canvas_account_admin_tools',
     'canvas_course_site_wizard',
     'canvas_site_creator',
@@ -57,12 +59,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_auth_lti',
+    'django_rq',
     'djangular',
     'icommons_common',
     'icommons_ui',
     'lti_permissions',
     'people_tool',
     'proxy',
+    'publish_courses',
+    'rest_framework'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -108,6 +113,7 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_APPS_MAPPING = {
+    'async': 'default',
     'auth': 'default',
     'canvas_account_admin_tools': 'default',
     'canvas_course_site_wizard': 'termtool',
@@ -118,6 +124,7 @@ DATABASE_APPS_MAPPING = {
     'icommons_common': 'termtool',
     'lti_permissions': 'default',
     'people_tool': 'default',
+    'publish_courses': 'default',
 }
 DATABASE_MIGRATION_WHITELIST = ['default']
 DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
@@ -171,6 +178,31 @@ CACHES = {
         },
         'KEY_PREFIX': 'tlt_shared',
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
+    }
+}
+
+# RQ
+# http://python-rq.org/docs/
+
+# todo: is this going to use the proper prefixes?
+# todo: do we want to use https://github.com/ui/django-rq#support-for-django-redis-and-django-redis-cache?
+# todo: This will be the queue name for the whole project, possible modify this
+# to be app level. The queue name is made  configurable so that it  can be
+# reused by the ansible scripts to deploy the rqworker in the various environments
+RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
+                                          'bulk_publish_canvas_sites')
+RQ_QUEUES = {
+    'default': {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
+    },
+    RQWORKER_QUEUE_NAME: {
+        'HOST': REDIS_HOST,
+        'PORT': REDIS_PORT,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
     }
 }
 
@@ -265,17 +297,22 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
-        'canvas_account_admin_tools': {
+        'bulk_utilities': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
-        'canvas_site_creator': {
+        'canvas_account_admin_tools': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_course_site_wizard': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'canvas_site_creator': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,
@@ -288,6 +325,16 @@ LOGGING = {
         'cross_list_courses': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
+            'propagate': False,
+        },
+        'publish_courses': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'rq.worker': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
     }
@@ -335,6 +382,7 @@ PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
+PERMISSION_PUBLISH_COURSES = 'publish_courses'
 
 
 # in search courses, when you add a person to a course. This list
@@ -375,4 +423,15 @@ CANVAS_EMAIL_NOTIFICATION = {
             '{2}\n'+
             'Environment: {3}\n',
     'environment': ENV_NAME.capitalize(),
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,  # default result set size without a limit GET param
+    'DEFAULT_RENDERER_CLASSES': ('rest_framework.renderers.JSONRenderer',),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
