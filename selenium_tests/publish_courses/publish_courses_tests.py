@@ -90,8 +90,3 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         self.acct_admin_dashboard_page.select_publish_courses_link()
         # Go select the term
         self.main_page.select_term(term)
-
-    def site_is_unpublished(self):
-        self.driver.get(self.test_course_url)
-        canvas_course = CanvasCoursePage(self.driver)
-        canvas_course.is_canvas_site_unpublished()
