@@ -3,35 +3,34 @@
   module.factory('pcapi', ['djangoUrl', '$http', '$log', '$q',
                             PublishCoursesAPIServiceFactory]);
   function PublishCoursesAPIServiceFactory(djangoUrl, $http, $log, $q) {
-    // todo: refactor pending request resolution (see ATRAPIService)
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
       return djangoUrl.reverse(djangoApp + resource);
     };
 
-    var api = {
+    var resources = {
       jobs: {url: getUrl('api_jobs'), pending: {}},
       courses: {url: getUrl('api_show_summary'), pending: {}}
     };
 
-        // todo: implement as an http interceptor
+    // todo: implement as an http interceptor
     var cancelAnyPending = function(resourceName, config, pendingRequestTag) {
       pendingRequestTag = pendingRequestTag || 'default';
-      if (api[resourceName].pending[pendingRequestTag]) {
+      if (resources[resourceName].pending[pendingRequestTag]) {
         // data still loading from previous request, cancel it
-        api[resourceName].pending[pendingRequestTag].resolve();
+        resources[resourceName].pending[pendingRequestTag].resolve();
         $log.debug('cancelling pending "' + pendingRequestTag + '" request '
                    + 'for resource ' + resourceName);
       }
       // need new Deferred object (and its promise) to cancel request if need be
-      api[resourceName].pending[pendingRequestTag] = $q.defer();
-      config.timeout = api[resourceName].pending[pendingRequestTag].promise;
+      resources[resourceName].pending[pendingRequestTag] = $q.defer();
+      config.timeout = resources[resourceName].pending[pendingRequestTag].promise;
       $log.debug('updated config: ' + angular.toJson(config));
     };
 
     var resolvePending = function(resourceName, pendingRequestTag) {
       pendingRequestTag = pendingRequestTag || 'default';
-      api[resourceName].pending[pendingRequestTag] = null;
+      resources[resourceName].pending[pendingRequestTag] = null;
       $log.debug('resolving pending "' + pendingRequestTag + '" request '
                  + 'for resource ' + resourceName);
     };
@@ -64,14 +63,13 @@
       return $q.reject(response.statusText);
     };
 
-    // todo: cache responses?
     var getCourseSummary = function(accountId, termId) {
       var config = {params: {
         account_id: accountId,
         term_id: termId
       }};
       cancelAnyPending('courses', config);
-      return $http.get(api.courses.url, config
+      return $http.get(resources.courses.url, config
       ).then(function gotCourseSummary(response) {
         resolvePending('courses');
         return response.data;
@@ -91,7 +89,7 @@
         account: accountId,
         term: termId
       };
-      return $http.post(api.jobs.url, params)
+      return $http.post(resources.jobs.url, params)
       .catch(function errorCallback(response) {
         return logResponseError(response, 'create publish courses');
       });

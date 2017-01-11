@@ -3,8 +3,6 @@
   module.factory('atrapi', ['djangoUrl', '$http', '$log', '$q', 'angularDRF',
                             ATRAPIServiceFactory]);
   function ATRAPIServiceFactory(djangoUrl, $http, $log, $q, angularDRF) {
-    // todo: cache results (for configurable window of time)?
-    // todo: refactor common fetch code (e.g. cancel/resolve pending)
     var config = {baseUrl: 'api/course/v2/'};
     var api = {
       config: config,
