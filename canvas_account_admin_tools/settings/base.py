@@ -154,6 +154,8 @@ DATABASES = {
 
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
+# Note as well: RQ_QUEUES cache settings below should match the LOCATION of
+# the redis server (including DB number)
 
 REDIS_HOST = SECURE_SETTINGS.get('redis_host', '127.0.0.1')
 REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
@@ -184,26 +186,22 @@ CACHES = {
 # RQ
 # http://python-rq.org/docs/
 
-# todo: is this going to use the proper prefixes?
-# todo: do we want to use https://github.com/ui/django-rq#support-for-django-redis-and-django-redis-cache?
-# todo: This will be the queue name for the whole project, possible modify this
-# to be app level. The queue name is made  configurable so that it  can be
-# reused by the ansible scripts to deploy the rqworker in the various environments
+# This will be the queue name for the whole project, possible modify this
+# to be app level. The queue name is made configurable so that it can be
+# reused by the ansible scripts to deploy the rqworker in the various
+# environments
 RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
                                           'bulk_publish_canvas_sites')
+_rq_redis_config = {
+    'HOST': REDIS_HOST,
+    'PORT': REDIS_PORT,
+    'DB': 0,
+    'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
+}
+
 RQ_QUEUES = {
-    'default': {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
-    },
-    RQWORKER_QUEUE_NAME: {
-        'HOST': REDIS_HOST,
-        'PORT': REDIS_PORT,
-        'DB': 0,
-        'DEFAULT_TIMEOUT': SECURE_SETTINGS.get('default_rq_timeout_secs', 300),
-    }
+    'default': _rq_redis_config,
+    RQWORKER_QUEUE_NAME: _rq_redis_config
 }
 
 # Sessions
