@@ -1,6 +1,6 @@
-describe('ATRAPIService test', function () {
-  var atrapi, $httpBackend, $http, $log, $q;
-  var angularDRF, djangoUrl;  // required by atrapi; mock these
+describe('ActRestAPIService test', function () {
+  var actrapi, $httpBackend, $http, $log, $q;
+  var angularDRF, djangoUrl;  // required by actrapi; mock these
 
   /* Setup, teardown, sanity checks */
   beforeEach(module(function mockAngularDRF($provide) {
@@ -21,9 +21,9 @@ describe('ATRAPIService test', function () {
   }));
 
   beforeEach(function setupTestEnvironment() {
-    module('ATRAPIModule');
-    inject(function (_$httpBackend_, _atrapi_, _$http_, _$log_, _$q_) {
-      atrapi = _atrapi_;
+    module('ActRestAPIModule');
+    inject(function (_$httpBackend_, _actrapi_, _$http_, _$log_, _$q_) {
+      actrapi = _actrapi_;
       $httpBackend = _$httpBackend_;
       $http = _$http_;
       $log = _$log_;
@@ -39,7 +39,7 @@ describe('ATRAPIService test', function () {
 
   describe('Sanity check on dependency injection', function () {
     it('injects the providers we requested', function () {
-      [$httpBackend, $http, $q, $log, atrapi].forEach(function (thing) {
+      [$httpBackend, $http, $q, $log, actrapi].forEach(function (thing) {
         expect(thing).not.toBeUndefined();
         expect(thing).not.toBeNull();
       });
@@ -64,7 +64,7 @@ describe('ATRAPIService test', function () {
       var actualData = null;
       var apiResponse = {id: schoolName};
 
-      atrapi.Schools.get(schoolName).then(function(data) {
+      actrapi.Schools.get(schoolName).then(function(data) {
         actualData = data;
       });
 
@@ -77,11 +77,11 @@ describe('ATRAPIService test', function () {
 
   describe('Terms', function () {
     it('gets terms from API with expected params', function() {
-      var expectedConfig = atrapi.Terms.defaultConfig;
+      var expectedConfig = actrapi.Terms.defaultConfig;
 
       spyOn(angularDRF, 'get').and.callThrough();
 
-      atrapi.Terms.getList();
+      actrapi.Terms.getList();
 
       expect(angularDRF.get)
         .toHaveBeenCalledWith(jasmine.any(String), expectedConfig);
@@ -99,10 +99,10 @@ describe('ATRAPIService test', function () {
     });
 
     it('cancels pending request when tag is used', function() {
-      atrapi.Schools.get('abc', 'only one!').then(function(data){
+      actrapi.Schools.get('abc', 'only one!').then(function(data){
         firstCall=data;
       });
-      atrapi.Schools.get('abc', 'only one!').then(function(data){
+      actrapi.Schools.get('abc', 'only one!').then(function(data){
         secondCall=data;
       });
       getSchoolGETParamsAndRespondWith(testData, true);
@@ -113,10 +113,10 @@ describe('ATRAPIService test', function () {
       expect(secondCall).toEqual(testData);
     });
     it('runs requests in parallel when tag is omitted', function() {
-      atrapi.Schools.get('abc').then(function(data){
+      actrapi.Schools.get('abc').then(function(data){
         firstCall=data;
       });
-      atrapi.Schools.get('abc').then(function(data){
+      actrapi.Schools.get('abc').then(function(data){
         secondCall=data;
       });
       getSchoolGETParamsAndRespondWith(testData, true);
@@ -127,10 +127,10 @@ describe('ATRAPIService test', function () {
       expect(secondCall).toEqual(testData);
     });
     it('runs requests in parallel if using different tags', function() {
-      atrapi.Schools.get('abc', 'request one!').then(function(data){
+      actrapi.Schools.get('abc', 'request one!').then(function(data){
         firstCall=data;
       });
-      atrapi.Schools.get('abc', 'request two!').then(function(data){
+      actrapi.Schools.get('abc', 'request two!').then(function(data){
         secondCall=data;
       });
       getSchoolGETParamsAndRespondWith(testData, true);
@@ -150,13 +150,13 @@ describe('ATRAPIService test', function () {
       spyOn(angularDRF, 'get').and.callThrough();
       angular.forEach(resources, function(r) {
         expected[r] = {params: {fetch: r}};
-        atrapi[r].defaultConfig = expected[r];
+        actrapi[r].defaultConfig = expected[r];
       });
     });
 
     it('uses configurable defaults by default', function() {
-      atrapi.Schools.get('abc');
-      atrapi.Terms.getList();
+      actrapi.Schools.get('abc');
+      actrapi.Terms.getList();
 
       var actualSchoolParams = getSchoolGETParamsAndRespondWith({});
 
@@ -165,13 +165,13 @@ describe('ATRAPIService test', function () {
         .toHaveBeenCalledWith(jasmine.any(String), expected['Terms']);
     });
     it('skips defaults if explicitly requested', function() {
-      atrapi.Terms.getList(null, false);
+      actrapi.Terms.getList(null, false);
       expect(angularDRF.get)
         .toHaveBeenCalledWith(jasmine.any(String), {});
     });
     it('overrides defaults with custom params', function() {
       var customConfig = {params: {fetch: 'something'}};
-      atrapi.Terms.getList(customConfig);
+      actrapi.Terms.getList(customConfig);
       expect(angularDRF.get)
         .toHaveBeenCalledWith(jasmine.any(String), customConfig);
     });
@@ -179,13 +179,13 @@ describe('ATRAPIService test', function () {
 
   describe('config', function () {
     it('generates URLs using configurable baseUrl', function() {
-      var defaultBaseUrl = atrapi.config.baseUrl;
+      var defaultBaseUrl = actrapi.config.baseUrl;
       var customBaseUrl = 'my/new/api/base/';
-      atrapi.config.baseUrl = customBaseUrl;
+      actrapi.config.baseUrl = customBaseUrl;
 
       spyOn(djangoUrl, 'reverse').and.callThrough();
 
-      atrapi.Terms.getList();
+      actrapi.Terms.getList();
 
       expect(djangoUrl.reverse)
         .toHaveBeenCalledWith(jasmine.any(String),[jasmine.any(String)]);
@@ -198,11 +198,11 @@ describe('ATRAPIService test', function () {
 
     it('allows overriding GET defaults', function() {
       var expectedConfig = {params: {something: 'else'}};
-      atrapi.Terms.defaultConfig = expectedConfig;
+      actrapi.Terms.defaultConfig = expectedConfig;
 
       spyOn(angularDRF, 'get').and.callThrough();
 
-      atrapi.Terms.getList();
+      actrapi.Terms.getList();
 
       expect(angularDRF.get)
         .toHaveBeenCalledWith(jasmine.any(String), expectedConfig);

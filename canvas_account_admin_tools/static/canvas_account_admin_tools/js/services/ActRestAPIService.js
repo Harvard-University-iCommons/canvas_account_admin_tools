@@ -1,8 +1,8 @@
 (function() {
-  var module = angular.module('ATRAPIModule', []);
-  module.factory('atrapi', ['djangoUrl', '$http', '$log', '$q', 'angularDRF',
-                            ATRAPIServiceFactory]);
-  function ATRAPIServiceFactory(djangoUrl, $http, $log, $q, angularDRF) {
+  var module = angular.module('ActRestAPIModule', []);
+  module.factory('actrapi', ['djangoUrl', '$http', '$log', '$q', 'angularDRF',
+                            ActRestAPIServiceFactory]);
+  function ActRestAPIServiceFactory(djangoUrl, $http, $log, $q, angularDRF) {
     var config = {baseUrl: 'api/course/v2/'};
     var api = {
       config: config,

@@ -1,5 +1,5 @@
 describe('IndexController test', function () {
-    var $controller, $rootScope, $log, atrapi, AppConfig, pcapi;
+    var $controller, $rootScope, $log, actrapi, AppConfig, pcapi;
     var controller, scope;
 
     /* Setup, teardown, sanity checks */
@@ -12,12 +12,12 @@ describe('IndexController test', function () {
           school: 'colgsas'
         });
 
-        inject(function (_$controller_, _$rootScope_, _$log_, _atrapi_,
+        inject(function (_$controller_, _$rootScope_, _$log_, _actrapi_,
                          _AppConfig_, _pcapi_) {
             $controller = _$controller_;
             $rootScope = _$rootScope_;
             $log = _$log_;
-            atrapi = _atrapi_;
+            actrapi = _actrapi_;
             AppConfig = _AppConfig_;
             pcapi = _pcapi_;
         });
@@ -27,7 +27,7 @@ describe('IndexController test', function () {
 
     describe('Sanity check on dependency injection', function() {
         it('injects the providers we requested', function () {
-            [$controller, $rootScope, $log, atrapi, AppConfig,
+            [$controller, $rootScope, $log, actrapi, AppConfig,
               pcapi].forEach(function (thing) {
                 expect(thing).not.toBeUndefined();
                 expect(thing).not.toBeNull();

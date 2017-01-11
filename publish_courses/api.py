@@ -5,7 +5,6 @@ import logging
 from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import (
-    APIException,
     PermissionDenied,
     ValidationError as DRFValidationError)
 from rest_framework.generics import (
@@ -24,10 +23,6 @@ from publish_courses.async_operations import bulk_publish_canvas_sites
 
 logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
-
-
-class CanvasAPIError(APIException):
-    default_detail = u'Canvas API error'
 
 
 class ProcessSerializer(ModelSerializer):
@@ -72,8 +67,8 @@ class SummaryList(ListAPIView):
             logger.exception(
                 "Failed to get published courses summary for term_id={} and "
                 "account_id={}".format(self.term_id, self.account_id))
-            raise CanvasAPIError('There was a problem counting courses. '
-                                 'Please try again.')
+            raise RuntimeError("There was a problem counting courses. ")
+
         return Response(summary_counts_by_state)
 
     def _get_courses(self):
