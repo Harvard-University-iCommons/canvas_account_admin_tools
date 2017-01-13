@@ -17,7 +17,7 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         main_page = MainPageObject(self.driver)
 
         #  Select a term from the term dropdown
-        term_with_unpublished_courses = self.term['test_terms'][
+        term_with_unpublished_courses = self.test_settings['test_terms'][
             'with_unpublished_courses']
         main_page.select_term(term_with_unpublished_courses)
 
@@ -27,8 +27,8 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
             #  first to ensure that the publish functionality can be tested.
             self.bulk_unpublish_canvas_sites()
 
-            #  Refresh the page to see the changes
-            self.refresh_page(term_with_unpublished_courses)
+            #  Reselect the term to see the change
+            self.refresh_course_summary(term_with_unpublished_courses)
 
             #  Verify that the Publish Button is clickable
             self.assertTrue(main_page.is_publish_all_button_enabled())
@@ -61,36 +61,31 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         main_page = MainPageObject(self.driver)
 
         #  Select a term from the term dropdown
-        term_with_all_published_courses = self.term['test_terms'][
+        term_with_all_published_courses = self.test_settings['test_terms'][
             'with_all_published_courses']
         main_page.select_term(term_with_all_published_courses)
 
         # If there are courses not yet published, publish it now.
         if main_page.is_publish_all_button_enabled():
             main_page.publish_courses()
-            #  Refresh page to see the change
-            self.refresh_page(term_with_all_published_courses)
+            #  Reselect the term to see the change
+            self.refresh_course_summary(term_with_all_published_courses)
             #  "Publish All" Button should be disabled
-            self.assertFalse(main_page.is_publish_all_button_enabled())
+
         # If courses are published, the "Publish All" button should be disabled.
-        else:
-            self.assertFalse(main_page.is_publish_all_button_enabled())
+        self.assertFalse(main_page.is_publish_all_button_enabled())
 
     def bulk_unpublish_canvas_sites(self):
         """
         This is a setup and cleanup method to unpublish courses in a term
         """
         # Get term information from Settings
-        op_config = self.term['op_config']
+        op_config = self.test_settings['op_config']
 
         # Bulk update courses based on parameter passed in op_config
         op = BulkCourseSettingsOperation(op_config)
         op.execute()
 
-    def refresh_page(self, term):
-        # Refresh page
-        self.driver.refresh()
-        # Go back to publish courses
-        self.acct_admin_dashboard_page.select_publish_courses_link()
-        # Go select the term
+    def refresh_course_summary(self, term):
         self.main_page.select_term(term)
+

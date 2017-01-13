@@ -20,7 +20,7 @@ class PublishCoursesBaseTestCase(AccountAdminBaseTestCase):
                                     self.test_course_relative_url)
 
         # Test data for use in tests
-        self.term = settings.SELENIUM_CONFIG['publish_courses']
+        self.test_settings = settings.SELENIUM_CONFIG['publish_courses']
 
         # instantiate
         self.main_page = MainPageObject(self.driver)
@@ -35,5 +35,4 @@ class PublishCoursesBaseTestCase(AccountAdminBaseTestCase):
         # check if page is loaded (which will also set the focus on the tool)
         self.assertTrue(self.main_page.is_loaded())
 
-        #  Focus on tool frame
-        self.main_page.focus_on_tool_frame()
+
