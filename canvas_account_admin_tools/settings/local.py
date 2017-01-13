@@ -105,8 +105,8 @@ SELENIUM_CONFIG = {
             'relative_url': 'courses/2601'
         },
         'test_terms': {
-            'term_with_unpublished_courses': 'Summer 2017',
-            'term_with_all_published_courses': 'Full Year 2016',
+            'with_unpublished_courses': 'Summer 2017',
+            'with_all_published_courses': 'Full Year 2016',
         },
         # When testing on a term with large number of courses, test in dry
         # run mode first to verify that numbers match expected results.

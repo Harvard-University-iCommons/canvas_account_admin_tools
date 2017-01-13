@@ -18,13 +18,11 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
 
         #  Select a term from the term dropdown
         term_with_unpublished_courses = self.term['test_terms'][
-            'term_with_unpublished_courses']
+            'with_unpublished_courses']
         main_page.select_term(term_with_unpublished_courses)
 
         # If the Publish Courses button is enabled, click on it.
-        if main_page.is_publish_all_button_enabled():
-            main_page.publish_courses()
-        else:
+        if not main_page.is_publish_all_button_enabled():
             #  If "Publish all" button is not enabled, unpublish courses
             #  first to ensure that the publish functionality can be tested.
             self.bulk_unpublish_canvas_sites()
@@ -37,10 +35,16 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
             #  Click on "Publish all" button
             main_page.publish_courses()
 
+        main_page.publish_courses()
+
         #  Verify that a confirmation appears on screen
         self.assertTrue(main_page.result_message_visible())
 
-        #  Go to a test course to spotcheck
+        #  Go to a test course to spotcheck.
+        #  Note: this assumes that the "Publish Courses" job is completed.
+        #  In the case where we are publishing a term with lots of courses,
+        #  it is possible that the following check may fail if the course
+        #  site is not yet published by the by the job.
         self.driver.get(self.test_course_url)
 
         # Verify that the Canvas site is now published
@@ -58,7 +62,7 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
 
         #  Select a term from the term dropdown
         term_with_all_published_courses = self.term['test_terms'][
-            'term_with_all_published_courses']
+            'with_all_published_courses']
         main_page.select_term(term_with_all_published_courses)
 
         # If there are courses not yet published, publish it now.

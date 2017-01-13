@@ -17,7 +17,7 @@ class Locators(object):
     RESULT_CONFIRMATION = (By.ID, "result-message")
 
     @classmethod
-    def FIND_ELEMENT_WITH_TEXT(cls, text_value):
+    def FIND_LINK_WITH_TEXT(cls, text_value):
         """Locates the xpath, given the text value"""
         return By.XPATH, "//a[contains(.,'{}')]".format(text_value)
 
@@ -40,7 +40,7 @@ class MainPageObject(PublishCoursesBasePageObject):
         Verify that the result message apepears after clicking on Publish All
         """
         try:
-            WebDriverWait(self._driver, 60).until(
+            WebDriverWait(self._driver, 30).until(
                 EC.visibility_of_element_located(Locators.RESULT_CONFIRMATION))
         except TimeoutException:
             return False
@@ -55,7 +55,7 @@ class MainPageObject(PublishCoursesBasePageObject):
         WebDriverWait(self._driver, 30).until(EC.visibility_of_element_located(
                     Locators.TERM_DROPDOWN))
         self.find_element(*Locators.TERM_DROPDOWN).click()
-        term_selection = self.find_element(*Locators.FIND_ELEMENT_WITH_TEXT(
+        term_selection = self.find_element(*Locators.FIND_LINK_WITH_TEXT(
             term))
         term_selection.click()
 
