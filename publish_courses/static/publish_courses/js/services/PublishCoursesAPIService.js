@@ -3,18 +3,39 @@
   module.factory('pcapi', ['djangoUrl', '$http', '$log', '$q',
                             PublishCoursesAPIServiceFactory]);
   function PublishCoursesAPIServiceFactory(djangoUrl, $http, $log, $q) {
-    // todo: common library for error handling
-    // todo: refactor pending request resolution (see ATRAPIService)
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
       return djangoUrl.reverse(djangoApp + resource);
     };
 
     var resources = {
-      jobs: {url: getUrl('api_jobs'), pending: null},
-      courses: {url: getUrl('api_show_summary'), pending: null}
+      jobs: {url: getUrl('api_jobs'), pending: {}},
+      courses: {url: getUrl('api_show_summary'), pending: {}}
     };
 
+    // todo: implement as an http interceptor
+    var cancelAnyPending = function(resourceName, config, pendingRequestTag) {
+      pendingRequestTag = pendingRequestTag || 'default';
+      if (resources[resourceName].pending[pendingRequestTag]) {
+        // data still loading from previous request, cancel it
+        resources[resourceName].pending[pendingRequestTag].resolve();
+        $log.debug('cancelling pending "' + pendingRequestTag + '" request '
+                   + 'for resource ' + resourceName);
+      }
+      // need new Deferred object (and its promise) to cancel request if need be
+      resources[resourceName].pending[pendingRequestTag] = $q.defer();
+      config.timeout = resources[resourceName].pending[pendingRequestTag].promise;
+      $log.debug('updated config: ' + angular.toJson(config));
+    };
+
+    var resolvePending = function(resourceName, pendingRequestTag) {
+      pendingRequestTag = pendingRequestTag || 'default';
+      resources[resourceName].pending[pendingRequestTag] = null;
+      $log.debug('resolving pending "' + pendingRequestTag + '" request '
+                 + 'for resource ' + resourceName);
+    };
+
+    // todo: implement as an http interceptor
     var handleAjaxError = function (response, data, status, headers, config,
                                     statusText) {
       var method = (config||{}).method;
@@ -42,27 +63,24 @@
       return $q.reject(response.statusText);
     };
 
-    // todo: cache responses?
     var getCourseSummary = function(accountId, termId) {
-      if (resources.courses.pending) {
-        // data still loading from previous request, cancel it
-        resources.courses.pending.resolve();
-      }
-      // need new Deferred object (and its promise) to cancel request if need be
-      resources.courses.pending = $q.defer();
       var config = {params: {
         account_id: accountId,
         term_id: termId
-      }, timeout: resources.courses.pending.promise};
+      }};
+      cancelAnyPending('courses', config);
       return $http.get(resources.courses.url, config
       ).then(function gotCourseSummary(response) {
-        resources.courses.pending = null;
+        resolvePending('courses');
         return response.data;
       }).catch(function errorCallback(response) {
-        // status == -1 indicates that the request was cancelled by the timeout
-        if (response.status != -1) {
+          if (response.status == -1) {
+            // request was cancelled by the timeout
+            // return never-resolving promise, otherwise calling function
+            // will resolve with an undefined response
+            return $q.defer().promise;
+          }
           return logResponseError(response, 'fetch school');
-        }
       });
     };
 

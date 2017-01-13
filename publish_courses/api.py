@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import (
-    APIException,
+    PermissionDenied,
     ValidationError as DRFValidationError)
 from rest_framework.generics import (
     ListAPIView,
@@ -23,10 +23,6 @@ from publish_courses.async_operations import bulk_publish_canvas_sites
 
 logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
-
-
-class CanvasAPIError(APIException):
-    default_detail = u'Canvas API error'
 
 
 class ProcessSerializer(ModelSerializer):
@@ -71,8 +67,8 @@ class SummaryList(ListAPIView):
             logger.exception(
                 "Failed to get published courses summary for term_id={} and "
                 "account_id={}".format(self.term_id, self.account_id))
-            raise CanvasAPIError('There was a problem counting courses. '
-                                 'Please try again.')
+            raise RuntimeError("There was a problem counting courses. ")
+
         return Response(summary_counts_by_state)
 
     def _get_courses(self):
@@ -93,11 +89,15 @@ class BulkPublishListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         audit_user_id = self.request.LTI['custom_canvas_user_login_id']
+        account_sis_id = request.LTI['custom_canvas_account_sis_id']
         account = self.request.data.get('account')
         term = self.request.data.get('term')
-        # todo: validate account is ok for this subaccount
         if not all((account, term)):
             raise DRFValidationError('Both account and term are required')
+
+        # for the moment, only the current school account can be operated on
+        if not account_sis_id[len('school:'):] == account:
+            raise PermissionDenied
 
         process = Process.enqueue(
             bulk_publish_canvas_sites,

@@ -24,12 +24,16 @@ module.exports = function(config) {
       // need to ensure that the drf page-reader lib is called before the
       // service that depends on it is, so call out angular-drf.js explicitly.
       'course_info/tests/libraries/angular-drf.js',
+      'canvas_account_admin_tools/static/canvas_account_admin_tools/js/services/*.js',
+      'canvas_account_admin_tools/tests/jasmine/services/*.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
       'cross_list_courses/**/*.js',
       'cross_list_courses/templates/cross_list_courses/partials/*.html',
       'people_tool/**/*.js',
       'people_tool/templates/people_tool/partials/*.html',
+      'publish_courses/**/*.js',
+      'publish_courses/templates/publish_courses/partials/*.html',
     ],
 
 
@@ -43,6 +47,7 @@ module.exports = function(config) {
       'course_info/templates/course_info/partials/*.html': ['ng-html2js'],
       'cross_list_courses/templates/cross_list_courses/partials/*.html': ['ng-html2js'],
       'people_tool/templates/people_tool/partials/*.html': ['ng-html2js'],
+      'publish_courses/templates/publish_courses/partials/*.html': ['ng-html2js'],
     },
 
 
