@@ -12,7 +12,9 @@ class AccountAdminDashboardPageLocators(object):
     CREATE_CANVAS_SITE_LINK = (By.XPATH, "//a[contains(.,'Create Canvas "
                                         "Sites')]")
     COURSE_INFO_LINK = (By.XPATH, "//a[contains(.,'Search Courses')]")
-    CROSS_LISTING_DIV = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
+    CROSS_LISTING_LINK = (By.XPATH, "//a[contains(., 'Cross-list Courses')]")
+    PUBLISH_COURSES_LINK = (By.XPATH, "//a[contains(., 'Publish Courses')]")
+
 
 class AccountAdminDashboardPage(AccountAdminBasePage):
 
@@ -35,7 +37,7 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         Verifies that the cross listing div is displayed or not
         """
         try:
-            self.find_element(*AccountAdminDashboardPageLocators.CROSS_LISTING_DIV)
+            self.find_element(*AccountAdminDashboardPageLocators.CROSS_LISTING_LINK)
         except NoSuchElementException:
             return False
         return True
@@ -62,5 +64,13 @@ class AccountAdminDashboardPage(AccountAdminBasePage):
         """
         self.focus_on_tool_frame()
         self.find_element(
-            *AccountAdminDashboardPageLocators.CROSS_LISTING_DIV).click()
+            *AccountAdminDashboardPageLocators.CROSS_LISTING_LINK).click()
+
+    def select_publish_courses_link(self):
+        """
+        select the cross list link element and click it
+        """
+        self.focus_on_tool_frame()
+        self.find_element(
+            *AccountAdminDashboardPageLocators.PUBLISH_COURSES_LINK).click()
 

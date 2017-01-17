@@ -36,7 +36,7 @@ SELENIUM_CONFIG = {
       'relative_url': 'accounts/10/external_tools/79',  # dev (Admin Console)
       #'relative_url': 'accounts/10/external_tools/99',  # qa (Admin Console)
    },
-   'canvas_site_creator': {
+    'canvas_site_creator': {
         'test_data': {
             'course_code': 'Selenium-Automated',  # defaults to ILE
             'course_group': 'Anthropology',
@@ -99,6 +99,26 @@ SELENIUM_CONFIG = {
    'icommons_rest_api': {
       'base_path': 'api/course/v2'
    },
+
+    'publish_courses': {
+        'test_course': {
+            'relative_url': 'courses/2601'
+        },
+        'test_terms': {
+            'with_unpublished_courses': 'Summer 2017',
+            'with_all_published_courses': 'Full Year 2016',
+        },
+        # When testing on a term with large number of courses, test in dry
+        # run mode first to verify that numbers match expected results.
+        'op_config': {
+            'account': 10,
+            #'courses': [],
+            #'dry_run': False
+            'term': "sis_term_id:2016-0",
+            'published': 'false',
+            },
+     },
+
    'run_locally': SECURE_SETTINGS.get('selenium_run_locally', False),
    'selenium_username': SECURE_SETTINGS.get('selenium_user'),
    'selenium_password': SECURE_SETTINGS.get('selenium_password'),
