@@ -43,8 +43,8 @@
                                          || $scope.school.id;});
 
             // fetch active, un-concluded terms
-            var termsGetConfig = {params: {school: $scope.school.id}};
-            actrapi.Terms.getList(termsGetConfig)
+            var options = {config: {params: {school: $scope.school.id}}};
+            actrapi.Terms.getList(options)
                 .then(function gotTerms(terms) {
                     var currentTerms = terms.filter($scope.filterOutConcludedTerms);
                     $scope.terms = currentTerms.filter($scope.filterOutOngoingTerms);

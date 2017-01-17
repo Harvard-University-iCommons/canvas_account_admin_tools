@@ -36,19 +36,17 @@
     {# (see https://github.com/angular/angular.js/issues/1460) #}
     <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
     <script src="{% static 'angular-drf/js/angular-drf.js' %}"></script>
-    {% include 'django_auth_lti/resource_link_id.html' %}
-    <script>
-      window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
-    </script>
     <title>Publish Courses</title>
   </head>
 
   <body class="lti-tool" role="application" ng-app="PublishCourses">
     <div ng-view class="container-fluid"></div>
+    <script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/angularDRFService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/DjangoAJAXConfigService.js' %}"></script>
-    <script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkConfigService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/ActRestAPIService.js' %}"></script>
+    <script src="{% static 'canvas_account_admin_tools/js/services/PendingInterceptor.js' %}"></script>
+    <script src="{% static 'canvas_account_admin_tools/js/services/LogErrorHandler.js' %}"></script>
     <script src="{% static 'publish_courses/js/app.js' %}"></script>
     <script src="{% static 'publish_courses/js/controllers/IndexController.js' %}"></script>
     <script src="{% static 'publish_courses/js/directives/TermDropdown.js' %}"></script>
@@ -57,7 +55,8 @@
     <script type="text/javascript">
       // inject some constants from django
       angular.module('PublishCourses').constant("DjangoContextData", {
-          school: '{{ school | safe }}'
+        resource_link_id: '{{ request.LTI.resource_link_id }}',
+        school: '{{ school | safe }}'
       });
     </script>
   </body>
