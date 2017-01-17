@@ -1,8 +1,8 @@
 (function() {
   var module = angular.module('PublishCoursesAPIModule', []);
-  module.factory('pcapi', ['djangoUrl', '$http', '$log', '$q',
+  module.factory('pcapi', ['djangoUrl', '$http',
                             PublishCoursesAPIServiceFactory]);
-  function PublishCoursesAPIServiceFactory(djangoUrl, $http, $log, $q) {
+  function PublishCoursesAPIServiceFactory(djangoUrl, $http) {
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
       return djangoUrl.reverse(djangoApp + resource);
@@ -13,74 +13,18 @@
       courses: {url: getUrl('api_show_summary'), pending: {}}
     };
 
-    // todo: implement as an http interceptor
-    var cancelAnyPending = function(resourceName, config, pendingRequestTag) {
-      pendingRequestTag = pendingRequestTag || 'default';
-      if (resources[resourceName].pending[pendingRequestTag]) {
-        // data still loading from previous request, cancel it
-        resources[resourceName].pending[pendingRequestTag].resolve();
-        $log.debug('cancelling pending "' + pendingRequestTag + '" request '
-                   + 'for resource ' + resourceName);
-      }
-      // need new Deferred object (and its promise) to cancel request if need be
-      resources[resourceName].pending[pendingRequestTag] = $q.defer();
-      config.timeout = resources[resourceName].pending[pendingRequestTag].promise;
-      $log.debug('updated config: ' + angular.toJson(config));
-    };
-
-    var resolvePending = function(resourceName, pendingRequestTag) {
-      pendingRequestTag = pendingRequestTag || 'default';
-      resources[resourceName].pending[pendingRequestTag] = null;
-      $log.debug('resolving pending "' + pendingRequestTag + '" request '
-                 + 'for resource ' + resourceName);
-    };
-
-    // todo: implement as an http interceptor
-    var handleAjaxError = function (response, data, status, headers, config,
-                                    statusText) {
-      var method = (config||{}).method;
-      var url = (config||{}).url;
-      if (method && url && data && status && statusText) {
-        $log.error('Error attempting to ' + method + ' ' + url +
-          ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
-      } else {
-        $log.error('Unknown ajax error: ' + response);
-      }
-    };
-
-    var handleAjaxErrorResponse = function (r) {
-      // angular promise then() function returns a response object,
-      // unpack for old-style error() handler
-      handleAjaxError(r, r.data, r.status, r.headers, r.config, r.statusText);
-    };
-
-    var logResponseError = function(response, operationText) {
-      handleAjaxErrorResponse(response);
-      $log.error('Unable to ' + operationText || 'perform operation'
-                 + ' with params ' + angular.toJson(response.config)
-                 +'. (Reason given: ' +
-                 (response.statusText || 'none') + ')');
-      return $q.reject(response.statusText);
-    };
-
     var getCourseSummary = function(accountId, termId) {
-      var config = {params: {
-        account_id: accountId,
-        term_id: termId
-      }};
-      cancelAnyPending('courses', config);
+      var config = {
+        params: {
+          account_id: accountId,
+          term_id: termId
+        },
+        logError: {enabled: true, detail: 'fetch course summary information'},
+        pendingRequestTag: 'courses'
+      };
       return $http.get(resources.courses.url, config
       ).then(function gotCourseSummary(response) {
-        resolvePending('courses');
         return response.data;
-      }).catch(function errorCallback(response) {
-          if (response.status == -1) {
-            // request was cancelled by the timeout
-            // return never-resolving promise, otherwise calling function
-            // will resolve with an undefined response
-            return $q.defer().promise;
-          }
-          return logResponseError(response, 'fetch school');
       });
     };
 
@@ -89,17 +33,13 @@
         account: accountId,
         term: termId
       };
-      return $http.post(resources.jobs.url, params)
-      .catch(function errorCallback(response) {
-        return logResponseError(response, 'create publish courses');
-      });
+      return $http.post(resources.jobs.url, params,
+        {logError: {enabled: true, detail: 'create publish courses job'}});
     };
 
-    var resourcesAPI = {
+    return {
       CourseSummary: {get: getCourseSummary},
       Jobs: {create: createJob}
     };
-
-    return resourcesAPI;
   }
 })();

@@ -25,7 +25,8 @@ module.exports = function(config) {
       // service that depends on it is, so call out angular-drf.js explicitly.
       'course_info/tests/libraries/angular-drf.js',
       'canvas_account_admin_tools/static/canvas_account_admin_tools/js/services/*.js',
-      'canvas_account_admin_tools/tests/jasmine/services/*.js',
+      'canvas_account_admin_tools/tests/jasmine/shared/**/*.js',
+      'canvas_account_admin_tools/tests/jasmine/services/**/*.js',
       'course_info/**/*.js',
       'course_info/templates/course_info/partials/*.html',
       'cross_list_courses/**/*.js',
