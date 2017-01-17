@@ -1,6 +1,9 @@
 var spec = {};
 
 spec.diSanityCheck = function(providerList) {
+  // diSanityCheck --> dependency injection sanity check
+  // insures that the list of providers (actually references to providers)
+  // have been injected properly and are usable in the spec
   providerList.forEach(function (thing) {
     expect(thing).not.toBeUndefined();
     expect(thing).not.toBeNull();
