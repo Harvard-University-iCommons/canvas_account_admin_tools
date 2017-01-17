@@ -48,10 +48,14 @@ describe('IndexController test', function () {
       AppConfig = _AppConfig_;
     });
     scope = $rootScope.$new();
-    controller = $controller('IndexController', {$scope: scope, actrapi: actrapi, pcapi: pcapi});
+    controller = $controller('IndexController',
+      {$scope: scope, actrapi: actrapi, pcapi: pcapi});
     $httpBackend.expectGET(/partials\/list\.html.*/).respond(200, {});
     $httpBackend.flush(1);
+    this.$httpBackend = $httpBackend;  // for spec helpers
   });
+
+  afterEach(spec.verifyNoOutstanding);
 
   describe('Sanity check on dependency injection', function () {
     it('injects the providers we requested', function () {
@@ -61,7 +65,7 @@ describe('IndexController test', function () {
 
   /* Main test methods */
 
-  fdescribe('initialize', function () {
+  describe('initialize', function () {
     beforeEach(function() {
       this.school = {id: 'colgsas'};
       this.terms = {
@@ -121,14 +125,75 @@ describe('IndexController test', function () {
     });
   });
   describe('loadCoursesSummary', function () {
-    it('requests course summary with expected data');
-    it('makes expected response data available to UI');
+    beforeEach(function() {
+      this.school = scope.school = {id: 'abc'};
+      this.term = scope.selectedTerm = {meta_term_id: '2020-1'};
+    });
+    it('requests course summary with expected data', function() {
+      spyOn(pcapi.CourseSummary, 'get').and.callThrough();
+      scope.loadCoursesSummary();
+      expect(pcapi.CourseSummary.get)
+        .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id);
+    });
+    it('makes expected response data available to UI', function() {
+      var testData = {test: 'ok'};
+      var d = $q.defer();
+      d.resolve(testData);
+      spyOn(pcapi.CourseSummary, 'get').and.returnValue(d.promise);
+      scope.loadCoursesSummary();
+      scope.$digest();
+      expect(scope.coursesSummary).toEqual(testData);
+    });
   });
   describe('publish', function () {
-    it('notifies user when successful');
-    it('notifies user when unsuccessful');
-    it('creates job with expected data');
-    it('turns off operationInProgress when it gets a response');
+    beforeEach(function() {
+      this.school = scope.school = {id: 'abc'};
+      this.term = scope.selectedTerm = {meta_term_id: '2020-1'};
+      this.setupSuccessfulJob = function() {
+        var testData = {test: 'ok'};
+        var d = $q.defer();
+        d.resolve(testData);
+        spyOn(pcapi.Jobs, 'create').and.returnValue(d.promise);
+      };
+      this.setupFailedJob = function() {
+        var testData = {test: 'failed'};
+        var d = $q.defer();
+        d.reject(testData);
+        spyOn(pcapi.Jobs, 'create').and.returnValue(d.promise);
+      };
+    });
+    it('notifies user when successful', function() {
+      this.setupSuccessfulJob();
+      scope.publish();
+      scope.$digest();
+      expect(scope.message).toEqual(scope.messages.success);
+    });
+    it('notifies user when unsuccessful', function() {
+      this.setupFailedJob();
+      scope.publish();
+      scope.$digest();
+      expect(scope.message).toEqual(scope.messages.failure);
+    });
+    it('creates job with expected data', function() {
+      this.setupSuccessfulJob();
+      scope.publish();
+      expect(pcapi.Jobs.create)
+        .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id);
+    });
+    it('turns off operationInProgress when successful', function() {
+      this.setupSuccessfulJob();
+      scope.publish();
+      expect(scope.operationInProgress).toBe(true);
+      scope.$digest();
+      expect(scope.operationInProgress).toBe(false);
+    });
+    it('turns off operationInProgress when unsuccessful', function() {
+      this.setupFailedJob();
+      scope.publish();
+      expect(scope.operationInProgress).toBe(true);
+      scope.$digest();
+      expect(scope.operationInProgress).toBe(false);
+    });
   });
 
 });
