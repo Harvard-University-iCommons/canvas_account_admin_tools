@@ -22,6 +22,7 @@ describe('ActRestAPIService test', function () {
 
   beforeEach(function setupTestEnvironment() {
     module('ActRestAPIModule');
+    module('pendingHandlerModule');
     inject(function (_$httpBackend_, _actrapi_, _$http_, _$log_, _$q_) {
       actrapi = _actrapi_;
       $httpBackend = _$httpBackend_;
@@ -159,9 +160,8 @@ describe('ActRestAPIService test', function () {
       secondCall = null;
     });
 
-    // todo: fix this failing test
-    xit('cancels pending request when tag is used', function () {
-      var options = {pendingRequestTag: 'only one!'};
+    it('cancels pending request when tag is used', function () {
+      var options = {config: {pendingRequestTag: 'only one!'}};
       actrapi.Schools.get('abc', options).then(function (data) {
         firstCall = data;
       });
@@ -190,8 +190,8 @@ describe('ActRestAPIService test', function () {
       expect(secondCall).toEqual(testData);
     });
     it('runs requests in parallel if using different tags', function () {
-      var optionsOne = {pendingRequestTag: 'request one!'};
-      var optionsTwo = {pendingRequestTag: 'request two!'};
+      var optionsOne = {config: {pendingRequestTag: 'request one!'}};
+      var optionsTwo = {config: {pendingRequestTag: 'request two!'}};
       actrapi.Schools.get('abc', optionsOne).then(function (data) {
         firstCall = data;
       });
