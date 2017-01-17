@@ -10,14 +10,14 @@ describe('ActRestAPIService test', function () {
       // promise controlled by the test code
       get: function () { return $q.defer().promise }
     };
-    $provide.value('angularDRF', angularDRF)
+    $provide.value('angularDRF', angularDRF);
   }));
 
   beforeEach(module(function mockDjangoUrl($provide) {
     djangoUrl = {
       reverse: function (viewName, args) { return 'fake-url' }
     };
-    $provide.value('djangoUrl', djangoUrl)
+    $provide.value('djangoUrl', djangoUrl);
   }));
 
   beforeEach(function setupTestEnvironment() {
