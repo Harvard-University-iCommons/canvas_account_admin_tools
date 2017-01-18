@@ -25,6 +25,17 @@ describe('PublishCoursesAPIService test', function () {
     // so they can be accessed by spec helpers
     this.$httpBackend = $httpBackend;
     this.getParamsAndRespondWith = spec.getParamsAndRespondWith;
+
+    // set up common test data
+    this.accountId = 1;
+    this.termId = 2;
+    this.actualData = null;
+    this.apiResponse = {test: 'ok'};
+
+    // this.getResponse, with the jasmine user context as its `this` context,
+    // will be used to check the responses in individual tests
+    var getResponse = function(data) { this.actualData = data; };
+    this.getResponse = getResponse.bind(this);
   });
 
   afterEach(spec.verifyNoOutstanding);
@@ -36,45 +47,51 @@ describe('PublishCoursesAPIService test', function () {
   });
 
   describe('getCourseSummary', function () {
+    beforeEach(function() {
+      this.options = {response: this.apiResponse};
+      pcapi.CourseSummary.get(this.accountId, this.termId)
+        .then(this.getResponse);
+    });
     it('GETs course summary with expected params', function () {
-      var accountId = 1;
-      var termId = 2;
-      var actualData = null;
-      var apiResponse = {test: 'ok'};
-
-      pcapi.CourseSummary.get(accountId, termId).then(function (data) {
-        actualData = data;
-      });
-
-      var options = {method: 'GET', response: apiResponse};
-
-      var actualParams = this.getParamsAndRespondWith(options);
-
-      expect(actualData.test).toBe('ok');
+      var actualParams = this.getParamsAndRespondWith(this.options);
       // $httpBackend decodes URI to get values, all have been cast to String
       expect(actualParams).toEqual(
-        {account_id: String(accountId), term_id: String(termId)});
+        {account_id: String(this.accountId), term_id: String(this.termId)});
     });
-    it('cancels pending request');
-    it('returns data on success');
-    it('resets pending request tracker on success');
-    it('stops error propagation for canceled pending requests');
-    it('reports status text on non-canceled error');
+    it('returns data on success', function() {
+      this.getParamsAndRespondWith(this.options);
+      expect(this.actualData).toEqual(this.apiResponse);
+    });
+    it('does not return data on error', function() {
+      $httpBackend.expectGET(/.*/).respond(500, '');
+      $httpBackend.flush(1);
+      expect(this.actualData).toBeNull();
+    });
   });
+
   describe('createJob', function () {
+    beforeEach(function() {
+      this.expectedContent = {account: this.accountId, term: this.termId};
+      this.options = {
+        method: 'POST',
+        content: this.expectedContent,
+        response: this.apiResponse,
+        statusCode: 201};
+      pcapi.Jobs.create(this.accountId, this.termId).then(this.getResponse);
+    });
     it('POSTs job with expected params', function () {
-      var accountId = 1;
-      var termId = 2;
-      var expectedContent = {account: accountId, term: termId};
-
-      pcapi.Jobs.create(accountId, termId);
-
       // this asserts, via $httpBackend.expect, that the API is sending
       // expectedContent to the server
-      var options = {method: 'POST', content: expectedContent, statusCode: 201};
-      this.getParamsAndRespondWith(options);
+      this.getParamsAndRespondWith(this.options);
     });
-    it('returns async promise that resolves on success with data');
-    it('returns status text on error');
+    it('returns data on success', function() {
+      this.getParamsAndRespondWith(this.options);
+      expect(this.actualData.data).toEqual(this.apiResponse);
+    });
+    it('does not return data on error', function() {
+      $httpBackend.expectPOST(/.*/, this.expectedContent).respond(500, '');
+      $httpBackend.flush(1);
+      expect(this.actualData).toBeNull();
+    });
   });
 });
