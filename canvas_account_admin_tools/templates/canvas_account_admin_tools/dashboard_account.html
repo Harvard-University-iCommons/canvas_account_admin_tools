@@ -141,4 +141,29 @@
         </div>
     {% endif %}
 
+    {% if publish_courses_allowed %}
+        <div class="card card_color">
+          <a href="{% url 'publish_courses:index' %}" id="publish_courses">
+              <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-cloud icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Publish Courses">
+                      <span class="content-link">
+                        Publish Courses
+                      </span>
+                    </h2>
+                    <p title="Publish Courses">Publish multiple Canvas sites by term</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
 {% endblock content %}

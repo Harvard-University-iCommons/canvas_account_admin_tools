@@ -79,10 +79,17 @@ def dashboard_account(request):
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-    verify that user has permissions to view the People tool
+    verify that user has permissions to view the canvas site creator tool
     """
     site_creator_is_allowed = is_allowed(custom_canvas_membership_roles,
                                           settings.PERMISSION_SITE_CREATOR,
+                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
+    verify that user has permissions to view the publish courses tool
+    """
+    publish_courses_allowed = is_allowed(custom_canvas_membership_roles,
+                                          settings.PERMISSION_PUBLISH_COURSES,
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
@@ -90,6 +97,7 @@ def dashboard_account(request):
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed':site_creator_is_allowed,
+        'publish_courses_allowed':publish_courses_allowed,
 
     })
 
