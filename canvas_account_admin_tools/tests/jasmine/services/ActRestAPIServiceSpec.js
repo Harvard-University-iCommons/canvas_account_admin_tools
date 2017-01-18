@@ -22,7 +22,6 @@ describe('ActRestAPIService test', function () {
 
   beforeEach(function setupTestEnvironment() {
     module('ActRestAPIModule');
-    module('pendingHandlerModule');
     inject(function (_$httpBackend_, _actrapi_, _$http_, _$log_, _$q_) {
       actrapi = _actrapi_;
       $httpBackend = _$httpBackend_;
