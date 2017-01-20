@@ -101,7 +101,7 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         process = Process.enqueue(
             bulk_publish_canvas_sites,
-            'bulk_publish_canvas_sites',
+            settings.RQWORKER_QUEUE_NAME,
             account='sis_account_id:school:{}'.format(account),
             term='sis_term_id:{}'.format(term),
             audit_user=audit_user_id)
