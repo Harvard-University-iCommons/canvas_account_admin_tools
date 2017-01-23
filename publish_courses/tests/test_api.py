@@ -91,7 +91,7 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
             'term': '2015-1'
         }
         with self.assertRaises(PermissionDenied):
-            self._prep_request_and_post(data)
+            self._prep_request_and_post(data=data)
 
     def test_missing_data(self):
         """
@@ -101,7 +101,7 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
         data = {}
         msg = 'account and term are required'
         with self.assertRaisesRegexp(DRFValidationError, msg):
-            self._prep_request_and_post(data)
+            self._prep_request_and_post(data=data)
 
     def test_missing_lti_data(self):
         """
