@@ -34,6 +34,8 @@ class ProcessSerializer(ModelSerializer):
 
 
 class LTIPermission(BasePermission):
+    message = 'Invalid LTI session.'
+
     def has_permission(self, request, view):
         return lti_permission_required_check(request, PC_PERMISSION)
 
@@ -88,8 +90,14 @@ class BulkPublishListCreate(ListCreateAPIView):
     permission_classes = (LTIPermission,)
 
     def create(self, request, *args, **kwargs):
-        audit_user_id = self.request.LTI['custom_canvas_user_login_id']
-        account_sis_id = request.LTI['custom_canvas_account_sis_id']
+        lti_session = getattr(self.request, 'LTI', {})
+        audit_user_id = lti_session.get('custom_canvas_user_login_id')
+        account_sis_id = lti_session.get('custom_canvas_account_sis_id')
+        if not all((audit_user_id, account_sis_id)):
+            raise DRFValidationError(
+                'Invalid LTI session: custom_canvas_user_login_id and '
+                'custom_canvas_account_sis_id required')
+
         account = self.request.data.get('account')
         term = self.request.data.get('term')
         if not all((account, term)):
@@ -101,7 +109,7 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         process = Process.enqueue(
             bulk_publish_canvas_sites,
-            'bulk_publish_canvas_sites',
+            settings.RQWORKER_QUEUE_NAME,
             account='sis_account_id:school:{}'.format(account),
             term='sis_term_id:{}'.format(term),
             audit_user=audit_user_id)
