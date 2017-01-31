@@ -68,6 +68,20 @@
         </ul>
       </div>
     </div>
+
+    <div class="btn-group" role="group" aria-label="...">
+      <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button"
+                ng-bind-html="filters.xlistStatus.text" id="dropdownMenuXlistStatus"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuXlistStatus">
+          <li ng-repeat="opt in filterOptions.xlistStatus">
+            <a href="#/" ng-click="filters.xlistStatus=opt">{{ opt.name }}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
   </div>
 

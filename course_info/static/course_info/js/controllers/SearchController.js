@@ -39,6 +39,13 @@
                     {key:'term_code', value: 'all', name:'All terms', query: false, text: 'All terms <span class="caret"></span>'}
                     // specific terms are filled out dynamically below
                 ],
+                xlistStatus: [
+                    {key:'xlist_status', value: '', name:'All courses', query: false, text: 'All courses <span class="caret"></span>'},
+                    {key:'xlist_status', value: 'any', name:'Cross-listed courses', query: true, text: 'Cross-listed courses <span class="caret"></span>'},
+                    {key:'xlist_status', value: 'primary', name:'Primary courses', query: true, text: 'Primary courses <span class="caret"></span>'},
+                    {key:'xlist_status', value: 'secondary', name:'Secondary courses', query: true, text: 'Secondary courses <span class="caret"></span>'},
+                    {key:'xlist_status', value: 'none', name:'Not cross-listed courses', query: true, text: 'Not cross-listed courses <span class="caret"></span>'},
+                ],
                 years: [
                     {key:'academic_year', value: 'all', name:'All years', query: false, text: 'All years <span class="caret"></span>'}
                     // specific years are filled out dynamically below
@@ -87,6 +94,7 @@
                 schools: $scope.filterOptions.schools[0],
                 sites: $scope.filterOptions.sites[0],
                 terms: $scope.filterOptions.terms[0],
+                xlistStatus: $scope.filterOptions.xlistStatus[0],
                 // default to current year
                 years: $scope.filterOptions.years[0]
             };
