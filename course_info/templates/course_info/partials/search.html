@@ -12,12 +12,16 @@
   <div class="center-block search-input-group">
   <div class="btn-toolbar" role="toolbar" aria-label="...">
     <div class="btn-group" role="group" aria-label="...">
+      <label id="dropdownMenuSchoolsLabel" for="dropdownMenuSchoolsOptionList">
+        School
+      </label>
       <div class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button"
                 ng-bind-html="filters.schools.text" id="dropdownMenuSchools"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSchools">
+        <ul class="dropdown-menu" role="menu" id="dropdownMenuSchoolsOptionList"
+            aria-labelledby="dropdownMenuSchoolsLabel">
           <li ng-repeat="opt in filterOptions.schools">
             <a href="#/" ng-click="filters.schools=opt">{{ opt.name }}</a>
           </li>
@@ -26,13 +30,17 @@
     </div>
 
     <div class="btn-group" role="group" aria-label="...">
+      <label id="dropdownMenuYearLabel" for="dropdownMenuYearOptionsList">
+        Year
+      </label>
       <div class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button"
                 ng-bind-html="filters.years.text" id="dropdownMenuYear"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuYear">
+        <ul class="dropdown-menu" role="menu" id="dropdownMenuYearOptionsList"
+            aria-labelledby="dropdownMenuYearLabel">
           <li ng-repeat="opt in filterOptions.years">
             <a href="#/" ng-click="filters.years=opt">{{ opt.name }}</a>
           </li>
@@ -41,13 +49,17 @@
     </div>
 
     <div class="btn-group" role="group" aria-label="...">
+      <label id="dropdownMenuTermLabel" for="dropdownMenuTermOptionsList">
+        Term
+      </label>
       <div class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button"
                 ng-bind-html="filters.terms.text" id="dropdownMenuTerm"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuTerm">
+        <ul class="dropdown-menu" role="menu" id="dropdownMenuTermOptionsList"
+            aria-labelledby="dropdownMenuTermLabel">
           <li ng-repeat="opt in filterOptions.terms">
             <a href="#/" ng-click="filters.terms=opt">{{ opt.name }}</a>
           </li>
@@ -56,12 +68,16 @@
     </div>
 
     <div class="btn-group" role="group" aria-label="...">
+      <label id="dropdownMenuSitesLabel" for="dropdownMenuSitesOptionsList">
+        Site status
+      </label>
       <div class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button"
                 ng-bind-html="filters.sites.text" id="dropdownMenuSites"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSites">
+        <ul class="dropdown-menu" role="menu" id="dropdownMenuSitesOptionsList"
+            aria-labelledby="dropdownMenuSitesLabel">
           <li ng-repeat="opt in filterOptions.sites">
             <a href="#/" ng-click="filters.sites=opt">{{ opt.name }}</a>
           </li>
@@ -70,12 +86,16 @@
     </div>
 
     <div class="btn-group" role="group" aria-label="...">
+      <label id="dropdownMenuXlistStatusLabel" for="dropdownMenuXlistStatusOptionsList">
+        Cross-listing status
+      </label>
       <div class="dropdown">
         <button class="btn btn-default dropdown-toggle" type="button"
                 ng-bind-html="filters.xlistStatus.text" id="dropdownMenuXlistStatus"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         </button>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuXlistStatus">
+        <ul class="dropdown-menu" role="menu" id="dropdownMenuXlistStatusOptionsList"
+            aria-labelledby="dropdownMenuXlistStatusLabel">
           <li ng-repeat="opt in filterOptions.xlistStatus">
             <a href="#/" ng-click="filters.xlistStatus=opt">{{ opt.name }}</a>
           </li>
