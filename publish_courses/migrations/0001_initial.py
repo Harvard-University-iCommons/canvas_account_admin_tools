@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 LTI_PERMISSIONS_DATA = [
-    ('publish_courses', '*', 'AccountAdmin', True),
     ('publish_courses', '*', 'Account Admin', True),
     ('publish_courses', '*', 'SchoolLiaison', True),
 ]

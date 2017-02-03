@@ -5,7 +5,7 @@ import logging
 from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import (
-    APIException,
+    PermissionDenied,
     ValidationError as DRFValidationError)
 from rest_framework.generics import (
     ListAPIView,
@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
 
 
-class CanvasAPIError(APIException):
-    default_detail = u'Canvas API error'
-
-
 class ProcessSerializer(ModelSerializer):
     details = JSONField()
 
@@ -38,6 +34,8 @@ class ProcessSerializer(ModelSerializer):
 
 
 class LTIPermission(BasePermission):
+    message = 'Invalid LTI session.'
+
     def has_permission(self, request, view):
         return lti_permission_required_check(request, PC_PERMISSION)
 
@@ -71,8 +69,8 @@ class SummaryList(ListAPIView):
             logger.exception(
                 "Failed to get published courses summary for term_id={} and "
                 "account_id={}".format(self.term_id, self.account_id))
-            raise CanvasAPIError('There was a problem counting courses. '
-                                 'Please try again.')
+            raise RuntimeError("There was a problem counting courses. ")
+
         return Response(summary_counts_by_state)
 
     def _get_courses(self):
@@ -92,16 +90,26 @@ class BulkPublishListCreate(ListCreateAPIView):
     permission_classes = (LTIPermission,)
 
     def create(self, request, *args, **kwargs):
-        audit_user_id = self.request.LTI['custom_canvas_user_login_id']
+        lti_session = getattr(self.request, 'LTI', {})
+        audit_user_id = lti_session.get('custom_canvas_user_login_id')
+        account_sis_id = lti_session.get('custom_canvas_account_sis_id')
+        if not all((audit_user_id, account_sis_id)):
+            raise DRFValidationError(
+                'Invalid LTI session: custom_canvas_user_login_id and '
+                'custom_canvas_account_sis_id required')
+
         account = self.request.data.get('account')
         term = self.request.data.get('term')
-        # todo: validate account is ok for this subaccount
         if not all((account, term)):
             raise DRFValidationError('Both account and term are required')
 
+        # for the moment, only the current school account can be operated on
+        if not account_sis_id[len('school:'):] == account:
+            raise PermissionDenied
+
         process = Process.enqueue(
             bulk_publish_canvas_sites,
-            'bulk_publish_canvas_sites',
+            settings.RQWORKER_QUEUE_NAME,
             account='sis_account_id:school:{}'.format(account),
             term='sis_term_id:{}'.format(term),
             audit_user=audit_user_id)

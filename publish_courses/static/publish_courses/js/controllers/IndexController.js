@@ -5,7 +5,7 @@
     var app = angular.module('PublishCourses');
     app.controller('IndexController', IndexController);
 
-    function IndexController($scope, $log, atrapi, AppConfig, pcapi) {
+    function IndexController($scope, $log, actrapi, AppConfig, pcapi) {
         // expected $scope.message format:
         //   {alertType: 'bootstrap alert class', text: 'actual message'}
         $scope.message = null;
@@ -36,15 +36,15 @@
         };
         $scope.initialize = function() {
             // get school display name from the sis_account_id context
-            atrapi.Schools.get($scope.school.id)
+            actrapi.Schools.get($scope.school.id)
                 .then(function gotSchool(r) {
                     $scope.school.name = r.title_short
                                          || r.title_long
                                          || $scope.school.id;});
 
             // fetch active, un-concluded terms
-            var termsGetConfig = {params: {school: $scope.school.id}};
-            atrapi.Terms.getList(termsGetConfig)
+            var options = {config: {params: {school: $scope.school.id}}};
+            actrapi.Terms.getList(options)
                 .then(function gotTerms(terms) {
                     var currentTerms = terms.filter($scope.filterOutConcludedTerms);
                     $scope.terms = currentTerms.filter($scope.filterOutOngoingTerms);

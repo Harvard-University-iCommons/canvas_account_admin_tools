@@ -21,14 +21,13 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
             'with_unpublished_courses']
         main_page.select_term(term_with_unpublished_courses)
 
-        # If the Publish Courses button is enabled, click on it.
+        # If the Publish Courses button is disabled, unpublish courses first
+        # to ensure that the publish functionality can be tested.
         if not main_page.is_publish_all_button_enabled():
-            #  If "Publish all" button is not enabled, unpublish courses
-            #  first to ensure that the publish functionality can be tested.
             self.bulk_unpublish_canvas_sites()
 
             #  Reselect the term to see the change
-            self.refresh_course_summary(term_with_unpublished_courses)
+            main_page.select_term(term_with_unpublished_courses)
 
             #  Verify that the Publish Button is clickable
             self.assertTrue(main_page.is_publish_all_button_enabled())
@@ -69,8 +68,7 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         if main_page.is_publish_all_button_enabled():
             main_page.publish_courses()
             #  Reselect the term to see the change
-            self.refresh_course_summary(term_with_all_published_courses)
-            #  "Publish All" Button should be disabled
+            main_page.select_term(term_with_all_published_courses)
 
         # If courses are published, the "Publish All" button should be disabled.
         self.assertFalse(main_page.is_publish_all_button_enabled())
@@ -85,7 +83,3 @@ class PublishCoursesTests(PublishCoursesBaseTestCase):
         # Bulk update courses based on parameter passed in op_config
         op = BulkCourseSettingsOperation(op_config)
         op.execute()
-
-    def refresh_course_summary(self, term):
-        self.main_page.select_term(term)
-
