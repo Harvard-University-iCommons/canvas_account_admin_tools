@@ -115,8 +115,16 @@
                     };
                 }, function DeleteFailed(response) {
                     $scope.handleAjaxErrorResponse(response);
-                    errorText = 'Could not de-cross-list ' + primary +
-                        ' and ' + secondary + '. Please try again later.';
+                    var errorMessage = (((response||{}).data||{}).detail||'');
+                    if (errorMessage.indexOf('has multiple site maps') > -1) {
+                         errorText =  'These courses cannot be de-cross-listed because '+
+                              primary + ' and/or '+secondary+' is currently associated with more than '+
+                             'one course site. Please contact '+
+                             'academictechnology@harvard.edu for further assistance.';
+                    } else{
+                        errorText = 'Could not de-cross-list ' + primary +
+                            ' and ' + secondary + '. Please try again later.';
+                    }
                     $scope.message = {alertType: 'danger', text: errorText};
                 }).finally(function cleanupAfterDelete() {
                     // always reload, in case the failure was a 404
@@ -227,6 +235,11 @@
                             if (errorDetail.indexOf('unique set') > -1) {
                                 return primary + ' is already crosslisted ' +
                                     'with ' + secondary + '.';
+                            } else if (errorDetail.indexOf('has multiple site maps') > -1) {
+                                return 'These courses cannot be cross-listed because '+
+                                    primary + ' and/or '+secondary+' is currently associated with more than '+
+                                    'one course site. Please contact '+
+                                    'academictechnology@harvard.edu for further assistance.';
                             } else {
                                 return errorDetail;
                             }
