@@ -115,10 +115,9 @@
                     };
                 }, function DeleteFailed(response) {
                     $scope.handleAjaxErrorResponse(response);
-                    var defaultErrorText = primary + ' could not be ' +
-                        'crosslisted with ' + secondary + ' at this ' +
-                        'time. Please check the course instance IDs ' +
-                        'and try again.';
+                    var defaultErrorText = 'Could not de-cross-list ' +
+                        primary + ' and ' + secondary + '. Please try again ' +
+                        'later.';
                     var errorText = defaultErrorText;
                     var validationErrors = ((response || {}).data || []);
                     if ((response || {}).status == 400 && angular.isArray(validationErrors)) {
