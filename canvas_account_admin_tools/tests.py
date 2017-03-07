@@ -13,6 +13,7 @@ class CanvasAccountAdminToolsAPIProxyTests(TestCase):
     longMessage = True
 
     def setUp(self):
+        super(CanvasAccountAdminToolsAPIProxyTests, self).setUp()
         self.user_id = '12345678'
 
     def _setup_request(self, method='GET', path='fake-path/', data=None, request_lti_dict=None):

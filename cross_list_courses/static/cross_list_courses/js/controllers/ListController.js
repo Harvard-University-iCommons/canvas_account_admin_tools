@@ -115,8 +115,29 @@
                     };
                 }, function DeleteFailed(response) {
                     $scope.handleAjaxErrorResponse(response);
-                    errorText = 'Could not de-cross-list ' + primary +
-                        ' and ' + secondary + '. Please try again later.';
+                    var defaultErrorText = 'Could not de-cross-list ' +
+                        primary + ' and ' + secondary + '. Please try again ' +
+                        'later.';
+                    var errorText = defaultErrorText;
+                    var validationErrors = ((response || {}).data || []);
+                    if ((response || {}).status == 400 && angular.isArray(validationErrors)) {
+                        // transform backend errors to user-friendly versions
+                        var errorsForUI = validationErrors.map(function(errorDetail) {
+                            if (errorDetail.indexOf('has multiple site maps') > -1) {
+                                msg = 'These courses cannot be de-cross-' +
+                                    'listed because ' + primary + ' and/or ' +
+                                    secondary + ' is currently associated ' +
+                                    'with more than one course site. Please ' +
+                                    'contact academictechnology@harvard.edu ' +
+                                    'for further assistance.';
+                                return msg;
+                            } else {
+                                return defaultErrorText;
+                            }
+                        });
+                        // backend returns array of errors; use only the first
+                        errorText = errorsForUI[0];
+                    }
                     $scope.message = {alertType: 'danger', text: errorText};
                 }).finally(function cleanupAfterDelete() {
                     // always reload, in case the failure was a 404
@@ -227,6 +248,11 @@
                             if (errorDetail.indexOf('unique set') > -1) {
                                 return primary + ' is already crosslisted ' +
                                     'with ' + secondary + '.';
+                            } else if (errorDetail.indexOf('has multiple site maps') > -1) {
+                                return 'These courses cannot be cross-listed because '+
+                                    primary + ' and/or '+secondary+' is currently associated with more than '+
+                                    'one course site. Please contact '+
+                                    'academictechnology@harvard.edu for further assistance.';
                             } else {
                                 return errorDetail;
                             }

@@ -23,3 +23,6 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     }
 }
+
+RQWORKER_QUEUE_NAME = 'test'
+RQ_QUEUES[RQWORKER_QUEUE_NAME] = RQ_QUEUES['default']
