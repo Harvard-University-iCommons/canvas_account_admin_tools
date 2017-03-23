@@ -27,7 +27,12 @@ def index(request):
 
         ssotoken = get_qualtrics_token(user)
 
-        target_url = base64.b64decode(request.GET.get('qtarget')) + '&ssotoken=%s' % ssotoken
+        separator = '?'
+        if '?' in target_url:
+            separator = '&'
+
+        target_url = base64.b64decode(request.GET.get('qtarget')) + separator + 'ssotoken=%s' % ssotoken
+
         return redirect(target_url)
 
     elif request.GET.get('qtarget_url') is not None:
