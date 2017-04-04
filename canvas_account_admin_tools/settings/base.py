@@ -46,6 +46,11 @@ EMAIL_SUBJECT_PREFIX = ''
 # Application definition
 
 INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     'async',
     'bulk_utilities',
     'canvas_account_admin_tools',
@@ -53,11 +58,6 @@ INSTALLED_APPS = (
     'canvas_site_creator',
     'course_info',
     'cross_list_courses',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django_auth_lti',
     'django_rq',
     'djangular',
@@ -186,12 +186,8 @@ CACHES = {
 # RQ
 # http://python-rq.org/docs/
 
-# This will be the queue name for the whole project, possible modify this
-# to be app level. The queue name is made configurable so that it can be
-# reused by the ansible scripts to deploy the rqworker in the various
-# environments
-RQWORKER_QUEUE_NAME = SECURE_SETTINGS.get('rqworker_queue_name',
-                                          'bulk_publish_canvas_sites')
+RQWORKER_QUEUE_NAME = 'bulk_publish_canvas_sites'
+
 _rq_redis_config = {
     'HOST': REDIS_HOST,
     'PORT': REDIS_PORT,
