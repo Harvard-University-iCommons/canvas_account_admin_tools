@@ -1,8 +1,6 @@
 from .base import *
 from logging.config import dictConfig
 
-ALLOWED_HOSTS = ['*']
-
 DEBUG = True  # Always run in debug mode locally
 
 #  Dummy secret key value for testing and local usage
@@ -24,8 +22,6 @@ INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
-
-dictConfig(LOGGING)
 
 # Allows the REST API passthrough to successfully negotiate an SSL session
 # with an unverified certificate, e.g. the one that ships with django-sslserver
@@ -130,3 +126,6 @@ CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
     'conclude_courses_url',
     'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
 )
+
+# make sure dictConfig(LOGGING) stays at the bottom of the file
+dictConfig(LOGGING)

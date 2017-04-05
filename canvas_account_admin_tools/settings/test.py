@@ -1,7 +1,12 @@
-from .local import *
+from .base import *
 
-# so that the CourseSchemaDatabaseRouter doesn't look for a non-existent
-# termtool database connection
+DEBUG = True
+
+SECRET_KEY = 'zd_*c@fm5@inktc5jo1y+t=6m&fx0$81f=vjv*^nk894cfgyg@'
+
+ENV_NAME = 'test'
+
+# no router necessary in a test environment
 DATABASE_ROUTERS = []
 
 DATABASES = {
@@ -15,14 +20,19 @@ DATABASES = {
     },
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     },
     'shared': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-    }
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    },
 }
 
 RQWORKER_QUEUE_NAME = 'test'
 RQ_QUEUES[RQWORKER_QUEUE_NAME] = RQ_QUEUES['default']
+
+# Set logging back to the default
+LOGGING_CONFIG = 'logging.config.dictConfig'
