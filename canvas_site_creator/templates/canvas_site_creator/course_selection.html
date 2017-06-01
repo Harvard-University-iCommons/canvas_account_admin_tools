@@ -77,7 +77,7 @@
                 {% endif %}
 
                 {% verbatim %}
-                <button type="button" ng-cloak class="btn btn-primary" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
+                <button type="button" ng-cloak class="btn btn-primary" ng-click="checkValues()" ng-disabled="selectedTemplate == 'default'" data-toggle="modal" data-target="#confirmCreate">Create {{ getCreateButtonMessage() }}
                 </button>
                 {% endverbatim %}
 
@@ -92,7 +92,14 @@
                     </div>
                     <div class="modal-body">
                         <p ng-show="!courseInstanceModel.getSelectedCourseIdsCount()">
-                            You selected 0 courses. You must select 1 or more courses to create a Canvas site.
+                            You are about create
+                            <ng-pluralize count="courseInstanceModel.totalCourses"
+                                          when="{'1': '1 course',
+                                                 'other': '{} courses'}">
+                            </ng-pluralize>
+                            for Canvas site creation with <span ng-bind-html="confirmationTemplateClause"></span>.
+                            <br>
+                            You may close this window and select specific courses if you need to.
                         </p>
 
                         <p ng-show="courseInstanceModel.getSelectedCourseIdsCount()">
@@ -109,8 +116,7 @@
                     </div>
                     <div class="modal-footer">
                         <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
-
-                        <button ng-show="courseInstanceModel.getSelectedCourseIdsCount()" id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="handleCreate()">
+                        <button id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="handleCreate()">
                             Yes, Create
                             <span ng-show="courseInstanceModel.getSelectedCourseIdsCount()">
                                 <ng-pluralize count="courseInstanceModel.getSelectedCourseIdsCount()"
