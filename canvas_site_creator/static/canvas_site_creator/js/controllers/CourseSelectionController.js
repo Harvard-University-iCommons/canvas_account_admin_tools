@@ -33,16 +33,15 @@
             return confirmationTemplateClause;
         };
 
-        $scope.checkIfCreateAll = function () {
+        $scope.handleCreate = function(){
+            $('#createCoursesConfirmed').prop('disabled', true);
+
             // If no items have been selected, then we are attempting to "Create All" and need to set the createAll
             // flag that will be passed to the create_job view.
             if (!$scope.courseInstanceModel.getSelectedCourseIdsCount()) {
                 $scope.createAll = true;
             }
-        };
 
-        $scope.handleCreate = function(){
-            $('#createCoursesConfirmed').prop('disabled', true);
             var data = {
                 filters: $scope.courseInstanceFilterModel.filters,
                 course_instance_ids: Object.keys($scope.courseInstanceModel.selectedCourseInstances),
