@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-from canvas_course_site_wizard.models import  CanvasCourseGenerationJob
+from canvas_course_site_wizard.models import CanvasCourseGenerationJob
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.content_migrations import create_content_migration_courses
 from canvas_sdk.methods.courses import create_new_course
@@ -371,7 +371,7 @@ def course_instances(request, sis_term_id, sis_account_id):
         result['error'] = 'There was a problem searching for courses. Please try again.'
         return create_json_500_response(result)
 
-    return create_json_200_response(result)
+    return JsonResponse(result, status=200, content_type='application/json')
 
 
 @login_required
