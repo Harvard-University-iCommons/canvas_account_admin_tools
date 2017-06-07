@@ -9,6 +9,7 @@
         $scope.selectedTemplate = $('#templateSelect option').val();
         $scope.confirmationTemplateClause = 'no template';
         $scope.selectedTemplateUrl = '';
+        $scope.createAll = false;
 
         $scope.handleTemplateSelection = function(){
             var $templateOption = $('#templateSelect option:selected');
@@ -34,9 +35,17 @@
 
         $scope.handleCreate = function(){
             $('#createCoursesConfirmed').prop('disabled', true);
+
+            // If no items have been selected, then we are attempting to "Create All" and need to set the createAll
+            // flag that will be passed to the create_job view.
+            if (!$scope.courseInstanceModel.getSelectedCourseIdsCount()) {
+                $scope.createAll = true;
+            }
+
             var data = {
                 filters: $scope.courseInstanceFilterModel.filters,
                 course_instance_ids: Object.keys($scope.courseInstanceModel.selectedCourseInstances),
+                create_all: $scope.createAll
             };
             if ($scope.selectedTemplate != 'None') {
                 data.template = $scope.selectedTemplate;
