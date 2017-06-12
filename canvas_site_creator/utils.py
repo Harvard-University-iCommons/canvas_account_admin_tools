@@ -115,7 +115,7 @@ def get_department_data_for_school(school_sis_account_id, department_sis_account
                 return department
             else:
                 departments.append(department)
-    return departments
+    return sorted(departments, key=lambda k: k['name'])
 
 
 def get_course_group_data_for_school(school_sis_account_id, course_group_sis_account_id=None):
