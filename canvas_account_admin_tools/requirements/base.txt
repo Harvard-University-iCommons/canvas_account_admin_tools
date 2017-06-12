@@ -20,3 +20,4 @@ ndg-httpsclient==0.4.2
 psycopg2==2.6.2
 redis==2.10.5
 requests==2.11.1
+simplejson==3.10.0
