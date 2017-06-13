@@ -289,7 +289,20 @@ def create_job(request):
     # then create a query to get the all course instances with the applied filters that are to be created.
     course_instance_ids = []
     if data.get('create_all', False):
-        for ci in get_course_instance_query_set(term, course_group_account_id):
+        # Get the account data to be used in the course instance query.
+        if filters['course_group']:
+            account = filters['course_group']
+        elif filters['department']:
+            account = filters['department']
+        else:
+            account = filters['school']
+
+        # Retrieve all course instances for the given term and account that do not have Canvas course sites.
+        ci_query_set_without_canvas = get_course_instance_query_set(term, account).filter(canvas_course_id__isnull=True)
+
+        # Iterate through the query set to build a list of all the course instance id's
+        # for a school/course_group/department, which course sites will be created for.
+        for ci in ci_query_set_without_canvas:
             course_instance_ids.append(ci.course_instance_id)
     else:
         course_instance_ids = data['course_instance_ids']
