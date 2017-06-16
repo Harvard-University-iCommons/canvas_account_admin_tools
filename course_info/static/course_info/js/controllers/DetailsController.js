@@ -111,7 +111,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
-                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'M/d/yy');
+                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'M/d/yyyy');
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
