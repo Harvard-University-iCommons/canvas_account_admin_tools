@@ -1,5 +1,4 @@
 {% verbatim %}
-
 <nav>
   <h3 class="breadcrumbs">
       {% endverbatim %}
@@ -242,13 +241,47 @@
         </div>
       </hu-field-label-wrapper>
 
-      <hu-editable-input
-          is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
-          form-value="dc.formDisplayData.conclude_date"
-          model-value="dc.courseInstance.conclude_date"
-          field="conclude_date"
-          label="Conclusion Date">
-      </hu-editable-input>
+      <div test></div>
+      <test></test>
+
+      <hu-date-picker></hu-date-picker>
+      
+      <div class="form-group">
+        <label for="input-course-conclude_date" class="col-sm-2">
+          Conclusion Date
+        </label>
+        <div class="col-sm-4">
+          <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
+          <div ng-hide="isLoading()">
+            <div class="input-group">
+              <input type="text" class="form-control" id="input-course-conclude_date"
+                     name="input-course-conclude_date" ng-show="dc.editable && dc.editInProgress"
+                     ng-model="dc.formDisplayData.conclude_date"/>
+              <span class="input-group-addon" ng-show="dc.editable && dc.editInProgress">
+                <i class="fa fa-calendar"/>
+              </span>
+            </div>
+            <span id="span-course-conclude_date"
+                  ng-hide="dc.editable && dc.editInProgress">{{dc.courseInstance.conclude_date}}</span>
+          </div>
+        </div>
+      </div>
+
+      <script>
+       $('#input-course-conclude_date').datepicker({
+            format: 'm/d/yy',
+            singleDatePicker: true,
+            showDropdowns: true,
+            startDate: '-1d',
+        });
+      </script>
+
+      <hu-date-picker>
+
+      </hu-date-picker>
+
+
+
 
       <div class="form-group">
         <label class="col-sm-2">
