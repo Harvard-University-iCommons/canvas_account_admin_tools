@@ -1,0 +1,22 @@
+{% verbatim %}
+<div class="form-group">
+        <label for="input-course-conclude_date" class="col-sm-2">
+          Conclusion Date (Directive)
+        </label>
+        <div class="col-sm-4">
+          <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
+          <div ng-hide="isLoading()">
+            <div class="input-group">
+              <input type="text" class="form-control" id="input-course-conclude_date"
+                     name="input-course-conclude_date" ng-show="dc.editable && dc.editInProgress"
+                     ng-model="dc.formDisplayData.conclude_date"/>
+              <span class="input-group-addon" ng-show="dc.editable && dc.editInProgress">
+                <i class="fa fa-calendar"/>
+              </span>
+            </div>
+            <span id="span-course-conclude_date"
+                  ng-hide="dc.editable && dc.editInProgress">{{dc.courseInstance.conclude_date}}</span>
+          </div>
+        </div>
+      </div>
+{% endverbatim %}
