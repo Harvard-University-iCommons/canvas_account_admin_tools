@@ -2,8 +2,9 @@
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController);
 
+
     function DetailsController(courseInstances, djangoUrl, $http, $log,
-                               $routeParams) {
+                               $routeParams, $filter) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -110,7 +111,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
-                courseInstance['conclude_date'] = ci.conclude_date;
+                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'M/d/yy');
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
@@ -129,6 +130,7 @@
                 courseInstance['sites'] = ci.sites;
             }
 
+            $('#input-course-conclude_date').datepicker('setDate', courseInstance['conclude_date']);
             return courseInstance;
         };
         dc.getPeopleCoursesRoute = function() {
