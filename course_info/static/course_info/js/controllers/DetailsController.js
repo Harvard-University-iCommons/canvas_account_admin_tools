@@ -249,7 +249,7 @@
                     // Convert the formatted date back into a DateTime string to be submitted.
                     if (dc.formDisplayData['conclude_date']){
                         var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
-                        formatted_date += 'T19:18:51Z';
+                        formatted_date += 'T23:59:59Z';
                         patchData['conclude_date'] = formatted_date;
                     } else {
                         // If the conclude date field is left blank, then set the conclude_date to null in the DB.
