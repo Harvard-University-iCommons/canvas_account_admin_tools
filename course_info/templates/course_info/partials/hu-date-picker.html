@@ -18,6 +18,22 @@
                 {{modelValue}}
             </span>
         </div>
+
+        <div class="alert alert-danger" role="alert" id="dp-alert">
+            <p>
+                <i class="fa fa-warning"></i>
+                You can only pick a date in the future
+            </p>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div ng-show="{{termConcludeDate}}">
+            This course belongs to {{term | lowercase}} which has a set conclusion date of {{termConcludeDate}}.
+        </div>
+        <div ng-hide="{{termConcludeDate}}">
+            This course belongs to {{term | lowercase}} which does not have a set conclude date.
+        </div>
+        Select another date to override this setting.
     </div>
 </div>
 {% endverbatim %}
