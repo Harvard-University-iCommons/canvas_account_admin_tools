@@ -131,6 +131,7 @@
                 // TODO: Eventually move the reusable logic to a separate library
                 var cinfo = {};
                 cinfo['description'] = $scope.getCourseDescription(course);
+                cinfo['sub_title'] = course.sub_title ? course.sub_title : '';
                 cinfo['year'] = course.term ? course.term.academic_year : '';
                 cinfo['term'] = course.term ? course.term.display_name : '';
                 cinfo['term_code'] = course.term ? course.term.term_code : '';
@@ -259,7 +260,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/details/' + row.cid;
-                                return '<a href="' + url + '">' + row.description + '</a>';
+                                return '<a href="' + url + '">' + row.description + ': ' + row.sub_title + '</a>';
                             },
                         },
                         {data: 'year'},
