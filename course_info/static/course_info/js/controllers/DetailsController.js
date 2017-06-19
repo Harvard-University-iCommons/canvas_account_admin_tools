@@ -187,6 +187,7 @@
         };
 
         dc.resetForm = function() {
+            $('#dp-alert').hide();
             dc.formDisplayData = angular.copy(dc.courseInstance);
             dc.editInProgress = false;
         };
