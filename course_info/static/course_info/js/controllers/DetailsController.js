@@ -187,9 +187,6 @@
         };
 
         dc.resetForm = function() {
-
-            //dc.courseInstance['conclude_date'] = '07/04/2017';
-            console.log(dc.courseInstance['conclude_date']);
             dc.formDisplayData = angular.copy(dc.courseInstance);
             dc.editInProgress = false;
         };
