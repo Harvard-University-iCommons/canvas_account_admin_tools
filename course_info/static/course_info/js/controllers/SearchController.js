@@ -260,7 +260,11 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/details/' + row.cid;
-                                return '<a href="' + url + '">' + row.description + ': ' + row.sub_title + '</a>';
+                                var sub_title = '';
+                                if (row.sub_title) {
+                                    sub_title += ': ' + row.sub_title;
+                                }
+                                return '<a href="' + url + '">' + row.description + sub_title + '</a>';
                             },
                         },
                         {data: 'year'},
