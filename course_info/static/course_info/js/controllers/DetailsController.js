@@ -93,6 +93,7 @@
                 courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
+                courseInstance['term_conclude_date'] = ci.term.conclude_date;
                 courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
                 courseInstance['course_groups'] = ci.course.course_groups;
@@ -111,7 +112,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
-                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'M/d/yyyy');
+                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'MM/dd/yyyy');
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
@@ -130,7 +131,6 @@
                 courseInstance['sites'] = ci.sites;
             }
 
-            $('#input-course-conclude_date').datepicker('setDate', courseInstance['conclude_date']);
             return courseInstance;
         };
         dc.getPeopleCoursesRoute = function() {
