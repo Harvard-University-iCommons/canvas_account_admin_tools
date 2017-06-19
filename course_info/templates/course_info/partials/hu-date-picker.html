@@ -29,11 +29,9 @@
     <div class="col-sm-6">
         <div ng-show="{{termConcludeDate}}">
             This course belongs to {{term | lowercase}} which has a set conclusion date of {{termConcludeDate}}.
+            <br>
+            Select another date to override this setting.
         </div>
-        <div ng-hide="{{termConcludeDate}}">
-            This course belongs to {{term | lowercase}} which does not have a set conclude date.
-        </div>
-        Select another date to override this setting.
     </div>
 </div>
 {% endverbatim %}
