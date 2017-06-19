@@ -187,6 +187,9 @@
         };
 
         dc.resetForm = function() {
+
+            //dc.courseInstance['conclude_date'] = '07/04/2017';
+            console.log(dc.courseInstance['conclude_date']);
             dc.formDisplayData = angular.copy(dc.courseInstance);
             dc.editInProgress = false;
         };
@@ -238,9 +241,23 @@
                 'exclude_from_isites',
                 'exclude_from_catalog',
                 'section',
+                'conclude_date'
             ];
             fields.forEach(function(field) {
-                patchData[field] = dc.formDisplayData[field];
+                if (field == 'conclude_date') {
+                    // Conclude date is a DateTimeField in the CI model.
+                    // Convert the formatted date back into a DateTime string to be submitted.
+                    if (dc.formDisplayData['conclude_date']){
+                        var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
+                        formatted_date += 'T19:18:51Z';
+                        patchData['conclude_date'] = formatted_date;
+                    } else {
+                        // If the conclude date field is left blank, then set the conclude_date to null in the DB.
+                        patchData['conclude_date'] = null;
+                    }
+                } else {
+                    patchData[field] = dc.formDisplayData[field];
+                }
             });
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch() {
@@ -254,6 +271,10 @@
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     // leaves 'edit' mode, re-enables edit button
                     dc.courseDetailsUpdateInProgress = false;
+                    if (dc.formDisplayData['conclude_date']) {
+                        // Reformat the conclude date
+                        dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy');
+                    }
                     dc.resetForm();
                 });
         };
