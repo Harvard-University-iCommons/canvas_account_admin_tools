@@ -112,22 +112,9 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-DATABASE_APPS_MAPPING = {
-    'async': 'default',
-    'auth': 'default',
-    'canvas_account_admin_tools': 'default',
-    'canvas_course_site_wizard': 'termtool',
-    'canvas_site_creator': 'default',
-    'contenttypes': 'default',
-    'course_info': 'default',
-    'cross_list_courses': 'default',
-    'icommons_common': 'termtool',
-    'lti_permissions': 'default',
-    'people_tool': 'default',
-    'publish_courses': 'default',
-}
 DATABASE_MIGRATION_WHITELIST = ['default']
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter', ]
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
+COURSE_SCHEMA_DB_NAME = 'coursemanager'
 
 DATABASES = {
     'default': {
@@ -138,13 +125,13 @@ DATABASES = {
         'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
         'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
     },
-    'termtool': {
+    'coursemanager': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('db_termtool_name'),
-        'USER': SECURE_SETTINGS.get('db_termtool_user'),
-        'PASSWORD': SECURE_SETTINGS.get('db_termtool_password'),
-        'HOST': SECURE_SETTINGS.get('db_termtool_host'),
-        'PORT': str(SECURE_SETTINGS.get('db_termtool_port')),
+        'NAME': SECURE_SETTINGS.get('db_coursemanager_name'),
+        'USER': SECURE_SETTINGS.get('db_coursemanager_user'),
+        'PASSWORD': SECURE_SETTINGS.get('db_coursemanager_password'),
+        'HOST': SECURE_SETTINGS.get('db_coursemanager_host'),
+        'PORT': str(SECURE_SETTINGS.get('db_coursemanager_port')),
         'OPTIONS': {
             'threaded': True,
         },

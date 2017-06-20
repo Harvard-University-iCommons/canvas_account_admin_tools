@@ -285,6 +285,28 @@ def create_job(request):
     if not created_by_user_id:
         created_by_user_id = "canvas_user_id:%s" % canvas_user_id
 
+    # If the create_all flag has been set and passed with the form,
+    # then create a query to get the all course instances with the applied filters that are to be created.
+    course_instance_ids = []
+    if data.get('create_all', False):
+        # Get the account data to be used in the course instance query.
+        if filters['course_group']:
+            account = filters['course_group']
+        elif filters['department']:
+            account = filters['department']
+        else:
+            account = filters['school']
+
+        # Retrieve all course instances for the given term and account that do not have Canvas course sites.
+        ci_query_set_without_canvas = get_course_instance_query_set(term, account).filter(canvas_course_id__isnull=True)
+
+        # Iterate through the query set to build a list of all the course instance id's
+        # for a school/course_group/department, which course sites will be created for.
+        for ci in ci_query_set_without_canvas:
+            course_instance_ids.append(ci.course_instance_id)
+    else:
+        course_instance_ids = data['course_instance_ids']
+
     create_bulk_job_kwargs = {
         'school_id': school_id,
         'sis_term_id': int(term),
@@ -292,7 +314,7 @@ def create_job(request):
         'sis_course_group_id': int(course_group) if course_group else None,
         'template_canvas_course_id': template_canvas_course_id,
         'created_by_user_id': created_by_user_id,
-        'course_instance_ids': data['course_instance_ids']
+        'course_instance_ids': course_instance_ids
     }
 
     bulk_job = BulkCanvasCourseCreationJob.objects.create_bulk_job(**create_bulk_job_kwargs)

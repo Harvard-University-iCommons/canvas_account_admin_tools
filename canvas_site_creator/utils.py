@@ -115,7 +115,7 @@ def get_department_data_for_school(school_sis_account_id, department_sis_account
                 return department
             else:
                 departments.append(department)
-    return departments
+    return sorted(departments, key=lambda k: k['name'])
 
 
 def get_course_group_data_for_school(school_sis_account_id, course_group_sis_account_id=None):
@@ -140,7 +140,9 @@ def get_course_group_data_for_school(school_sis_account_id, course_group_sis_acc
                 return course_group
             else:
                 course_groups.append(course_group)
-    return course_groups
+    # Sort the resulting course group list by its name
+    return sorted(course_groups, key=lambda k: k['name'])
+
 
 def get_canvas_site_templates_for_school(school_id):
     """
