@@ -10,15 +10,14 @@
                 <input type="text" class="form-control" id="input-course-{{field}}"
                     name="input-course-{{field}}"
                     ng-model="formValue"/>
-                <span class="input-group-addon">
-                    <i class="fa fa-calendar"/>
-                </span>
+                <label class="input-group-addon btn" for="input-course-{{field}}">
+                    <span class="fa fa-calendar"></span>
+                </label>
             </div>
             <span id="span-course-{{field}}" ng-hide="editable">
                 {{modelValue}}
             </span>
         </div>
-
         <div class="alert alert-danger" role="alert" id="dp-alert">
             <p>
                 <i class="fa fa-warning"></i>
