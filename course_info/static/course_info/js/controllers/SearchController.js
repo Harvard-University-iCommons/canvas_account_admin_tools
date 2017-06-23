@@ -261,7 +261,7 @@
                             render: function(data, type, row, meta) {
                                 var url = '#/details/' + row.cid;
                                 var sub_title = '';
-                                if (row.sub_title && row.sub_title != row.description) {
+                                if (row.sub_title && row.sub_title.toLowerCase() != row.description.toLowerCase()) {
                                     sub_title += ': ' + row.sub_title;
                                 }
                                 return '<a href="' + url + '">' + row.description + sub_title + '</a>';
