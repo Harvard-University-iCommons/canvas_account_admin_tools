@@ -168,6 +168,30 @@
                 return cinfo;
             };
 
+            // Will truncate a string if it is beyond the given max length.
+            function truncateStrBeyondLen(str, maxLen) {
+                if (str.length > maxLen) {
+                    return str.substring(0, maxLen) + '...';
+                } else {
+                    return str;
+                }
+            }
+
+            // Creates the complete 'Course Details' string for a CI based on a max string length.
+            function getCourseDetailsStr(ciTitle, ciSubTitle) {
+                // The max amount of chars for the column.
+                var maxStrLen = 85;
+                var description = truncateStrBeyondLen(ciTitle, 40);
+                var subTitle = '';
+                // If the CI has a subtitle and it is not the same as the title,
+                // use the remaining amount of chars to create the subtitle that will be appended to the title.
+                if (ciSubTitle && ciSubTitle.toLowerCase() != ciTitle.toLowerCase()) {
+                    var remainingChars = maxStrLen - description.length;
+                    subTitle += ': ' + truncateStrBeyondLen(ciSubTitle, remainingChars);
+                }
+                return description + subTitle;
+            }
+
             var request = null;
             $scope.initializeDatatable = function() {
                 $scope.dataTable = $('#courseInfoDT').DataTable({
@@ -260,11 +284,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/details/' + row.cid;
-                                var sub_title = '';
-                                if (row.sub_title && row.sub_title.toLowerCase() != row.description.toLowerCase()) {
-                                    sub_title += ': ' + row.sub_title;
-                                }
-                                return '<a href="' + url + '">' + row.description + sub_title + '</a>';
+                                return '<a href="' + url + '">' + getCourseDetailsStr(row.description, row.sub_title)+ '</a>';
                             },
                         },
                         {data: 'year'},
