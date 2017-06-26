@@ -115,32 +115,6 @@
         </div>
     {% endif %}
 
-    {% if conclude_courses %}
-        <div class="card card_color">
-          <a href="{{ conclude_courses }}" target="_blank" id="conclude-courses">
-            <div class="card-body">
-              <div class="card-header card-header_color5">
-              </div>
-              <div class="card-content card-content_normal">
-                <div class="card-content-width">
-                  <div class="card-content-icon">
-                    <i class="fa fa-hand-stop-o icon-size"></i>
-                  </div>
-                  <div class="card-content-data">
-                    <h2 class="card-content-title ellipsis" title="Conclude Courses">
-                      <span class="content-link">
-                        Conclude Courses
-                      </span>
-                    </h2>
-                    <p title="Conclude Courses">Set or modify a conclusion date for a specific course</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-    {% endif %}
-
     {% if publish_courses_allowed %}
         <div class="card card_color">
           <a href="{% url 'publish_courses:index' %}" id="publish_courses">
