@@ -246,9 +246,12 @@
                     // Conclude date is a DateTimeField in the CI model.
                     // Convert the formatted date back into a DateTime string to be submitted.
                     if (dc.formDisplayData['conclude_date']){
-                        var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
-                        formatted_date += 'T23:59:59Z';
-                        patchData['conclude_date'] = formatted_date;
+                        // Validate that the selected date is not in the past before submitting.
+                        if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+                            var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
+                            formatted_date += 'T23:59:59Z';
+                            patchData['conclude_date'] = formatted_date;
+                        }
                     } else {
                         // If the conclude date field is left blank, then set the conclude_date to null in the DB.
                         patchData['conclude_date'] = null;
@@ -270,8 +273,11 @@
                     // leaves 'edit' mode, re-enables edit button
                     dc.courseDetailsUpdateInProgress = false;
                     if (dc.formDisplayData['conclude_date']) {
-                        // Reformat the conclude date
-                        dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy');
+                        // Only update the display conclude date if a valid date was entered.
+                        if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+                            // Reformat the conclude date
+                            dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy');
+                        }
                     }
                     dc.resetForm();
                 });
