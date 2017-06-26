@@ -93,7 +93,7 @@
                 courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
-                courseInstance['term_conclude_date'] = ci.term.conclude_date;
+                courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy');
                 courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
                 courseInstance['course_groups'] = ci.course.course_groups;
