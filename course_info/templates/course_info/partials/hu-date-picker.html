@@ -21,10 +21,10 @@
     </div>
     <div class="col-sm-8">
         <div ng-show="{{termConcludeDate}}">
-            This course belongs to {{term | lowercase}} which is set to conclude on {{termConcludeDate}}.
+            This course belongs to <b>{{term}}</b> which is set to conclude on <b>{{termConcludeDate}}</b>.
         </div>
         <div ng-hide="{{termConcludeDate}}">
-            This course belongs to {{term | lowercase}} which has no conclusion date set.
+            This course belongs to <b>{{term}}</b> which has no conclusion date set.
         </div>
         If a date is specified here it will override the term-level setting.
     </div>
