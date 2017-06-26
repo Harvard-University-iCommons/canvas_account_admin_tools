@@ -3,7 +3,7 @@
     <label for="input-course-{{field}}" class="col-sm-2">
       {{label}}
     </label>
-    <div class="col-sm-4">
+    <div class="col-sm-2">
         <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
         <div ng-hide="isLoading()">
             <div class="input-group" ng-show="editable">
@@ -18,18 +18,24 @@
                 {{modelValue}}
             </span>
         </div>
-        <div class="alert alert-danger" role="alert" id="dp-alert">
+    </div>
+    <div class="col-sm-8">
+        <div ng-show="{{termConcludeDate}}">
+            This course belongs to {{term | lowercase}} which is set to conclude on {{termConcludeDate}}.
+        </div>
+        <div ng-hide="{{termConcludeDate}}">
+            This course belongs to {{term | lowercase}} which has no conclusion date set.
+        </div>
+        If a date is specified here it will override the term-level setting.
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-2">
+        <div class="alert alert-danger" style="padding-left: 15px;" role="alert" id="dp-alert">
             <p>
                 <i class="fa fa-warning"></i>
                 You can only pick a date in the future
             </p>
-        </div>
-    </div>
-    <div class="col-sm-6">
-        <div ng-show="{{termConcludeDate}}">
-            This course belongs to {{term | lowercase}} which has a set conclusion date of {{termConcludeDate}}.
-            <br>
-            Select another date to override this setting.
         </div>
     </div>
 </div>
