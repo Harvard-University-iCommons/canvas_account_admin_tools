@@ -180,14 +180,17 @@
             // Creates the complete 'Course Details' string for a CI based on a max string length.
             function getCourseDetailsStr(ciTitle, ciSubTitle) {
                 // The max amount of chars for the column.
-                var maxStrLen = 85;
-                var description = truncateStrBeyondLen(ciTitle, 40);
+                var maxStrLen = 80;
+                var description = '';
                 var subTitle = '';
                 // If the CI has a subtitle and it is not the same as the title,
                 // use the remaining amount of chars to create the subtitle that will be appended to the title.
                 if (ciSubTitle && ciSubTitle.toLowerCase() != ciTitle.toLowerCase()) {
+                    description = truncateStrBeyondLen(ciTitle, 40);
                     var remainingChars = maxStrLen - description.length;
                     subTitle += ': ' + truncateStrBeyondLen(ciSubTitle, remainingChars);
+                } else {
+                    description = truncateStrBeyondLen(ciTitle, maxStrLen);
                 }
                 return description + subTitle;
             }
