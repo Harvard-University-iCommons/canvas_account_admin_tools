@@ -21,13 +21,14 @@
                 // Create the date picker on the input tag.
                 var inputElement = $(element).find('input');
                 var dp = inputElement.datepicker('setDate', scope.modelValue);
-                dp.change(function() {
+                dp.on('changeDate', function() {
                     var selectedDate = inputElement.val();
                     // If the selected date is in the past then display alert message and reset the date.
                     if (isSelectedDateInPast(selectedDate)) {
-                        inputElement.val(scope.modelValue);
-                        inputElement.datepicker('setDate', scope.modelValue);
                         $('#dp-alert').show();
+                    } else {
+                        // If the selected date is a current or future date, make sure the alert is hidden.
+                        $('#dp-alert').hide();
                     }
                 });
             }
