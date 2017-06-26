@@ -13,7 +13,8 @@
                 label: '@',
                 modelValue: '=',
                 term: '=',
-                termConcludeDate: '='
+                termConcludeDate: '=',
+                isSelectedDateInPast: '='
             },
             templateUrl: 'partials/hu-date-picker.html',
             link: function (scope, element) {
@@ -24,7 +25,7 @@
                 dp.on('changeDate', function() {
                     var selectedDate = inputElement.val();
                     // If the selected date is in the past then display alert message and reset the date.
-                    if (isSelectedDateInPast(selectedDate)) {
+                    if (scope.isSelectedDateInPast(selectedDate)) {
                         $('#dp-alert').show();
                     } else {
                         // If the selected date is a current or future date, make sure the alert is hidden.
@@ -33,14 +34,5 @@
                 });
             }
         };
-    }
-
-    // Checks if the given date is prior to today's date.
-    function isSelectedDateInPast(selectedDate) {
-        // Since the input field is a string representation of a date,
-        // we need to convert today's date to the same format as a string to make the comparison.
-        var today = new Date();
-        today = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
-        return Date.parse(selectedDate)-Date.parse(today)<0
     }
 })();

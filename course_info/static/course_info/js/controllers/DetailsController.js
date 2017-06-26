@@ -283,5 +283,14 @@
         };
 
         dc.init();
+
+        // Checks if the given date is prior to today's date.
+        dc.isSelectedDateInPast = function(selectedDate) {
+            // Since the input field is a string representation of a date,
+            // we need to convert today's date to the same format as a string to make the comparison.
+            var today = new Date();
+            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+        }
     }
 })();
