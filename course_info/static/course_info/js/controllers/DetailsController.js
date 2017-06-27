@@ -4,7 +4,7 @@
 
 
     function DetailsController(courseInstances, djangoUrl, $http, $log,
-                               $routeParams, $filter) {
+                               $routeParams, $filter, $scope) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -26,6 +26,14 @@
         // controls how many fields are available to edit
         dc.editable = false;
         dc.editInProgress = false;  // has edit mode been activated by user
+
+        // Sets the show boolean value of the date picker form alert.
+        dc.toggleDatePickerAlert = function(val) {
+            dc.alerts.form['invalidDatePicked'] = {
+                show: val
+            };
+            $scope.$digest();
+        };
 
         dc.init = function() {
             var instances = courseInstances.instances;
@@ -187,14 +195,18 @@
         };
 
         dc.resetForm = function() {
-            $('#dp-alert').hide();
             dc.formDisplayData = angular.copy(dc.courseInstance);
+            dc.resetFormAlerts();
             dc.editInProgress = false;
         };
 
         dc.resetFormFromUI = function() {
             dc.resetForm();
             dc.showNewGlobalAlert('formReset');
+        };
+
+        dc.resetFormAlerts = function () {
+            dc.alerts.form = {};
         };
 
         dc.resetGlobalAlerts = function() {
