@@ -2,8 +2,9 @@
     angular.module('CourseInfo')
         .controller('DetailsController', DetailsController);
 
+
     function DetailsController(courseInstances, djangoUrl, $http, $log,
-                               $routeParams) {
+                               $routeParams, $filter, $scope) {
 
         var dc = this;
         // there are two kinds of alerts, global (which appear at the top of the
@@ -25,6 +26,14 @@
         // controls how many fields are available to edit
         dc.editable = false;
         dc.editInProgress = false;  // has edit mode been activated by user
+
+        // Sets the show boolean value of the date picker form alert.
+        dc.toggleDatePickerAlert = function(val) {
+            dc.alerts.form['invalidDatePicked'] = {
+                show: val
+            };
+            $scope.$digest();
+        };
 
         dc.init = function() {
             var instances = courseInstances.instances;
@@ -92,6 +101,7 @@
                 courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
+                courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy');
                 courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
                 courseInstance['course_groups'] = ci.course.course_groups;
@@ -110,7 +120,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
-                courseInstance['conclude_date'] = ci.conclude_date;
+                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'MM/dd/yyyy');
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
@@ -186,12 +196,17 @@
 
         dc.resetForm = function() {
             dc.formDisplayData = angular.copy(dc.courseInstance);
+            dc.resetFormAlerts();
             dc.editInProgress = false;
         };
 
         dc.resetFormFromUI = function() {
             dc.resetForm();
             dc.showNewGlobalAlert('formReset');
+        };
+
+        dc.resetFormAlerts = function () {
+            dc.alerts.form = {};
         };
 
         dc.resetGlobalAlerts = function() {
@@ -236,9 +251,26 @@
                 'exclude_from_isites',
                 'exclude_from_catalog',
                 'section',
+                'conclude_date'
             ];
             fields.forEach(function(field) {
-                patchData[field] = dc.formDisplayData[field];
+                if (field == 'conclude_date') {
+                    // Conclude date is a DateTimeField in the CI model.
+                    // Convert the formatted date back into a DateTime string to be submitted.
+                    if (dc.formDisplayData['conclude_date']){
+                        // Validate that the selected date is not in the past before submitting.
+                        if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+                            var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
+                            formatted_date += 'T23:59:59Z';
+                            patchData['conclude_date'] = formatted_date;
+                        }
+                    } else {
+                        // If the conclude date field is left blank, then set the conclude_date to null in the DB.
+                        patchData['conclude_date'] = null;
+                    }
+                } else {
+                    patchData[field] = dc.formDisplayData[field];
+                }
             });
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch() {
@@ -252,6 +284,13 @@
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     // leaves 'edit' mode, re-enables edit button
                     dc.courseDetailsUpdateInProgress = false;
+                    if (dc.formDisplayData['conclude_date']) {
+                        // Only update the display conclude date if a valid date was entered.
+                        if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+                            // Reformat the conclude date
+                            dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy');
+                        }
+                    }
                     dc.resetForm();
                 });
         };
@@ -262,5 +301,14 @@
         };
 
         dc.init();
+
+        // Checks if the given date is prior to today's date.
+        dc.isSelectedDateInPast = function(selectedDate) {
+            // Since the input field is a string representation of a date,
+            // we need to convert today's date to the same format as a string to make the comparison.
+            var today = new Date();
+            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+        }
     }
 })();

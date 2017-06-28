@@ -1,5 +1,4 @@
 {% verbatim %}
-
 <nav>
   <h3 class="breadcrumbs">
       {% endverbatim %}
@@ -242,13 +241,28 @@
         </div>
       </hu-field-label-wrapper>
 
-      <hu-editable-input
-          is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
-          form-value="dc.formDisplayData.conclude_date"
-          model-value="dc.courseInstance.conclude_date"
-          field="conclude_date"
-          label="Conclusion Date">
-      </hu-editable-input>
+      <hu-date-picker
+        editable="dc.editInProgress"
+        is-loading="dc.isUndefined(dc.courseInstance.conclude_date)"
+        form-value="dc.formDisplayData.conclude_date"
+        model-value="dc.courseInstance.conclude_date"
+        term="dc.courseInstance.term"
+        term-conclude-date="dc.courseInstance.term_conclude_date"
+        field="conclude_date"
+        label="Conclusion Date Override"
+        is-selected-date-in-past="dc.isSelectedDateInPast"
+        toggle-date-picker-alert="dc.toggleDatePickerAlert">
+      </hu-date-picker>
+      <div class="row" ng-if="dc.alertPresent('form', 'invalidDatePicked')">
+        <div class="col-sm-6 col-sm-offset-2">
+          <div class="alert alert-danger" style="padding-left: 15px;" role="alert" id="dp-alert">
+            <p>
+              <i class="fa fa-warning"></i>
+              You can only pick a date in the future
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div class="form-group">
         <label class="col-sm-2">
