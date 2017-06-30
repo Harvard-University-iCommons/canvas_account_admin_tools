@@ -96,6 +96,19 @@
       </uib-alert>
     </div>
   </div>
+
+  <div ng-cloak ng-show="showDataTable">
+    <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
+      <thead>
+        <th><input type="checkbox" class="col-select" ng-checked="selectAll" ng-click="toggleSelectAll()"/></th>
+        <th class="sorting" tabindex="0">Course ID&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Course Code&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Name&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">SIS Course ID&nbsp;&nbsp;</th>
+        <th class="sorting" tabindex="0">Status&nbsp;&nbsp;</th>
+      </thead>
+    </table>
+  </div>
 </main>
 
 {% endverbatim %}
