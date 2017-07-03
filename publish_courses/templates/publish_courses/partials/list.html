@@ -79,6 +79,15 @@
   <div class="row">
     <div class="col-xs-6">
       <button class="btn btn-primary"
+              id="publishSelectedButton"
+              ng-click="publishSelected()"
+              ng-disabled="publishSelectedButtonDisabled()"
+              type="button">
+        Publish Selected
+      </button>
+    </div>
+    <div class="col-xs-6">
+      <button class="btn btn-primary"
               id="publishAllButton"
               ng-click="publish()"
               ng-disabled="publishButtonDisabled()"
