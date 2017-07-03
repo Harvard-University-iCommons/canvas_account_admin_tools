@@ -67,19 +67,6 @@
             });
         };
 
-        $scope.syncSelectionCheckboxes = function(){
-            $('#courseInfoDT tbody .col-select').each(function(o) {
-                var $checkbox = $(this);
-                var courseInstanceId = $checkbox.data('course_instance_id');
-                var isSelected = Boolean($scope.courseInstanceModel.selectedCourseInstances[courseInstanceId]);
-                $checkbox.closest('tr').toggleClass('selected', isSelected);
-                $checkbox.prop('checked', isSelected);
-            });
-            $scope.selectAll = !$('#courseInfoDT tbody tr').not('.selected').length;
-        };
-
-        $scope.$watch($scope.selectedCourses, $scope.syncSelectionCheckboxes, true);
-
         $scope.handleRowClick = function(e){
             var $tr = $(e.target).closest('tr');
             var selected = !$tr.hasClass('selected');
@@ -221,8 +208,6 @@
                         $('#courseInfoDT tbody tr').off('click', $scope.handleRowClick);
                     },
                     drawCallback: function(){
-                        $scope.syncSelectionCheckboxes();
-                        $scope.$apply();  // otherwise UI selectAll checkbox will not reflect scope changes
                         $('#courseInfoDT tbody tr').on('click', $scope.handleRowClick);
                     }
                 });
