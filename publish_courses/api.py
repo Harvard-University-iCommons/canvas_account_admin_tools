@@ -20,6 +20,8 @@ from async.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from lti_permissions.decorators import lti_permission_required_check
 from publish_courses.async_operations import bulk_publish_canvas_sites
+from django.http import JsonResponse
+import simplejson as json
 
 logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
@@ -38,6 +40,33 @@ class LTIPermission(BasePermission):
 
     def has_permission(self, request, view):
         return lti_permission_required_check(request, PC_PERMISSION)
+
+
+class CourseDetailList(ListAPIView):
+    """
+    Return a list of courses using GET parameters given
+    :param term_id: The SIS term to count course instances for
+    :param account_id: The SIS school ID to count course instances for
+    :return: JSON response containing the courses of the given term and account
+    """
+    permission_classes = (LTIPermission,)
+
+    def list(self, request, *args, **kwargs):
+        self.term_id = self.request.query_params.get("term_id")
+        self.account_id = self.request.query_params.get("account_id")
+        self.sis_term_id = 'sis_term_id:{}'.format(self.term_id)
+        self.sis_account_id = 'sis_account_id:school:{}'.format(self.account_id)
+        all_courses = self._get_courses()
+        return JsonResponse(json.dumps(all_courses), safe=False)
+
+    def _get_courses(self):
+        op_config = {
+            'account': self.sis_account_id,
+            'term': self.sis_term_id,
+        }
+        op = BulkCourseSettingsOperation(op_config)
+        op.get_canvas_courses()
+        return op.canvas_courses
 
 
 class SummaryList(ListAPIView):
