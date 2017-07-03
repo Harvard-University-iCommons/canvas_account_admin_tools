@@ -44,7 +44,7 @@ class LTIPermission(BasePermission):
 
 class CourseDetailList(ListAPIView):
     """
-    Return a list of courses using GET parameters given
+    Return a list of unpublished canvas courses using the GET parameters given
     :param term_id: The SIS term to count course instances for
     :param account_id: The SIS school ID to count course instances for
     :return: JSON response containing the courses of the given term and account
@@ -56,8 +56,21 @@ class CourseDetailList(ListAPIView):
         self.account_id = self.request.query_params.get("account_id")
         self.sis_term_id = 'sis_term_id:{}'.format(self.term_id)
         self.sis_account_id = 'sis_account_id:school:{}'.format(self.account_id)
-        all_courses = self._get_courses()
-        return JsonResponse(json.dumps(all_courses), safe=False)
+
+        # The return list of
+        filtered_courses = []
+        try:
+            all_courses = self._get_courses()
+            for course in all_courses:
+                if course['workflow_state'] == 'unpublished':
+                    filtered_courses.append(course)
+        except Exception as e:
+            logger.exception(
+                "Failed to get unpublished courses for term_id={} and "
+                "account_id={}".format(self.term_id, self.account_id))
+            raise RuntimeError("There was a problem retrieving courses. ")
+
+        return JsonResponse(json.dumps(filtered_courses), safe=False)
 
     def _get_courses(self):
         op_config = {
@@ -136,12 +149,23 @@ class BulkPublishListCreate(ListCreateAPIView):
         if not account_sis_id[len('school:'):] == account:
             raise PermissionDenied
 
-        process = Process.enqueue(
-            bulk_publish_canvas_sites,
-            settings.RQWORKER_QUEUE_NAME,
-            account='sis_account_id:school:{}'.format(account),
-            term='sis_term_id:{}'.format(term),
-            audit_user=audit_user_id)
+        selected_courses = self.request.data.get('course_list')
+
+        if selected_courses is not None:
+            process = Process.enqueue(
+                bulk_publish_canvas_sites,
+                settings.RQWORKER_QUEUE_NAME,
+                account='sis_account_id:school:{}'.format(account),
+                term='sis_term_id:{}'.format(term),
+                audit_user=audit_user_id,
+                course_list=selected_courses)
+        else:
+            process = Process.enqueue(
+                bulk_publish_canvas_sites,
+                settings.RQWORKER_QUEUE_NAME,
+                account='sis_account_id:school:{}'.format(account),
+                term='sis_term_id:{}'.format(term),
+                audit_user=audit_user_id)
 
         logger.debug('Enqueued Process job for bulk_publish_canvas_sites: '
                      '{}'.format(process))
