@@ -1,7 +1,13 @@
+
 div.alert-container {
   margin-top: 1em;
 }
+
 div.publish-input-group {
   margin-top: 1em;
   max-width:80%;
+}
+
+.col-align-center {
+    text-align: center;
 }
