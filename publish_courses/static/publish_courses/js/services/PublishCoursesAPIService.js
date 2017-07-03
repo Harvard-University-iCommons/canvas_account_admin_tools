@@ -9,8 +9,7 @@
     };
 
     var resources = {
-      jobs: {
-        url: getUrl('api_jobs'), pending: {}},
+        jobs: {url: getUrl('api_jobs'), pending: {}},
         courseSummary: {url: getUrl('api_show_summary'), pending: {}},
         courseList: {url: getUrl('api_course_list'), pending: {}
       }
@@ -49,19 +48,30 @@
       });
     };
 
-    var createJob = function(accountId, termId) {
+    var createAllJob = function(accountId, termId) {
       var params = {
         account: accountId,
         term: termId
       };
       return $http.post(resources.jobs.url, params,
-        {logError: {enabled: true, detail: 'create publish courses job'}});
+        {logError: {enabled: true, detail: 'create publish all courses job'}});
+    };
+
+    var createSelectedJob = function(accountId, termId, selectedCourses) {
+      var params = {
+        account: accountId,
+        term: termId,
+        course_list: selectedCourses
+      };
+      return $http.post(resources.jobs.url, params,
+        {logError: {enabled: true, detail: 'create publish selected courses job'}});
     };
 
     return {
       CourseList: {get: getCourseList},
       CourseSummary: {get: getCourseSummary},
-      Jobs: {create: createJob},
+      Jobs: {createAll: createAllJob,
+             createSelected: createSelectedJob}
     };
   }
 })();
