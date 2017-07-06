@@ -10,12 +10,11 @@
 
     var resources = {
         jobs: {url: getUrl('api_jobs'), pending: {}},
-        courseSummary: {url: getUrl('api_show_summary'), pending: {}},
         courseList: {url: getUrl('api_course_list'), pending: {}
       }
     };
 
-    // Returns a list of courses and their details for the given term.
+    // Returns a list of canvas courses and a summary for the given term.
     var getCourseList = function(accountId, termId) {
       var config = {
         params: {
@@ -28,23 +27,6 @@
       return $http.get(resources.courseList.url, config
       ).then(function gotCourseList(response) {
         return JSON.parse(response.data);
-      });
-    };
-
-    // Returns a summary of courses in the given term.
-    // ie: There are 19 courses in this term; 18 published, 1 unpublished , 0 concluded.
-    var getCourseSummary = function(accountId, termId) {
-      var config = {
-        params: {
-          account_id: accountId,
-          term_id: termId
-        },
-        logError: {enabled: true, detail: 'fetch course summary information'},
-        pendingRequestTag: 'courses'
-      };
-      return $http.get(resources.courseSummary.url, config
-      ).then(function gotCourseSummary(response) {
-        return response.data;
       });
     };
 
@@ -69,7 +51,6 @@
 
     return {
       CourseList: {get: getCourseList},
-      CourseSummary: {get: getCourseSummary},
       Jobs: {createAll: createAllJob,
              createSelected: createSelectedJob}
     };

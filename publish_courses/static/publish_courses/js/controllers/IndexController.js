@@ -82,10 +82,12 @@
         $scope.filterOutOngoingTerms = function(term) {
           return term.term_code != 99;  // ongoing term
         };
+
         $scope.filterOutConcludedTerms = function(term) {
             var comparisonDate = new Date(term.conclude_date || term.end_date);
             return comparisonDate >= $scope.currentDate;
         };
+
         $scope.initialize = function() {
             // get school display name from the sis_account_id context
             actrapi.Schools.get($scope.school.id)
@@ -102,18 +104,15 @@
                     $scope.terms = currentTerms.filter($scope.filterOutOngoingTerms);
                 });
         };
+
         $scope.clearMessages = function () {
             $scope.message = null;
         };
-        $scope.loadCoursesSummary = function(){
-            $scope.loadingSummary = true;
-            var accountId = $scope.school.id;
-            var termId = $scope.selectedTerm.meta_term_id;
-            pcapi.CourseSummary.get(accountId, termId).then(function (data) {
-                $scope.coursesSummary = data;
-                $scope.loadingSummary = false;
-            });
+
+        $scope.loadCoursesSummary = function(data){
+            $scope.coursesSummary = data;
         };
+
         $scope.publish = function() {
             $scope.clearMessages();
             var accountId = $scope.school.id;
@@ -131,20 +130,17 @@
                 $scope.operationInProgress = false;
             });
         };
+
         $scope.publishButtonDisabled = function() {
             // disable button when:
             // - nothing is selected in the term dropdown
             // - there are no publishable sites in the term
             // - submitting a job
             // - user has successfully submitted a job
-
-            // todo This is commented out to prevent creation of jobs prior to the UI development story TLT-3144
-            //
-            // return !$scope.selectedTerm
-            //        || $scope.coursesSummary.unpublished == 0
-            //        || $scope.operationInProgress
-            //        || ($scope.message && ($scope.message == $scope.messages.success));
-            return true;
+            return !$scope.selectedTerm
+                   || $scope.coursesSummary.unpublished == 0
+                   || $scope.operationInProgress
+                   || ($scope.message && ($scope.message == $scope.messages.success));
         };
 
         $scope.publishSelected = function() {
@@ -168,20 +164,24 @@
         $scope.termSelected = function(selectedTerm) {
             $scope.selectedTerm = selectedTerm;
             $scope.clearMessages();
-            $scope.loadCoursesSummary();
-            $scope.updateDataTable();
+            $scope.loadCourseData();
         };
 
         $scope.initialize();
 
-        $scope.updateDataTable = function() {
-            $scope.showDataTable = true;
+        // Makes the call to get all courses information for the selected term and account and display that information
+        // as both a summary and a data table.
+        $scope.loadCourseData = function() {
+            $scope.loadingSummary = true;
             if ($scope.dataTable) {
+                $scope.showDataTable = false;
                 $scope.dataTable.destroy();
             }
             var accountId = $scope.school.id;
             var termId = $scope.selectedTerm.meta_term_id;
+            $scope.operationInProgress = true;
             pcapi.CourseList.get(accountId, termId).then(function (data) {
+                $scope.loadCoursesSummary(data['course_summary']);
                 $scope.dataTable = $('#courseInfoDT').DataTable({
                     retrieve: true,
                     dom: '<lf<rt>ip>',
@@ -189,8 +189,7 @@
                         info: 'Showing _START_ to _END_ of _TOTAL_ courses',
                         emptyTable: 'There are no courses to display.'
                     },
-                    data: data,
-                    order: [[3, 'asc']],
+                    data: data['courses'],
                     columns: [
                         {
                             data: 'id',
@@ -198,17 +197,18 @@
                             width: '5%',
                             className: 'col-align-center',
                             render: $scope.renderSelectionColumn},
-                        {data: 'id'},
-                        {data: 'course_code'},
-                        {data: 'name'},
-                        {data: 'sis_course_id'},
-                        {data: 'workflow_state'}
+                        {data: 'id', width: '15%',},
+                        {data: 'sis_course_id', width: '15%',},
+                        {data: 'name'}
                     ],
                     preDrawCallback: function(){
                         $('#courseInfoDT tbody tr').off('click', $scope.handleRowClick);
                     },
                     drawCallback: function(){
                         $('#courseInfoDT tbody tr').on('click', $scope.handleRowClick);
+                        $scope.showDataTable = true;
+                        $scope.loadingSummary = false;
+                        $scope.operationInProgress = false;
                     }
                 });
             });

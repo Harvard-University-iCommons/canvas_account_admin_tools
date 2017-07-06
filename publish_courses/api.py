@@ -44,10 +44,11 @@ class LTIPermission(BasePermission):
 
 class CourseDetailList(ListAPIView):
     """
-    Return a list of unpublished canvas courses using the GET parameters given
+    Return a list of unpublished canvas courses and a summary of that list using the GET parameters given
     :param term_id: The SIS term to count course instances for
     :param account_id: The SIS school ID to count course instances for
-    :return: JSON response containing the courses of the given term and account
+    :return: JSON response containing a list of canvas courses for the given term/account and 
+             a summary dictionary containing the counts of each workflow state of the courses.
     """
     permission_classes = (LTIPermission,)
 
@@ -57,21 +58,31 @@ class CourseDetailList(ListAPIView):
         self.sis_term_id = 'sis_term_id:{}'.format(self.term_id)
         self.sis_account_id = 'sis_account_id:school:{}'.format(self.account_id)
 
-        # The return list of
+        course_details = {
+            'courses': [],
+            'course_summary': {}
+        }
+
+        # The filtered list of courses that have the state of 'unpublished
         filtered_courses = []
         try:
             all_courses = self._get_courses()
+            course_details['course_summary'] = self._get_summary(all_courses)
+
             for course in all_courses:
                 if course['workflow_state'] == 'unpublished':
                     filtered_courses.append(course)
+
+            course_details['courses'] = filtered_courses
         except Exception as e:
             logger.exception(
                 "Failed to get unpublished courses for term_id={} and "
                 "account_id={}".format(self.term_id, self.account_id))
             raise RuntimeError("There was a problem retrieving courses. ")
 
-        return JsonResponse(json.dumps(filtered_courses), safe=False)
+        return JsonResponse(json.dumps(course_details), safe=False)
 
+    # Returns a list of canvas courses for the given account and term.
     def _get_courses(self):
         op_config = {
             'account': self.sis_account_id,
@@ -81,48 +92,20 @@ class CourseDetailList(ListAPIView):
         op.get_canvas_courses()
         return op.canvas_courses
 
-
-class SummaryList(ListAPIView):
-    """
-    Return counts of published courses using the GET parameters given
-    :param term_id: The SIS term to count course instances for
-    :param account_id: The SIS school ID to count course instances for
-    :return: JSON response containing the course instance counts
-    """
-    permission_classes = (LTIPermission,)
-
-    def list(self, request, *args, **kwargs):
-        self.term_id = self.request.query_params.get("term_id")
-        self.account_id = self.request.query_params.get("account_id")
-        self.sis_term_id = 'sis_term_id:{}'.format(self.term_id)
-        self.sis_account_id = 'sis_account_id:school:{}'.format(self.account_id)
-        try:
-            total_courses = self._get_courses()
-            state_map = {
-                'published': 'available',
-                'unpublished': 'unpublished',
-                'concluded': 'completed',
-            }
-            summary_counts_by_state = {'total': len(total_courses)}
-            for k, v in state_map.items():
-                summary_counts_by_state[k] = len(
-                    [c for c in total_courses if c['workflow_state'] == v])
-        except Exception as e:
-            logger.exception(
-                "Failed to get published courses summary for term_id={} and "
-                "account_id={}".format(self.term_id, self.account_id))
-            raise RuntimeError("There was a problem counting courses. ")
-
-        return Response(summary_counts_by_state)
-
-    def _get_courses(self):
-        op_config = {
-            'account': self.sis_account_id,
-            'term': self.sis_term_id,
+    # Returns a dictionary summary of the given course list by their work state status.
+    @staticmethod
+    def _get_summary(course_list):
+        state_map = {
+            'published': 'available',
+            'unpublished': 'unpublished',
+            'concluded': 'completed',
         }
-        op = BulkCourseSettingsOperation(op_config)
-        op.get_canvas_courses()
-        return op.canvas_courses
+        summary_counts_by_state = {'total': len(course_list)}
+        for k, v in state_map.items():
+            summary_counts_by_state[k] = len(
+                [c for c in course_list if c['workflow_state'] == v])
+
+        return summary_counts_by_state
 
 
 class BulkPublishListCreate(ListCreateAPIView):
