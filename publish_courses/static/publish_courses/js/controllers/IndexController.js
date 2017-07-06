@@ -199,7 +199,12 @@
                             render: $scope.renderSelectionColumn},
                         {data: 'id', width: '15%',},
                         {data: 'sis_course_id', width: '15%',},
-                        {data: 'name'}
+                        {
+                            data: 'name',
+                            render: function(data, type, row, meta) {
+                                return '<a href="/courses/' + row.id + '">' + data + '</a>';
+                            }
+                        }
                     ],
                     preDrawCallback: function(){
                         $('#courseInfoDT tbody tr').off('click', $scope.handleRowClick);
