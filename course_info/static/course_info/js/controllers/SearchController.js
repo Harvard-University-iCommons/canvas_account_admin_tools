@@ -131,6 +131,7 @@
                 // TODO: Eventually move the reusable logic to a separate library
                 var cinfo = {};
                 cinfo['description'] = $scope.getCourseDescription(course);
+                cinfo['sub_title'] = course.sub_title ? course.sub_title : '';
                 cinfo['year'] = course.term ? course.term.academic_year : '';
                 cinfo['term'] = course.term ? course.term.display_name : '';
                 cinfo['term_code'] = course.term ? course.term.term_code : '';
@@ -166,6 +167,33 @@
                 }
                 return cinfo;
             };
+
+            // Will truncate a string if it is beyond the given max length.
+            function truncateStrBeyondLen(str, maxLen) {
+                if (str.length > maxLen) {
+                    return str.substring(0, maxLen) + '...';
+                } else {
+                    return str;
+                }
+            }
+
+            // Creates the complete 'Course Details' string for a CI based on a max string length.
+            function getCourseDetailsStr(ciTitle, ciSubTitle) {
+                // The max amount of chars for the column.
+                var maxStrLen = 80;
+                var description = '';
+                var subTitle = '';
+                // If the CI has a subtitle and it is not the same as the title,
+                // use the remaining amount of chars to create the subtitle that will be appended to the title.
+                if (ciSubTitle && ciSubTitle.toLowerCase() != ciTitle.toLowerCase()) {
+                    description = truncateStrBeyondLen(ciTitle, 40);
+                    var remainingChars = maxStrLen - description.length;
+                    subTitle += ': ' + truncateStrBeyondLen(ciSubTitle, remainingChars);
+                } else {
+                    description = truncateStrBeyondLen(ciTitle, maxStrLen);
+                }
+                return description + subTitle;
+            }
 
             var request = null;
             $scope.initializeDatatable = function() {
@@ -259,7 +287,7 @@
                             data: null,
                             render: function(data, type, row, meta) {
                                 var url = '#/details/' + row.cid;
-                                return '<a href="' + url + '">' + row.description + '</a>';
+                                return '<a href="' + url + '">' + getCourseDetailsStr(row.description, row.sub_title)+ '</a>';
                             },
                         },
                         {data: 'year'},

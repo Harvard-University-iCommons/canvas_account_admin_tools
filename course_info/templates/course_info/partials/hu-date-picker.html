@@ -1,0 +1,32 @@
+{% verbatim %}
+<div class="form-group">
+    <label for="input-course-{{field}}" class="col-sm-2">
+      {{label}}
+    </label>
+    <div class="col-sm-2">
+        <span ng-show="isLoading()"><i class="fa fa-refresh fa-spin"></i></span>
+        <div ng-hide="isLoading()">
+            <div class="input-group" ng-show="editable">
+                <input type="text" class="form-control" id="input-course-{{field}}"
+                    name="input-course-{{field}}"
+                    ng-model="formValue"/>
+                <label class="input-group-addon btn" for="input-course-{{field}}">
+                    <span class="fa fa-calendar"></span>
+                </label>
+            </div>
+            <span id="span-course-{{field}}" ng-hide="editable">
+                {{modelValue}}
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div ng-if=termConcludeDate>
+            This course belongs to <b>{{term}}</b> which is set to conclude on <b>{{termConcludeDate}}</b>.
+        </div>
+        <div ng-if="!termConcludeDate">
+            This course belongs to <b>{{term}}</b> which has no conclusion date set.
+        </div>
+        If a date is specified here it will override the term-level setting.
+    </div>
+</div>
+{% endverbatim %}
