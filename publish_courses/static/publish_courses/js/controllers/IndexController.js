@@ -202,7 +202,7 @@
                         {
                             data: 'name',
                             render: function(data, type, row, meta) {
-                                return '<a target="_parent" href="/courses/' + row.id + '">' + data + '</a>';
+                                return '<a target="_blank" href="/courses/' + row.id + '">' + data + '</a>';
                             }
                         }
                     ],
