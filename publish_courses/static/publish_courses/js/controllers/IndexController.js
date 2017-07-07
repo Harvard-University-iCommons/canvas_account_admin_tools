@@ -182,6 +182,7 @@
             $scope.operationInProgress = true;
             pcapi.CourseList.get(accountId, termId).then(function (data) {
                 $scope.loadCoursesSummary(data['course_summary']);
+                var canvasURL = data['canvas_url'];
                 $scope.dataTable = $('#courseInfoDT').DataTable({
                     retrieve: true,
                     dom: '<lf<rt>ip>',
@@ -202,7 +203,7 @@
                         {
                             data: 'name',
                             render: function(data, type, row, meta) {
-                                return '<a target="_blank" href="https://' + window.location.hostname + '/courses/' + row.id + '">' + data + '</a>';
+                                return '<a target="_blank" href="' + canvasURL + '/courses/' + row.id + '">' + data + '</a>';
                             }
                         }
                     ],

@@ -22,6 +22,7 @@ from lti_permissions.decorators import lti_permission_required_check
 from publish_courses.async_operations import bulk_publish_canvas_sites
 from django.http import JsonResponse
 import simplejson as json
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
@@ -60,7 +61,8 @@ class CourseDetailList(ListAPIView):
 
         course_details = {
             'courses': [],
-            'course_summary': {}
+            'course_summary': {},
+            'canvas_url': settings.CANVAS_URL
         }
 
         # The filtered list of courses that have the state of 'unpublished
