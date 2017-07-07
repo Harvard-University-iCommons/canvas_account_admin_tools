@@ -61,7 +61,6 @@ def lti_launch(request):
 def dashboard_account(request):
     custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
-    conclude_courses = settings.CONCLUDE_COURSES_URL
 
     """
     Verify that the curernt user has permission to see the cross listing button
@@ -93,7 +92,6 @@ def dashboard_account(request):
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
-        'conclude_courses': conclude_courses,
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed':site_creator_is_allowed,

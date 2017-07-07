@@ -122,10 +122,5 @@ SELENIUM_CONFIG = {
    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
 }
 
-CONCLUDE_COURSES_URL = SECURE_SETTINGS.get(
-    'conclude_courses_url',
-    'https://icommons-tools.dev.tlt.harvard.edu/course_conclusion'
-)
-
 # make sure dictConfig(LOGGING) stays at the bottom of the file
 dictConfig(LOGGING)
