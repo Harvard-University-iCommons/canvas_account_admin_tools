@@ -172,7 +172,7 @@
         // Makes the call to get all courses information for the selected term and account and display that information
         // as both a summary and a data table.
         $scope.loadCourseData = function() {
-            $scope.loadingSummary = true;
+            // If the data table already exists, hide and clear the table while the new data is loaded.
             if ($scope.dataTable) {
                 $scope.showDataTable = false;
                 $scope.dataTable.destroy();
@@ -180,6 +180,7 @@
             var accountId = $scope.school.id;
             var termId = $scope.selectedTerm.meta_term_id;
             $scope.operationInProgress = true;
+            $scope.loadingSummary = true;
             pcapi.CourseList.get(accountId, termId).then(function (data) {
                 $scope.loadCoursesSummary(data['course_summary']);
                 var canvasURL = data['canvas_url'];
