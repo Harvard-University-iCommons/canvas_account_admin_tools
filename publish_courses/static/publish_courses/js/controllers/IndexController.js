@@ -31,12 +31,12 @@
         $scope.selectedCourses = {};
         $scope.selectAll = false;
 
-        $scope.addSelectedCourseInstance = function(courseInstanceData){
-            $scope.selectedCourses[courseInstanceData['id']] = courseInstanceData;
+        $scope.addSelectedCourse = function(courseData){
+            $scope.selectedCourses[courseData['id']] = courseData;
         };
 
-        $scope.removeSelectedCourseInstance = function(courseInstanceData){
-            delete $scope.selectedCourses[courseInstanceData['id']];
+        $scope.removeSelectedCourse = function(courseData){
+            delete $scope.selectedCourses[courseData['id']];
         };
 
         $scope.getSelectedCourseIdsCount = function(){
@@ -60,9 +60,9 @@
                 var $checkbox = $(tr).find('.col-select');
                 $checkbox.prop('checked', $scope.selectAll);
                 if ($scope.selectAll) {
-                    $scope.addSelectedCourseInstance($scope.dataTable.row(index).data());
+                    $scope.addSelectedCourse($scope.dataTable.row(index).data());
                 } else {
-                    $scope.removeSelectedCourseInstance($scope.dataTable.row(index).data());
+                    $scope.removeSelectedCourse($scope.dataTable.row(index).data());
                 }
             });
         };
@@ -70,11 +70,11 @@
         $scope.handleRowClick = function(e){
             var $tr = $(e.target).closest('tr');
             var selected = !$tr.hasClass('selected');
-            var courseInstanceData = $scope.dataTable.row($tr).data();
+            var courseData = $scope.dataTable.row($tr).data();
             if (selected) {
-                $scope.addSelectedCourseInstance(courseInstanceData);
+                $scope.addSelectedCourse(courseData);
             } else {
-                $scope.removeSelectedCourseInstance(courseInstanceData);
+                $scope.removeSelectedCourse(courseData);
             }
             $scope.$apply();
         };
