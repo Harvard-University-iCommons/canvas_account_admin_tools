@@ -136,21 +136,13 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         selected_courses = self.request.data.get('course_list')
 
-        if selected_courses is not None:
-            process = Process.enqueue(
-                bulk_publish_canvas_sites,
-                settings.RQWORKER_QUEUE_NAME,
-                account='sis_account_id:school:{}'.format(account),
-                term='sis_term_id:{}'.format(term),
-                audit_user=audit_user_id,
-                course_list=selected_courses)
-        else:
-            process = Process.enqueue(
-                bulk_publish_canvas_sites,
-                settings.RQWORKER_QUEUE_NAME,
-                account='sis_account_id:school:{}'.format(account),
-                term='sis_term_id:{}'.format(term),
-                audit_user=audit_user_id)
+        process = Process.enqueue(
+            bulk_publish_canvas_sites,
+            settings.RQWORKER_QUEUE_NAME,
+            account='sis_account_id:school:{}'.format(account),
+            term='sis_term_id:{}'.format(term),
+            audit_user=audit_user_id,
+            course_list=selected_courses)
 
         logger.debug('Enqueued Process job for bulk_publish_canvas_sites: '
                      '{}'.format(process))
