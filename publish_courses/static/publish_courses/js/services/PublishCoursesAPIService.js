@@ -26,7 +26,7 @@
       };
       return $http.get(resources.courseList.url, config
       ).then(function gotCourseList(response) {
-        return JSON.parse(response.data);
+        return response.data;
       });
     };
 

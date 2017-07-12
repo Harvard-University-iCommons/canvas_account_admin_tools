@@ -82,7 +82,7 @@ class CourseDetailList(ListAPIView):
                 "account_id={}".format(self.term_id, self.account_id))
             raise RuntimeError("There was a problem retrieving courses. ")
 
-        return JsonResponse(json.dumps(course_details), safe=False)
+        return JsonResponse(course_details, safe=False)
 
     # Returns a list of canvas courses for the given account and term.
     def _get_courses(self):
