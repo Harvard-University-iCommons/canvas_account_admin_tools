@@ -30,29 +30,19 @@
       });
     };
 
-    var createAllJob = function(accountId, termId) {
-      var params = {
-        account: accountId,
-        term: termId
-      };
-      return $http.post(resources.jobs.url, params,
-        {logError: {enabled: true, detail: 'create publish all courses job'}});
-    };
-
-    var createSelectedJob = function(accountId, termId, selectedCourses) {
+    var createJob = function(accountId, termId, selectedCourses) {
       var params = {
         account: accountId,
         term: termId,
         course_list: selectedCourses
       };
       return $http.post(resources.jobs.url, params,
-        {logError: {enabled: true, detail: 'create publish selected courses job'}});
+        {logError: {enabled: true, detail: 'create publish courses job'}});
     };
 
     return {
       CourseList: {get: getCourseList},
-      Jobs: {createAll: createAllJob,
-             createSelected: createSelectedJob}
+      Jobs: {create: createJob}
     };
   }
 })();
