@@ -77,23 +77,24 @@
   </div>
 
   <div class="row">
-    <div class="col-xs-6">
-      <button class="btn btn-primary"
-              id="publishSelectedButton"
-              ng-click="publishSelected()"
-              ng-disabled="publishButtonDisabled()"
-              type="button">
-        Publish Selected
-      </button>
-    </div>
-    <div class="col-xs-6">
-      <button class="btn btn-primary"
-              id="publishAllButton"
-              ng-click="publish()"
-              ng-disabled="publishButtonDisabled()"
-              type="button">
-        Publish All
-      </button>
+    <div class="col-xs-12">
+      <div class="center" ng-show="showDataTable">
+        <h2>
+          <ng-pluralize count="coursesSummary.unpublished"
+                    when="{'0': '0 courses are unpublished',
+                           '1': '1 course is ready to be published.',
+                           'other': '{} courses are ready to be published.'}">
+          </ng-pluralize>
+        </h2>
+        <button class="btn btn-primary"
+                id="publishAllButton"
+                ng-disabled="publishButtonDisabled()"
+                type="button"
+                data-toggle="modal"
+                data-target="#confirmCreate">
+          Publish {{ getPublishButtonMessage() }}
+        </button>
+      </div>
     </div>
   </div>
   <div class="row alert-container">
@@ -106,13 +107,65 @@
     </div>
   </div>
 
+  <div class="modal fade" id="confirmCreate" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></button>
+                  <h4 class="modal-title">Publish Canvas course sites</h4>
+              </div>
+              <div class="modal-body">
+                  <p ng-show="!getSelectedCourseIdsCount()">
+                      You are about publish
+                      <ng-pluralize count="coursesSummary.unpublished"
+                                    when="{'1': '1 course site',
+                                           'other': '{} course sites'}">
+                      </ng-pluralize>.
+                      <br>
+                      You may close this window and select specific course sites if you need to.
+                  </p>
+
+                  <p ng-show="getSelectedCourseIdsCount()">
+                      You have selected
+                      <ng-pluralize count="getSelectedCourseIdsCount()"
+                                    when="{'1': '1 course site',
+                                           'other': '{} course sites'}">
+                      </ng-pluralize>
+                      to be published.
+                  </p>
+              </div>
+              <div class="modal-footer">
+                  <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                  <button id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="publish()" data-dismiss="modal">
+                      Yes, Publish
+                      <span ng-show="getSelectedCourseIdsCount()">
+                          <ng-pluralize count="getSelectedCourseIdsCount()"
+                                        when="{'1': '1 course site',
+                                               'other': '{} course sites'}">
+                          </ng-pluralize>
+                      </span>
+                      <span ng-show="!getSelectedCourseIdsCount()">
+                          <ng-pluralize count="coursesSummary.unpublished"
+                                        when="{'1': '1 course site',
+                                               'other': '{} course sites'}">
+                          </ng-pluralize>
+                      </span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+
   <div ng-cloak ng-show="showDataTable">
+    <hr>
+    <p>You may select individual courses from the list below to be published.</p>
     <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
       <thead>
         <th><input type="checkbox" class="col-select" ng-checked="selectAll" ng-click="toggleSelectAll()"/></th>
-        <th class="sorting" tabindex="0">Course ID</th>
+        <th class="sorting" tabindex="0">Course Title</th>
+        <th class="sorting" tabindex="0">Canvas ID</th>
+        <th class="sorting" tabindex="0">Course Code</th>
         <th class="sorting" tabindex="0">SIS Course ID</th>
-        <th class="sorting" tabindex="0">Name</th>
       </thead>
     </table>
   </div>

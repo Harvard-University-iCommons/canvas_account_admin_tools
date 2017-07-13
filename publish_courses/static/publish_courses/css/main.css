@@ -11,3 +11,12 @@ div.publish-input-group {
 .col-align-center {
     text-align: center;
 }
+
+.center {
+    text-align: center;
+}
+
+.center.button {
+    display: flex;
+    justify-content: center;
+}
