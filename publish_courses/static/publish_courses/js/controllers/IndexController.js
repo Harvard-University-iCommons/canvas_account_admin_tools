@@ -49,6 +49,10 @@
             })
         };
 
+        $scope.getPublishButtonMessage = function(){
+            return $scope.getSelectedCourseIdsCount() ? 'Selected' : 'All';
+        };
+
         // Return a checkbox used in the first column of the data table, with the course id as its value.
         $scope.renderSelectionColumn = function(data, type, row, meta){
             return '<input type="checkbox" class="col-select" data-id="' + data + '"/>';
@@ -66,6 +70,19 @@
                 }
             });
         };
+
+        $scope.syncSelectionCheckboxes = function(){
+            $('#courseInfoDT tbody .col-select').each(function(o) {
+                var $checkbox = $(this);
+                var courseId = $checkbox.data('id');
+                var isSelected = Boolean($scope.selectedCourses[courseId]);
+                $checkbox.closest('tr').toggleClass('selected', isSelected);
+                $checkbox.prop('checked', isSelected);
+            });
+            $scope.selectAll = !$('#courseInfoDT tbody tr').not('.selected').length;
+        };
+
+        $scope.$watch('selectedCourses', $scope.syncSelectionCheckboxes, true);
 
         $scope.handleRowClick = function(e){
             var $tr = $(e.target).closest('tr');
@@ -117,18 +134,30 @@
             $scope.clearMessages();
             var accountId = $scope.school.id;
             var termId = $scope.selectedTerm.meta_term_id;
+            var selectedCourses = null;
             // disable Publish button (until user changes term)
             $scope.operationInProgress = true;
-            pcapi.Jobs.createAll(accountId, termId
-            ).then(function publishSucceeded(response) {
-                $scope.message = $scope.messages.success;
-                $log.debug(response);
-                $log.debug(response.data);
-            }, function publishFailed(response) {
-                $scope.message = $scope.messages.failure;
-            }).finally(function cleanUpAfterPublish() {
-                $scope.operationInProgress = false;
-            });
+
+            // If any courses have been selected, then set the selectedCourses var to the list of selected course id's
+            // so that only those courses are published.
+            // If none have been selected, then null will be sent and all unpublished courses in the given
+            // account and term will be published.
+            if ($scope.getSelectedCourseIdsCount() > 0) {
+                selectedCourses = $scope.getSelectedCourses();
+            }
+
+            pcapi.Jobs.create(accountId, termId, selectedCourses
+                ).then(function publishSucceeded(response) {
+                    $scope.message = $scope.messages.success;
+                    $log.debug(response);
+                    $log.debug(response.data);
+                }, function publishFailed(response) {
+                    $scope.message = $scope.messages.failure;
+                }).finally(function cleanUpAfterPublish() {
+                    $scope.operationInProgress = false;
+                });
+
+            $scope.showDataTable = false;
         };
 
         $scope.publishButtonDisabled = function() {
@@ -141,24 +170,6 @@
                    || $scope.coursesSummary.unpublished == 0
                    || $scope.operationInProgress
                    || ($scope.message && ($scope.message == $scope.messages.success));
-        };
-
-        $scope.publishSelected = function() {
-            $scope.clearMessages();
-            var accountId = $scope.school.id;
-            var termId = $scope.selectedTerm.meta_term_id;
-            // disable Publish button (until user changes term)
-            $scope.operationInProgress = true;
-            pcapi.Jobs.createSelected(accountId, termId, $scope.getSelectedCourses()
-            ).then(function publishSucceeded(response) {
-                $scope.message = $scope.messages.success;
-                $log.debug(response);
-                $log.debug(response.data);
-            }, function publishFailed(response) {
-                $scope.message = $scope.messages.failure;
-            }).finally(function cleanUpAfterPublish() {
-                $scope.operationInProgress = false;
-            });
         };
 
         $scope.termSelected = function(selectedTerm) {
@@ -199,19 +210,23 @@
                             width: '5%',
                             className: 'col-align-center',
                             render: $scope.renderSelectionColumn},
-                        {data: 'id', width: '15%',},
-                        {data: 'sis_course_id', width: '15%',},
+                        {data: 'name'},
                         {
-                            data: 'name',
+                            data: 'id',
+                            width: '15%',
                             render: function(data, type, row, meta) {
                                 return '<a target="_blank" href="' + canvasURL + '/courses/' + row.id + '">' + data + '</a>';
                             }
-                        }
+                        },
+                        {data: 'course_code', width: '15%'},
+                        {data: 'sis_course_id', width: '15%'}
+
                     ],
                     preDrawCallback: function(){
                         $('#courseInfoDT tbody tr').off('click', $scope.handleRowClick);
                     },
                     drawCallback: function(){
+                        $scope.syncSelectionCheckboxes();
                         $('#courseInfoDT tbody tr').on('click', $scope.handleRowClick);
                         $scope.showDataTable = true;
                         $scope.loadingSummary = false;
