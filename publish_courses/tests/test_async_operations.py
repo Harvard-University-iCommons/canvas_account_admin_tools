@@ -41,7 +41,8 @@ class BulkPublishCanvasSitesBaseTestCase(TestCase):
             QUEUE_NAME,
             account='sis_account_id:school:{}'.format(self.account),
             term='sis_term_id:{}'.format(self.term),
-            audit_user=self.test_user_id)
+            audit_user=self.test_user_id,
+            course_list=None)
 
         self._refresh_from_db()
         self.assertIsNotNone(self.process.date_created)
@@ -127,3 +128,44 @@ class CompletedStateTestCase(BulkPublishCanvasSitesBaseTestCase):
         self._assert_complete()
         self.assertEqual(self.process.status, 'failed')
         self.assertIn('error', self.process.details.keys())
+
+
+class PublishCoursesTestCase(BulkPublishCanvasSitesBaseTestCase):
+    """
+    If a list of course id's are not given at process creation,
+    then the course_list and courses keys should be None.
+    """
+    def test_publish_all(self, *args):
+        self._refresh_from_db()
+        self.assertEqual(self.process.state, Process.QUEUED)
+        self.assertIsNone(self.process.details['course_list'])
+
+        self._flush_jobs()
+        self._refresh_from_db()
+        self.assertEqual(self.process.state, Process.COMPLETE)
+        self.assertIsNone(self.process.details['course_list'])
+        self.assertIsNone(self.process.details['op_config']['courses'])
+
+    """
+    If a list of course id's are given at process creation,
+    then the course_list and courses keys should match the given list of id's.
+    """
+    def test_publish_selected(self, *args):
+        self.process = Process.enqueue(
+            bulk_publish_canvas_sites,
+            QUEUE_NAME,
+            account='sis_account_id:school:{}'.format(self.account),
+            term='sis_term_id:{}'.format(self.term),
+            audit_user=self.test_user_id,
+            course_list=[123, 124, 125])
+
+        self._refresh_from_db()
+        self.assertIsNotNone(self.process.date_created)
+        self.assertEqual(self.process.state, Process.QUEUED)
+        self.assertEqual(self.process.details['course_list'], [123, 124, 125])
+
+        self._flush_jobs()
+        self._refresh_from_db()
+        self.assertEqual(self.process.state, Process.COMPLETE)
+        self.assertEqual(self.process.details['course_list'], [123, 124, 125])
+        self.assertEqual(self.process.details['op_config']['courses'], [123, 124, 125])
