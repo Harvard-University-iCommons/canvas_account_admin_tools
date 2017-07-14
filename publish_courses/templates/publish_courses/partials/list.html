@@ -11,7 +11,7 @@
 <main>
   <div class="row">
     <div class="col-xs-12">
-        <h4>Publish Canvas course sites</h4>
+        <h4 class="modal-title">Publish Canvas course sites</h4>
     </div>
   </div>
   <div class="row">
@@ -121,7 +121,7 @@
               </div>
               <div class="modal-body">
                   <p ng-show="!getSelectedCourseIdsCount()">
-                      You are about publish
+                      You are about to publish
                       <ng-pluralize count="coursesSummary.unpublished"
                                     when="{'1': '1 course site',
                                            'other': '{} course sites'}">
@@ -140,19 +140,19 @@
                   </p>
               </div>
               <div class="modal-footer">
-                  <a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                  <a href="#" class="btn btn-default pull-left" data-dismiss="modal">Cancel</a>
                   <button id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="publish()" data-dismiss="modal">
                       Yes, Publish
                       <span ng-show="getSelectedCourseIdsCount()">
                           <ng-pluralize count="getSelectedCourseIdsCount()"
-                                        when="{'1': '1 course site',
-                                               'other': '{} course sites'}">
+                                        when="{'1': '1 Course Site',
+                                               'other': '{} Course Sites'}">
                           </ng-pluralize>
                       </span>
                       <span ng-show="!getSelectedCourseIdsCount()">
                           <ng-pluralize count="coursesSummary.unpublished"
-                                        when="{'1': '1 course site',
-                                               'other': '{} course sites'}">
+                                        when="{'1': '1 Course Site',
+                                               'other': '{} Course Sites'}">
                           </ng-pluralize>
                       </span>
                   </button>
