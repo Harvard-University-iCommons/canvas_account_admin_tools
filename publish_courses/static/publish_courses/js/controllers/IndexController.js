@@ -176,6 +176,8 @@
             $scope.selectedTerm = selectedTerm;
             $scope.clearMessages();
             $scope.loadCourseData();
+            // Reset any selected courses when changing term
+            $scope.selectedCourses = {};
         };
 
         $scope.initialize();
@@ -203,6 +205,7 @@
                         emptyTable: 'There are no course sites to display.'
                     },
                     data: data['courses'],
+                    order: [[1, 'asc']],
                     columns: [
                         {
                             data: 'id',
