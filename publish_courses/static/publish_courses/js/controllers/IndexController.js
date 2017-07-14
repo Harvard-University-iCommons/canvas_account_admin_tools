@@ -200,7 +200,7 @@
                     dom: '<lf<rt>ip>',
                     language: {
                         info: 'Showing _START_ to _END_ of _TOTAL_ courses',
-                        emptyTable: 'There are no courses to display.'
+                        emptyTable: 'There are no course sites to display.'
                     },
                     data: data['courses'],
                     columns: [
