@@ -199,7 +199,7 @@
                     retrieve: true,
                     dom: '<lf<rt>ip>',
                     language: {
-                        info: 'Showing _START_ to _END_ of _TOTAL_ courses',
+                        info: 'Showing _START_ to _END_ of _TOTAL_ course sites',
                         emptyTable: 'There are no course sites to display.'
                     },
                     data: data['courses'],
