@@ -20,3 +20,15 @@ div.publish-input-group {
     display: flex;
     justify-content: center;
 }
+
+.bottom-spacing {
+    margin-bottom: 1em;
+}
+
+.dataTables_filter label {
+  width: inherit;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    width: 500px;
+}

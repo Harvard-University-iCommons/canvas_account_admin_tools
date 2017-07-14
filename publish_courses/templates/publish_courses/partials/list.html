@@ -11,20 +11,20 @@
 <main>
   <div class="row">
     <div class="col-xs-12">
-        <h4 class="modal-title">Publish Canvas course sites</h4>
+        <h4 class="modal-title bottom-spacing">Publish Canvas course sites</h4>
     </div>
   </div>
   <div class="row">
-    <div class="col-xs-6">
+    <div class="col-sm-3">
       <label for="currentSchool">School</label>
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-3">
       <label for="dropdownMenuTerm">Term</label>
     </div>
   </div>
   <div class="row">
-    <div class="col-xs-6">
-      <div ng-show="!school.name">
+    <div class="col-sm-3">
+      <div ng-show="!school.name" class="ng-hide">
         Loading school...
         <i class="fa fa-refresh fa-spin"></i>
       </div>
@@ -32,9 +32,12 @@
         <span id="currentSchool"> {{ school.name }} </span>
       </div>
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-3">
       <term-dropdown terms="terms" on-select="termSelected(term)"></term-dropdown>
     </div>
+  </div>
+  <div class="col-sm-12">
+    &nbsp;
   </div>
   <div class="row">
     <div class="col-xs-6">
@@ -84,13 +87,13 @@
   <div class="row">
     <div class="col-xs-12">
       <div class="center" ng-show="showDataTable">
-        <h2>
+        <h4>
           <ng-pluralize count="coursesSummary.unpublished"
                     when="{'0': '0 course sites are unpublished',
                            '1': '1 course site is ready to be published.',
                            'other': '{} course sites are ready to be published.'}">
           </ng-pluralize>
-        </h2>
+        </h4>
         <button class="btn btn-primary"
                 id="publishAllButton"
                 ng-disabled="publishButtonDisabled()"
@@ -170,8 +173,15 @@
         <th class="sorting" tabindex="0">Course Title</th>
         <th class="sorting" tabindex="0">Canvas ID</th>
         <th class="sorting" tabindex="0">Course Code</th>
-        <th class="sorting" tabindex="0">SIS Course ID</th>
+        <th class="sorting" tabindex="0">SIS ID</th>
       </thead>
+      <tfoot>
+        <th><input type="checkbox" class="col-select" ng-checked="selectAll" ng-click="toggleSelectAll()"/></th>
+        <th class="sorting" tabindex="0">Course Title</th>
+        <th class="sorting" tabindex="0">Canvas ID</th>
+        <th class="sorting" tabindex="0">Course Code</th>
+        <th class="sorting" tabindex="0">SIS ID</th>
+      </tfoot>
     </table>
   </div>
 </main>

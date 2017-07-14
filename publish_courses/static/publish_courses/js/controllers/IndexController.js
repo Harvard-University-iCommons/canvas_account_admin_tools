@@ -202,7 +202,9 @@
                     dom: '<lf<rt>ip>',
                     language: {
                         info: 'Showing _START_ to _END_ of _TOTAL_ course sites',
-                        emptyTable: 'There are no course sites to display.'
+                        emptyTable: 'There are no course sites to display.',
+                        lengthMenu: 'Show _MENU_ course sites',
+                        search: 'Search by Course Title, Canvas ID, Course Code or SIS ID'
                     },
                     data: data['courses'],
                     order: [[1, 'asc']],
