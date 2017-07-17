@@ -326,6 +326,7 @@ describe('Unit testing DetailsController', function () {
                 "sync_to_canvas": 1,
                 "exclude_from_isites":0,
                 "exclude_from_catalog":0,
+                "conclude_date":null
             };
 
         beforeEach(function () {
@@ -399,7 +400,8 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0
+                'exclude_from_catalog':0,
+                "conclude_date":null
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
@@ -427,7 +429,8 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0
+                'exclude_from_catalog':0,
+                "conclude_date":null
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
@@ -456,7 +459,8 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0
+                'exclude_from_catalog':0,
+                "conclude_date":null
             };
 
             $httpBackend.expectGET(courseInstanceURL).respond(200, JSON.stringify({status: "success"}));
