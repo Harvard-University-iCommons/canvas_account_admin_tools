@@ -88,8 +88,11 @@
     <div class="col-xs-12">
       <div class="center" ng-show="showDataTable">
         <h4>
-          <ng-pluralize count="coursesSummary.unpublished"
-                    when="{'0': '0 course sites are unpublished',
+          <span ng-if="!getSelectedCourseIdsCount()">
+              {{ coursesSummary.unpublished }} course sites are ready to be published.
+          </span>
+          <ng-pluralize count="getSelectedCourseIdsCount()"
+                    when="{'0': '',
                            '1': '1 course site is ready to be published.',
                            'other': '{} course sites are ready to be published.'}">
           </ng-pluralize>
