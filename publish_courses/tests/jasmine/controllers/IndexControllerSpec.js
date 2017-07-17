@@ -23,7 +23,7 @@ describe('IndexController test', function () {
       // this provides a promise interface to satisfy catch(), then(), etc
       // to actually resolve the promise, spyOn().and.returnValue() with a
       // promise controlled by the test code
-      CourseSummary: { get: function () { return $q.defer().promise }},
+      CourseList: { get: function () { return $q.defer().promise }},
       Jobs: { create: function () { return $q.defer().promise }}
     };
     $provide.value('pcapi', pcapi);
@@ -124,27 +124,34 @@ describe('IndexController test', function () {
       expect(scope.terms).not.toContain(t.ongoingTermCode);
     });
   });
-  describe('loadCoursesSummary', function () {
+
+  describe('loadCourseData', function () {
     beforeEach(function() {
       this.school = scope.school = {id: 'abc'};
       this.term = scope.selectedTerm = {meta_term_id: '2020-1'};
     });
     it('requests course summary with expected data', function() {
-      spyOn(pcapi.CourseSummary, 'get').and.callThrough();
-      scope.loadCoursesSummary();
-      expect(pcapi.CourseSummary.get)
+      spyOn(pcapi.CourseList, 'get').and.callThrough();
+      scope.loadCourseData();
+      expect(pcapi.CourseList.get)
         .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id);
     });
     it('makes expected response data available to UI', function() {
-      var testData = {test: 'ok'};
+      var testData = {
+        'course_summary': {'test': 'ok'},
+        'canvas_url': 'test_url',
+        'courses': []};
       var d = $q.defer();
       d.resolve(testData);
-      spyOn(pcapi.CourseSummary, 'get').and.returnValue(d.promise);
-      scope.loadCoursesSummary();
+      spyOn(pcapi.CourseList, 'get').and.returnValue(d.promise);
+      scope.loadCourseData();
       scope.$digest();
-      expect(scope.coursesSummary).toEqual(testData);
+
+      expect(scope.coursesSummary).toEqual({'test': 'ok'});
+      expect(scope.dataTable).not.toBe(null);
     });
   });
+
   describe('publish', function () {
     beforeEach(function() {
       this.school = scope.school = {id: 'abc'};
@@ -174,12 +181,6 @@ describe('IndexController test', function () {
       scope.$digest();
       expect(scope.message).toEqual(scope.messages.failure);
     });
-    it('creates job with expected data', function() {
-      this.setupSuccessfulJob();
-      scope.publish();
-      expect(pcapi.Jobs.create)
-        .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id);
-    });
     it('turns off operationInProgress when successful', function() {
       this.setupSuccessfulJob();
       scope.publish();
@@ -193,6 +194,82 @@ describe('IndexController test', function () {
       expect(scope.operationInProgress).toBe(true);
       scope.$digest();
       expect(scope.operationInProgress).toBe(false);
+    });
+    it('publishes all courses in a term', function() {
+      this.setupSuccessfulJob();
+      scope.publish();
+      expect(pcapi.Jobs.create)
+        .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id, null);
+    });
+    it('publishes only selected courses', function() {
+      var course1 = {'id': 1, 'name': 'test course'};
+      var course2 = {'id': 2, 'name': 'second test course'};
+      scope.addSelectedCourse(course1);
+      scope.addSelectedCourse(course2);
+      this.setupSuccessfulJob();
+      scope.publish();
+      expect(pcapi.Jobs.create)
+        .toHaveBeenCalledWith(this.school.id, this.term.meta_term_id, [1, 2]);
+    });
+
+  });
+
+  describe('DataTable', function () {
+    beforeEach(function() {
+      this.course1 = {'id': 1, 'name': 'test course'};
+      this.course2 = {'id': 2, 'name': 'second test course'};
+      this.course3 = {'id': 3, 'name': 'third test course'};
+    });
+
+    it('will add the selected course to the selected courses dict', function() {
+      scope.addSelectedCourse(this.course1);
+      expect(scope.selectedCourses).toEqual({1: this.course1});
+
+      scope.addSelectedCourse(this.course2);
+      expect(scope.selectedCourses).toEqual({1: this.course1, 2: this.course2});
+    });
+
+    it('will remove the selected course from the selected courses dict', function() {
+      scope.addSelectedCourse(this.course1);
+      scope.removeSelectedCourse(this.course1);
+      expect(scope.selectedCourses).toEqual({});
+
+      scope.addSelectedCourse(this.course1);
+      scope.addSelectedCourse(this.course2);
+      scope.removeSelectedCourse(this.course2);
+      expect(scope.selectedCourses).toEqual({1: this.course1});
+    });
+
+
+    it('gets the count of selected courses', function() {
+      expect(scope.getSelectedCourseIdsCount()).toEqual(0);
+
+      scope.addSelectedCourse(this.course1);
+      scope.addSelectedCourse(this.course2);
+      expect(scope.getSelectedCourseIdsCount()).toEqual(2);
+
+    });
+
+    it('gets the list of ids for the selected courses', function() {
+      expect(scope.getSelectedCourses()).toEqual([]);
+
+      scope.addSelectedCourse(this.course1);
+      scope.addSelectedCourse(this.course2);
+      scope.addSelectedCourse(this.course3);
+      expect(scope.getSelectedCourses()).toEqual([1, 2, 3]);
+
+      scope.removeSelectedCourse(this.course2);
+      expect(scope.getSelectedCourses()).toEqual([1, 3]);
+    });
+
+    it('gets the label that is displayed on the publish button', function() {
+      expect(scope.getPublishButtonMessage()).toEqual('All');
+
+      scope.addSelectedCourse(this.course1);
+      expect(scope.getPublishButtonMessage()).toEqual('Selected');
+
+      scope.removeSelectedCourse(this.course1);
+      expect(scope.getPublishButtonMessage()).toEqual('All');
     });
   });
 
