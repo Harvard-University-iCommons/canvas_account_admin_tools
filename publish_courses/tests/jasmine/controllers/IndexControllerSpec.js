@@ -148,7 +148,7 @@ describe('IndexController test', function () {
       scope.$digest();
 
       expect(scope.coursesSummary).toEqual({'test': 'ok'});
-      expect(scope.dataTable).not.toBe(null);
+      expect(scope.dataTable).not.toBeNull();
     });
   });
 
