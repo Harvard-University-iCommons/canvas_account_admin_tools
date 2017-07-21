@@ -261,7 +261,7 @@
                         // Validate that the selected date is not in the past before submitting.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
                             var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
-                            formatted_date += 'T23:59:59Z';
+                            formatted_date += 'T00:01:00Z';
                             patchData['conclude_date'] = formatted_date;
                         }
                     } else {
