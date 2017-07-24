@@ -1,7 +1,34 @@
+
 div.alert-container {
   margin-top: 1em;
 }
+
 div.publish-input-group {
   margin-top: 1em;
   max-width:80%;
+}
+
+.col-align-center {
+    text-align: center;
+}
+
+.center {
+    text-align: center;
+}
+
+.center.button {
+    display: flex;
+    justify-content: center;
+}
+
+.bottom-spacing {
+    margin-bottom: 1em;
+}
+
+.dataTables_filter label {
+  width: inherit;
+}
+
+.dataTables_wrapper .dataTables_filter {
+    width: 500px;
 }

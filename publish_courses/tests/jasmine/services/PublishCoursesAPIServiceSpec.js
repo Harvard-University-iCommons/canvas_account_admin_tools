@@ -46,13 +46,13 @@ describe('PublishCoursesAPIService test', function () {
     });
   });
 
-  describe('getCourseSummary', function () {
+  describe('getCourseList', function () {
     beforeEach(function() {
       this.options = {response: this.apiResponse};
-      pcapi.CourseSummary.get(this.accountId, this.termId)
+      pcapi.CourseList.get(this.accountId, this.termId)
         .then(this.getResponse);
     });
-    it('GETs course summary with expected params', function () {
+    it('GETs course list with expected params', function () {
       var actualParams = this.getParamsAndRespondWith(this.options);
       // $httpBackend decodes URI to get values, all have been cast to String
       expect(actualParams).toEqual(

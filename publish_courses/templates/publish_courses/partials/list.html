@@ -10,16 +10,21 @@
 
 <main>
   <div class="row">
-    <div class="col-xs-6">
+    <div class="col-xs-12">
+        <h4 class="modal-title bottom-spacing">Publish Canvas course sites</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-3">
       <label for="currentSchool">School</label>
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-3">
       <label for="dropdownMenuTerm">Term</label>
     </div>
   </div>
   <div class="row">
-    <div class="col-xs-6">
-      <div ng-show="!school.name">
+    <div class="col-sm-3">
+      <div ng-show="!school.name" class="ng-hide">
         Loading school...
         <i class="fa fa-refresh fa-spin"></i>
       </div>
@@ -27,47 +32,50 @@
         <span id="currentSchool"> {{ school.name }} </span>
       </div>
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-3">
       <term-dropdown terms="terms" on-select="termSelected(term)"></term-dropdown>
     </div>
+  </div>
+  <div class="col-sm-12">
+    &nbsp;
   </div>
   <div class="row">
     <div class="col-xs-6">
       <div ng-cloak ng-show="selectedTerm">
         <div ng-show="loadingSummary">
           <h3>
-            Loading courses...
+            Loading course sites...
             <i class="fa fa-refresh fa-spin"></i>
           </h3>
         </div>
         <div ng-show="!loadingSummary">
           <h4>
               <ng-pluralize count="coursesSummary.total"
-                            when="{'0': 'There are 0 courses in this term:',
-                                   '1': 'There is 1 course in this term:',
-                                   'other': 'There are {} courses in this term:'}">
+                            when="{'0': 'There are 0 course sites in this term:',
+                                   '1': 'There is 1 course site in this term:',
+                                   'other': 'There are {} course sites in this term:'}">
               </ng-pluralize>
           </h4>
           <ul>
               <li>
                   <ng-pluralize count="coursesSummary.published"
-                            when="{'0': '0 courses are published',
-                                   '1': '1 course is published',
-                                   'other': '{} courses are published'}">
+                            when="{'0': '0 course sites are published',
+                                   '1': '1 course site is published',
+                                   'other': '{} course sites are published'}">
                   </ng-pluralize>
               </li>
               <li>
                   <ng-pluralize count="coursesSummary.unpublished"
-                            when="{'0': '0 courses are unpublished',
-                                   '1': '1 course is unpublished',
-                                   'other': '{} courses are unpublished'}">
+                            when="{'0': '0 course sites are unpublished',
+                                   '1': '1 course site is unpublished',
+                                   'other': '{} course sites are unpublished'}">
                   </ng-pluralize>
               </li>
               <li ng-if="coursesSummary.concluded">
                   <ng-pluralize count="coursesSummary.concluded"
-                            when="{'0': '0 courses are concluded',
-                                   '1': '1 course is concluded',
-                                   'other': '{} courses are concluded'}">
+                            when="{'0': '0 course sites are concluded',
+                                   '1': '1 course site is concluded',
+                                   'other': '{} course sites are concluded'}">
                   </ng-pluralize>
               </li>
           </ul>
@@ -77,14 +85,27 @@
   </div>
 
   <div class="row">
-    <div class="col-xs-6">
-      <button class="btn btn-primary"
-              id="publishAllButton"
-              ng-click="publish()"
-              ng-disabled="publishButtonDisabled()"
-              type="button">
-        Publish All
-      </button>
+    <div class="col-xs-12">
+      <div class="center" ng-show="showDataTable">
+        <h4>
+          <span ng-if="!getSelectedCourseIdsCount()">
+              {{ coursesSummary.unpublished }} course sites are ready to be published.
+          </span>
+          <ng-pluralize count="getSelectedCourseIdsCount()"
+                    when="{'0': '',
+                           '1': '1 course site is ready to be published.',
+                           'other': '{} course sites are ready to be published.'}">
+          </ng-pluralize>
+        </h4>
+        <button class="btn btn-primary"
+                id="publishAllButton"
+                ng-disabled="publishButtonDisabled()"
+                type="button"
+                data-toggle="modal"
+                data-target="#confirmCreate">
+          Publish {{ getPublishButtonMessage() }}
+        </button>
+      </div>
     </div>
   </div>
   <div class="row alert-container">
@@ -95,6 +116,76 @@
         <span> {{ message.text }} </span>
       </uib-alert>
     </div>
+  </div>
+
+  <div class="modal fade" id="confirmCreate" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="fa fa-times"></i></span></button>
+                  <h4 class="modal-title">Publish Canvas course sites</h4>
+              </div>
+              <div class="modal-body">
+                  <p ng-show="!getSelectedCourseIdsCount()">
+                      You are about to publish
+                      <ng-pluralize count="coursesSummary.unpublished"
+                                    when="{'1': '1 course site',
+                                           'other': '{} course sites'}">
+                      </ng-pluralize>.
+                      <br>
+                      You may close this window and select specific course sites if you need to.
+                  </p>
+
+                  <p ng-show="getSelectedCourseIdsCount()">
+                      You have selected
+                      <ng-pluralize count="getSelectedCourseIdsCount()"
+                                    when="{'1': '1 course site',
+                                           'other': '{} course sites'}">
+                      </ng-pluralize>
+                      to be published.
+                  </p>
+              </div>
+              <div class="modal-footer">
+                  <a href="#" class="btn btn-default pull-left" data-dismiss="modal">Cancel</a>
+                  <button id="createCoursesConfirmed" type="button" class="btn btn-primary" ng-click="publish()" data-dismiss="modal">
+                      Yes, Publish
+                      <span ng-show="getSelectedCourseIdsCount()">
+                          <ng-pluralize count="getSelectedCourseIdsCount()"
+                                        when="{'1': '1 Course Site',
+                                               'other': '{} Course Sites'}">
+                          </ng-pluralize>
+                      </span>
+                      <span ng-show="!getSelectedCourseIdsCount()">
+                          <ng-pluralize count="coursesSummary.unpublished"
+                                        when="{'1': '1 Course Site',
+                                               'other': '{} Course Sites'}">
+                          </ng-pluralize>
+                      </span>
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div ng-cloak ng-show="showDataTable">
+    <hr>
+    <p>You may select individual course sites from the list below to be published.</p>
+    <table id="courseInfoDT" class="display" cellspacing="0" width="100%">
+      <thead>
+        <th><input type="checkbox" class="col-select" ng-checked="selectAll" ng-click="toggleSelectAll()"/></th>
+        <th class="sorting" tabindex="0">Course Title</th>
+        <th class="sorting" tabindex="0">Canvas ID</th>
+        <th class="sorting" tabindex="0">Course Code</th>
+        <th class="sorting" tabindex="0">SIS ID</th>
+      </thead>
+      <tfoot>
+        <th><input type="checkbox" class="col-select" ng-checked="selectAll" ng-click="toggleSelectAll()"/></th>
+        <th class="sorting" tabindex="0">Course Title</th>
+        <th class="sorting" tabindex="0">Canvas ID</th>
+        <th class="sorting" tabindex="0">Course Code</th>
+        <th class="sorting" tabindex="0">SIS ID</th>
+      </tfoot>
+    </table>
   </div>
 </main>
 
