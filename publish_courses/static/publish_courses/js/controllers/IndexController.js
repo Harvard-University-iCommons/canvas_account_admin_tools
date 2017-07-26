@@ -64,9 +64,9 @@
                 var $checkbox = $(tr).find('.col-select');
                 $checkbox.prop('checked', $scope.selectAll);
                 if ($scope.selectAll) {
-                    $scope.addSelectedCourse($scope.dataTable.row(index).data());
+                    $scope.addSelectedCourse($scope.dataTable.row(tr).data());
                 } else {
-                    $scope.removeSelectedCourse($scope.dataTable.row(index).data());
+                    $scope.removeSelectedCourse($scope.dataTable.row(tr).data());
                 }
             });
         };
@@ -182,6 +182,30 @@
 
         $scope.initialize();
 
+
+        // Will set the top and bottom select all boxes to their correct values on every table draw.
+        $scope.updateDataTableSelectAllCtrl = function (){
+            if ($scope.dataTable) {
+                var $table             = $scope.dataTable.table().node();
+                var $chkbox_all        = $('tbody input[type="checkbox"]', $table);
+                var $chkbox_checked    = $('tbody input[type="checkbox"]:checked', $table);
+                var chkbox_select_all_top  = $('thead input[name="select_all_top"]', $table).get(0);
+                var chkbox_select_all_btm  = $('tfoot input[name="select_all_btm"]', $table).get(0);
+
+                // If all of the checkboxes are checked
+                 if ($chkbox_checked.length === $chkbox_all.length){
+                     chkbox_select_all_top.checked = true;
+                     chkbox_select_all_btm.checked = true;
+
+                // If some or none of the checkboxes are checked
+                } else {
+                    chkbox_select_all_top.checked = false;
+                    chkbox_select_all_btm.checked = false;
+                }
+            }
+        };
+
+
         // Makes the call to get all courses information for the selected term and account and display that information
         // as both a summary and a data table.
         $scope.loadCourseData = function() {
@@ -236,6 +260,7 @@
                         $scope.showDataTable = true;
                         $scope.loadingSummary = false;
                         $scope.operationInProgress = false;
+                        $scope.updateDataTableSelectAllCtrl();
                     }
                 });
             });
