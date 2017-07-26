@@ -69,6 +69,7 @@
                     $scope.removeSelectedCourse($scope.dataTable.row(tr).data());
                 }
             });
+            $scope.updateDataTableSelectAllCtrl();
         };
 
         $scope.syncSelectionCheckboxes = function(){
