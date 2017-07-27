@@ -194,7 +194,7 @@
                 var chkbox_select_all_btm  = $('tfoot input[name="select_all_btm"]', $table).get(0);
 
                 // If all of the checkboxes are checked
-                 if ($chkbox_checked.length === $chkbox_all.length){
+                 if ($chkbox_checked.length === $chkbox_all.length && $chkbox_all.length > 0){
                      chkbox_select_all_top.checked = true;
                      chkbox_select_all_btm.checked = true;
 
