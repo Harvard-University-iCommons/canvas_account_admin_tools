@@ -90,9 +90,13 @@ class BulkCourseSettingsOperation(object):
             self._fetch_courses_from_id_list(list_file)
             list_file.close()
 
+        # If a list of courses id's have been provided through the options dict,
+        # Get the canvas courses from the given list.
         elif self.options.get('courses'):
             self._fetch_courses_from_id_list(self.options.get('courses'))
 
+        # If a file or list of course id's have not been provided,
+        # Get a list of all active canvas courses for the term and account id.
         else:
             try:
                 self.canvas_courses = get_all_list_data(

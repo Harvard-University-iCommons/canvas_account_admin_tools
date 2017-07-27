@@ -101,7 +101,7 @@
                 courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
-                courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy');
+                courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy', 'Z');
                 courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
                 courseInstance['course_groups'] = ci.course.course_groups;
@@ -120,7 +120,7 @@
                 courseInstance['instructors_display'] = ci.instructors_display;
                 courseInstance['course_instance_id'] = ci.course_instance_id;
                 courseInstance['notes'] = ci.notes;
-                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'MM/dd/yyyy');
+                courseInstance['conclude_date'] = $filter('date')(ci.conclude_date, 'MM/dd/yyyy', 'Z');
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
@@ -260,8 +260,8 @@
                     if (dc.formDisplayData['conclude_date']){
                         // Validate that the selected date is not in the past before submitting.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
-                            var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd');
-                            formatted_date += 'T23:59:59Z';
+                            var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
+                            formatted_date += 'T00:01:00Z';
                             patchData['conclude_date'] = formatted_date;
                         }
                     } else {
@@ -288,7 +288,7 @@
                         // Only update the display conclude date if a valid date was entered.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
                             // Reformat the conclude date
-                            dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy');
+                            dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy', 'Z');
                         }
                     }
                     dc.resetForm();

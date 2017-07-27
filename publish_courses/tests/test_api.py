@@ -28,7 +28,7 @@ class PublishCoursesAPIBaseTestCase(APITestCase):
         self.queue.empty()
         self.factory = APIRequestFactory()
         self.post_url = '/publish_courses/api/jobs'
-        self.get_url = '/publish_courses/api/show_summary'
+        self.get_url = '/publish_courses/api/course_list'
 
     def tearDown(self):
         super(PublishCoursesAPIBaseTestCase, self).tearDown()
@@ -113,12 +113,39 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
         with self.assertRaisesRegexp(DRFValidationError, msg):
             self._prep_request_and_post(lti_data=lti_data)
 
+    def test_create_selected(self):
+        """
+        When specific courses are passed in with the request data,
+        they are to be saved to the process details section.
+        The BulkPublishJob will publish only those courses vs all unpublished courses in an account and term.
+        """
+
+        # Test with id's in course list
+        request_data = {
+            'account': 'abc',
+            'term': '2015-1',
+            'course_list': [123, 124, 125]
+        }
+        response = self._prep_request_and_post(data=request_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['details']['course_list'], [123, 124, 125])
+
+        # Test with no courses being selected, which will have a None value.
+        request_data = {
+            'account': 'abc',
+            'term': '2015-1',
+            'course_list': None
+        }
+        response = self._prep_request_and_post(data=request_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['details']['course_list'], None)
+
 
 @patch('publish_courses.api.BulkCourseSettingsOperation')
-class SummaryListTestCase(PublishCoursesAPIBaseTestCase):
+class CourseDetailListTestCase(PublishCoursesAPIBaseTestCase):
 
     def setUp(self):
-        super(SummaryListTestCase, self).setUp()
+        super(CourseDetailListTestCase, self).setUp()
         self.request_data = {
             'account_id': 'abc',
             'term_id': '2015-1'
@@ -128,8 +155,8 @@ class SummaryListTestCase(PublishCoursesAPIBaseTestCase):
         request_data = data if data is not None else self.request_data
         self.request = self.factory.get(self.get_url, data=request_data)
         self.request.query_params = request_data
-        summary_list = api.SummaryList(request=self.request)
-        return summary_list.list(self.request)
+        course_detail_list = api.CourseDetailList(request=self.request)
+        return course_detail_list.list(self.request)
 
     def test_success_status(self, mock_op):
         """ returns expected status code on success """
@@ -149,8 +176,8 @@ class SummaryListTestCase(PublishCoursesAPIBaseTestCase):
         args, kwargs = mock_op.call_args
         self.assertDictEqual(args[0], expected_op_config)
 
-    @patch('publish_courses.api.SummaryList._get_courses')
-    def test_shows_relevant_courses_only(self, mock_get_courses, *args):
+    @patch('publish_courses.api.CourseDetailList._get_courses')
+    def test_summary_shows_relevant_courses_only(self, mock_get_courses, *args):
         """ only shows published, unpublished, and completed courses """
         available = {'workflow_state': 'available'}
         unpublished = {'workflow_state': 'unpublished'}
@@ -167,8 +194,61 @@ class SummaryListTestCase(PublishCoursesAPIBaseTestCase):
             'total': 4}
 
         response = self._prep_request_and_get()
+        parsed = json.loads(response.content)
 
-        self.assertDictEqual(response.data, expected_response_data)
+        self.assertDictEqual(parsed['course_summary'], expected_response_data)
+
+    def test_get_summary(self, *args):
+        course_list = [
+            {"workflow_state": 'available'},
+            {"workflow_state": 'available'},
+            {"workflow_state": 'other'},
+            {"workflow_state": 'other'},
+            {"workflow_state": 'completed'},
+            {"workflow_state": 'unpublished'},
+            {"workflow_state": 'unpublished'},
+            {"workflow_state": 'unpublished'},
+        ]
+        summary = api.CourseDetailList._get_summary(course_list)
+
+        self.assertEqual(summary['published'], 2)
+        self.assertEqual(summary['concluded'], 1)
+        self.assertEqual(summary['unpublished'], 3)
+        self.assertRaises(KeyError, lambda: summary['other'])
+
+        empty_course_list = []
+        empty_summary = api.CourseDetailList._get_summary(empty_course_list)
+        self.assertEqual(empty_summary['published'], 0)
+        self.assertEqual(empty_summary['concluded'], 0)
+        self.assertEqual(empty_summary['unpublished'], 0)
+        self.assertEqual(empty_summary['total'], 0)
+
+    @patch('publish_courses.api.CourseDetailList._get_courses')
+    def test_list(self, mock_get_courses, *args):
+        """
+        list returns a JSON object with the following keys,
+        canvas_url - The Canvas url that is set in the project settings. 
+        courses - A list of Canvas courses for the given account and term.
+        course_summary - A dictionary containing the count of the specific states
+                         of the courses contained in the courses list.
+        """
+        mock_get_courses.return_value = [
+            {"workflow_state": 'available'},
+            {"workflow_state": 'available'},
+            {"workflow_state": 'other'},
+            {"workflow_state": 'other'},
+            {"workflow_state": 'completed'},
+            {"workflow_state": 'unpublished'},
+            {"workflow_state": 'unpublished'},
+            {"workflow_state": 'unpublished'},
+        ]
+
+        response = self._prep_request_and_get()
+        parsed = json.loads(response.content)
+
+        self.assertEqual(parsed['canvas_url'], 'https://canvas.dev.tlt.harvard.edu')
+        self.assertEqual(len(parsed['courses']), 3)
+        self.assertEqual(parsed['course_summary']['total'], 8)
 
 
 class PublishCoursesAPILTIPermissionsTestCase(PublishCoursesAPIBaseTestCase):
