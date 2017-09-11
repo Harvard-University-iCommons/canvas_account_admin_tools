@@ -31,6 +31,7 @@
         $scope.sectionId = '';
         $scope.selectedTerm = null;
         $scope.terms = [];
+        $scope.isBlueprint = false;
 
         $scope.setCourseCode = function() {
             if ($scope.course.codeType
@@ -256,6 +257,7 @@
                 title: $scope.course.title,
                 short_title: $scope.course.shortTitle,
                 school: $scope.school.id,
+                is_blueprint: $scope.isBlueprint
             };
             $http.post(url, data).then(
                 function setCanvasCourse(response){
