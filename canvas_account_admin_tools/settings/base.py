@@ -17,6 +17,9 @@ from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+SILENCED_SYSTEM_CHECKS = ['fields.W342']
+
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # Note: If this list (technically a tuple) has only one element, that
 #       element must be followed by a comma for it to be processed
