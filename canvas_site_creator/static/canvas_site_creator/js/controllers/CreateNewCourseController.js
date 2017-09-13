@@ -241,14 +241,18 @@
         };
 
         $scope.createCanvasCourse = function(){
-            //format the department info to be passed into canvas as an account id
+            // format the department info to be passed into canvas as an account id
             var departmentId = 'dept:' + $scope.departments[
                     $scope.course.codeType.toLowerCase()];
+
+            // Format the school ID, which will be used instead of the department ID if this is a blueprint course
+            var schoolId = 'school:' + $scope.school.id;
             var url = djangoUrl.reverse(
                 'canvas_site_creator:api_create_canvas_course');
             //get the template id
             var templateId = $scope.selectedTemplate;
             var data = {
+                school_id: schoolId,
                 dept_id: departmentId,
                 course_instance_id: $scope.newCourseInstance.course_instance_id,
                 course_code: $scope.course.code,
