@@ -213,8 +213,9 @@ def create_canvas_course_and_section(request):
 
     try:
         data = json.loads(request.body)
-        account_id = 'sis_account_id:%s' % data['dept_id']
         is_blueprint = data['is_blueprint']
+        # If this is a blueprint course, create course at school level not in the ILE sub account
+        account_id = 'sis_account_id:%s' % (data['school_id'] if is_blueprint else data['dept_id'])
         # not using .get() default because we want to fall back on course_code
         # if short_title is an empty string
         course_code = data.get('short_title', '').strip() or data['course_code']
