@@ -51,6 +51,18 @@
             }
         };
 
+        // Handles the blueprint checkbox change event
+        // If checked, set the courses code type to have the prefix BLU
+        // On an uncheck, set the code type back to the initial option value of ILE
+        $scope.blueprintBoxChange = function() {
+            if($scope.isBlueprint) {
+                $scope.course.codeType = 'BLU'
+            } else {
+                $scope.course.codeType = 'ILE'
+            }
+            $scope.setCourseCode()
+        };
+
         $scope.createButtonEnabled = function(){
             if ($scope.course.term && $scope.course.code
                 && $scope.course.title && !$scope.courseCreationInProgress) {
@@ -225,18 +237,21 @@
                                 ['api/course/v2/courses/']);
             var departmentId = $scope.departments[$scope.course.codeType.toLowerCase()];
             var data = {
-                departments: [departmentId],
                 registrar_code: $scope.course.code,
                 registrar_code_display: $scope.course.code,
-                school: $scope.school.id,
+                school: $scope.school.id
             };
+            // Only include departments if this is not a blueprint course
+            if(!$scope.isBlueprint) {
+                data.departments = [departmentId]
+            }
 
             $http.post(url, data).then(
                 function createCourseInstanceAfterCourse(response){
                     $scope.course.section = '001';
                     $scope.createCourseInstance(response.data.course_id);
                 }, $scope.handleAjaxErrorWithMessage
-                );
+            );
 
         };
 
