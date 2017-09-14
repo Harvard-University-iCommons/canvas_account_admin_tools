@@ -230,8 +230,6 @@ def create_canvas_course_and_section(request):
         logger.exception(message)
         return JsonResponse({'error': message}, status=400)
 
-    # TODO need to make check for blueprint, if so create ILE in top account
-
     request_parameters = dict(
         request_ctx=SDK_CONTEXT,
         account_id=account_id,
