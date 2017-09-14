@@ -147,12 +147,13 @@
               <select id="course-code-type"
                       name="course-code-type"
                       class="form-control"
-                      ng-disabled="courseCreationInProgress"
+                      ng-disabled="courseCreationInProgress || isBlueprint"
                       ng-init="course.codeType = 'ILE'"
                       ng-model="course.codeType"
                       ng-change="setCourseCode()">
                 <option value="ILE">ILE</option>
                 <option value="SB">SB</option>
+                <option value="BLU" ng-show="isBlueprint" ng-selected="isBlueprint">BLU</option>
               </select>
               <input type="text"
                      class="form-control pull-right"
@@ -263,6 +264,8 @@
             ILE = Informal Learning Experience
             <br>
             SB = Sandbox
+            <br>
+            BLU = Blueprint
           </div>
 
         </div> <!-- End Form row: form instructions -->
