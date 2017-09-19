@@ -250,7 +250,12 @@ def create_canvas_course_and_section(request):
                 id=course_result['id'],
                 course_blueprint=True
             )
-            update_result = update_course(**update_parameters).json()
+            try:
+                update_course(**update_parameters).json()
+            except Exception as e:
+                logger.exception("Error creating blueprint course via update with request {}".format(update_parameters))
+                logger.exception("Exception details: {}".format(e))
+                return JsonResponse({}, status=500)
     except Exception as e:
         message = u'Error creating new course via SDK with request={}'.format(
             request_parameters)
