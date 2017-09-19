@@ -243,7 +243,7 @@
             };
             // Only include departments if this is not a blueprint course
             if(!$scope.isBlueprint) {
-                data.departments = [departmentId]
+                data.departments = [departmentId];
             }
 
             $http.post(url, data).then(
