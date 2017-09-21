@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from canvas_course_site_wizard.models import CanvasCourseGenerationJob
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.content_migrations import create_content_migration_courses
-from canvas_sdk.methods.courses import create_new_course
+from canvas_sdk.methods.courses import create_new_course, update_course
 from canvas_sdk.methods.sections import create_course_section
 from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
@@ -213,7 +213,9 @@ def create_canvas_course_and_section(request):
 
     try:
         data = json.loads(request.body)
-        account_id = 'sis_account_id:%s' % data['dept_id']
+        is_blueprint = data['is_blueprint']
+        # If this is a blueprint course, create course at school level not in the ILE sub account
+        account_id = 'sis_account_id:%s' % (data['school_id'] if is_blueprint else data['dept_id'])
         # not using .get() default because we want to fall back on course_code
         # if short_title is an empty string
         course_code = data.get('short_title', '').strip() or data['course_code']
@@ -236,8 +238,23 @@ def create_canvas_course_and_section(request):
         course_sis_course_id=course_instance_id,
         course_term_id=term_id
     )
+
     try:
         course_result = create_new_course(**request_parameters).json()
+
+        # If this course is meant to be a blueprint course,
+        # the newly created course needs to have its blueprint field set to True
+        if is_blueprint:
+            update_parameters = dict(
+                request_ctx=SDK_CONTEXT,
+                id=course_result['id'],
+                course_blueprint=True
+            )
+            try:
+                update_course(**update_parameters).json()
+            except:
+                logger.exception("Error creating blueprint course via update with request {}".format(update_parameters))
+                return JsonResponse({}, status=500)
     except Exception as e:
         message = u'Error creating new course via SDK with request={}'.format(
             request_parameters)

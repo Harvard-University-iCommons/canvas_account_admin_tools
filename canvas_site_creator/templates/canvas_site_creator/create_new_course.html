@@ -117,7 +117,7 @@
       <form ng-submit="handleCreate()">
         <div class="row"> <!-- Form row: term, course code -->
 
-          <div class="col-md-6 margin-bottom-md">
+          <div class="col-sm-6 margin-bottom-md">
             <label for="course-term">Term <span
                 class="required-field-marker">*</span></label>
             <div ng-switch="terms.length > 0">
@@ -140,19 +140,20 @@
           </div>
 
 
-          <div class="col-md-6 margin-bottom-md">
+          <div class="col-sm-6 margin-bottom-md">
             <label for="course-code">New Course Code <span
                 class="required-field-marker">*</span></label>
             <div class="input-group" id="course-code-input-group">
               <select id="course-code-type"
                       name="course-code-type"
                       class="form-control"
-                      ng-disabled="courseCreationInProgress"
+                      ng-disabled="courseCreationInProgress || isBlueprint"
                       ng-init="course.codeType = 'ILE'"
                       ng-model="course.codeType"
                       ng-change="setCourseCode()">
                 <option value="ILE">ILE</option>
                 <option value="SB">SB</option>
+                <option value="BLU" ng-show="isBlueprint" ng-selected="isBlueprint">BLU</option>
               </select>
               <input type="text"
                      class="form-control pull-right"
@@ -189,7 +190,7 @@
                    ng-model="course.title">
           </div>
 
-          <div class="col-sm-3 margin-bottom-md">
+          <div class="col-sm-6 margin-bottom-md">
             <label for="course-short-title">New Short Title</label>
             <input type="text"
                    class="form-control"
@@ -214,6 +215,16 @@
                 </select>
             </div>
           </div>
+
+          <div class="col-sm-3 margin-bottom-md">
+            <label for="templateSelect">Blueprint Course</label>
+            <div class="checkbox" style="margin-top: 0px">
+              <label>
+                <input type="checkbox" ng-model="isBlueprint" ng-change="blueprintBoxChange()"> Enable course as a Blueprint Course
+              </label>
+            </div>
+          </div>
+
   {% verbatim %}
 
         </div> <!-- End Form row: course title, short title -->
@@ -253,6 +264,8 @@
             ILE = Informal Learning Experience
             <br>
             SB = Sandbox
+            <br>
+            BLU = Blueprint
           </div>
 
         </div> <!-- End Form row: form instructions -->
