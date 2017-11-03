@@ -4,7 +4,7 @@
 
     function PeopleController($scope, angularDRF, $compile, courseInstances,
                               djangoUrl, $http, $log, $q, $routeParams,
-                              $uibModal, $window) {
+                              $uibModal, $window, $filter) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -65,6 +65,7 @@
             $scope.tracking.failures++;
             return null;
         };
+
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
             /* Adds a single person to the course; handles the actual posting of
@@ -118,6 +119,7 @@
                 .then(handlePostSuccess, handlePostError)
                 .finally($scope.updateProgressBar);
         };
+
         $scope.addPeopleToCourse = function(searchTermList) {
 
             /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
@@ -174,9 +176,11 @@
             };
             $scope.removeFailure = null;
         };
+
         $scope.closeAlert = function(source) {
             $scope.messages[source] = null;
         };
+
         $scope.compareRoles = function(a, b) {
             /*
              * we want to sort roles by a combination of two fields.
@@ -201,6 +205,7 @@
                 return b.active - a.active;
             }
         };
+
         $scope.confirmAddPeopleToCourse = function(searchTerms) {
             var searchTermList = $scope.getSearchTermList(searchTerms);
             // open a modal confirmation box and as the user to verify they want
@@ -230,6 +235,7 @@
                 $scope.confirmAddModalInstance = null;
             });
         };
+
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
@@ -262,9 +268,11 @@
                     $scope.confirmRemoveModalInstance = null;
                 });
         };
+
         $scope.disableAddToCourseButton = function(){
             return ($scope.operationInProgress || ($scope.searchTerms.length == 0));
         };
+
         $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
             var resultsDict = {};
@@ -294,6 +302,7 @@
             // return the filtered list
             return filteredResults;
         };
+
         // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
@@ -306,6 +315,7 @@
             }
             return 'Untitled Course';
         };
+
         $scope.getFormattedCourseInstance = function(ci) {
             // This is a helper function that formats the CourseInstance metadata
             // and is combination of existing logic in
@@ -346,6 +356,7 @@
             }
             return courseInstance;
         };
+
         $scope.getMembersByUserId = function(memberList) {
             /* generates a lookup table/dict/object to find a member's profile
              by univ_id; used e.g. for checking whether the univ_id found for
@@ -364,6 +375,7 @@
             });
             return membersByUserId;
         };
+
         $scope.getProfileFullName = function(profile) {
             if (profile) {
                 return profile.name_last + ', ' + profile.name_first;
@@ -371,6 +383,7 @@
                 return '';
             }
         };
+
         $scope.getProfileRoleTypeCd = function (profile) {
             if (profile) {
                 return profile.role_type_cd;
@@ -378,29 +391,35 @@
                 return '';
             }
         };
+
         $scope.getSearchTermList = function(searchTerms) {
             // search terms input (string) split by commas, newlines into array
             return searchTerms.split(new RegExp('\n|,', 'g'))
                 .map(function(s){return s.trim()})
                 .filter(function(s){return s.length});
         };
+
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
                        ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
+
         $scope.handleAjaxErrorResponse = function(r) {
             // angular promise then() function returns a response object,
             // unpack for our old-style error handler
             $scope.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
         };
+
         $scope.handleAngularDRFError = function(error) {
             $log.error(error);
         };
+
         $scope.isUnivID = function(searchTerm) {
             var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
         };
+
         $scope.lookupCourseMembers = function() {
             // exclude xreg people
             var getConfig = {
@@ -413,6 +432,7 @@
                                                + '/people/']);
             return angularDRF.get(memberURL, getConfig);
         };
+
         $scope.lookupPeople = function(searchTermList) {
             /* generates a list of promises (http requests to the API) for the
               search terms provided in order to get the univ_id for each
@@ -450,6 +470,7 @@
 
             return peoplePromiseList;
         };
+
         $scope.removeMembership = function(membership) {
             // the call stack to get here is a little weird.  we register
             // this as the success callback on a promise hung off the
@@ -522,6 +543,7 @@
                     }
                 });
         };
+
         $scope.renderId = function(data, type, full, meta) {
             if (full.profile) {
                 return '<badge ng-cloak role="'
@@ -531,26 +553,152 @@
                 return '<badge ng-cloak role=""></badge> ' + full.user_id;
             }
         };
+
         $scope.renderName = function(data, type, full, meta) {
             return $scope.getProfileFullName(full.profile) || full.user_id;
         };
+
         // hotfix added to address TA role name
         // will be addressed with a database change as soon as
         // devops determines viability of change
         $scope.renderRole = function(data, type, full, meta) {
             return /^Teaching Fellow$/.test(data) ? 'TA' : data;
         };
+
         $scope.renderRemove = function(data, type, full, meta) {
             return '<div class="text-center">' +
                    '<a href="" ng-click="confirmRemove(dtInstance.DataTable.data()[' + meta.row + '])" ' +
                    'data-sisid="' + full.user_id + '"><i class="fa fa-trash-o"></i></a></div>';
         };
+
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         };
+
+        $scope.renderConcludeDate = function(data, type, full, meta) {
+            console.log(full);
+            var conclude_date_div = '<div id="'+full.user_id+'">';
+            var conclude_date = '';
+            // If there is a conclude date, format it to be MM/dd/yyyy and create an input field
+            if (full.conclude_date){
+                conclude_date = $filter('date')(new Date(full.conclude_date), 'MM/dd/yyyy', 'Z');
+
+                conclude_date_div += '<div class="input-group">' +
+                        '<input type="text" class="form-control" id="input-course-{{field}}"' +
+                            'name="input-course-{{field}}" value="' + conclude_date + '"/>' +
+                        '<label class="input-group-addon btn" for="input-course-{{field}}">' +
+                            '<span class="fa fa-calendar"></span>' +
+                        '</label>' +
+                    '</div>';
+
+            } else {
+               conclude_date_div += '<div class="col-sm-offset-10 col-sm-2">'+
+                        '<a href="" ng-click=createInputField('+full.user_id+')> <span class="fa fa-calendar"></span></a>' +
+                    '</div>';
+            }
+            conclude_date_div += '</div>';
+
+            return conclude_date_div;
+        };
+
+        $('body').on('focus',".input-group  ", function(){
+            var inputElement = $(this).find('input');
+            var dp = inputElement.datepicker({
+                autoclose: true,
+                todayHighlight: 1
+            });
+
+            dp.on('changeDate', function() {
+                var selectedDate = inputElement.val();
+                console.log('Date changed!');
+                console.log(selectedDate);
+
+                $scope.updateConcludeDate();
+            });
+        });
+
+        // Creates an input field in the given div ID
+        $scope.createInputField = function(divID) {
+            console.log(divID);
+            console.log('Selected div: '+ $('#'+divID));
+
+            console.log("Cal button pushed");
+
+            i_str ='<div class="input-group">' +
+                        '<input type="text" class="form-control" id="input-course-{{field}}"' +
+                            'name="input-course-{{field}}"/>' +
+                        '<label class="input-group-addon btn" for="input-course-{{field}}">' +
+                            '<span class="fa fa-calendar"></span>' +
+                        '</label>' +
+                    '</div>';
+
+            $('#'+divID).html(i_str);
+
+        };
+
+        // Perform the PATCH with the given user ID, role_id, conclude_date
+        $scope.updateConcludeDate = function(userID, roleID, concludeDate) {
+            var patchData = {
+                'user_id': userID,
+                'role_id': roleID,
+                'conclude_date': concludeDate
+            };
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.courseInstanceId + '/people/' + userID]);
+
+            console.log("URL for patch: " + url);
+            var fields = [
+                'user_id',
+                'role_id',
+                'conclude_date'
+            ];
+
+            // fields.forEach(function(field) {
+            //     if (field == 'conclude_date') {
+            //         // Conclude date is a DateTimeField in the CI model.
+            //         // Convert the formatted date back into a DateTime string to be submitted.
+            //         if (dc.formDisplayData['conclude_date']){
+            //             // Validate that the selected date is not in the past before submitting.
+            //             if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+            //                 var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
+            //                 formatted_date += 'T00:01:00Z';
+            //                 patchData['conclude_date'] = formatted_date;
+            //             }
+            //         } else {
+            //             // If the conclude date field is left blank, then set the conclude_date to null in the DB.
+            //             patchData['conclude_date'] = null;
+            //         }
+            //     }
+            // });
+            console.log('PATCH DATA');
+            console.log(patchData);
+            // $http.patch(url, patchData)
+            //     .then(function finalizeCourseDetailsPatch() {
+            //         // update form data so reset button will pick up changes
+            //         angular.extend(dc.courseInstance, patchData);
+            //         dc.showNewGlobalAlert('updateSucceeded');
+            //     }, function cleanUpFailedCourseDetailsPatch(response) {
+            //         dc.handleAjaxErrorResponse(response);
+            //         dc.showNewGlobalAlert('updateFailed', response.statusText);
+            //     })
+            //     .finally( function courseDetailsUpdateNoLongerInProgress() {
+            //         // leaves 'edit' mode, re-enables edit button
+            //         dc.courseDetailsUpdateInProgress = false;
+            //         if (dc.formDisplayData['conclude_date']) {
+            //             // Only update the display conclude date if a valid date was entered.
+            //             if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+            //                 // Reformat the conclude date
+            //                 dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy', 'Z');
+            //             }
+            //         }
+            //     });
+        };
+
         $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
+
         $scope.setCourseInstance = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
@@ -578,6 +726,7 @@
                     .error($scope.handleAjaxError);
             }
         };
+
         $scope.showAddNewMemberResults = function() {
             /* Updates page with summary message and failure details after all
              add person operations are finished.
@@ -605,6 +754,7 @@
             }
             $scope.operationInProgress = false;
         };
+
         $scope.updateProgressBar = function(text) {
             /* Updates progress bar message with either `text` for a specific
              message or the progress of the add phase of the addPeopleToCourse
@@ -744,6 +894,11 @@
                 data: 'source',
                 render: $scope.renderSource,
                 title: 'Source',
+            },
+            {
+                data: 'source',
+                render: $scope.renderConcludeDate,
+                title: 'Conclusion Date Override',
             },
             {
                 data: '',
