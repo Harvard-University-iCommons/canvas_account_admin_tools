@@ -13,6 +13,9 @@
             3: 'source_manual_registrar',
         };
 
+        // Dictionary that contains information on all users in the table using their 'user_id as the key'
+        $scope.peopleData = {};
+
         // set up functions we'll be calling later
         $scope.addNewMember = function(personResult, members) {
             /* Make a call to add the person to the course as a new member
@@ -576,32 +579,44 @@
         };
 
         $scope.renderConcludeDate = function(data, type, full, meta) {
-            console.log(full);
+            // Create a wrapper div element to allow for easier access of the table cell
             var conclude_date_div = '<div id="'+full.user_id+'">';
             var conclude_date = '';
             // If there is a conclude date, format it to be MM/dd/yyyy and create an input field
             if (full.conclude_date){
                 conclude_date = $filter('date')(new Date(full.conclude_date), 'MM/dd/yyyy', 'Z');
-
-                conclude_date_div += '<div class="input-group">' +
-                        '<input type="text" class="form-control" id="input-course-{{field}}"' +
-                            'name="input-course-{{field}}" value="' + conclude_date + '"/>' +
-                        '<label class="input-group-addon btn" for="input-course-{{field}}">' +
-                            '<span class="fa fa-calendar"></span>' +
-                        '</label>' +
-                    '</div>';
-
+                conclude_date_div += $scope.getInputHTML(full.user_id, conclude_date);
             } else {
-               conclude_date_div += '<div class="col-sm-offset-10 col-sm-2">'+
-                        '<a href="" ng-click=createInputField('+full.user_id+')> <span class="fa fa-calendar"></span></a>' +
-                    '</div>';
+               conclude_date_div += $scope.getCalButtonHTML(full.user_id);
             }
             conclude_date_div += '</div>';
 
             return conclude_date_div;
         };
 
-        $('body').on('focus',".input-group  ", function(){
+        $scope.getInputHTML= function(id, value) {
+            var inputHTML = '<div class="input-group" disabled="$scope.">' +
+                                 '<input type="text" class="form-control" id="input-"'+id+' value="'+value+'"/>' +
+                                 '<label class="input-group-addon btn" for="input-'+id+'">' +
+                                    '<span class="fa fa-calendar"></span>' +
+                                '</label>' +
+                             '</div>';
+            return inputHTML
+        };
+
+        $scope.getCalButtonHTML= function(id) {
+             var calHTML = '<div class="col-sm-offset-10 col-sm-2">' +
+                               '<a href="" ng-click=createInputField('+id+')>' +
+                                   '<span class="fa fa-calendar"></span>' +
+                               '</a>' +
+                           '</div>';
+
+             return calHTML;
+        };
+
+        $('body').on('focus',".input-group", function(){
+            // Get the user ID, which will be used in the PATCH and html transformation events
+            var userID = $(this).parent().attr('id');
             var inputElement = $(this).find('input');
             var dp = inputElement.datepicker({
                 autoclose: true,
@@ -610,30 +625,40 @@
 
             dp.on('changeDate', function() {
                 var selectedDate = inputElement.val();
-                console.log('Date changed!');
-                console.log(selectedDate);
+                var roleID = $scope.peopleData[userID]['role']['role_id'];
 
-                $scope.updateConcludeDate();
+                $scope.updateConcludeDate(userID, roleID, selectedDate);
+
+                // If the user submitted a empty conclude date,
+                // change the input field back to a calendar button after PATCH
+                if (selectedDate == "") {
+                    $scope.createCalButton(userID);
+                }
+            });
+
+            dp.on('hide', function() {
+                var selectedDate = inputElement.val();
+                if (selectedDate == "") {
+                     $scope.createCalButton(userID);
+                }
             });
         });
 
         // Creates an input field in the given div ID
         $scope.createInputField = function(divID) {
-            console.log(divID);
-            console.log('Selected div: '+ $('#'+divID));
+            var input_group = $scope.getInputHTML(divID, '');
 
-            console.log("Cal button pushed");
+            $('#'+divID).html($compile(angular.element(input_group))($scope));
+            // Focus on the new input field to generate the date picker
+            $('#'+divID).find('input').focus();
+        };
 
-            i_str ='<div class="input-group">' +
-                        '<input type="text" class="form-control" id="input-course-{{field}}"' +
-                            'name="input-course-{{field}}"/>' +
-                        '<label class="input-group-addon btn" for="input-course-{{field}}">' +
-                            '<span class="fa fa-calendar"></span>' +
-                        '</label>' +
-                    '</div>';
+        // Creates a calendar button for the given divID
+        $scope.createCalButton = function(divID) {
+            console.log("Changing input to cal button for: " + divID);
+            var cal_button = $scope.getCalButtonHTML(divID);
 
-            $('#'+divID).html(i_str);
-
+            $('#'+divID).html($compile(angular.element(cal_button))($scope));
         };
 
         // Perform the PATCH with the given user ID, role_id, conclude_date
@@ -645,35 +670,34 @@
             };
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/course_instances/'
-                                         + $scope.courseInstanceId + '/people/' + userID]);
+                                         + $scope.courseInstanceId + '/people/' + userID + '/']);
 
-            console.log("URL for patch: " + url);
             var fields = [
                 'user_id',
                 'role_id',
                 'conclude_date'
             ];
 
-            // fields.forEach(function(field) {
-            //     if (field == 'conclude_date') {
-            //         // Conclude date is a DateTimeField in the CI model.
-            //         // Convert the formatted date back into a DateTime string to be submitted.
-            //         if (dc.formDisplayData['conclude_date']){
-            //             // Validate that the selected date is not in the past before submitting.
-            //             if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
-            //                 var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
-            //                 formatted_date += 'T00:01:00Z';
-            //                 patchData['conclude_date'] = formatted_date;
-            //             }
-            //         } else {
-            //             // If the conclude date field is left blank, then set the conclude_date to null in the DB.
-            //             patchData['conclude_date'] = null;
-            //         }
-            //     }
-            // });
+            fields.forEach(function(field) {
+                if (field == 'conclude_date') {
+                    // Conclude date is a DateTimeField in the CI model.
+                    // Convert the formatted date back into a DateTime string to be submitted.
+                    if (concludeDate != ""){
+                        // Validate that the selected date is not in the past before submitting.
+                        // if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
+                            var formatted_date = $filter('date')(new Date(concludeDate), 'yyyy-MM-dd', 'Z');
+                            formatted_date += 'T00:01:00Z';
+                            patchData['conclude_date'] = formatted_date;
+                        // }
+                    } else {
+                        // If the conclude date field is left blank, then set the conclude_date to null in the DB.
+                        patchData['conclude_date'] = null;
+                    }
+                }
+            });
             console.log('PATCH DATA');
             console.log(patchData);
-            // $http.patch(url, patchData)
+            $http.patch(url, patchData);
             //     .then(function finalizeCourseDetailsPatch() {
             //         // update form data so reset button will pick up changes
             //         angular.extend(dc.courseInstance, patchData);
@@ -850,6 +874,9 @@
                 });
             },
             createdRow: function( row, data, dataIndex ) {
+                // Build a dict of the retrieved users, with the user_id as the key and their data as the values
+                $scope.peopleData[data['user_id']] = data;
+
                 // to use angular directives within the rendered datatable,
                 // we have to compile those elements ourselves.  joy.
                 $compile(angular.element(row).contents())($scope);
