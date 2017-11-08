@@ -595,8 +595,8 @@
         };
 
         $scope.getInputHTML= function(id, value) {
-            var inputHTML = '<div class="input-group" disabled="$scope.">' +
-                                 '<input type="text" class="form-control" id="input-"'+id+' value="'+value+'"/>' +
+            var inputHTML = '<div class="input-group">' +
+                                 '<input type="text" class="form-control" id="input-'+id+'" value="'+value+'"/>' +
                                  '<label class="input-group-addon btn" for="input-'+id+'">' +
                                     '<span class="fa fa-calendar"></span>' +
                                 '</label>' +
@@ -618,9 +618,12 @@
             // Get the user ID, which will be used in the PATCH and html transformation events
             var userID = $(this).parent().attr('id');
             var inputElement = $(this).find('input');
+
+            // TODO make a check to see if element has a datepicker before creating a new one
             var dp = inputElement.datepicker({
                 autoclose: true,
-                todayHighlight: 1
+                todayHighlight: 1,
+                format: 'mm/dd/yyyy'
             });
 
             dp.on('changeDate', function() {
@@ -636,21 +639,27 @@
                 }
             });
 
+            // If the date picker is closed and a date has not been picked, replace input with calendar button
             dp.on('hide', function() {
                 var selectedDate = inputElement.val();
                 if (selectedDate == "") {
                      $scope.createCalButton(userID);
                 }
+                console.log(selectedDate);
             });
         });
 
         // Creates an input field in the given div ID
-        $scope.createInputField = function(divID) {
-            var input_group = $scope.getInputHTML(divID, '');
+        $scope.createInputField = function(divID, inputVal) {
+            inputVal = (typeof inputVal !== 'undefined') ?  inputVal : '';
+            var input_group = $scope.getInputHTML(divID, inputVal);
 
             $('#'+divID).html($compile(angular.element(input_group))($scope));
-            // Focus on the new input field to generate the date picker
-            $('#'+divID).find('input').focus();
+
+            if(inputVal == '') {
+                // Focus on the new input field to generate the date picker
+                $('#'+divID).find('input').focus();
+            }
         };
 
         // Creates a calendar button for the given divID
@@ -697,26 +706,24 @@
             });
             console.log('PATCH DATA');
             console.log(patchData);
-            $http.patch(url, patchData);
-            //     .then(function finalizeCourseDetailsPatch() {
-            //         // update form data so reset button will pick up changes
-            //         angular.extend(dc.courseInstance, patchData);
-            //         dc.showNewGlobalAlert('updateSucceeded');
-            //     }, function cleanUpFailedCourseDetailsPatch(response) {
-            //         dc.handleAjaxErrorResponse(response);
-            //         dc.showNewGlobalAlert('updateFailed', response.statusText);
-            //     })
-            //     .finally( function courseDetailsUpdateNoLongerInProgress() {
-            //         // leaves 'edit' mode, re-enables edit button
-            //         dc.courseDetailsUpdateInProgress = false;
-            //         if (dc.formDisplayData['conclude_date']) {
-            //             // Only update the display conclude date if a valid date was entered.
-            //             if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
-            //                 // Reformat the conclude date
-            //                 dc.courseInstance['conclude_date'] = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'MM/dd/yyyy', 'Z');
-            //             }
-            //         }
-            //     });
+            $http.patch(url, patchData)
+                .then(function finalizeCourseDetailsPatch() {
+                    // If they conclude date was not null (removed),
+                    // then display the new input field with a green outline
+                    if (patchData['conclude_date']) {
+                        // Format the conclude date back to mm/dd/yyyy
+                        var conclude_date = $filter('date')(new Date(patchData['conclude_date']), 'MM/dd/yyyy', 'Z');
+                        console.log('Conclude date: ' + conclude_date);
+                        $scope.createInputField(patchData['user_id'], conclude_date);
+                        var elem = $('#'+patchData['user_id']);
+                        elem.children().first().addClass('input-group-success');
+                    }
+                })
+                // If there was a failure, display error message with red outline of input field
+                // , function cleanUpFailedCourseDetailsPatch(response) {
+                //     console.log('FAILURE TO UPDATE');
+                //     $(patchData['user_id']).css('input-group-error');
+                // })
         };
 
         $scope.selectRole = function(role) {
@@ -926,6 +933,7 @@
                 data: 'source',
                 render: $scope.renderConcludeDate,
                 title: 'Conclusion Date Override',
+                orderable: false,
             },
             {
                 data: '',
