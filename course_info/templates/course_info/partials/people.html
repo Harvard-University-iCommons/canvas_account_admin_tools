@@ -304,9 +304,16 @@
 
 <div ng-if="!removeFailure" class="row add-top-margin">
   <div class="col-xs-12">
-    <!-- begin remove failure warning alerts -->
-    <uib-alert type="danger" close="closeAlert('removeFailure')">
-      There was an error updating that users conclusion date override field.
+    <uib-alert type="danger">
+      There was an error updating that users conclusion date override field
+    </uib-alert>
+  </div>
+</div>
+
+<div ng-if="!removeFailure" class="row add-top-margin">
+  <div class="col-xs-12">
+    <uib-alert type="success">
+      User X was successfully updated
     </uib-alert>
   </div>
 </div>
