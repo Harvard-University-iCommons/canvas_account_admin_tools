@@ -178,6 +178,7 @@
                 totalSuccesses: 0
             };
             $scope.removeFailure = null;
+            $scope.concludeMessages = {success: null, failure: null};
         };
 
         $scope.closeAlert = function(source) {
@@ -580,18 +581,19 @@
 
         $scope.renderConcludeDate = function(data, type, full, meta) {
             // Create a wrapper div element to allow for easier access of the table cell
-            var conclude_date_div = '<div id="'+full.user_id+'">';
-            var conclude_date = '';
+            var concludeDateDiv = '<div id="'+full.user_id+'">';
+            var concludeDate = '';
+
             // If there is a conclude date, format it to be MM/dd/yyyy and create an input field
             if (full.conclude_date){
-                conclude_date = $filter('date')(new Date(full.conclude_date), 'MM/dd/yyyy', 'Z');
-                conclude_date_div += $scope.getInputHTML(full.user_id, conclude_date);
-            } else {
-               conclude_date_div += $scope.getCalButtonHTML(full.user_id);
+                concludeDate = $filter('date')(new Date(full.conclude_date), 'MM/dd/yyyy', 'Z');
             }
-            conclude_date_div += '</div>';
 
-            return conclude_date_div;
+            concludeDateDiv += $scope.getCalButtonHTML(full.user_id, concludeDate);
+
+            concludeDateDiv += '</div>';
+
+            return concludeDateDiv;
         };
 
         $scope.getInputHTML= function(id, value) {
@@ -604,9 +606,11 @@
             return inputHTML
         };
 
-        $scope.getCalButtonHTML= function(id) {
-             var calHTML = '<div class="col-sm-offset-10 col-sm-2">' +
-                               '<a href="" ng-click=createInputField('+id+')>' +
+        $scope.getCalButtonHTML= function(id, value) {
+             var createInputFieldFunc = 'createInputField('+id+',"'+value+'")';
+             var calHTML =  '<div class="col-sm-10">'+value+'</div>' +
+                            '<div class="col-sm-2">' +
+                               '<a href="" ng-click='+createInputFieldFunc+'>' +
                                    '<span class="fa fa-calendar"></span>' +
                                '</a>' +
                            '</div>';
@@ -618,6 +622,7 @@
             // Get the user ID, which will be used in the PATCH and html transformation events
             var userID = $(this).parent().attr('id');
             var inputElement = $(this).find('input');
+            var previousValue = inputElement.val();
 
             // TODO make a check to see if element has a datepicker before creating a new one
             var dp = inputElement.datepicker({
@@ -626,25 +631,16 @@
                 format: 'mm/dd/yyyy'
             });
 
-            dp.on('changeDate', function() {
-                var selectedDate = inputElement.val();
-                var roleID = $scope.peopleData[userID]['role']['role_id'];
-
-                $scope.updateConcludeDate(userID, roleID, selectedDate);
-
-                // If the user submitted a empty conclude date,
-                // change the input field back to a calendar button after PATCH
-                if (selectedDate == "") {
-                    $scope.createCalButton(userID);
-                }
-            });
-
-            // If the date picker is closed and a date has not been picked, replace input with calendar button
+            // When the date picker window has been closed, validate the selected date and send PATCH
             dp.on('hide', function() {
                 var selectedDate = inputElement.val();
-                if (selectedDate == "") {
-                     $scope.createCalButton(userID);
+
+                if (selectedDate != previousValue) {
+                    var roleID = $scope.peopleData[userID]['role']['role_id'];
+                    $scope.updateConcludeDate(userID, roleID, selectedDate);
                 }
+
+                $scope.createCalButton(userID, selectedDate);
                 console.log(selectedDate);
             });
         });
@@ -663,9 +659,10 @@
         };
 
         // Creates a calendar button for the given divID
-        $scope.createCalButton = function(divID) {
+        $scope.createCalButton = function(divID, concludeDate) {
+            concludeDate = (typeof concludeDate !== 'undefined') ?  concludeDate : '';
             console.log("Changing input to cal button for: " + divID);
-            var cal_button = $scope.getCalButtonHTML(divID);
+            var cal_button = $scope.getCalButtonHTML(divID, concludeDate);
 
             $('#'+divID).html($compile(angular.element(cal_button))($scope));
         };
@@ -714,9 +711,7 @@
                         // Format the conclude date back to mm/dd/yyyy
                         var conclude_date = $filter('date')(new Date(patchData['conclude_date']), 'MM/dd/yyyy', 'Z');
                         console.log('Conclude date: ' + conclude_date);
-                        $scope.createInputField(patchData['user_id'], conclude_date);
-                        var elem = $('#'+patchData['user_id']);
-                        elem.children().first().addClass('input-group-success');
+                        $scope.createCalButton(patchData['user_id'], conclude_date);
                     }
                 })
                 // If there was a failure, display error message with red outline of input field
