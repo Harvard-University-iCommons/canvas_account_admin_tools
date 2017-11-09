@@ -98,37 +98,3 @@ table.course-info-table {
 #alert-pane-success {
     border: none;
 }
-
-.input-group-error {
-    border: 3px solid transparent;
-    border-radius: 5px;
-    -webkit-animation: error 2s; /* Chrome, Safari, Opera */
-    animation: error 2s;
-}
-
-/* Chrome, Safari, Opera */
-@-webkit-keyframes error {
-    50% {border-color: red;}
-}
-
-/* Standard syntax */
-@keyframes error {
-    50% {border-color: red;}
-}
-
-.input-group-success {
-    border: 3px solid transparent;
-    border-radius: 5px;
-    -webkit-animation: success 2s; /* Chrome, Safari, Opera */
-    animation: success 2s;
-}
-
-/* Chrome, Safari, Opera */
-@-webkit-keyframes success {
-    50% {border-color: green;}
-}
-
-/* Standard syntax */
-@keyframes success {
-    50% {border-color: green;}
-}
