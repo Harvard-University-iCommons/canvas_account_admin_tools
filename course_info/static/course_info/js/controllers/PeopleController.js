@@ -178,7 +178,7 @@
                 totalSuccesses: 0
             };
             $scope.removeFailure = null;
-            $scope.concludeMessages = {success: null, failure: null};
+            $scope.concludeDateUpdateMessage = {success: null, failure: null};
         };
 
         $scope.closeAlert = function(source) {
@@ -636,12 +636,16 @@
                 var selectedDate = inputElement.val();
 
                 if (selectedDate != previousValue) {
-                    var roleID = $scope.peopleData[userID]['role']['role_id'];
-                    $scope.updateConcludeDate(userID, roleID, selectedDate);
+                    if ($scope.isSelectedDateInPast(selectedDate)) {
+                        $scope.concludeDateUpdateMessage.failure = "Selected date is prior to today's date";
+                        $scope.$apply();
+                    } else {
+                        var roleID = $scope.peopleData[userID]['role']['role_id'];
+                        $scope.updateConcludeDate(userID, roleID, selectedDate);
+                    }
                 }
 
                 $scope.createCalButton(userID, selectedDate);
-                console.log(selectedDate);
             });
         });
 
@@ -661,64 +665,51 @@
         // Creates a calendar button for the given divID
         $scope.createCalButton = function(divID, concludeDate) {
             concludeDate = (typeof concludeDate !== 'undefined') ?  concludeDate : '';
-            console.log("Changing input to cal button for: " + divID);
             var cal_button = $scope.getCalButtonHTML(divID, concludeDate);
 
             $('#'+divID).html($compile(angular.element(cal_button))($scope));
         };
 
+        // Converts the mm/dd/yyyy date to a yyyy-MM-ddT00:00:01:00Z format
+        $scope.formatConcludeDate = function(date) {
+            var concludeDate = null;
+            if (date) {
+                concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T00:01:00Z';
+            }
+            return concludeDate
+        };
+
+        // Checks if the given date is prior to today's date.
+        $scope.isSelectedDateInPast = function(selectedDate) {
+            // Since the input field is a string representation of a date,
+            // we need to convert today's date to the same format as a string to make the comparison.
+            var today = new Date();
+            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+        };
+
         // Perform the PATCH with the given user ID, role_id, conclude_date
         $scope.updateConcludeDate = function(userID, roleID, concludeDate) {
+            $scope.clearMessages();
             var patchData = {
                 'user_id': userID,
                 'role_id': roleID,
-                'conclude_date': concludeDate
+                'conclude_date': $scope.formatConcludeDate(concludeDate)
             };
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                         ['api/course/v2/course_instances/'
                                          + $scope.courseInstanceId + '/people/' + userID + '/']);
 
-            var fields = [
-                'user_id',
-                'role_id',
-                'conclude_date'
-            ];
-
-            fields.forEach(function(field) {
-                if (field == 'conclude_date') {
-                    // Conclude date is a DateTimeField in the CI model.
-                    // Convert the formatted date back into a DateTime string to be submitted.
-                    if (concludeDate != ""){
-                        // Validate that the selected date is not in the past before submitting.
-                        // if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
-                            var formatted_date = $filter('date')(new Date(concludeDate), 'yyyy-MM-dd', 'Z');
-                            formatted_date += 'T00:01:00Z';
-                            patchData['conclude_date'] = formatted_date;
-                        // }
-                    } else {
-                        // If the conclude date field is left blank, then set the conclude_date to null in the DB.
-                        patchData['conclude_date'] = null;
-                    }
-                }
-            });
-            console.log('PATCH DATA');
-            console.log(patchData);
             $http.patch(url, patchData)
-                .then(function finalizeCourseDetailsPatch() {
-                    // If they conclude date was not null (removed),
-                    // then display the new input field with a green outline
-                    if (patchData['conclude_date']) {
-                        // Format the conclude date back to mm/dd/yyyy
-                        var conclude_date = $filter('date')(new Date(patchData['conclude_date']), 'MM/dd/yyyy', 'Z');
-                        console.log('Conclude date: ' + conclude_date);
-                        $scope.createCalButton(patchData['user_id'], conclude_date);
-                    }
+                .success(function finalizeCourseDetailsPatch() {
+                    // Reset the display to show conclude date and calendar button
+                    $scope.createCalButton(patchData['user_id'], concludeDate);
+                    $scope.concludeDateUpdateMessage.success = "User with HUID: " + userID + " successfully updated";
                 })
-                // If there was a failure, display error message with red outline of input field
-                // , function cleanUpFailedCourseDetailsPatch(response) {
-                //     console.log('FAILURE TO UPDATE');
-                //     $(patchData['user_id']).css('input-group-error');
-                // })
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+                    $scope.concludeDateUpdateMessage.failure = "Error updating user with HUID: " + userID;
+                })
         };
 
         $scope.selectRole = function(role) {
