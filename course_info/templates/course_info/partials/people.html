@@ -302,18 +302,18 @@
 </div>
 <!-- end alert pane -->
 
-<div ng-if="!removeFailure" class="row add-top-margin">
+<div ng-if="concludeDateUpdateMessage.failure" class="row add-top-margin">
   <div class="col-xs-12">
     <uib-alert type="danger">
-      There was an error updating that users conclusion date override field
+      {{concludeDateUpdateMessage.failure}}
     </uib-alert>
   </div>
 </div>
 
-<div ng-if="!removeFailure" class="row add-top-margin">
+<div ng-if="concludeDateUpdateMessage.success" class="row add-top-margin">
   <div class="col-xs-12">
     <uib-alert type="success">
-      User X was successfully updated
+      {{concludeDateUpdateMessage.success}}
     </uib-alert>
   </div>
 </div>
