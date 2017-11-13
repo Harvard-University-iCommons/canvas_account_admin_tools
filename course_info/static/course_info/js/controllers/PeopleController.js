@@ -633,6 +633,7 @@
 
             // When the date picker window has been closed, validate the selected date and send PATCH
             dp.on('hide', function() {
+                $scope.clearMessages();
                 var selectedDate = inputElement.val();
 
                 if (selectedDate != previousValue) {
@@ -690,7 +691,6 @@
 
         // Perform the PATCH with the given user ID, role_id, conclude_date
         $scope.updateConcludeDate = function(userID, roleID, concludeDate) {
-            $scope.clearMessages();
             var patchData = {
                 'user_id': userID,
                 'role_id': roleID,
