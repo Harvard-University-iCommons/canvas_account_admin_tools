@@ -624,7 +624,6 @@
             var inputElement = $(this).find('input');
             var previousValue = inputElement.val();
 
-            // TODO make a check to see if element has a datepicker before creating a new one
             var dp = inputElement.datepicker({
                 autoclose: true,
                 todayHighlight: 1,
