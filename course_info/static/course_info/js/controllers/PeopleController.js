@@ -676,7 +676,7 @@
             if (date) {
                 concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T00:01:00Z';
             }
-            return concludeDate
+            return concludeDate;
         };
 
         // Checks if the given date is prior to today's date.
