@@ -16,6 +16,9 @@
         // Dictionary that contains information on all users in the table using their 'user_id as the key'
         $scope.peopleData = {};
 
+        // Tracks the divID of any currently displayed popovers
+        $scope.popOverID = null;
+
         // set up functions we'll be calling later
         $scope.addNewMember = function(personResult, members) {
             /* Make a call to add the person to the course as a new member
@@ -619,6 +622,12 @@
         };
 
         $('body').on('focus',".input-group", function(){
+            if($scope.popOverID) {
+                $('#'+$scope.popOverID).popover('destroy');
+                $scope.popOverID = null;
+            }
+
+
             // Get the user ID, which will be used in the PATCH and html transformation events
             var userID = $(this).parent().attr('id');
             var inputElement = $(this).find('input');
@@ -635,19 +644,57 @@
                 $scope.clearMessages();
                 var selectedDate = inputElement.val();
 
+                // Only begin the update call process if the selected date differs from the original value
                 if (selectedDate != previousValue) {
+                    // We only accept dates from today onward
                     if ($scope.isSelectedDateInPast(selectedDate)) {
-                        $scope.concludeDateUpdateMessage.failure = "Selected date is prior to today's date";
-                        $scope.$apply();
+                        // Set a .1 second delay before displaying error message.
+                        // When the datepicker is closed, it creates a click event which would close this display
+                        // before it is rendered.
+                        setTimeout(
+                            function() {
+                              $scope.addPopOverToCell(userID, 'failure', "Selected date is prior to today's date");
+                            }, 100)
                     } else {
                         var roleID = $scope.peopleData[userID]['role']['role_id'];
                         $scope.updateConcludeDate(userID, roleID, selectedDate);
                     }
                 }
-
                 $scope.createCalButton(userID, selectedDate);
             });
+
         });
+
+
+        $(document).on('click', function() {
+            if($scope.popOverID) {
+                $('#'+$scope.popOverID).popover('destroy');
+                $scope.popOverID = null;
+            }
+        });
+
+
+        // Adds a popover to the given divID with the styling of the given type (success/failure)
+        // Popover will contain the given message
+        $scope.addPopOverToCell = function(divID, type, message) {
+            $scope.popOverID = divID;
+            var  messageType = (type == 'success') ?  'success' : 'danger';
+            var popOverTemplate = '<div class="popover popover-'+messageType+'" role="tooltip">' +
+                                       '<div class="arrow"></div>' +
+                                       '<h3 class="popover-title"></h3>' +
+                                       '<div class="popover-content"></div>' +
+                                   '</div>';
+
+            var popOverSettings = {
+                placement: 'top',
+                content: message,
+                delay: 100,
+                template: popOverTemplate
+            };
+
+            // Create the popover and show it
+            $('#'+divID).popover(popOverSettings).popover('show');
+        };
 
         // Creates an input field in the given div ID
         $scope.createInputField = function(divID, inputVal) {
@@ -703,11 +750,11 @@
                 .success(function finalizeCourseDetailsPatch() {
                     // Reset the display to show conclude date and calendar button
                     $scope.createCalButton(patchData['user_id'], concludeDate);
-                    $scope.concludeDateUpdateMessage.success = "User with HUID: " + userID + " successfully updated";
+                    $scope.addPopOverToCell(userID, 'success', "User with HUID: " + userID + " successfully updated");
                 })
                 .error(function(data, status, headers, config, statusText) {
                     $scope.handleAjaxError(data, status, headers, config, statusText);
-                    $scope.concludeDateUpdateMessage.failure = "Error updating user with HUID: " + userID;
+                    $scope.addPopOverToCell(userID, 'failure', "Error updating user with HUID: " + userID);
                 })
         };
 
