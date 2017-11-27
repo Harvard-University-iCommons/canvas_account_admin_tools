@@ -589,9 +589,10 @@
 
             // If there is a conclude date, format it to be MM/dd/yyyy and create an input field
             if (full.conclude_date){
-                concludeDate = $filter('date')(new Date(full.conclude_date), 'MM/dd/yyyy', 'Z');
+                // If the date is not split up, it returns an 'Invalid Date' in Safari
+                var d = full.conclude_date.split(/[^0-9]/);
+                concludeDate = $filter('date')(new Date(d[0],d[1]-1,d[2],d[3],d[4],d[5] ), 'MM/dd/yyyy', 'Z');
             }
-
             concludeDateDiv += $scope.getCalButtonHTML(full.user_id, concludeDate);
 
             concludeDateDiv += '</div>';
@@ -606,14 +607,13 @@
                                     '<span class="fa fa-calendar"></span>' +
                                 '</label>' +
                              '</div>';
-            return inputHTML
+            return inputHTML;
         };
 
         $scope.getCalButtonHTML= function(id, value) {
-             var createInputFieldFunc = 'createInputField('+id+',"'+value+'")';
              var calHTML =  '<div class="col-sm-10">'+value+'</div>' +
                             '<div class="col-sm-2">' +
-                               '<a href="" ng-click='+createInputFieldFunc+'>' +
+                               '<a href="" ng-click=createInputField('+id+',"'+value+'"\)>' +
                                    '<span class="fa fa-calendar"></span>' +
                                '</a>' +
                            '</div>';
@@ -635,8 +635,7 @@
 
             var dp = inputElement.datepicker({
                 autoclose: true,
-                todayHighlight: 1,
-                format: 'mm/dd/yyyy'
+                todayHighlight: 1
             });
 
             // When the date picker window has been closed, validate the selected date and send PATCH
@@ -653,7 +652,7 @@
                         // before it is rendered.
                         setTimeout(
                             function() {
-                              $scope.addPopOverToCell(userID, 'failure', "Selected date is prior to today's date");
+                              $scope.addPopOverToCell(userID, 'failure', 'You can only pick a date in the future.');
                             }, 100)
                     } else {
                         var roleID = $scope.peopleData[userID]['role']['role_id'];
@@ -698,7 +697,7 @@
 
         // Creates an input field in the given div ID
         $scope.createInputField = function(divID, inputVal) {
-            inputVal = (typeof inputVal !== 'undefined') ?  inputVal : '';
+            inputVal = (typeof inputVal !== 'undefined') ? inputVal : '';
             var input_group = $scope.getInputHTML(divID, inputVal);
 
             $('#'+divID).html($compile(angular.element(input_group))($scope));
@@ -711,7 +710,7 @@
 
         // Creates a calendar button for the given divID
         $scope.createCalButton = function(divID, concludeDate) {
-            concludeDate = (typeof concludeDate !== 'undefined') ?  concludeDate : '';
+            concludeDate = (typeof concludeDate !== 'undefined') ? concludeDate : '';
             var cal_button = $scope.getCalButtonHTML(divID, concludeDate);
 
             $('#'+divID).html($compile(angular.element(cal_button))($scope));
@@ -750,11 +749,11 @@
                 .success(function finalizeCourseDetailsPatch() {
                     // Reset the display to show conclude date and calendar button
                     $scope.createCalButton(patchData['user_id'], concludeDate);
-                    $scope.addPopOverToCell(userID, 'success', "User with HUID: " + userID + " successfully updated");
+                    $scope.addPopOverToCell(userID, 'success', 'The enrollment details have been updated.');
                 })
                 .error(function(data, status, headers, config, statusText) {
                     $scope.handleAjaxError(data, status, headers, config, statusText);
-                    $scope.addPopOverToCell(userID, 'failure', "Error updating user with HUID: " + userID);
+                    $scope.addPopOverToCell(userID, 'failure', 'An error occurred during the update.');
                 })
         };
 
