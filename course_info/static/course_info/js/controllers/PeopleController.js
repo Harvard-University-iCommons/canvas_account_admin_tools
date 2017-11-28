@@ -747,6 +747,9 @@
 
             $http.patch(url, patchData)
                 .success(function finalizeCourseDetailsPatch() {
+                    // If update is successful, then touch the course instance so the last_updated field is updated
+                    // so that changes will be picked up in feed
+                    $scope.updateCourseInstanceLastUpdated();
                     // Reset the display to show conclude date and calendar button
                     $scope.createCalButton(patchData['user_id'], concludeDate);
                     $scope.addPopOverToCell(userID, 'success', 'The enrollment details have been updated.');
@@ -755,6 +758,14 @@
                     $scope.handleAjaxError(data, status, headers, config, statusText);
                     $scope.addPopOverToCell(userID, 'failure', 'An error occurred during the update.');
                 })
+        };
+
+        // Updates the current course instances 'last_updated' field to be the current date and time.
+        $scope.updateCourseInstanceLastUpdated = function() {
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.courseInstanceId + '/']);
+            $http.patch(url);
         };
 
         $scope.selectRole = function(role) {
