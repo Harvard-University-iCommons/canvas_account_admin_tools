@@ -4,7 +4,7 @@
 
     function PeopleController($scope, angularDRF, $compile, courseInstances,
                               djangoUrl, $http, $log, $q, $routeParams,
-                              $uibModal, $window) {
+                              $uibModal, $window, $filter) {
         // set up constants
         $scope.sortKeyByColumnId = {
             0: 'name',
@@ -12,6 +12,12 @@
             2: 'role__role_name',
             3: 'source_manual_registrar',
         };
+
+        // Dictionary that contains information on all users in the table using their 'user_id as the key'
+        $scope.peopleData = {};
+
+        // Tracks the divID of any currently displayed popovers
+        $scope.popOverID = null;
 
         // set up functions we'll be calling later
         $scope.addNewMember = function(personResult, members) {
@@ -65,6 +71,7 @@
             $scope.tracking.failures++;
             return null;
         };
+
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
             /* Adds a single person to the course; handles the actual posting of
@@ -118,6 +125,7 @@
                 .then(handlePostSuccess, handlePostError)
                 .finally($scope.updateProgressBar);
         };
+
         $scope.addPeopleToCourse = function(searchTermList) {
 
             /* looks up HUIDs, XIDs, and/or email addresses from searchTerms
@@ -173,10 +181,13 @@
                 totalSuccesses: 0
             };
             $scope.removeFailure = null;
+            $scope.concludeDateUpdateMessage = {success: null, failure: null};
         };
+
         $scope.closeAlert = function(source) {
             $scope.messages[source] = null;
         };
+
         $scope.compareRoles = function(a, b) {
             /*
              * we want to sort roles by a combination of two fields.
@@ -201,6 +212,7 @@
                 return b.active - a.active;
             }
         };
+
         $scope.confirmAddPeopleToCourse = function(searchTerms) {
             var searchTermList = $scope.getSearchTermList(searchTerms);
             // open a modal confirmation box and as the user to verify they want
@@ -230,6 +242,7 @@
                 $scope.confirmAddModalInstance = null;
             });
         };
+
         $scope.confirmRemove = function(membership) {
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
@@ -262,9 +275,11 @@
                     $scope.confirmRemoveModalInstance = null;
                 });
         };
+
         $scope.disableAddToCourseButton = function(){
             return ($scope.operationInProgress || ($scope.searchTerms.length == 0));
         };
+
         $scope.filterSearchResults = function(searchResults){
             var filteredResults = Array();
             var resultsDict = {};
@@ -294,6 +309,7 @@
             // return the filtered list
             return filteredResults;
         };
+
         // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
@@ -306,6 +322,7 @@
             }
             return 'Untitled Course';
         };
+
         $scope.getFormattedCourseInstance = function(ci) {
             // This is a helper function that formats the CourseInstance metadata
             // and is combination of existing logic in
@@ -346,6 +363,7 @@
             }
             return courseInstance;
         };
+
         $scope.getMembersByUserId = function(memberList) {
             /* generates a lookup table/dict/object to find a member's profile
              by univ_id; used e.g. for checking whether the univ_id found for
@@ -364,6 +382,7 @@
             });
             return membersByUserId;
         };
+
         $scope.getProfileFullName = function(profile) {
             if (profile) {
                 return profile.name_last + ', ' + profile.name_first;
@@ -371,6 +390,7 @@
                 return '';
             }
         };
+
         $scope.getProfileRoleTypeCd = function (profile) {
             if (profile) {
                 return profile.role_type_cd;
@@ -378,29 +398,35 @@
                 return '';
             }
         };
+
         $scope.getSearchTermList = function(searchTerms) {
             // search terms input (string) split by commas, newlines into array
             return searchTerms.split(new RegExp('\n|,', 'g'))
                 .map(function(s){return s.trim()})
                 .filter(function(s){return s.length});
         };
+
         $scope.handleAjaxError = function(data, status, headers, config, statusText) {
             $log.error('Error attempting to ' + config.method + ' ' + config.url +
                        ': ' + status + ' ' + statusText + ': ' + JSON.stringify(data));
         };
+
         $scope.handleAjaxErrorResponse = function(r) {
             // angular promise then() function returns a response object,
             // unpack for our old-style error handler
             $scope.handleAjaxError(
                 r.data, r.status, r.headers, r.config, r.statusText);
         };
+
         $scope.handleAngularDRFError = function(error) {
             $log.error(error);
         };
+
         $scope.isUnivID = function(searchTerm) {
             var re = /^[A-Za-z0-9]{8}$/;
             return re.test(searchTerm);
         };
+
         $scope.lookupCourseMembers = function() {
             // exclude xreg people
             var getConfig = {
@@ -413,6 +439,7 @@
                                                + '/people/']);
             return angularDRF.get(memberURL, getConfig);
         };
+
         $scope.lookupPeople = function(searchTermList) {
             /* generates a list of promises (http requests to the API) for the
               search terms provided in order to get the univ_id for each
@@ -450,6 +477,7 @@
 
             return peoplePromiseList;
         };
+
         $scope.removeMembership = function(membership) {
             // the call stack to get here is a little weird.  we register
             // this as the success callback on a promise hung off the
@@ -522,6 +550,7 @@
                     }
                 });
         };
+
         $scope.renderId = function(data, type, full, meta) {
             if (full.profile) {
                 return '<badge ng-cloak role="'
@@ -531,26 +560,218 @@
                 return '<badge ng-cloak role=""></badge> ' + full.user_id;
             }
         };
+
         $scope.renderName = function(data, type, full, meta) {
             return $scope.getProfileFullName(full.profile) || full.user_id;
         };
+
         // hotfix added to address TA role name
         // will be addressed with a database change as soon as
         // devops determines viability of change
         $scope.renderRole = function(data, type, full, meta) {
             return /^Teaching Fellow$/.test(data) ? 'TA' : data;
         };
+
         $scope.renderRemove = function(data, type, full, meta) {
             return '<div class="text-center">' +
                    '<a href="" ng-click="confirmRemove(dtInstance.DataTable.data()[' + meta.row + '])" ' +
                    'data-sisid="' + full.user_id + '"><i class="fa fa-trash-o"></i></a></div>';
         };
+
         $scope.renderSource = function(data, type, full, meta) {
             return /^.*feed$/.test(data) ? 'Registrar Added' : 'Manually Added';
         };
+
+        $scope.renderConcludeDate = function(data, type, full, meta) {
+            // Create a wrapper div element to allow for easier access of the table cell
+            var concludeDateDiv = '<div id="'+full.user_id+'">';
+            var concludeDate = '';
+
+            // If there is a conclude date, format it to be MM/dd/yyyy and create an input field
+            if (full.conclude_date){
+                // If the date is not split up, it returns an 'Invalid Date' in Safari
+                var d = full.conclude_date.split(/[^0-9]/);
+                concludeDate = $filter('date')(new Date(d[0],d[1]-1,d[2],d[3],d[4],d[5] ), 'MM/dd/yyyy', 'Z');
+            }
+            concludeDateDiv += $scope.getCalButtonHTML(full.user_id, concludeDate);
+
+            concludeDateDiv += '</div>';
+
+            return concludeDateDiv;
+        };
+
+        $scope.getInputHTML= function(id, value) {
+            var inputHTML = '<div class="input-group">' +
+                                 '<input type="text" class="form-control" id="input-'+id+'" value="'+value+'"/>' +
+                                 '<label class="input-group-addon btn" for="input-'+id+'">' +
+                                    '<span class="fa fa-calendar"></span>' +
+                                '</label>' +
+                             '</div>';
+            return inputHTML;
+        };
+
+        $scope.getCalButtonHTML= function(id, value) {
+             var calHTML =  '<div class="col-sm-10">'+value+'</div>' +
+                            '<div class="col-sm-2">' +
+                               '<a href="" ng-click=createInputField('+id+',"'+value+'"\)>' +
+                                   '<span class="fa fa-calendar"></span>' +
+                               '</a>' +
+                           '</div>';
+
+             return calHTML;
+        };
+
+        $('body').on('focus',".input-group", function(){
+            if($scope.popOverID) {
+                $('#'+$scope.popOverID).popover('destroy');
+                $scope.popOverID = null;
+            }
+
+
+            // Get the user ID, which will be used in the PATCH and html transformation events
+            var userID = $(this).parent().attr('id');
+            var inputElement = $(this).find('input');
+            var previousValue = inputElement.val();
+
+            var dp = inputElement.datepicker({
+                autoclose: true,
+                todayHighlight: 1
+            });
+
+            // When the date picker window has been closed, validate the selected date and send PATCH
+            dp.on('hide', function() {
+                $scope.clearMessages();
+                var selectedDate = inputElement.val();
+
+                // Only begin the update call process if the selected date differs from the original value
+                if (selectedDate != previousValue) {
+                    // We only accept dates from today onward
+                    if ($scope.isSelectedDateInPast(selectedDate)) {
+                        // Set a .1 second delay before displaying error message.
+                        // When the datepicker is closed, it creates a click event which would close this display
+                        // before it is rendered.
+                        setTimeout(
+                            function() {
+                              $scope.addPopOverToCell(userID, 'failure', 'You can only pick a date in the future.');
+                            }, 100)
+                    } else {
+                        var roleID = $scope.peopleData[userID]['role']['role_id'];
+                        $scope.updateConcludeDate(userID, roleID, selectedDate);
+                    }
+                }
+                $scope.createCalButton(userID, selectedDate);
+            });
+
+        });
+
+
+        $(document).on('click', function() {
+            if($scope.popOverID) {
+                $('#'+$scope.popOverID).popover('destroy');
+                $scope.popOverID = null;
+            }
+        });
+
+
+        // Adds a popover to the given divID with the styling of the given type (success/failure)
+        // Popover will contain the given message
+        $scope.addPopOverToCell = function(divID, type, message) {
+            $scope.popOverID = divID;
+            var  messageType = (type == 'success') ?  'success' : 'danger';
+            var popOverTemplate = '<div class="popover popover-'+messageType+'" role="tooltip">' +
+                                       '<div class="arrow"></div>' +
+                                       '<h3 class="popover-title"></h3>' +
+                                       '<div class="popover-content"></div>' +
+                                   '</div>';
+
+            var popOverSettings = {
+                placement: 'top',
+                content: message,
+                delay: 100,
+                template: popOverTemplate
+            };
+
+            // Create the popover and show it
+            $('#'+divID).popover(popOverSettings).popover('show');
+        };
+
+        // Creates an input field in the given div ID
+        $scope.createInputField = function(divID, inputVal) {
+            inputVal = (typeof inputVal !== 'undefined') ? inputVal : '';
+            var input_group = $scope.getInputHTML(divID, inputVal);
+
+            $('#'+divID).html($compile(angular.element(input_group))($scope));
+
+            if(inputVal == '') {
+                // Focus on the new input field to generate the date picker
+                $('#'+divID).find('input').focus();
+            }
+        };
+
+        // Creates a calendar button for the given divID
+        $scope.createCalButton = function(divID, concludeDate) {
+            concludeDate = (typeof concludeDate !== 'undefined') ? concludeDate : '';
+            var cal_button = $scope.getCalButtonHTML(divID, concludeDate);
+
+            $('#'+divID).html($compile(angular.element(cal_button))($scope));
+        };
+
+        // Converts the mm/dd/yyyy date to a yyyy-MM-ddT00:00:01:00Z format
+        $scope.formatConcludeDate = function(date) {
+            var concludeDate = null;
+            if (date) {
+                concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T00:01:00Z';
+            }
+            return concludeDate;
+        };
+
+        // Checks if the given date is prior to today's date.
+        $scope.isSelectedDateInPast = function(selectedDate) {
+            // Since the input field is a string representation of a date,
+            // we need to convert today's date to the same format as a string to make the comparison.
+            var today = new Date();
+            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+        };
+
+        // Perform the PATCH with the given user ID, role_id, conclude_date
+        $scope.updateConcludeDate = function(userID, roleID, concludeDate) {
+            var patchData = {
+                'user_id': userID,
+                'role_id': roleID,
+                'conclude_date': $scope.formatConcludeDate(concludeDate)
+            };
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.courseInstanceId + '/people/' + userID + '/']);
+
+            $http.patch(url, patchData)
+                .success(function finalizeCourseDetailsPatch() {
+                    // If update is successful, then touch the course instance so the last_updated field is updated
+                    // so that changes will be picked up in feed
+                    $scope.updateCourseInstanceLastUpdated();
+                    // Reset the display to show conclude date and calendar button
+                    $scope.createCalButton(patchData['user_id'], concludeDate);
+                    $scope.addPopOverToCell(userID, 'success', 'The enrollment details have been updated.');
+                })
+                .error(function(data, status, headers, config, statusText) {
+                    $scope.handleAjaxError(data, status, headers, config, statusText);
+                    $scope.addPopOverToCell(userID, 'failure', 'An error occurred during the update.');
+                })
+        };
+
+        // Updates the current course instances 'last_updated' field to be the current date and time.
+        $scope.updateCourseInstanceLastUpdated = function() {
+            var url = djangoUrl.reverse('icommons_rest_api_proxy',
+                                        ['api/course/v2/course_instances/'
+                                         + $scope.courseInstanceId + '/']);
+            $http.patch(url);
+        };
+
         $scope.selectRole = function(role) {
             $scope.selectedRole = role;
         };
+
         $scope.setCourseInstance = function(id) {
             var ci = courseInstances.instances[id];
             if (angular.isDefined(ci)) {
@@ -578,6 +799,7 @@
                     .error($scope.handleAjaxError);
             }
         };
+
         $scope.showAddNewMemberResults = function() {
             /* Updates page with summary message and failure details after all
              add person operations are finished.
@@ -605,6 +827,7 @@
             }
             $scope.operationInProgress = false;
         };
+
         $scope.updateProgressBar = function(text) {
             /* Updates progress bar message with either `text` for a specific
              message or the progress of the add phase of the addPeopleToCourse
@@ -700,6 +923,9 @@
                 });
             },
             createdRow: function( row, data, dataIndex ) {
+                // Build a dict of the retrieved users, with the user_id as the key and their data as the values
+                $scope.peopleData[data['user_id']] = data;
+
                 // to use angular directives within the rendered datatable,
                 // we have to compile those elements ourselves.  joy.
                 $compile(angular.element(row).contents())($scope);
@@ -744,6 +970,12 @@
                 data: 'source',
                 render: $scope.renderSource,
                 title: 'Source',
+            },
+            {
+                data: 'source',
+                render: $scope.renderConcludeDate,
+                title: 'Conclusion Date Override',
+                orderable: false,
             },
             {
                 data: '',
