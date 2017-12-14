@@ -613,7 +613,7 @@
         $scope.getCalButtonHTML= function(id, value) {
              var calHTML =  '<div class="col-sm-10">'+value+'</div>' +
                             '<div class="col-sm-2">' +
-                               '<a href="" ng-click=createInputField('+id+',"'+value+'"\)>' +
+                               '<a href="" ng-click=createInputField("'+id+'","'+value+'"\)>' +
                                    '<span class="fa fa-calendar"></span>' +
                                '</a>' +
                            '</div>';
