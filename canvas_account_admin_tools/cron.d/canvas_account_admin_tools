@@ -1,2 +1,2 @@
-* * * * * deploy /var/opt/virtualenvs/canvas_account_admin_tools/bin/python /opt/tlt/canvas_account_admin_tools/manage.py process_async_jobs >> /var/opt/tlt/logs/cron-canvas_account_admin_tools.log 2>&1
-* * * * * deploy /var/opt/virtualenvs/canvas_account_admin_tools/bin/python /opt/tlt/canvas_account_admin_tools/manage.py finalize_bulk_create_jobs >> /var/opt/tlt/logs/cron-canvas_account_admin_tools.log 2>&1
+* * * * * deploy /home/deploy/.virtualenvs/canvas_account_admin_tools/bin/python /opt/django/canvas_account_admin_tools/manage.py process_async_jobs >> /var/opt/django/log/cron-canvas_account_admin_tools.log 2>&1
+* * * * * deploy /home/deploy/.virtualenvs/canvas_account_admin_tools/bin/python /opt/django/canvas_account_admin_tools/manage.py finalize_bulk_create_jobs >> /var/opt/django/log/cron-canvas_account_admin_tools.log 2>&1
