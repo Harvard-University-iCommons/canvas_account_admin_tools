@@ -1,5 +1,7 @@
 Django==1.8.17
-cx-Oracle==6.1
+#  Need to stay on 5.x branch for cx-Oracle due to deprecation of `numbersAsStrings` method
+#  used by Django's Oracle backend.   This appears to be fixed in Django 2.0.
+cx-Oracle==5.2.1
 boto==2.45.0
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
