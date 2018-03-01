@@ -247,11 +247,6 @@
             // creates a new remove user confirmation modal, and
             // stashes this membership object on the modal's child scope.
 
-            if (membership && membership.role &&
-                    membership.role.role_name == "Teaching Fellow") {
-                membership.role.role_name = "TA";
-            }
-
             $scope.confirmRemoveModalInstance = $uibModal.open({
                 controller: function($scope, membership) {
                     $scope.membership = membership;
@@ -374,9 +369,6 @@
             memberList.forEach(function(member) {
                 var memberCopy = angular.copy(member);
 
-                if (memberCopy.role && memberCopy.role.role_name == "Teaching Fellow") {
-                    memberCopy.role.role_name = "TA";
-                }
                 membersByUserId[memberCopy.user_id] =
                     (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
             });
@@ -563,13 +555,6 @@
 
         $scope.renderName = function(data, type, full, meta) {
             return $scope.getProfileFullName(full.profile) || full.user_id;
-        };
-
-        // hotfix added to address TA role name
-        // will be addressed with a database change as soon as
-        // devops determines viability of change
-        $scope.renderRole = function(data, type, full, meta) {
-            return /^Teaching Fellow$/.test(data) ? 'TA' : data;
         };
 
         $scope.renderRemove = function(data, type, full, meta) {
@@ -949,7 +934,6 @@
             serverSide: true,
         };
 
-        // see hotfix note above for renderRole
         $scope.dtColumns = [
             {
                 data: '',
@@ -963,7 +947,6 @@
             },
             {
                 data: 'role.role_name',
-                render: $scope.renderRole,
                 title: 'Role'
             },
             {
