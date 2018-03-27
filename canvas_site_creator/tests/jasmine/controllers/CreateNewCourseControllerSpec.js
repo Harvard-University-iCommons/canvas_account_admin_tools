@@ -453,19 +453,6 @@ describe('Unit testing CreateNewCourseController', function() {
         });
     });
 
-    describe('renderAssociatedSite', function(){
-        it('should set the correct values', function(){
-            scope.canvasCourse = {
-                id: 12345
-            };
-            window.globals.CANVAS_URL = 'someurl';
-            scope.newCourseInstance = {};
-            scope.renderAssociatedSite();
-            expect(scope.newCourseInstance.canvas_course_id).toBe(scope.canvasCourse.id);
-            expect(scope.newCourseInstance.canvas_course_url).toBe('someurl/courses/' +scope.canvasCourse.id);
-        });
-    });
-
     describe('postCourseSiteAndMap', function(){
         it('should create a site map with the right course information and ' +
             'set site_map_id on scope when finished', function () {
@@ -539,13 +526,11 @@ describe('Unit testing CreateNewCourseController', function() {
                 map_type : 'official'
             };
             spyOn(scope, 'handleAjaxErrorWithMessage');
-            spyOn(scope, 'renderAssociatedSite');
             scope.postSiteMap();
 
             $httpBackend.expectPOST(api.urls.site_maps, expectedPostData)
                 .respond(201, JSON.stringify(api.data.site_maps_post));
             $httpBackend.flush(1);
-            expect(scope.renderAssociatedSite).toHaveBeenCalled();
             expect(scope.courseCreationSuccessful).toBe(true);
             expect(scope.courseCreationInProgress).toBe(false);
             expect(scope.handleAjaxErrorWithMessage)

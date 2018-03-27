@@ -88,8 +88,6 @@
                     {data: 'registrar_code'},
                     {data: 'title'},
                     {data: 'course_section', className: 'col-align-center'},
-                    {data: 'associated_sites', orderable: false},
-                    {data: 'site_status', orderable: false},
                 ],
                 preDrawCallback: function(){
                     $scope.courseInstanceModel.dataLoading = true;

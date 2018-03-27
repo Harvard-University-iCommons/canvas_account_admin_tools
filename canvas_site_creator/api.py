@@ -339,9 +339,6 @@ def course_instances(request, sis_term_id, sis_account_id):
 
         query_set = get_course_instance_query_set(sis_term_id, sis_account_id)
         query_set = query_set.select_related('course')
-        # Added prefetch_related here to reduce hitting the database again later
-        # when we query for the associated iSites.
-        query_set = query_set.prefetch_related('sites')
 
         # Apply text search filter
         if search:
@@ -363,9 +360,6 @@ def course_instances(request, sis_term_id, sis_account_id):
 
         data = []
         for ci in query_set[start:(start + limit)]:
-            # Get associated iSites keywords and external URL if present(TLT-1578)
-            sites = [site.external_id for site in ci.sites.all() if site.site_type_id in ['isite', 'external']]
-            official = [site_map.map_type_id for site_map in ci.sitemap_set.all()]
             data.append({
                 'id': ci.course_instance_id,
                 'registrar_code': ci.course.registrar_code_display or
@@ -373,8 +367,6 @@ def course_instances(request, sis_term_id, sis_account_id):
                 'title': ci.title,
                 'course_section': ci.section,
                 'has_canvas_site': ci.canvas_course_id is not None,
-                'associated_sites': ', '.join(sites),
-                'site_status': ', '.join(official),
             })
 
         result['data'] = data
