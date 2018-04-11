@@ -42,8 +42,6 @@
                     {data: 'registrar_code'},
                     {data: 'title'},
                     {data: 'course_section', className: 'col-align-center'},
-                    {data: 'associated_sites'},
-                    {data: 'site_status'}
                 ],
                 preDrawCallback: function(){
                     $('#courseSelectionDT .remove-selection').off('click', $scope.handleRemoveSelection);

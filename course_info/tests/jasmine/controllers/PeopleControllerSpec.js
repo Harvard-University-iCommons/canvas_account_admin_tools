@@ -747,7 +747,7 @@ describe('Unit testing PeopleController', function() {
                 }];
             var result = scope.getMembersByUserId(memberList);
             var memberWithFixedRole = angular.copy(memberList[0]);
-            memberWithFixedRole.role.role_name = 'TA';
+            memberWithFixedRole.role.role_name = 'Teaching Fellow';
             expect(result).toEqual({
                 12345678: [memberWithFixedRole],
                 87654321: [memberList[1]]
