@@ -366,7 +366,15 @@
                 course_site : $scope.newCourseInstance.course_site_id,
                 map_type : 'official'
             };
-            $http.post(url, data);
+            $http.post(url, data).then(
+                function updateSiteMapAndFinish(){
+                    $scope.courseCreationSuccessful = true;
+                    $scope.courseCreationInProgress = false;
+                },function handleError(response) {
+                    $scope.handleAjaxErrorWithMessage(response,
+                        "There was a problem updating the Site Map Table. ");
+                }
+            );
         };
 
         $scope.handleAjaxErrorResponse = function(response) {
