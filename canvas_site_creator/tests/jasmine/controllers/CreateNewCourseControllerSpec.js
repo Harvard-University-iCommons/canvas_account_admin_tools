@@ -453,6 +453,20 @@ describe('Unit testing CreateNewCourseController', function() {
         });
     });
 
+    describe('renderAssociatedSite', function(){
+        it('should set the correct values', function(){
+            scope.canvasCourse = {
+                id: 12345
+            };
+            window.globals.CANVAS_URL = 'someurl';
+            scope.newCourseInstance = {};
+            scope.renderAssociatedSite();
+            expect(scope.newCourseInstance.canvas_course_id).toBe(scope.canvasCourse.id);
+            expect(scope.newCourseInstance.canvas_course_url).toBe('someurl/courses/' +scope.canvasCourse.id);
+        });
+    });
+
+
     describe('postCourseSiteAndMap', function(){
         it('should create a site map with the right course information and ' +
             'set site_map_id on scope when finished', function () {
