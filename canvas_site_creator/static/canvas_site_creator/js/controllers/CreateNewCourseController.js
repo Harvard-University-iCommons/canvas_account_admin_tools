@@ -376,6 +376,8 @@
             };
             $http.post(url, data).then(
                 function updateSiteMapAndFinish(){
+                    // If everything is successful, then update the canvas site link in the UI
+                    $scope.renderAssociatedSite();
                     $scope.courseCreationSuccessful = true;
                     $scope.courseCreationInProgress = false;
                 },function handleError(response) {
