@@ -1,6 +1,6 @@
 (function(){
     var app = angular.module('CrossListCourses',
-                             ['ngSanitize', 'ng.django.urls', 'ngRoute',
+                             ['ngSanitize', 'djng.urls', 'ngRoute',
                               'ui.bootstrap', 'datatables']);
     
     app.config(['$httpProvider', '$routeProvider',

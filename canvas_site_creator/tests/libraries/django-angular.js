@@ -410,7 +410,7 @@
      - djangoUrl.reverse('home', [user_id: 2]);
      - djangoUrl.reverse('home', [2]);
      */
-  var djngUrls = angular.module('ng.django.urls', []);
+  var djngUrls = angular.module('djng.urls', []);
   djngUrls.provider('djangoUrl', function djangoUrlProvider() {
     var reverseUrl = '/angular/reverse/';
     this.setReverseUrl = function (url) {
