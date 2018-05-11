@@ -63,7 +63,7 @@ INSTALLED_APPS = (
     'cross_list_courses',
     'django_auth_lti',
     'django_rq',
-    'djangular',
+    'djng',
     'icommons_common',
     'icommons_ui',
     'lti_permissions',
@@ -74,8 +74,8 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    # NOTE - djangular needs to be the first item in this list
-    'djangular.middleware.DjangularUrlMiddleware',
+    # NOTE - djng needs to be the first item in this list
+    'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,6 +85,8 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
 
 AUTHENTICATION_BACKENDS = (
     'django_auth_lti.backends.LTIAuthBackend',
@@ -273,12 +275,12 @@ LOGGING = {
     # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
     'root': {
         'level': logging.WARNING,
-        'handlers': ['default'],
+        'handlers': ['console', 'default'],
     },
     'loggers': {
         'django': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'bulk_utilities': {

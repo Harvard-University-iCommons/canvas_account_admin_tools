@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from django.conf.urls import include, url
 
 from icommons_ui import views as icommons_ui_views
@@ -18,3 +20,12 @@ urlpatterns = [
     url(r'^publish_courses/', include('publish_courses.urls', namespace='publish_courses')),
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
+
+if settings.DEBUG:
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except ImportError:
+        pass  # This is OK for a deployed instance running in DEBUG mode

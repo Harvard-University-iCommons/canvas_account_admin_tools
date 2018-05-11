@@ -8,7 +8,7 @@
        'LogErrorHandlerModule',    // logs AJAX errors to console consistently
        'PublishCoursesAPIModule',  // Django publish_courses app API helpers
        'TermDropdownDirective',    // Reusable Term Dropdown
-       'ng.django.urls',
+       'djng.urls',
        'ngRoute',
        'ngSanitize',
        'ui.bootstrap']);
