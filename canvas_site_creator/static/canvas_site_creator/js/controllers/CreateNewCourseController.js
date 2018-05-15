@@ -336,6 +336,14 @@
             );
         };
 
+        $scope.renderAssociatedSite = function(){
+             //update the associated site column in the UI
+             $scope.newCourseInstance.canvas_course_id = $scope.canvasCourse.id;
+             $scope.newCourseInstance.canvas_course_url =
+                 window.globals.CANVAS_URL + '/courses/'
+                 + $scope.canvasCourse.id;
+         };
+
         $scope.postCourseSiteAndMap = function(){
             var url = djangoUrl.reverse('icommons_rest_api_proxy',
                 ['api/course/v2/course_sites/']);
@@ -368,6 +376,8 @@
             };
             $http.post(url, data).then(
                 function updateSiteMapAndFinish(){
+                    // If everything is successful, then update the canvas site link in the UI
+                    $scope.renderAssociatedSite();
                     $scope.courseCreationSuccessful = true;
                     $scope.courseCreationInProgress = false;
                 },function handleError(response) {
