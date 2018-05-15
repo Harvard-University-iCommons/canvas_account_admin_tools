@@ -6,7 +6,7 @@
 # below are requirements specific to the local environment
 
 ddt==1.1.1
-django-debug-toolbar==1.5
+django-debug-toolbar==1.9
 django-sslserver==0.19
 mock==2.0.0
 pyvirtualdisplay==0.2.1

@@ -1,6 +1,6 @@
 (function () {
     var app = angular.module('app',
-                  ['ng.django.urls', 'ngSanitize', 'ui.bootstrap']);
+                  ['djng.urls', 'ngSanitize', 'ui.bootstrap']);
 
     app.config(function ($httpProvider) {
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
