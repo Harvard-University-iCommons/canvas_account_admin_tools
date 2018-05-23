@@ -374,7 +374,8 @@ PERMISSION_PUBLISH_COURSES = 'publish_courses'
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains
 # user role id's from the course manager database
-ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 15, 16]
+ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 18, 19,
+                                           20, 22, 23, 24, 25, 26, 27, 28]
 
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
