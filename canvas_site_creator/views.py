@@ -219,11 +219,11 @@ def course_selection(request):
     account = None
     department = {}
     if ci_filters['department']:
-        department = get_department_data_for_school(school['id'], ci_filters['department'])
+        department = get_department_data_for_school(school.school_id, ci_filters['department'])
         account = department
     course_group = {}
     if ci_filters['course_group']:
-        course_group = get_course_group_data_for_school(school['id'], ci_filters['course_group'])
+        course_group = get_course_group_data_for_school(school.school_id, ci_filters['course_group'])
         account = course_group
 
     if account:
