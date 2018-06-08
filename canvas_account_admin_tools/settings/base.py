@@ -328,11 +328,6 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
-        'icommons_common': {
-            'level': logging.DEBUG,
-            'handlers': ['default'],
-            'propagate': False,
-        },
 
     }
 }
