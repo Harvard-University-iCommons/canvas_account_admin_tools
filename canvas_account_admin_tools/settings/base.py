@@ -324,7 +324,7 @@ LOGGING = {
             'propagate': False,
         },
         'canvas_sdk': {
-            'level': logging.DEBUG,
+            'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
             'propagate': False,
         },
