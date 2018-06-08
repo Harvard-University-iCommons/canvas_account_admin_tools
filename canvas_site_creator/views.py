@@ -26,7 +26,6 @@ from .models import (
     get_course_job_summary_data
 )
 from .utils import (
-    get_school_data_for_user,
     get_term_data_for_school,
     get_department_data_for_school,
     get_course_group_data_for_school,
@@ -211,7 +210,6 @@ def course_selection(request):
         term = get_term_data(ci_filters['term'])
     except Exception as ex:
         logger.exception("Error retrieving school information for sis_account_id=%s" % sis_account_id)
-        logger.exception(ex.message)
         redirect('canvas_site_creator:index')
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
 
