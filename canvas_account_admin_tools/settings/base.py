@@ -323,6 +323,17 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'canvas_sdk': {
+            'level': logging.DEBUG,
+            'handlers': ['default'],
+            'propagate': False,
+        },
+        'icommons_common': {
+            'level': logging.DEBUG,
+            'handlers': ['default'],
+            'propagate': False,
+        },
+
     }
 }
 
