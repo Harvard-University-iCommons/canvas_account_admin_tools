@@ -1,5 +1,7 @@
 import logging
 import json
+import time
+
 
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -7,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.http import HttpResponse
 
 
 from canvas_course_site_wizard.models import BulkCanvasCourseCreationJob, \
@@ -23,7 +26,6 @@ from .models import (
     get_course_job_summary_data
 )
 from .utils import (
-    get_school_data_for_user,
     get_term_data_for_school,
     get_department_data_for_school,
     get_course_group_data_for_school,
@@ -46,6 +48,8 @@ def lti_auth_error(request):
 @lti_permission_required(canvas_api_accounts.ACCOUNT_PERMISSION_MANAGE_COURSES)
 @require_http_methods(['GET'])
 def index(request):
+    start_time = time.time()
+
     sis_account_id = request.LTI['custom_canvas_account_sis_id']
     ci_filters = {key: request.GET.get(key, '')
                   for key in COURSE_INSTANCE_FILTERS}
@@ -98,7 +102,7 @@ def index(request):
         'schools': schools,
         'terms': terms,
     }
-
+    logger.debug(" --------->Initial load of the Site creator view took : %s seconds" % (time.time() - start_time))
     return render(request, 'canvas_site_creator/index.html', context)
 
 
@@ -195,31 +199,38 @@ def audit(request):
 @lti_permission_required(canvas_api_accounts.ACCOUNT_PERMISSION_MANAGE_COURSES)
 @require_http_methods(['GET'])
 def course_selection(request):
-    canvas_user_id = request.LTI['custom_canvas_user_id']
     ci_filters = {key: request.GET.get(key, '') for key in COURSE_INSTANCE_FILTERS}
+    sis_account_id = request.LTI['custom_canvas_account_sis_id']
+    start_time = time.time()
 
+    # Fetch school data from DB instead of making api calls(causing timeouts for some users)
     try:
-        school = get_school_data_for_user(canvas_user_id, ci_filters['school'])
+        school_id = sis_account_id.split(':')[1]
+        school = School.objects.get(school_id=school_id)
         term = get_term_data(ci_filters['term'])
-    except KeyError:
+    except Exception as ex:
+        logger.exception("Error retrieving school information for sis_account_id=%s" % sis_account_id)
         redirect('canvas_site_creator:index')
-
-    (account_type, school_id) = canvas_api_accounts.parse_canvas_account_id(school['id'])
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
 
-    account = school
+    account = None
     department = {}
     if ci_filters['department']:
-        department = get_department_data_for_school(school['id'], ci_filters['department'])
+        department = get_department_data_for_school(sis_account_id, ci_filters['department'])
         account = department
     course_group = {}
     if ci_filters['course_group']:
-        course_group = get_course_group_data_for_school(school['id'], ci_filters['course_group'])
+        course_group = get_course_group_data_for_school(sis_account_id, ci_filters['course_group'])
         account = course_group
 
-    ci_query_set = get_course_instance_query_set(term['id'], account['id'])
+    if account:
+        ci_query_set = get_course_instance_query_set(term['id'], account['id'])
+    else:
+        # else pass in the school account id
+        ci_query_set = get_course_instance_query_set(term['id'], sis_account_id)
     course_instance_summary = get_course_instance_summary_data(ci_query_set)
 
+    logger.debug("\n\n--------->Initial load of the course_selection took : %s seconds" % (time.time() - start_time))
     return render(request, 'canvas_site_creator/course_selection.html', {
         'filters': ci_filters,
         'school': school,
@@ -235,18 +246,27 @@ def course_selection(request):
 @lti_permission_required(canvas_api_accounts.ACCOUNT_PERMISSION_MANAGE_COURSES)
 @require_http_methods(['GET'])
 def create_new_course(request):
+    start_time = time.time()
     canvas_user_id = request.LTI['custom_canvas_user_id']
     sis_account_id = request.LTI['custom_canvas_account_sis_id']
 
-    school = get_school_data_for_user(canvas_user_id, sis_account_id)
+    # Fetch school data from DB
+    try:
+        school_id = sis_account_id.split(':')[1]
+        school = School.objects.get(school_id=school_id)
+    except:
+        logger.exception("Error retrieving school information for sis_account_id=%s" % sis_account_id)
+        return HttpResponse(json.dumps({'error': 'retrieving school information for sis_account_id=%s' % sis_account_id}),
+                            content_type="application/json", status=500)
     if not school:
         return render(request, 'canvas_site_creator/restricted_access.html',
                       status=403)
 
-    school_id = school['id'].split(':')[1]
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
+
+    logger.debug("\n\n--------->Initial load of the create_new_course view took : %s seconds" % (time.time() - start_time))
     return render(request, 'canvas_site_creator/create_new_course.html',
-                  {'school_id': school_id, 'school_name': school['name'],
+                  {'school_id': school_id, 'school_name': school.title_short,
                    'canvas_site_templates': canvas_site_templates})
 
 @login_required
