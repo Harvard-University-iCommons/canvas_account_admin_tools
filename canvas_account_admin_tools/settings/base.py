@@ -323,6 +323,12 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'canvas_sdk': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
+
     }
 }
 
