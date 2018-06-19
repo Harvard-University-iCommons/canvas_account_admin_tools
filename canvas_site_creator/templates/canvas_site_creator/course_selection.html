@@ -35,14 +35,14 @@
             </strong>
         </p>
         <p>
-            {{ school.name }} <i class="fa fa-chevron-right"></i>
+            {{ school.title_short }} <i class="fa fa-chevron-right"></i>
             {{ term.name }}
             {% if department %}
             <small><i class="fa fa-chevron-right"></i></small> {{ department.name }}
             {% elif course_group %}
             <small><i class="fa fa-chevron-right"></i></small> {{ course_group.name }}
             {% endif %}
-            <a href="{% url 'canvas_site_creator:index' %}&school={{ school.id }}&term={{ term.id }}&department={{ department.id }}&course_group={{ course_group.id }}">
+            <a href="{% url 'canvas_site_creator:index' %}&school={{ school.school_id }}&term={{ term.id }}&department={{ department.id }}&course_group={{ course_group.id }}">
                 Edit Selection
             </a>
         </p>
