@@ -32,7 +32,7 @@ def lti_auth_error(request):
 
 
 @login_required
-# @lti_permission_required(settings.PERMISSION_BULK_COURSE_SETTING)
+@lti_permission_required(settings.PERMISSION_BULK_COURSE_SETTING)
 @require_http_methods(['GET'])
 def index(request):
     account_sis_id = request.LTI['custom_canvas_account_sis_id']

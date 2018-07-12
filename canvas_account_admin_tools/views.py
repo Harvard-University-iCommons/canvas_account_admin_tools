@@ -96,10 +96,8 @@ def dashboard_account(request):
     """
     verify that user has permissions to view the bulk course settings tool
     """
-    # temporarily using publish courses settings
     bulk_course_settings_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                        settings.PERMISSION_PUBLISH_COURSES,
-                                         # settings.PERMISSION_BULK_COURSE_SETTING,
+                                         settings.PERMISSION_BULK_COURSE_SETTING,
                                          canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
