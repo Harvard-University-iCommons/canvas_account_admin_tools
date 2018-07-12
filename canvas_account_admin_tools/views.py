@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
-    url = "%s://%s%s" % (request.scheme, request.get_host(),
-                         reverse('lti_launch', exclude_resource_link_id=True))
+    # url = "%s://%s%s" % (request.scheme, request.get_host(),
+    #                      reverse('lti_launch', exclude_resource_link_id=True))
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
+
     title = 'Admin Console'
     lti_tool_config = ToolConfig(
         title=title,
@@ -91,11 +93,21 @@ def dashboard_account(request):
                                           settings.PERMISSION_PUBLISH_COURSES,
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
+    """
+    verify that user has permissions to view the bulk course settings tool
+    """
+    # temporarily using publish courses settings
+    bulk_course_settings_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                        settings.PERMISSION_PUBLISH_COURSES,
+                                         # settings.PERMISSION_BULK_COURSE_SETTING,
+                                         canvas_account_sis_id=custom_canvas_account_sis_id)
+
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed':site_creator_is_allowed,
         'publish_courses_allowed':publish_courses_allowed,
+        'bulk_course_settings_is_allowed': bulk_course_settings_is_allowed,
 
     })
 

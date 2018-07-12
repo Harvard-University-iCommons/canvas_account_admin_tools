@@ -70,8 +70,10 @@ INSTALLED_APPS = (
     'people_tool',
     'proxy',
     'publish_courses',
+    'bulk_course_settings',
     'rest_framework'
 )
+
 
 MIDDLEWARE_CLASSES = (
     # NOTE - djng needs to be the first item in this list
@@ -318,6 +320,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'bulk_course_settings': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'rq.worker': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -375,6 +382,8 @@ PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
+PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
+
 
 
 # in search courses, when you add a person to a course. This list
