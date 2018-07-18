@@ -1,25 +1,14 @@
 import logging
-import json
 import time
 
 from django.conf import settings
 
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.http import HttpResponse
-
-
-from icommons_common.models import School, Term, Department, CourseGroup, Person
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
-
-from lti_permissions.decorators import lti_permission_required
-from lti_permissions.verification import get_school_sub_account_from_account_id
-
-
+from django.views import generic
+from icommons_common.auth.views import (LoginRequiredMixin)
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 
 
 logger = logging.getLogger(__name__)
@@ -31,10 +20,18 @@ def lti_auth_error(request):
     raise PermissionDenied
 
 
-@login_required
-@lti_permission_required(settings.PERMISSION_BULK_COURSE_SETTING)
-@require_http_methods(['GET'])
-def index(request):
-    account_sis_id = request.LTI['custom_canvas_account_sis_id']
-    context = {'school': account_sis_id[len('school:'):]}
-    return render(request, 'bulk_course_settings/index.html', context)
+class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
+    model = BulkCourseSettingsJob
+    template_name = 'bulk_course_settings/bulk_settings_list.html'
+    context_object_name = 'bulk_settings_list'
+    queryset = BulkCourseSettingsJob.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(BulkSettingsListView, self).get_context_data(**kwargs)
+        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
+        context['account_sis_id'] = account_sis_id
+        return context
+
+
+class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
+    form_class = ""
