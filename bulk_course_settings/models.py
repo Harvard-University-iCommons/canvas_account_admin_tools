@@ -21,8 +21,6 @@ class BulkCourseSettingsJob(models.Model):
         ('QUOTA', 'Course Quota'),
     )
 
-
-    id = models.IntegerField(primary_key=True)
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
     setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='Course Visibility')
@@ -39,7 +37,6 @@ class BulkCourseSettingsJobDetails(models.Model):
     """
     details for each bulk course settings job run
     """
-    id = models.IntegerField(primary_key=True)
     parent_job_process_id = models.ForeignKey(BulkCourseSettingsJob, on_delete=models.CASCADE)
     canvas_course_id = models.IntegerField(null=True, blank=True)
     current_setting_value = models.CharField(max_length=20, null=True, blank=True)
