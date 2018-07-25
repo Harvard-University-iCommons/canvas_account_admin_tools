@@ -1,7 +1,9 @@
 import logging
 from django.db import models
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
+
 
 class BulkCourseSettingsJob(models.Model):
     """
@@ -31,6 +33,10 @@ class BulkCourseSettingsJob(models.Model):
     updated_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse('bulk_course_settings:bulk_settings_list')
+
 
 class BulkCourseSettingsJobDetails(models.Model):
     """

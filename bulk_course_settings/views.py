@@ -8,7 +8,6 @@ from django.views.generic.edit import CreateView
 from icommons_common.auth.views import (LoginRequiredMixin)
 from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from bulk_course_settings.forms import (CreateBulkSettingsForm)
-from icommons_common.models import Term, TermCode, School
 from .utils import get_term_data_for_school
 
 from django.http import HttpResponseRedirect
@@ -21,7 +20,6 @@ from bulk_course_settings.utils import queue_bulk_settings_job
 
 logger = logging.getLogger(__name__)
 JOB_QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
-
 
 
 def lti_auth_error(request):
@@ -40,14 +38,13 @@ class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
         context['account_sis_id'] = account_sis_id
         return context
 
+
 class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
 
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
     context_object_name = 'create_new_setting'
-    # action = 'created'
     model = BulkCourseSettingsJob
-    #terms, current_term_id = get_term_data_for_school(account_sis_id)
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
