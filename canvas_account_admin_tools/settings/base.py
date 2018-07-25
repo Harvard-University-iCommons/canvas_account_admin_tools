@@ -382,7 +382,7 @@ PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
-PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
+PERMISSION_BULK_COURSE_SETTING = 'publish_courses'
 
 
 
@@ -401,6 +401,16 @@ BULK_COURSE_CREATION = {
                                'course sites were created successfully.\n',
     'notification_email_body_failed_count': ' - {} course sites were not '
                                             'created.',
+}
+
+
+BULK_COURSE_SETTINGS = {
+    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
+    's3_bucket': SECURE_SETTINGS.get('bulk_course_settings_s3_bucket', ''),
+    'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
+    'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
+    'job_queue_name': SECURE_SETTINGS.get('job_queue_name', 'uw-bulk-settings-queue-dev'),
+
 }
 
 CANVAS_EMAIL_NOTIFICATION = {
