@@ -1,7 +1,6 @@
 Django==1.11.13
 cx-Oracle==6.1
 boto==2.45.0
-boto3==1.7.58
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
 # new copies of django-angular[.min].js.

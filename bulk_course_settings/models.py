@@ -1,5 +1,4 @@
 import logging
-
 from django.db import models
 
 logger = logging.getLogger(__name__)
@@ -49,3 +48,5 @@ class BulkCourseSettingsJobDetails(models.Model):
     updated_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+

@@ -403,16 +403,6 @@ BULK_COURSE_CREATION = {
                                             'created.',
 }
 
-
-BULK_COURSE_SETTINGS = {
-    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
-    's3_bucket': SECURE_SETTINGS.get('bulk_course_settings_s3_bucket', ''),
-    'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
-    'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
-    'job_queue_name': SECURE_SETTINGS.get('job_queue_name', 'uw-bulk-settings-queue-dev'),
-
-}
-
 CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address': 'icommons-bounces@harvard.edu',
     'support_email_address': 'tlt_support@harvard.edu',

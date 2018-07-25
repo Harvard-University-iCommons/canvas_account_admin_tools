@@ -4,13 +4,19 @@ from django.conf import settings
 
 from django.core.exceptions import PermissionDenied
 from django.views import generic
+from django.views.generic.edit import CreateView
+from icommons_common.auth.views import (LoginRequiredMixin)
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
+from bulk_course_settings.forms import (CreateBulkSettingsForm)
+from icommons_common.models import Term, TermCode, School
+from .utils import get_term_data_for_school
+
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
 from icommons_common.auth.views import (LoginRequiredMixin)
 from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from bulk_course_settings.utils import queue_bulk_settings_job
-
 
 
 logger = logging.getLogger(__name__)
@@ -34,10 +40,21 @@ class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
         context['account_sis_id'] = account_sis_id
         return context
 
-
 class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
-    form_class = ""
 
+    form_class = CreateBulkSettingsForm
+    template_name = 'bulk_course_settings/create_new_setting.html'
+    context_object_name = 'create_new_setting'
+    # action = 'created'
+    model = BulkCourseSettingsJob
+    #terms, current_term_id = get_term_data_for_school(account_sis_id)
+
+    def get_context_data(self, **kwargs):
+        context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
+        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
+        context['account_sis_id'] = account_sis_id
+        context['terms'] = get_term_data_for_school(account_sis_id)
+        return context
 
 
 def add_bulk_job(request):
@@ -54,3 +71,4 @@ def add_bulk_job(request):
                                 job.setting_to_be_modified)
 
     return HttpResponseRedirect(reverse('bulk_course_settings:bulk_settings_list'))
+
