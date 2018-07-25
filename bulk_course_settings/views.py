@@ -53,6 +53,9 @@ class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
         context['terms'] = get_term_data_for_school(account_sis_id)
         return context
 
+class BulkSettingsRevertView(LoginRequiredMixin, generic.edit.CreateView):
+    form_class = ""
+
 
 def add_bulk_job(request):
 

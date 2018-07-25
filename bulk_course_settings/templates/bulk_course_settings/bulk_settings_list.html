@@ -25,9 +25,7 @@
 			});
 		});
 	</script>
-
 {% endblock js %}
-
 
 {% block body %}
 <body role="application">
@@ -37,7 +35,7 @@
             <h3 class="breadcrumbs">
                 <a href="{% url 'dashboard_account' %}">Admin Console</a>
                 <small><i class="fa fa-chevron-right"></i></small>
-                Manage Bulk Course Settings>
+                Manage Bulk Course Settings
             </h3>
         </header>
         <div class="row">
@@ -54,29 +52,25 @@
         </div>
         <div class="row"><h4>Audit Log:</h4> <div>
 
-
         <table class="datatable table table-striped table-bordered">
-
-        <thead>
-            <th>School</th>
-            <th>Term</th>
-             <th>Setting Modified</th>
-        <th>Desired Setting</th>
-        </thead>
-        <tbody>
-        {% for item  in bulk_settings_list %}
-
-			<tr>
-				<td>{{ item.school_id }}</td>
-				<td>{{ item.term_id }}</td>
-				<td>{{ item.setting_to_be_modified }}</td>
-				<td>{{ item.desired_setting }}</td>
-
-			</tr>
-
-		{% endfor %}
-        </tbody>
-    </table>
+            <thead>
+                <th>School</th>
+                <th>Term</th>
+                <th>Setting Modified</th>
+            <th>Desired Setting</th>
+            </thead>
+            <tbody>
+            {% for item  in bulk_settings_list %}
+                <tr>
+                    <td>{{ item.school_id }}</td>
+                    <td>{{ item.term_id }}</td>
+                    <td>{{ item.setting_to_be_modified }}</td>
+                    <td>{{ item.desired_setting }}</td>
+                    <td><a href="{% url 'bulk_course_settings:revert_setting' %}" class="btn btn-primary">Revert Setting</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
 
     </div>
 
