@@ -382,7 +382,7 @@ PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
-PERMISSION_BULK_COURSE_SETTING = 'publish_courses'
+PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 
 
 
