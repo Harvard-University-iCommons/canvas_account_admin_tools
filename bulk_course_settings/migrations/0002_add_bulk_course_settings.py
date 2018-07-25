@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -18,11 +17,16 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BulkCourseSettingsJob',
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('school_id', models.CharField(max_length=10)),
                 ('term_id', models.IntegerField(blank=True, null=True)),
-                ('setting_to_be_modified', models.CharField(choices=[(b'COURSE_VISIBILITY', b'Course Visibility'), (b'SYLLABUS_VISIBILITY', b'Syllabus Visibility'), (b'QUOTA', b'Course Quota')], default=b'Course Visibility', max_length=20)),
-                ('desired_setting', models.CharField(choices=[(b'COURSE', b'course'), (b'INSTITUTION', b'Harvard'), (b'PUBLIC', b'public')], default=b'course', max_length=11)),
+                ('setting_to_be_modified', models.CharField(choices=[(b'COURSE_VISIBILITY', b'Course Visibility'),
+                                                                     (b'SYLLABUS_VISIBILITY', b'Syllabus Visibility'),
+                                                                     (b'QUOTA', b'Course Quota')],
+                                                            default=b'Course Visibility', max_length=20)),
+                ('desired_setting', models.CharField(
+                    choices=[(b'COURSE', b'course'), (b'INSTITUTION', b'Harvard'), (b'PUBLIC', b'public')],
+                    default=b'course', max_length=11)),
                 ('workflow_status', models.CharField(max_length=20)),
                 ('parent_process_id', models.IntegerField(null=True)),
                 ('created_by', models.CharField(max_length=15)),
@@ -34,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BulkCourseSettingsJobDetails',
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('canvas_course_id', models.IntegerField(blank=True, null=True)),
                 ('current_setting_value', models.CharField(blank=True, max_length=20, null=True)),
                 ('current_course_attributes', models.CharField(max_length=200)),
@@ -45,7 +49,8 @@ class Migration(migrations.Migration):
                 ('updated_by', models.CharField(max_length=15)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now_add=True)),
-                ('parent_job_process_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='bulk_course_settings.BulkCourseSettingsJob')),
+                ('parent_job_process_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                            to='bulk_course_settings.BulkCourseSettingsJob')),
             ],
         ),
     ]
