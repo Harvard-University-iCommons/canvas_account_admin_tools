@@ -1,11 +1,8 @@
 import logging
-import time
 
 from django.conf import settings
 
 from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-from django.http import HttpResponse
 from django.views import generic
 from django.views.generic.edit import CreateView
 from icommons_common.auth.views import (LoginRequiredMixin)
@@ -14,9 +11,17 @@ from bulk_course_settings.forms import (CreateBulkSettingsForm)
 from icommons_common.models import Term, TermCode, School
 from .utils import get_term_data_for_school
 
-logger = logging.getLogger(__name__)
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
-COURSE_INSTANCE_FILTERS = ['school', 'term', 'department', 'course_group']
+from icommons_common.auth.views import (LoginRequiredMixin)
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
+from bulk_course_settings.utils import queue_bulk_settings_job
+
+
+logger = logging.getLogger(__name__)
+JOB_QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
+
 
 
 def lti_auth_error(request):
@@ -51,10 +56,19 @@ class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
         context['terms'] = get_term_data_for_school(account_sis_id)
         return context
 
-#class BulkSettingsTermView(LoginRequiredMixin, generic.ListView):
-#    model = Term
-#    template_name = 'bulk_course_settings/term_code.html'
-#    context_object_name = 'term_code'
-#    queryset = Term.objects.all()
 
+def add_bulk_job(request):
+
+    # invoke method to add to sqs
+    queryset = BulkCourseSettingsJob.objects.all()
+    for job in queryset:
+        logger.debug(
+            "job.school_id=%s, job.setting_to_be_modifiedd=%s "
+            % (job.school_id, job.setting_to_be_modified))
+        print job.school_id+",job.setting_to_be_modified="+job.setting_to_be_modified
+
+        queue_bulk_settings_job(JOB_QUEUE_NAME, job.id, job.school_id, job.term_id,
+                                job.setting_to_be_modified)
+
+    return HttpResponseRedirect(reverse('bulk_course_settings:bulk_settings_list'))
 

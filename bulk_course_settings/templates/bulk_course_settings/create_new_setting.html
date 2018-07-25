@@ -9,7 +9,7 @@
 <form action="" method="post">{% csrf_token %}
 
 {{ form.as_p }}
-<select name="term" id="term" class="form-control">
+<select name="term_id" id="id_term_id" class="form-control">
 {% for term  in terms %}
    <option value="{{ term.id }}">{{term.name}}</option>
 {% endfor %}
