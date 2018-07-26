@@ -1,22 +1,17 @@
 import logging
 
 from django.conf import settings
-
 from django.core.exceptions import PermissionDenied
-from django.views import generic
-from django.views.generic.edit import CreateView
-from icommons_common.auth.views import (LoginRequiredMixin)
-from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
-from bulk_course_settings.forms import (CreateBulkSettingsForm)
-from .utils import get_term_data_for_school
-
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.views import generic
+from django.views.generic.edit import FormView, CreateView
 
-from icommons_common.auth.views import (LoginRequiredMixin)
-from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
+from bulk_course_settings.forms import (CreateBulkSettingsForm)
+from bulk_course_settings.models import BulkCourseSettingsJob
 from bulk_course_settings.utils import queue_bulk_settings_job
-
+from icommons_common.auth.views import (LoginRequiredMixin)
+from .utils import get_term_data_for_school
 
 logger = logging.getLogger(__name__)
 JOB_QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
@@ -39,7 +34,7 @@ class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
+class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
 
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
@@ -52,6 +47,12 @@ class BulkSettingsCreateView(LoginRequiredMixin, generic.edit.CreateView):
         context['account_sis_id'] = account_sis_id
         context['terms'] = get_term_data_for_school(account_sis_id)
         return context
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        form.instance.updated_by = self.request.user
+        return super(BulkSettingsCreateView, self).form_valid(form)
+
 
 class BulkSettingsRevertView(LoginRequiredMixin, generic.edit.CreateView):
     form_class = ""
