@@ -1,28 +1,19 @@
-import logging
 import json
-import boto3
-
-
-from botocore.exceptions import ClientError
-
-logger = logging.getLogger(__name__)
-
-
+import logging
 from datetime import datetime
 
+import boto3
+from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
-from canvas_sdk.utils import get_all_list_data
-from canvas_sdk.methods import courses as canvas_api_courses
-
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts_helper
-from icommons_common.models import Term
-
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
-
+from canvas_sdk.methods import courses as canvas_api_courses
+from canvas_sdk.utils import get_all_list_data
+from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts_helper
+from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +39,7 @@ def get_school_data_for_user(canvas_user_id, school_sis_account_id=None):
             schools.append(school)
     return schools
 
+
 def get_school_data_for_sis_account_id(school_sis_account_id):
     school = None
     if not school_sis_account_id:
@@ -64,6 +56,7 @@ def get_school_data_for_sis_account_id(school_sis_account_id):
         if school_sis_account_id == sis_account_id:
             return school
     return school
+
 
 def get_term_data(term_id):
     term = Term.objects.get(term_id=int(term_id))
@@ -99,6 +92,7 @@ def get_term_data_for_school(school_sis_account_id):
             'name': term.display_name
         })
     return terms
+
 
 def get_department_data_for_school(school_sis_account_id, department_sis_account_id=None):
     """
@@ -199,7 +193,6 @@ def get_canvas_site_template(school_id, template_canvas_course_id):
     return None
 
 
-
 boto3.set_stream_logger('')
 aws_region_name = settings.BULK_COURSE_SETTINGS['aws_region_name']
 aws_access_key_id = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
@@ -225,7 +218,7 @@ except Exception as e:
 
 def queue_bulk_settings_job(queue_name, bulk_settings_id, school_id, term_id, setting_to_be_modified):
     logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s "
-                 %(bulk_settings_id,school_id, term_id, setting_to_be_modified ))
+                 % (bulk_settings_id, school_id, term_id, setting_to_be_modified))
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     message = queue.send_message(
         MessageBody='_'.join(['msg_body', str(bulk_settings_id)]),
