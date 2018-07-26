@@ -29,8 +29,6 @@ class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsListView, self).get_context_data(**kwargs)
-        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
-        context['account_sis_id'] = account_sis_id
         return context
 
 
