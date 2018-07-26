@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class BulkCourseSettingsJob(models.Model):
     """
-    master table to manage bulk changes to course settings
+    Master table to manage bulk changes to course settings
     """
 
     DESIRED_VISIBILITY_CHOICES = (
@@ -22,19 +22,26 @@ class BulkCourseSettingsJob(models.Model):
         ('QUOTA', 'Course Quota'),
     )
 
+    WORKFLOW_STATUS = (
+        ('IN_PROGRESS', 'In progress'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed')
+    )
+
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
     setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='Course Visibility')
     #current_setting_state = models.CharField(max_length=11, null=True, blank=True)
     desired_setting = models.CharField(max_length=11, choices=DESIRED_VISIBILITY_CHOICES, default='course')
-    workflow_status= models.CharField(max_length=20)
+    workflow_status= models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='IN_PROGRESS')
     parent_process_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
     updated_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
-    def get_absolute_url(self):
+    @staticmethod
+    def get_absolute_url():
         return reverse('bulk_course_settings:bulk_settings_list')
 
 
