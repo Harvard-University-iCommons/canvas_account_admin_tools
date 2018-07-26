@@ -7,21 +7,29 @@
 
 <body role="application">
 
-   <form action="" method="post">{% csrf_token %}
+<h2 style="padding-bottom: 2em">Create a new bulk course setting</h2>
 
-      <strong>Setting to change: </strong> {{ form.setting_to_be_modified }}
-      <strong>Target value: </strong> {{ form.desired_setting }}
+<form action="" method="post">{% csrf_token %}
+    <div class="col-sm-2">
+        <strong>Term: </strong>
+        <select name="term_id" id="id_term_id" class="form-control">
+            {% for term  in terms %}
+            <option value="{{ term.id }}">{{term.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-      <strong>Term: </strong>
-      <select name="term_id" id="id_term_id" class="form-control">
-         {% for term  in terms %}
-         <option value="{{ term.id }}">{{term.name}}</option>
-         {% endfor %}
-      </select>
+    <div class="col-sm-2">
+        <strong>Setting to change: </strong> {{ form.setting_to_be_modified }}
+    </div>
 
-      <input type='hidden' name="school_id" value="{{ account_sis_id }}" />
-      <input type="submit" class="btn btn-primary" value="Submit" />
-   </form>
+    <div class="col-sm-2">
+        <strong>Target value: </strong> {{ form.desired_setting }}
+    </div>
+
+    <input type='hidden' name="school_id" value="{{ account_sis_id }}" />
+    <input type="submit" class="btn btn-primary" style="margin-top: 1em" value="Submit" />
+</form>
 
 </body>
 
