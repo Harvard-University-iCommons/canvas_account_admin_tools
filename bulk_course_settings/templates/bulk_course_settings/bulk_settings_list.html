@@ -62,7 +62,7 @@
             <tbody>
             {% for item  in bulk_settings_list %}
                 <tr>
-                    <td>{{ item.term_id }}</td>
+                    <td>{{ item.get_term_name }}</td>
                     <td>{{ item.get_setting_to_be_modified_display }}</td>
                     <td>{{ item.get_desired_setting_display }}</td>
                     <td>{{ item.get_workflow_status_display }}</td>

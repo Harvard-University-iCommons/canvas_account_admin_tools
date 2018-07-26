@@ -1,6 +1,7 @@
 import logging
 from django.db import models
 from django.urls import reverse
+import utils
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,9 @@ class BulkCourseSettingsJob(models.Model):
     @staticmethod
     def get_absolute_url():
         return reverse('bulk_course_settings:bulk_settings_list')
+
+    def get_term_name(self):
+        return utils.get_term_data(self.term_id)['name']
 
 
 class BulkCourseSettingsJobDetails(models.Model):
