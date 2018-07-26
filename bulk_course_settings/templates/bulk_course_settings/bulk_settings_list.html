@@ -54,18 +54,18 @@
 
         <table class="datatable table table-striped table-bordered">
             <thead>
-                <th>School</th>
                 <th>Term</th>
                 <th>Setting Modified</th>
-            <th>Desired Setting</th>
+                <th>Desired Setting</th>
+                <th>Status</th>
             </thead>
             <tbody>
             {% for item  in bulk_settings_list %}
                 <tr>
-                    <td>{{ item.school_id }}</td>
                     <td>{{ item.term_id }}</td>
-                    <td>{{ item.setting_to_be_modified }}</td>
-                    <td>{{ item.desired_setting }}</td>
+                    <td>{{ item.get_setting_to_be_modified_display }}</td>
+                    <td>{{ item.get_desired_setting_display }}</td>
+                    <td>{{ item.get_workflow_status_display }}</td>
                     <td><a href="{% url 'bulk_course_settings:revert_setting' %}" class="btn btn-primary">Revert Setting</a></td>
                 </tr>
             {% endfor %}
