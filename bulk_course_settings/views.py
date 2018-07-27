@@ -43,6 +43,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
         account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
         context['account_sis_id'] = account_sis_id
+        context['school_id'] = account_sis_id.split(':')[1]
         context['terms'] = get_term_data_for_school(account_sis_id)
         return context
 
@@ -50,7 +51,6 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
         form.instance.created_by = self.request.user
         form.instance.updated_by = self.request.user
         return super(BulkSettingsCreateView, self).form_valid(form)
-
 
 class BulkSettingsRevertView(LoginRequiredMixin, generic.edit.CreateView):
     form_class = ""
