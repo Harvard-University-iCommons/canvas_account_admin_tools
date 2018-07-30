@@ -1,7 +1,10 @@
 import logging
 from django.db import models
 from django.urls import reverse
-import utils
+
+# from bulk_course_settings.utils import get_term_data
+from icommons_common.models import Term
+
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +28,7 @@ class BulkCourseSettingsJob(models.Model):
 
     WORKFLOW_STATUS = (
         ('IN_PROGRESS', 'In progress'),
+        ('QUEUED', 'Queued'),
         ('COMPLETED', 'Completed'),
         ('FAILED', 'Failed')
     )
@@ -46,7 +50,7 @@ class BulkCourseSettingsJob(models.Model):
         return reverse('bulk_course_settings:bulk_settings_list')
 
     def get_term_name(self):
-        return utils.get_term_data(self.term_id)['name']
+        return get_term_data(self.term_id)['name']
 
 
 class BulkCourseSettingsJobDetails(models.Model):
@@ -67,3 +71,9 @@ class BulkCourseSettingsJobDetails(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
 
+def get_term_data(term_id):
+    term = Term.objects.get(term_id=int(term_id))
+    return {
+        'id': str(term.term_id),
+        'name': term.display_name,
+    }

@@ -5,20 +5,41 @@ from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
 from django.conf import settings
-from django.core.cache import cache
 from django.utils import timezone
 
-from canvas_course_site_wizard.models import CanvasSchoolTemplate
-from canvas_sdk.methods import courses as canvas_api_courses
-from canvas_sdk.utils import get_all_list_data
+from .models import BulkCourseSettingsJob
+
 from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts_helper
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import Term
+
 
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 CACHE_KEY_CANVAS_SITE_TEMPLATES_BY_SCHOOL_ID = "canvas-site-templates-by-school-id_%s"
+
+boto3.set_stream_logger('')
+aws_region_name = settings.BULK_COURSE_SETTINGS['aws_region_name']
+aws_access_key_id = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
+aws_secret_access_key = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
+
+
+kw = {'aws_access_key_id': aws_access_key_id,
+      'aws_secret_access_key': aws_secret_access_key,
+      'region_name':  aws_region_name
+}
+
+
+try:
+    sqs = boto3.resource('sqs', **kw)
+
+except ClientError as e:
+    logger.error('Error configuring sqs client: %s', e, exc_info=True)
+    raise
+except Exception as e:
+    logger.exception('Error configuring sqs')
+    raise
 
 
 def get_school_data_for_user(canvas_user_id, school_sis_account_id=None):
@@ -94,128 +115,6 @@ def get_term_data_for_school(school_sis_account_id):
     return terms
 
 
-def get_department_data_for_school(school_sis_account_id, department_sis_account_id=None):
-    """
-    get sub accounts where sis_account_id starts with dept
-    :param school_sis_account_id:
-    :param department_sis_account_id:
-    :return:
-    """
-    departments = []
-    school_sis_account_id = 'sis_account_id:{}'.format(school_sis_account_id)
-    accounts = canvas_api_accounts_helper.get_all_sub_accounts_of_account(
-        school_sis_account_id)
-    for account in accounts:
-        account_id = account['sis_account_id']
-        if account_id and account_id.lower().startswith('dept:'):
-            department = {
-                'id': account_id.lower(),
-                'name': account['name']
-            }
-            if department_sis_account_id and department_sis_account_id == account_id:
-                return department
-            else:
-                departments.append(department)
-    return sorted(departments, key=lambda k: k['name'])
-
-
-def get_course_group_data_for_school(school_sis_account_id, course_group_sis_account_id=None):
-    """
-    get sub accounts where sis_account_id starts with coursegroup
-    :param school_sis_account_id:
-    :param course_group_sis_account_id:
-    :return:
-    """
-    course_groups = []
-    school_sis_account_id = 'sis_account_id:{}'.format(school_sis_account_id)
-    accounts = canvas_api_accounts_helper.get_all_sub_accounts_of_account(
-        school_sis_account_id)
-    for account in accounts:
-        account_id = account['sis_account_id']
-        if account_id and account_id.lower().startswith('coursegroup:'):
-            course_group = {
-                'id': account_id.lower(),
-                'name': account['name']
-            }
-            if course_group_sis_account_id and course_group_sis_account_id == account_id:
-                return course_group
-            else:
-                course_groups.append(course_group)
-    # Sort the resulting course group list by its name
-    return sorted(course_groups, key=lambda k: k['name'])
-
-
-def get_canvas_site_templates_for_school(school_id):
-    """
-    Get the Canvas site templates for the given school. First check the cache, if not found construct
-    the Canvas site template dictionairy list by querying CanvasSchoolTemplate and the courses Canvas API
-    to get the Canvas template site name.
-
-    :param school_id:
-    :return: List of dicts containing data for Canvas site templates for the given school
-    """
-    cache_key = CACHE_KEY_CANVAS_SITE_TEMPLATES_BY_SCHOOL_ID % school_id
-    templates = cache.get(cache_key)
-    if templates is None:
-        templates = []
-        for t in CanvasSchoolTemplate.objects.filter(school_id=school_id):
-            canvas_course_id = t.template_id
-            course = get_all_list_data(
-                SDK_CONTEXT,
-                canvas_api_courses.get_single_course_courses,
-                canvas_course_id,
-                None
-            )
-            templates.append({
-                'canvas_course_name': course['name'],
-                'canvas_course_id': canvas_course_id,
-                'canvas_course_url': "%s/courses/%d" % (settings.CANVAS_URL, canvas_course_id),
-                'is_default': t.is_default
-            })
-
-        logger.debug("Caching canvas site templates for school_id %s %s", school_id, json.dumps(templates))
-        cache.set(cache_key, templates)
-
-    return templates
-
-
-def get_canvas_site_template(school_id, template_canvas_course_id):
-    """
-    Get the Canvas site template given the school and the Canvas template site canvas course id.
-
-    :param school_id:
-    :param template_canvas_course_id:
-    :return: Dict containing data for the Canvas site template
-    """
-    for t in get_canvas_site_templates_for_school(school_id):
-        if t['canvas_course_id'] == template_canvas_course_id:
-            return t
-    return None
-
-
-boto3.set_stream_logger('')
-aws_region_name = settings.BULK_COURSE_SETTINGS['aws_region_name']
-aws_access_key_id = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
-aws_secret_access_key = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
-
-
-kw = {'aws_access_key_id': aws_access_key_id,
-      'aws_secret_access_key': aws_secret_access_key,
-      'region_name':  aws_region_name
-}
-
-
-try:
-    sqs = boto3.resource('sqs', **kw)
-
-except ClientError as e:
-    logger.error('Error configuring sqs client: %s', e, exc_info=True)
-    raise
-except Exception as e:
-    logger.exception('Error configuring sqs')
-    raise
-
-
 def queue_bulk_settings_job(queue_name, bulk_settings_id, school_id, term_id, setting_to_be_modified):
     logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s "
                  % (bulk_settings_id, school_id, term_id, setting_to_be_modified))
@@ -245,3 +144,58 @@ def queue_bulk_settings_job(queue_name, bulk_settings_id, school_id, term_id, se
     logger.debug(json.dumps(message, indent=2))
     return message['MessageId']
 
+
+def process_queue(queue_name):
+    logger.debug(" in process_queue ....00")
+
+    try:
+        queue = sqs.get_queue_by_name(QueueName=queue_name)
+
+        messages = queue.receive_messages(
+            MaxNumberOfMessages=10,
+            MessageAttributeNames=['All'],
+            AttributeNames=['All'],
+            WaitTimeSeconds=20,
+        )
+
+        if messages:
+            logger.debug(len(messages))
+            for message in messages:
+                if message:
+                    handle_message(message)
+    except Exception as e:
+        print e
+        logger.error('failed to get queue %s', queue_name)
+        return False
+
+
+def handle_message(message):
+        try:
+            logger.info(message)
+            m_attrs = message.attributes
+            print "m_attrs=", m_attrs
+            logger.info('message_attributes: %s', message.message_attributes)
+            logger.info('body: %s', message.body)
+            logger.info('message_id: %s', message.message_id)
+            school_id = message.message_attributes['school_id']['StringValue']
+            bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
+            logger.info('received message %s for school %s', message.message_id, school_id)
+
+            if bulk_settings_id:
+
+                bulk_course_setting_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
+                bulk_course_setting_job.workflow_status='Queued'
+                bulk_course_setting_job.save(update_fields=['workflow_status'])
+
+                # delete the message from the queue so nobody else processes it
+                logger.info("deleting msg from queue.....")
+                message.delete()
+
+        except Exception as e:
+            # put the message back on the queue
+            logger.exception('Exception caught; re-queueing message %s', message.message_id)
+            bulk_course_setting_job.workflow_status='Error'
+            bulk_course_setting_job.save(update_fields=['workflow_status'])
+            message.change_visibility(VisibilityTimeout=0)
+
+        logger.info(" exiting handle_message for bulk_settings_id="+bulk_settings_id)

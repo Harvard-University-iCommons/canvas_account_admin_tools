@@ -46,7 +46,9 @@
             <a href="{% url 'bulk_course_settings:create_new_setting' %}" class="btn btn-primary">Create New Setting</a>
 
             {#    TODO- Cleanup the commented link. This was used to test the method to add the jobs to the queue, using the values from the table            #}
-            {# <a href="{% url 'bulk_course_settings:add_bulk_job' %}" class="btn btn-primary">Create New Settings</a>#}
+             <a href="{% url 'bulk_course_settings:add_bulk_job' %}" class="btn btn-primary">Add to Queue</a>
+             <a href="{% url 'bulk_course_settings:process_bulk_jobs' %}" class="btn btn-primary">Process Queue</a>
+
 
             </div>
         </div>

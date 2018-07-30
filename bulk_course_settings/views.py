@@ -9,7 +9,7 @@ from django.views.generic.edit import FormView, CreateView
 
 from bulk_course_settings.forms import (CreateBulkSettingsForm)
 from bulk_course_settings.models import BulkCourseSettingsJob
-from bulk_course_settings.utils import queue_bulk_settings_job
+from bulk_course_settings.utils import queue_bulk_settings_job,process_queue
 from icommons_common.auth.views import (LoginRequiredMixin)
 from .utils import get_term_data_for_school
 
@@ -70,4 +70,16 @@ def add_bulk_job(request):
                                 job.setting_to_be_modified)
 
     return HttpResponseRedirect(reverse('bulk_course_settings:bulk_settings_list'))
+
+
+def process_bulk_jobs(request):
+
+    try:
+        logger.debug(" in process_bulk_jobs.....")
+        process_queue(JOB_QUEUE_NAME)
+    except Exception as e:
+        logger.error(e)
+
+    return HttpResponseRedirect(reverse('bulk_course_settings:bulk_settings_list'))
+
 
