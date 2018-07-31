@@ -1,7 +1,7 @@
 from django.conf.urls import include, url
 
 from bulk_course_settings.views import (
-    BulkSettingsListView, BulkSettingsCreateView, BulkSettingsRevertView, add_bulk_job, process_bulk_jobs
+    BulkSettingsListView, BulkSettingsCreateView, BulkSettingsRevertView, add_bulk_job
 )
 
 urlpatterns = [
@@ -10,6 +10,5 @@ urlpatterns = [
     url(r'^revert_setting/$', BulkSettingsRevertView.as_view(), name='revert_setting'),
 
     url(r'^add_bulk_job/$', add_bulk_job, name='add_bulk_job'),
-    url(r'^process_bulk_jobs/$', process_bulk_jobs, name='process_bulk_jobs'),
 
 ]
