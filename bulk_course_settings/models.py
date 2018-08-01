@@ -11,16 +11,16 @@ class BulkCourseSettingsJob(models.Model):
     Master table to manage bulk changes to course settings
     """
 
-    DESIRED_VISIBILITY_CHOICES = (
-        ('COURSE', 'course'),
-        ('INSTITUTION', 'Harvard'),
-        ('PUBLIC', 'public'),
+    DESIRED_SETTING_CHOICES = (
+        (True, 'True'),
+        (False, 'False')
     )
 
     SETTINGS_TO_MODIFY_CHOICES = (
-        ('COURSE_VISIBILITY', 'Course Visibility'),
-        ('SYLLABUS_VISIBILITY', 'Syllabus Visibility'),
-        ('QUOTA', 'Course Quota'),
+        ('is_public', 'is_public'),
+        ('is_public_to_auth_users', 'is_public_to_auth_users'),
+        ('public_syllabus', 'public_syllabus'),
+        ('public_syllabus_to_auth', 'public_syllabus_to_auth')
     )
 
     WORKFLOW_STATUS = (
@@ -31,11 +31,11 @@ class BulkCourseSettingsJob(models.Model):
 
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
-    setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='Course Visibility')
+    setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
     #current_setting_state = models.CharField(max_length=11, null=True, blank=True)
-    desired_setting = models.CharField(max_length=11, choices=DESIRED_VISIBILITY_CHOICES, default='course')
+    desired_setting = models.BooleanField(choices=DESIRED_SETTING_CHOICES, default=True)
     workflow_status= models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='IN_PROGRESS')
-    parent_process_id = models.IntegerField(null=True)
+    related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
     updated_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,7 +51,7 @@ class BulkCourseSettingsJob(models.Model):
 
 class BulkCourseSettingsJobDetails(models.Model):
     """
-    details for each bulk course settings job run
+    Details for each bulk course settings job run
     """
     parent_job_process_id = models.ForeignKey(BulkCourseSettingsJob, on_delete=models.CASCADE)
     canvas_course_id = models.IntegerField(null=True, blank=True)
