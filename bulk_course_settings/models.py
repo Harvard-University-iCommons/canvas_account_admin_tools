@@ -27,18 +27,19 @@ class BulkCourseSettingsJob(models.Model):
     )
 
     WORKFLOW_STATUS = (
-        ('IN_PROGRESS', 'In progress'),
+        ('NEW', 'New'),
         ('QUEUED', 'Queued'),
-        ('COMPLETED', 'Completed'),
+        ('IN_PROGRESS', 'In progress'),
+        ('COMPLETED_SUCCESS', 'Completed Success'),
+        ('COMPLETED_ERRORS', 'Completed Errors'),
         ('FAILED', 'Failed')
     )
 
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
     setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
-    #current_setting_state = models.CharField(max_length=11, null=True, blank=True)
     desired_setting = models.BooleanField(choices=DESIRED_SETTING_CHOICES, default=True)
-    workflow_status= models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='IN_PROGRESS')
+    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
     related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
     updated_by = models.CharField(max_length=15)
