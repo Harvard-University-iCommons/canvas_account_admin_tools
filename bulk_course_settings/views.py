@@ -11,9 +11,11 @@ from bulk_course_settings.forms import (CreateBulkSettingsForm)
 from bulk_course_settings.models import BulkCourseSettingsJob
 from bulk_course_settings.utils import queue_bulk_settings_job
 from icommons_common.auth.views import (LoginRequiredMixin)
-from .utils import get_term_data_for_school
+import utils
 
 logger = logging.getLogger(__name__)
+
+# TODO pull this out into utils
 JOB_QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
 
 
@@ -21,7 +23,7 @@ def lti_auth_error(request):
     raise PermissionDenied
 
 
-class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
+class BulkSettingsListView(generic.ListView):
     model = BulkCourseSettingsJob
     template_name = 'bulk_course_settings/bulk_settings_list.html'
     context_object_name = 'bulk_settings_list'
@@ -32,7 +34,7 @@ class BulkSettingsListView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
+class BulkSettingsCreateView(CreateView, FormView):
 
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
@@ -41,33 +43,26 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
-        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
+        # account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
+        account_sis_id = 'school:hks'
         context['account_sis_id'] = account_sis_id
         context['school_id'] = account_sis_id.split(':')[1]
-        context['terms'] = get_term_data_for_school(account_sis_id)
+        context['terms'] = utils.get_term_data_for_school(account_sis_id)
         return context
 
     def form_valid(self, form):
+        # If the form is valid, create the BulkCourseSettingsJob and add it to the SQS queue
         form.instance.created_by = self.request.user
         form.instance.updated_by = self.request.user
-        return super(BulkSettingsCreateView, self).form_valid(form)
+        response = super(BulkSettingsCreateView, self).form_valid(form)
 
-class BulkSettingsRevertView(LoginRequiredMixin, generic.edit.CreateView):
+        utils.queue_bulk_settings_job(bulk_settings_id=form.instance.id, school_id=form.instance.school_id,
+                                      term_id=form.instance.term_id,
+                                      setting_to_be_modified=form.instance.setting_to_be_modified,
+                                      desired_setting=form.instance.desired_setting)
+
+        return response
+
+
+class BulkSettingsRevertView(generic.edit.CreateView):
     form_class = ""
-
-
-def add_bulk_job(request):
-
-    # invoke method to add to sqs
-    queryset = BulkCourseSettingsJob.objects.all()
-    for job in queryset:
-        logger.debug(
-            "job.school_id=%s, job.setting_to_be_modifiedd=%s "
-            % (job.school_id, job.setting_to_be_modified))
-        print job.school_id+",job.setting_to_be_modified="+job.setting_to_be_modified
-
-        queue_bulk_settings_job(JOB_QUEUE_NAME, job.id, job.school_id, job.term_id,
-                                job.setting_to_be_modified)
-
-    return HttpResponseRedirect(reverse('bulk_course_settings:bulk_settings_list'))
-
