@@ -30,6 +30,7 @@ boto3.set_stream_logger('')
 aws_region_name = settings.BULK_COURSE_SETTINGS['aws_region_name']
 aws_access_key_id = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
 aws_secret_access_key = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
+QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
 
 
 kw = {'aws_access_key_id': aws_access_key_id,
@@ -122,9 +123,10 @@ def get_term_data_for_school(school_sis_account_id):
     return terms
 
 
-def queue_bulk_settings_job(queue_name, bulk_settings_id, school_id, term_id, setting_to_be_modified):
-    logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s "
-                 % (bulk_settings_id, school_id, term_id, setting_to_be_modified))
+def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting, queue_name=QUEUE_NAME):
+    logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s ,"
+                 "desired_setting=%s"
+                 % (bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting))
     queue = sqs.get_queue_by_name(QueueName=queue_name)
     message = queue.send_message(
         MessageBody='_'.join(['msg_body', str(bulk_settings_id)]),
@@ -145,16 +147,15 @@ def queue_bulk_settings_job(queue_name, bulk_settings_id, school_id, term_id, se
             'setting_to_be_modified': {
                 'StringValue': setting_to_be_modified,
                 'DataType': 'String'
+            },
+            'desired_setting': {
+                'StringValue': str(desired_setting),
+                'DataType': 'String'
             }
         }
     )
     logger.debug(json.dumps(message, indent=2))
     return message['MessageId']
-
-
-
-
-
 
 
 # The name of the course attribute differs from the argument that we need to
@@ -277,7 +278,6 @@ def check_and_update_course(course):
 
     if not len(update_args):
         return  # nothing to do, go to next course
-
 
     update_course(course, update_args)
     # update_courses.append(course['id'])
