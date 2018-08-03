@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.utils import timezone
 
-from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
+from bulk_course_settings.models import BulkCourseSettingsJobDetails
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
 from canvas_sdk.methods.courses import (
@@ -87,7 +87,7 @@ def get_school_data_for_sis_account_id(school_sis_account_id):
             return school
     return school
 
-
+# TODO remove this
 def get_term_data(term_id):
     term = Term.objects.get(term_id=int(term_id))
     return {
@@ -202,7 +202,7 @@ def get_canvas_courses(course_id_list=[], account_id=None, term_id=None, search_
 
     # If a list of courses id's have been provided through the options dict,
     # Get the canvas courses from the given list.
-    #  TODO Will need to be done in the function that calls this but create a course_id_list based off of the
+    #  TODO Get rid of list
     # job details that require an update (or if we are including skips, those as well)
     if course_id_list:
         canvas_courses = fetch_courses_from_id_list(course_id_list)
@@ -230,6 +230,7 @@ def get_canvas_courses(course_id_list=[], account_id=None, term_id=None, search_
     return canvas_courses
 
 
+#  TODO Delete this method
 def execute():
     # used in event of error to re-raise original exception after
     # logging output
@@ -281,12 +282,29 @@ def check_and_update_course(course, bulk_course_settings_job):
 
     # Only update the course if the arg dict is not empty
     if len(update_args):
+        print 'UPDATE ARGS IS NOT EMPTY'
+        print update_args
         update_course(course, update_args, bulk_course_settings_job)
     else:
         # Create detail obj with skipped status
         print 'SKIPPING COURSE'
         pass
     # update_courses.append(course['id'])
+
+# TODO Fix this
+rev_api_mapping = {
+    'course_is_public': 'is_public',
+    'course_is_public_to_auth_users': 'is_public_to_auth_users',
+    'course_public_syllabus': 'public_syllabus',
+    'course_public_syllabus_to_auth': 'public_syllabus_to_auth'
+}
+
+api_mapping = {
+    'is_public': 'course_is_public',
+    'is_public_to_auth_users': 'course_is_public_to_auth_users',
+    'public_syllabus': 'course_public_syllabus',
+    'public_syllabus_to_auth': 'course_public_syllabus_to_auth'
+}
 
 
 def build_update_arg_for_course(course, bulk_course_settings_job):
@@ -298,44 +316,36 @@ def build_update_arg_for_course(course, bulk_course_settings_job):
     desired_value = bulk_course_settings_job.desired_setting
 
     if course[setting_to_be_modified] is not True and desired_value is True:
-        update_args[setting_to_be_modified] = 'true'
+        update_args[api_mapping[setting_to_be_modified]] = 'true'
     if course[setting_to_be_modified] is True and desired_value is False:
-        update_args[setting_to_be_modified] = 'false'
+        update_args[api_mapping[setting_to_be_modified]] = 'false'
 
     return update_args
 
 
 def update_course(course, update_args, bulk_course_settings_job):
-    failure = False
-    update_result = None
-
-    setting_to_change, desired_value = update_args.popitem()
+    setting_args = update_args.copy()
+    setting_to_change, desired_value = setting_args.popitem()
     bulk_setting_detail = BulkCourseSettingsJobDetails.objects.create(
         parent_job_process_id=bulk_course_settings_job,
         canvas_course_id=course['id'],
-        current_setting_value=course[setting_to_change],
+        current_setting_value=course[rev_api_mapping[setting_to_change]],
         is_modified=True,
-        workflow_status='IN_PROGRESS',
-        current_course_attributes='',
-        new_course_attributes=''
+        prior_state=course,
+        post_state=''
     )
 
     try:
-        update_result = sdk_update_course(
-            SDK_CONTEXT, course['id'], **update_args)
+        update_result = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
+
+        bulk_setting_detail.workflow_status = 'COMPLETED'
+        bulk_setting_detail.post_state = update_result
+        bulk_setting_detail.save()
     except CanvasAPIError as e:
         message = 'Error updating course {} via SDK with ' \
                   'parameters={}, SDK error ' \
                   'details={}'.format(course['id'], update_args, e)
         logger.exception(message)
-        failure = True
 
-    if failure:
-        bulk_setting_detail.workflow_status = 'COMPLETED_FAILED'
-        bulk_setting_detail.save()
-    else:
-        logger.debug('update result for course {}: {} - {}'.format(
-                     course['id'], update_result, update_result.text))
-
-        bulk_setting_detail.workflow_status = 'COMPLETED_SUCCESS'
+        bulk_setting_detail.workflow_status = 'FAILED'
         bulk_setting_detail.save()
