@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 import bulk_course_settings.utils as utils
-from bulk_course_settings.models import BulkCourseSettingsJob
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ class Command(BaseCommand):
     }
 
     def add_arguments(self, parser):
+        # TODO Look into implementation of this
         parser.add_argument('--job-limit', help="Shutdown after processing this many jobs", type=int)
 
     def handle(self, *args, **options):
@@ -65,6 +66,19 @@ class Command(BaseCommand):
         if messages:
             for message in messages:
                 self.handle_message(message)
+
+                # Check to see if the job had any errors and update the workflow appropriately
+                # TODO break this out into a util method
+                bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
+                bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
+                failed = BulkCourseSettingsJobDetails.objects.filter(parent_job_process_id=bulk_settings_id,
+                                                                     workflow_status='FAILED')
+                if failed:
+                    bulk_course_settings_job.workflow_status = 'COMPLETED_FAILED'
+                else:
+                    bulk_course_settings_job.workflow_status = 'COMPLETED_SUCCESS'
+                bulk_course_settings_job.save()
+
         else:
             logger.info('No messages in queue %s', self.queue_name)
             # time.sleep(40)
@@ -101,8 +115,6 @@ class Command(BaseCommand):
 
                 logger.info(" Message has been processed , deleting from sqs...")
                 message.delete()
-
-                # TODO Make a check for the associated details and update the workflow_status appropriately
 
             except Exception as e:
                 # Put the message back on the queue
