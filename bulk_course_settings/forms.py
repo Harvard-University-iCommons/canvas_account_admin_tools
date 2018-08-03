@@ -1,6 +1,8 @@
 import logging
+
 from django import forms
-from bulk_course_settings.models import BulkCourseSettingsJob
+
+from models import BulkCourseSettingsJob
 
 logger = logging.getLogger(__name__)
 
