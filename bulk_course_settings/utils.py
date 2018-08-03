@@ -11,11 +11,12 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.utils import timezone
 
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
 from canvas_sdk.methods.courses import (
-    get_single_course_courses,
-    update_course)
+    get_single_course_courses)
+from canvas_sdk.methods.courses import update_course as sdk_update_course
 from canvas_sdk.utils import get_all_list_data
 from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts_helper
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
@@ -142,7 +143,7 @@ def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_
             },
             'term_id': {
                 'StringValue': str(term_id),
-                'DataType': 'Number'
+                'DataType': 'String'
             },
             'setting_to_be_modified': {
                 'StringValue': setting_to_be_modified,
@@ -155,6 +156,8 @@ def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_
         }
     )
     logger.debug(json.dumps(message, indent=2))
+
+    #  TODO maybe check for successful queueing and return its status so it can be checked downstream
     return message['MessageId']
 
 
@@ -195,7 +198,7 @@ def fetch_courses_from_id_list(course_id_list):
     return canvas_courses
 
 
-def get_canvas_courses(course_id_list, account_id=None, term_id=None, search_term=None, state=None):
+def get_canvas_courses(course_id_list=[], account_id=None, term_id=None, search_term=None, state=None):
 
     # If a list of courses id's have been provided through the options dict,
     # Get the canvas courses from the given list.
@@ -263,7 +266,7 @@ def execute():
         raise exc_during_execution, None, exc_traceback
 
 
-def check_and_update_course(course):
+def check_and_update_course(course, bulk_course_settings_job):
     # TODO Check workflow state of detail?
     # if options.get('skip') and \
     #                 str(course['id']) in options.get('skip'):
@@ -272,37 +275,53 @@ def check_and_update_course(course):
     #     return  # don't proceed, go to next course
 
     # check the settings, and change only if necessary
-    update_args = build_update_arg_for_course(course)
+    update_args = build_update_arg_for_course(course, bulk_course_settings_job)
     logger.debug('update args for course {}: '
                  '{}'.format(course['id'], update_args))
 
-    if not len(update_args):
-        return  # nothing to do, go to next course
-
-    update_course(course, update_args)
+    # Only update the course if the arg dict is not empty
+    if len(update_args):
+        update_course(course, update_args, bulk_course_settings_job)
+    else:
+        # Create detail obj with skipped status
+        print 'SKIPPING COURSE'
+        pass
     # update_courses.append(course['id'])
-    # TODO create detail with success
 
 
-def build_update_arg_for_course(course, desired_setting, value):
+def build_update_arg_for_course(course, bulk_course_settings_job):
     # Since we only update one setting at a time, check if the given courses setting differs from the value we want
     # and if it does make it an update argument.
     update_args = {}
 
-    if course[desired_setting] is not True and value is True:
-        update_args[desired_setting] = 'true'
-    if course[desired_setting] is True and value is False:
-        update_args[desired_setting] = 'false'
+    setting_to_be_modified = bulk_course_settings_job.setting_to_be_modified
+    desired_value = bulk_course_settings_job.desired_setting
+
+    if course[setting_to_be_modified] is not True and desired_value is True:
+        update_args[setting_to_be_modified] = 'true'
+    if course[setting_to_be_modified] is True and desired_value is False:
+        update_args[setting_to_be_modified] = 'false'
 
     return update_args
 
 
-def update_course(course, update_args):
+def update_course(course, update_args, bulk_course_settings_job):
     failure = False
     update_result = None
 
+    setting_to_change, desired_value = update_args.popitem()
+    bulk_setting_detail = BulkCourseSettingsJobDetails.objects.create(
+        parent_job_process_id=bulk_course_settings_job,
+        canvas_course_id=course['id'],
+        current_setting_value=course[setting_to_change],
+        is_modified=True,
+        workflow_status='IN_PROGRESS',
+        current_course_attributes='',
+        new_course_attributes=''
+    )
+
     try:
-        update_result = update_course(
+        update_result = sdk_update_course(
             SDK_CONTEXT, course['id'], **update_args)
     except CanvasAPIError as e:
         message = 'Error updating course {} via SDK with ' \
@@ -312,17 +331,11 @@ def update_course(course, update_args):
         failure = True
 
     if failure:
-        try:
-            # failure_courses.append(course['id'])
-            # TODO Create detail with failed status
-            pass
-        except (KeyError, NameError, TypeError) as e:
-            logger.exception(
-                'Error recording course as failure: {}'.format(course))
+        bulk_setting_detail.workflow_status = 'COMPLETED_FAILED'
+        bulk_setting_detail.save()
     else:
         logger.debug('update result for course {}: {} - {}'.format(
                      course['id'], update_result, update_result.text))
 
-
-
-
+        bulk_setting_detail.workflow_status = 'COMPLETED_SUCCESS'
+        bulk_setting_detail.save()
