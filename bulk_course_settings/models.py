@@ -42,9 +42,12 @@ class BulkCourseSettingsJob(models.Model):
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
     related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
-    updated_by = models.CharField(max_length=15)
+    updated_by = models.CharField(max_length=15) # Needed?
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'bulk_course_settings_job'
 
     @staticmethod
     def get_absolute_url():
@@ -66,12 +69,15 @@ class BulkCourseSettingsJobDetails(models.Model):
     new_course_attributes = models.CharField(max_length=200)
     workflow_status = models.CharField(max_length=200)
     is_modified = models.BooleanField(default=False)
-    created_by = models.CharField(max_length=15)
-    updated_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True) # Needed?
+
+    class Meta:
+        db_table = 'bulk_course_settings_job_details'
 
 
+# TODO
+# Why is this method here?
 def get_term_data(term_id):
     term = Term.objects.get(term_id=int(term_id))
     return {
