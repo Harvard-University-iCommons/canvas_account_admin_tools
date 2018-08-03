@@ -2,7 +2,6 @@ import logging
 from django.db import models
 from django.urls import reverse
 
-# from bulk_course_settings.utils import get_term_data
 from icommons_common.models import Term
 
 
@@ -20,10 +19,10 @@ class BulkCourseSettingsJob(models.Model):
     )
 
     SETTINGS_TO_MODIFY_CHOICES = (
-        ('is_public', 'is_public'),
-        ('is_public_to_auth_users', 'is_public_to_auth_users'),
-        ('public_syllabus', 'public_syllabus'),
-        ('public_syllabus_to_auth', 'public_syllabus_to_auth')
+        ('is_public', 'Course is public'),
+        ('is_public_to_auth_users', 'Course is public to auth users'),
+        ('public_syllabus', 'Public syllabus'),
+        ('public_syllabus_to_auth', 'Syllabus is public to auth users')
     )
 
     WORKFLOW_STATUS = (
@@ -42,7 +41,6 @@ class BulkCourseSettingsJob(models.Model):
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
     related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
-    updated_by = models.CharField(max_length=15) # Needed?
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -54,33 +52,31 @@ class BulkCourseSettingsJob(models.Model):
         return reverse('bulk_course_settings:bulk_settings_list')
 
     def get_term_name(self):
-        return get_term_data(self.term_id)['name']
+        term = Term.objects.get(term_id=int(self.term_id))
+        return term.display_name
 
 
 class BulkCourseSettingsJobDetails(models.Model):
     """
     Details for each bulk course settings job run
     """
+
+    # TODO make this the choices for workflow
+    WORKFLOW_STATUS = (
+        ('NEW', 'New'),
+        ('SKIPPED', 'Skipped'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed')
+    )
+
     parent_job_process_id = models.ForeignKey(BulkCourseSettingsJob, on_delete=models.CASCADE)
     canvas_course_id = models.IntegerField(null=True, blank=True)
     current_setting_value = models.CharField(max_length=20, null=True, blank=True)
-    # new_setting_value = models.CharField(max_length=20, null=True, blank=True)
-    current_course_attributes = models.CharField(max_length=200)
-    new_course_attributes = models.CharField(max_length=200)
-    workflow_status = models.CharField(max_length=200)
+    prior_state = models.CharField(max_length=2000, null=True)
+    post_state = models.CharField(max_length=2000, null=True)
+    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
     is_modified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True) # Needed?
 
     class Meta:
         db_table = 'bulk_course_settings_job_details'
-
-
-# TODO
-# Why is this method here?
-def get_term_data(term_id):
-    term = Term.objects.get(term_id=int(term_id))
-    return {
-        'id': str(term.term_id),
-        'name': term.display_name,
-    }
