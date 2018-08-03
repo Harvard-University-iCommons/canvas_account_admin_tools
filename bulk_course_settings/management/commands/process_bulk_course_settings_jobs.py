@@ -51,25 +51,7 @@ class Command(BaseCommand):
 
         logger.info('Starting a worker for queue %s with a job limit of %d', self.queue_name, self.job_limit)
 
-        # WORKFLOW
-        #
-        # get message from the queue
-            # get job record from the database
-            # update the job status to IN_PROGRESS
-            # find all of the courses matching job criteria
-            #     for each course, create a job detail record in the NEW state
-            #     get the current course settings and store in the detail record, change state to IN_PROGRESS
-            #     determine if a change is necessary to match the target value
-            #           if yes, make the API call to update the course in Canvas
-            #               set is_modified to true
-            #               save the new course attributes/settings
-            #               if error, set state of detail record to FAILED (and continue processing courses)
-            #           if no, set is_modified to false
-            #     set workflow state of detail record to COMPLETED_SUCCESS
-            # if all courses processed successfully, update job status to COMPLETED_SUCCESS
-            # else update job status to COMPLETED_ERRORS
-            # delete message from queue
-
+        # TODO uncomment the while loop and the sleep
         # Loop indefinitely and get jobs from an SQS queue
         # while True:
         # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
@@ -89,31 +71,19 @@ class Command(BaseCommand):
 
     @staticmethod
     def handle_message(message):
-        # get job record from the database
-        # update the job status to IN_PROGRESS
-        # find all of the courses matching job criteria
-        #     for each course, create a job detail record in the NEW state
-        #     get the current course settings and store in the detail record, change state to IN_PROGRESS
-        #     determine if a change is necessary to match the target value
-        #           if yes, make the API call to update the course in Canvas
-        #               set is_modified to true
-        #               save the new course attributes/settings
-        #               if error, set state of detail record to FAILED (and continue processing courses)
-        #           if no, set is_modified to false
-        #     set workflow state of detail record to COMPLETED_SUCCESS
-        # if all courses processed successfully, update job status to COMPLETED_SUCCESS
-        # else update job status to COMPLETED_ERRORS
-        # delete message from queue
 
         try:
-            school_id = message.message_attributes['school_id']['StringValue']
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
-            if bulk_settings_id:
-                bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
-                bulk_course_settings_job.workflow_status = 'IN_PROGRESS'
-                bulk_course_settings_job.save()
+            bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
+            bulk_course_settings_job.workflow_status = 'IN_PROGRESS'
+            bulk_course_settings_job.save()
+        except BulkCourseSettingsJob.DoesNotExist:
+            logger.exception('The bulk setting with a job id of {} does not exist'.format(bulk_settings_id))
+            message.delete()
 
+        if bulk_course_settings_job:
+            try:
                 # TODO
                 # Check if this is a reversion, if so get the list of canvas ID's that need to be reverted
 
@@ -127,23 +97,19 @@ class Command(BaseCommand):
                 )
 
                 for course in canvas_courses:
-                    utils.check_and_update_course(course, bulk_course_settings_job.id)
+                    utils.check_and_update_course(course, bulk_course_settings_job)
 
                 logger.info(" Message has been processed , deleting from sqs...")
-                # delete the message from the queue so nobody else processes it
-                logger.debug(" deleting message....")
                 message.delete()
 
                 # TODO Make a check for the associated details and update the workflow_status appropriately
 
-        except Exception as e:
-            # put the message back on the queue
-            logger.exception('Exception caught; re-queueing message %s', message.message_id)
-            # bulk_course_setting_job.workflow_status = 'Error'
-            # bulk_course_setting_job.save(update_fields=['workflow_status'])
-            message.change_visibility(VisibilityTimeout=0)
-
-        logger.info(" exiting handle_message for bulk_settings_id=" + bulk_settings_id)
+            except Exception as e:
+                # Put the message back on the queue
+                logger.exception('Exception caught; re-queueing message %s', message.message_id)
+                bulk_course_settings_job.workflow_status = 'COMPLETED_FAILED'
+                bulk_course_settings_job.save()
+                message.change_visibility(VisibilityTimeout=0)
 
 
 class GracefulExit(Exception):
