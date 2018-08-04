@@ -67,7 +67,6 @@ class Command(BaseCommand):
 
     @staticmethod
     def handle_message(message):
-
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
@@ -80,20 +79,26 @@ class Command(BaseCommand):
 
         if bulk_course_settings_job:
             try:
-                # TODO Reversion check
-                # Check if this is a reversion, if so get the list of canvas ID's that need to be reverted
-
-                # Else perform call without course id list
-
                 term = Term.objects.get(term_id=bulk_course_settings_job.term_id)
 
-                canvas_courses = utils.get_canvas_courses(
-                    account_id='sis_account_id:school:{}'.format(bulk_course_settings_job.school_id),
-                    term_id='sis_term_id:{}'.format(term.meta_term_id())
-                )
+                if bulk_course_settings_job.related_job_id is not None:
+                    # Check if this is a reversion, if so get the detail records from the related job and use
+                    # the previous setting as the new desired setting to update the course.
+                    # TODO add check for workflow skipped?
+                    related_job_details = BulkCourseSettingsJobDetails.objects.filter(
+                        parent_job_process_id=bulk_course_settings_job.related_job_id)
+                    for detail in related_job_details:
+                        utils.update_course(course={'id': detail.canvas_course_id, bulk_course_settings_job.setting_to_be_modified: detail.current_setting_value},
+                                            update_args={utils.API_MAPPING[bulk_course_settings_job.setting_to_be_modified]: detail.current_setting_value},
+                                            bulk_course_settings_job=bulk_course_settings_job)
+                else:
+                    # Otherwise get a list of active courses in the given account and given term
+                    canvas_courses = utils.get_canvas_courses(
+                        account_id='sis_account_id:school:{}'.format(bulk_course_settings_job.school_id),
+                        term_id='sis_term_id:{}'.format(term.meta_term_id()))
 
-                for course in canvas_courses:
-                    utils.check_and_update_course(course, bulk_course_settings_job)
+                    for course in canvas_courses:
+                        utils.check_and_update_course(course, bulk_course_settings_job)
 
                 logger.info("Message has been processed , deleting from sqs...")
                 message.delete()
