@@ -63,11 +63,20 @@
                 <tr>
                     <td>{{ item.get_term_name }}</td>
                     <td>{{ item.get_setting_to_be_modified_display }}</td>
-                    <td>{{ item.get_desired_setting_display }}</td>
+
+                    <td>
+                        {% if item.related_job_id is None %}
+                            {{ item.get_desired_setting_display }}
+                        {% else %}
+                            Reversion
+                        {% endif %}
+                    </td>
                     <td>{{ item.get_workflow_status_display }}</td>
                     <td>
                         {% if item.related_job_id is None %}
-                            <a href="{% url 'bulk_course_settings:revert_setting' %}" class="btn btn-primary">Revert Setting</a>
+                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary">Revert Setting</a>
+                        {% else %}
+                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary disabled">Revert Setting</a>
                         {% endif %}
                     </td>
                 </tr>
