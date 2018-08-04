@@ -1,24 +1,21 @@
 import logging
 import signal
 
-import boto3
 from botocore.exceptions import ClientError
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 import bulk_course_settings.utils as utils
+from bulk_course_settings import constants
 from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
 
+# TODO Review workflow status' ie: completed_errors vs failed
+
 
 class Command(BaseCommand):
     help = 'Process Bulk Course Setting Jobs from queue.'
-
-    namespaces = {
-        'http://icommons.harvard.edu/Schema': None,
-    }
 
     def add_arguments(self, parser):
         # TODO Look into implementation of this
@@ -27,30 +24,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         signal.signal(signal.SIGTERM, signal_handler)
 
-        self.aws_region_name = settings.BULK_COURSE_SETTINGS['aws_region_name']
-        self.aws_access_key_id = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
-        self.aws_secret_access_key = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
-        self.queue_name = settings.BULK_COURSE_SETTINGS['job_queue_name']
         self.job_limit = options.get('job_limit')
 
-        self.kw = {'aws_access_key_id': self.aws_access_key_id,
-                   'aws_secret_access_key': self.aws_secret_access_key,
-                   'region_name': self.aws_region_name
-                   }
-
         try:
-            self.sqs = boto3.resource('sqs', **self.kw)
-        except Exception as e:
-            logger.exception('Error configuring sqs')
-            raise
-
-        try:
-            self.queue = self.sqs.get_queue_by_name(QueueName=self.queue_name)
+            self.queue = utils.SQS.get_queue_by_name(QueueName=utils.QUEUE_NAME)
         except ClientError:
-            logger.error('Failed to get queue %s', self.queue_name)
+            logger.error('Failed to get queue %s', utils.QUEUE_NAME)
             raise
 
-        logger.info('Starting a worker for queue %s with a job limit of %d', self.queue_name, self.job_limit)
+        logger.info('Starting a worker for queue %s with a job limit of %d', utils.QUEUE_NAME, self.job_limit)
 
         # TODO uncomment the while loop and the sleep
         # Loop indefinitely and get jobs from an SQS queue
@@ -63,20 +45,20 @@ class Command(BaseCommand):
             WaitTimeSeconds=20,
         )
 
+        # TODO Is this check necessary or is the WaitTimeSeconds taking care of this?
         if messages:
             for message in messages:
                 self.handle_message(message)
 
                 # Check to see if the job had any errors and update the workflow appropriately
-                # TODO break this out into a util method
                 bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
                 bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
                 failed = BulkCourseSettingsJobDetails.objects.filter(parent_job_process_id=bulk_settings_id,
-                                                                     workflow_status='FAILED')
+                                                                     workflow_status=constants.FAILED)
                 if failed:
-                    bulk_course_settings_job.workflow_status = 'COMPLETED_FAILED'
+                    bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
                 else:
-                    bulk_course_settings_job.workflow_status = 'COMPLETED_SUCCESS'
+                    bulk_course_settings_job.workflow_status = constants.COMPLETED_SUCCESS
                 bulk_course_settings_job.save()
 
         else:
@@ -90,7 +72,7 @@ class Command(BaseCommand):
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
             bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
-            bulk_course_settings_job.workflow_status = 'IN_PROGRESS'
+            bulk_course_settings_job.workflow_status = constants.IN_PROGRESS
             bulk_course_settings_job.save()
         except BulkCourseSettingsJob.DoesNotExist:
             logger.exception('The bulk setting with a job id of {} does not exist'.format(bulk_settings_id))
@@ -98,7 +80,7 @@ class Command(BaseCommand):
 
         if bulk_course_settings_job:
             try:
-                # TODO
+                # TODO Reversion check
                 # Check if this is a reversion, if so get the list of canvas ID's that need to be reverted
 
                 # Else perform call without course id list
@@ -113,13 +95,13 @@ class Command(BaseCommand):
                 for course in canvas_courses:
                     utils.check_and_update_course(course, bulk_course_settings_job)
 
-                logger.info(" Message has been processed , deleting from sqs...")
+                logger.info("Message has been processed , deleting from sqs...")
                 message.delete()
 
             except Exception as e:
                 # Put the message back on the queue
                 logger.exception('Exception caught; re-queueing message %s', message.message_id)
-                bulk_course_settings_job.workflow_status = 'COMPLETED_FAILED'
+                bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
                 bulk_course_settings_job.save()
                 message.change_visibility(VisibilityTimeout=0)
 
@@ -130,4 +112,3 @@ class GracefulExit(Exception):
 
 def signal_handler(signum, frame):
     raise GracefulExit()
-

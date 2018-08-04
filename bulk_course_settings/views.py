@@ -1,19 +1,16 @@
 import logging
 
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView
 from django.views.generic.edit import FormView, CreateView
 
-import utils
-from bulk_course_settings.forms import (CreateBulkSettingsForm)
+from bulk_course_settings import constants
+from bulk_course_settings import utils
+from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import BulkCourseSettingsJob
-from icommons_common.auth.views import (LoginRequiredMixin)
+from icommons_common.auth.views import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
-
-# TODO pull this out into utils
-JOB_QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
 
 
 def lti_auth_error(request):
@@ -56,12 +53,12 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
                                       term_id=form.instance.term_id,
                                       setting_to_be_modified=form.instance.setting_to_be_modified,
                                       desired_setting=form.instance.desired_setting)
-        # TODO check for queue_bulk_settings_job queueing success, if success set queued else completed_failed
-        form.instance.workflow_status = 'QUEUED'
+        # TODO check for queue_bulk_settings_job queueing success, if success set queued else completed_errors
+        form.instance.workflow_status = constants.QUEUED
         form.instance.save()
 
         return response
 
 
-class BulkSettingsRevertView(LoginRequiredMixin ,CreateView):
+class BulkSettingsRevertView(LoginRequiredMixin,CreateView):
     form_class = ""

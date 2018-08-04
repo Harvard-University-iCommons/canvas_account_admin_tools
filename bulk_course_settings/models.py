@@ -4,6 +4,8 @@ from django.urls import reverse
 
 from icommons_common.models import Term
 
+from bulk_course_settings import constants
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,19 +28,19 @@ class BulkCourseSettingsJob(models.Model):
     )
 
     WORKFLOW_STATUS = (
-        ('NEW', 'New'),
-        ('QUEUED', 'Queued'),
-        ('IN_PROGRESS', 'In progress'),
-        ('COMPLETED_SUCCESS', 'Completed Success'),
-        ('COMPLETED_ERRORS', 'Completed Errors'),
-        ('FAILED', 'Failed')
+        (constants.NEW, 'New'),
+        (constants.QUEUED, 'Queued'),
+        (constants.IN_PROGRESS, 'In progress'),
+        (constants.COMPLETED_SUCCESS, 'Completed Success'),
+        (constants.COMPLETED_ERRORS, 'Completed Errors'),
+        (constants.FAILED, 'Failed')
     )
 
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
     setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
     desired_setting = models.BooleanField(choices=DESIRED_SETTING_CHOICES, default=True)
-    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
+    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
     related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,12 +63,11 @@ class BulkCourseSettingsJobDetails(models.Model):
     Details for each bulk course settings job run
     """
 
-    # TODO make this the choices for workflow
     WORKFLOW_STATUS = (
-        ('NEW', 'New'),
-        ('SKIPPED', 'Skipped'),
-        ('COMPLETED', 'Completed'),
-        ('FAILED', 'Failed')
+        (constants.NEW, 'New'),
+        (constants.SKIPPED, 'Skipped'),
+        (constants.COMPLETED, 'Completed'),
+        (constants.FAILED, 'Failed')
     )
 
     parent_job_process_id = models.ForeignKey(BulkCourseSettingsJob, on_delete=models.CASCADE)
@@ -74,7 +75,7 @@ class BulkCourseSettingsJobDetails(models.Model):
     current_setting_value = models.CharField(max_length=20, null=True, blank=True)
     prior_state = models.CharField(max_length=2000, null=True)
     post_state = models.CharField(max_length=2000, null=True)
-    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default='NEW')
+    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
     is_modified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
