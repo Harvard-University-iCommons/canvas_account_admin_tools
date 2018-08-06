@@ -1,0 +1,89 @@
+{% extends 'bulk_course_settings/base.html' %}
+
+{% load static %}
+{% load collections %}
+{% load django_helpers %}
+{% load i18n staticfiles %}
+
+{% block js %}
+    <script>
+{#        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';#}
+    </script>
+
+    <script>
+		$(document).ready(function() {
+			$('.datatable').dataTable( {
+				aaSorting: [[0, 'asc']],
+				"aoColumnDefs": [ {
+					'bSortable': false,
+					'aTargets': [3] } ],
+				"oLanguage": {
+                  "sSearch": "Search"
+                }
+			});
+		});
+	</script>
+{% endblock js %}
+
+{% block body %}
+<body role="application">
+
+    <div class="container">
+        <header>
+            <h3 class="breadcrumbs">
+                <a href="{% url 'dashboard_account' %}">Admin Console</a>
+                <small><i class="fa fa-chevron-right"></i></small>
+                Manage Bulk Course Settings
+            </h3>
+        </header>
+
+Parent Job: {{ parent_jobid }}
+        <div class="row">
+
+          <div class="col-sm-5">
+
+            <table class="datatable">
+
+            <tr><td>Setting:</td><td>{{ parent_job_setting_to_be_modified }}</td></tr>
+            <tr><td>Term:</td><td>{{ term_id }}</td></tr>
+            <tr><td>Target Value:</td><td>{{ parent_job_desired_setting }}</td></tr>
+            <tr><td>Time Stamp:</td><td>{{ parent_job_created_at }}</td></tr>
+            <tr><td>Submitted by:</td><td>{{ parent_job_created_by  }}</td></tr>
+            <tr><td>Status:</td><td>{{ parent_job_workflow_status }}</td></tr>
+            </table></div>
+
+           <div class="col-sm-5">
+            <table class="datatable">
+                <tr><td>Total:</td><td> #### </td></tr>
+            <tr><td>Success:</td><td> #### </td></tr>
+            <tr><td>Failure:</td><td> #### </td></tr>
+            <tr><td>No Change:</td><td> #### </td></tr>
+
+
+            </table>
+           </div>
+      </div>
+<div class="row">
+
+
+     <div class="col-sm-1">
+
+            <table class="datatable">
+            {% for item in bulk_settings_job_audit %}
+                {% if item.parent_job_process_id_id == parent_jobid|add:"0" %}
+                   <tr><td>{{ item.id }}</td><td>{{ item.canvas_course_id }}</td></tr>
+                {% else %}
+                   <tr><td>No child jobs were found for parent job id {{ parent_jobid }}</td></tr>
+                {% endif %}
+
+            {% endfor %}
+            </table>
+     </div>
+
+
+
+  </div>
+      <a href="{% url 'bulk_course_settings:revert_setting' %}" class="btn btn-primary">Revert Setting</a>
+    </div>
+</body>
+{% endblock body %}
