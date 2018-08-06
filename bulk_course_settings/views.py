@@ -88,6 +88,3 @@ class BulkSettingsAuditView(LoginRequiredMixin, ListView):
         context = super(BulkSettingsAuditView, self).get_context_data(**kwargs)
         context['parent_job'] = BulkCourseSettingsJob.objects.get(id=self.kwargs['parent_job_process_id'])
         return context
-    # def get(self, request, parent_job_process_id):
-
-
