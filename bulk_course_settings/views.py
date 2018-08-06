@@ -1,8 +1,11 @@
 import logging
 
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import FormView, CreateView
+from django.views import View
 
 from bulk_course_settings import constants
 from bulk_course_settings import utils
@@ -22,10 +25,6 @@ class BulkSettingsListView(LoginRequiredMixin, ListView):
     template_name = 'bulk_course_settings/bulk_settings_list.html'
     context_object_name = 'bulk_settings_list'
     queryset = BulkCourseSettingsJob.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(BulkSettingsListView, self).get_context_data(**kwargs)
-        return context
 
 
 class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
@@ -60,5 +59,18 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
         return response
 
 
-class BulkSettingsRevertView(LoginRequiredMixin,CreateView):
-    form_class = ""
+class BulkSettingsRevertView(LoginRequiredMixin, View):
+
+    def get(self, request, school_id, job_id):
+        related_bulk_job = BulkCourseSettingsJob.objects.get(id=job_id)
+        new_bulk_job = BulkCourseSettingsJob.objects.create(related_job_id=related_bulk_job.id,
+                                                            school_id=school_id,
+                                                            term_id=related_bulk_job.term_id,
+                                                            setting_to_be_modified=related_bulk_job.setting_to_be_modified)
+
+        utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
+                                      term_id=related_bulk_job.term_id,
+                                      setting_to_be_modified=related_bulk_job.setting_to_be_modified,
+                                      desired_setting='REVERT')
+
+        return redirect(reverse('bulk_course_settings:bulk_settings_list'))

@@ -149,10 +149,10 @@ def check_and_update_course(course, bulk_course_settings_job):
     if len(update_args):
         update_course(course, update_args, bulk_course_settings_job)
     else:
+        # TODO
         # Create detail obj with skipped status
         print 'SKIPPING COURSE'
         pass
-    # update_courses.append(course['id'])
 
 
 def build_update_arg_for_course(course, bulk_course_settings_job):
