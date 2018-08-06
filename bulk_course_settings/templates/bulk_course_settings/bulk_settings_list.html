@@ -74,13 +74,6 @@
                         {% endif %}
                     </td>
                     <td>{{ item.get_workflow_status_display }}</td>
-                    <td>
-                        {% if item.related_job_id is None %}
-                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary">Revert Setting</a>
-                        {% else %}
-                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary disabled">Revert Setting</a>
-                        {% endif %}
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>

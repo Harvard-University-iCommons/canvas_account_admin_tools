@@ -51,6 +51,13 @@
                     <tr><td>No Change: </td><td> #### </td></tr>
                 </table>
             </div>
+            <div class="col-sm-2">
+                {% if parent_job.related_job_id is None and job_details%}
+                    <a href="{% url 'bulk_course_settings:revert_setting' parent_job.school_id parent_job.id %}" class="btn btn-primary">Revert Setting</a>
+                {% else %}
+                    <a class="btn btn-primary disabled">Revert Setting</a>
+                {% endif %}
+            </div>
         </div>
         <div class="row">
             <div class="col-sm-12">
