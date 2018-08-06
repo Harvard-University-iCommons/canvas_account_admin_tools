@@ -113,7 +113,6 @@ def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_
     )
     logger.debug(json.dumps(message, indent=2))
 
-    #  TODO maybe check for successful queueing and return its status so it can be checked downstream
     return message['MessageId']
 
 
