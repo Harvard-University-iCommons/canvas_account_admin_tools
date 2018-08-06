@@ -10,7 +10,7 @@ from django.views import View
 from bulk_course_settings import constants
 from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
-from bulk_course_settings.models import BulkCourseSettingsJob
+from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from icommons_common.auth.views import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
@@ -74,3 +74,17 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
         new_bulk_job.save()
 
         return redirect(reverse('bulk_course_settings:bulk_settings_list'))
+
+
+class BulkSettingsAuditView(LoginRequiredMixin, ListView):
+    model = BulkCourseSettingsJobDetails
+    template_name = 'bulk_course_settings/bulk_settings_job_audit.html'
+    context_object_name = 'job_details'
+
+    def get_queryset(self):
+        return BulkCourseSettingsJobDetails.objects.filter(parent_job_process_id=self.kwargs['parent_job_process_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(BulkSettingsAuditView, self).get_context_data(**kwargs)
+        context['parent_job'] = BulkCourseSettingsJob.objects.get(id=self.kwargs['parent_job_process_id'])
+        return context

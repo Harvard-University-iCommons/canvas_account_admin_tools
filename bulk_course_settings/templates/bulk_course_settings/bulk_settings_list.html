@@ -53,6 +53,7 @@
 
         <table class="datatable table table-striped table-bordered">
             <thead>
+                <th>Job ID</th>
                 <th>Term</th>
                 <th>Setting Modified</th>
                 <th>Desired Setting</th>
@@ -61,6 +62,7 @@
             <tbody>
             {% for item  in bulk_settings_list %}
                 <tr>
+                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' parent_job_process_id=item.id %}"> {{ item.id }} </a> </td>
                     <td>{{ item.get_term_name }}</td>
                     <td>{{ item.get_setting_to_be_modified_display }}</td>
 
@@ -72,13 +74,6 @@
                         {% endif %}
                     </td>
                     <td>{{ item.get_workflow_status_display }}</td>
-                    <td>
-                        {% if item.related_job_id is None %}
-                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary">Revert Setting</a>
-                        {% else %}
-                            <a href="{% url 'bulk_course_settings:revert_setting' item.school_id item.id %}" class="btn btn-primary disabled">Revert Setting</a>
-                        {% endif %}
-                    </td>
                 </tr>
             {% endfor %}
             </tbody>
