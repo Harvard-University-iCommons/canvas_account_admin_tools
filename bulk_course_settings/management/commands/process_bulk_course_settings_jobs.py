@@ -63,7 +63,7 @@ class Command(BaseCommand):
                     bulk_course_settings_job.save()
 
             else:
-                logger.info('No messages in queue {}'.format(self.queue_name))
+                logger.info('No messages in queue {}'.format(utils.QUEUE_NAME))
                 time.sleep(40)
 
     @staticmethod
