@@ -45,14 +45,12 @@ class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
     def form_valid(self, form):
         # If the form is valid, create the BulkCourseSettingsJob and add it to the SQS queue
         form.instance.created_by = str(self.request.user)
-        form.instance.updated_by = str(self.request.user)
         response = super(BulkSettingsCreateView, self).form_valid(form)
 
         utils.queue_bulk_settings_job(bulk_settings_id=form.instance.id, school_id=form.instance.school_id,
                                       term_id=form.instance.term_id,
                                       setting_to_be_modified=form.instance.setting_to_be_modified,
                                       desired_setting=form.instance.desired_setting)
-        # TODO check for queue_bulk_settings_job queueing success, if success set queued else completed_errors
         form.instance.workflow_status = constants.QUEUED
         form.instance.save()
 
@@ -72,5 +70,7 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
                                       term_id=related_bulk_job.term_id,
                                       setting_to_be_modified=related_bulk_job.setting_to_be_modified,
                                       desired_setting='REVERT')
+        new_bulk_job.workflow_status = constants.QUEUED
+        new_bulk_job.save()
 
         return redirect(reverse('bulk_course_settings:bulk_settings_list'))

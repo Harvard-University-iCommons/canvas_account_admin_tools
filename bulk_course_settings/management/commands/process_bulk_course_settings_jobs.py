@@ -9,6 +9,7 @@ import bulk_course_settings.utils as utils
 from bulk_course_settings import constants
 from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
 from icommons_common.models import Term
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -35,18 +36,16 @@ class Command(BaseCommand):
 
         logger.info('Starting a worker for queue %s with a job limit of %d', utils.QUEUE_NAME, self.job_limit)
 
-        # TODO uncomment the while loop and the sleep
         # Loop indefinitely and get jobs from an SQS queue
         while True:
             # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
             messages = self.queue.receive_messages(
-                MaxNumberOfMessages=10,  # TODO: verify what value this should be set to
+                MaxNumberOfMessages=10,
                 MessageAttributeNames=['All'],
                 AttributeNames=['All'],
                 WaitTimeSeconds=20,
             )
 
-            # TODO Is this check necessary or is the WaitTimeSeconds taking care of this?
             if messages:
                 for message in messages:
                     self.handle_message(message)
@@ -60,10 +59,11 @@ class Command(BaseCommand):
                         bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
                     else:
                         bulk_course_settings_job.workflow_status = constants.COMPLETED_SUCCESS
+                    bulk_course_settings_job.updated_at = datetime.now()
                     bulk_course_settings_job.save()
 
             else:
-                logger.info('No messages in queue %s', self.queue_name)
+                logger.info('No messages in queue {}'.format(self.queue_name))
                 time.sleep(40)
 
     @staticmethod
