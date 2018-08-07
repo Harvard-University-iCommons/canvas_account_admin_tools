@@ -10,7 +10,7 @@ from django.views import View
 from bulk_course_settings import constants
 from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
-from bulk_course_settings.models import Job, Details
+from bulk_course_settings.models import Job
 from icommons_common.auth.views import LoginRequiredMixin
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,6 @@ class BulkSettingsListView(LoginRequiredMixin, ListView):
 
 
 class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
-
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
     context_object_name = 'create_new_setting'
@@ -64,7 +63,8 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
         new_bulk_job = Job.objects.create(related_job_id=related_bulk_job.id,
                                           school_id=school_id,
                                           term_id=related_bulk_job.term_id,
-                                          setting_to_be_modified=related_bulk_job.setting_to_be_modified)
+                                          setting_to_be_modified=related_bulk_job.setting_to_be_modified,
+                                          created_by=str(self.request.user))
 
         utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
                                       term_id=related_bulk_job.term_id,
@@ -82,4 +82,4 @@ class BulkSettingsAuditView(LoginRequiredMixin, ListView):
     context_object_name = 'job'
 
     def get_queryset(self):
-        return Job.objects.get(id=self.kwargs['parent_job'])
+        return Job.objects.get(id=self.kwargs['job_id'])

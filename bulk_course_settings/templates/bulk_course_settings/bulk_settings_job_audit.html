@@ -44,7 +44,7 @@
                 </table>
             </div>
             <div class="col-sm-2">
-                {% if job.related_job_id is None and job.details_total_count > 0 %}
+                {% if job.related_job_id is None and job.details_success_count %}
                     <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary">Revert Setting</a>
                 {% else %}
                     <a class="btn btn-primary disabled">Revert Setting</a>
@@ -61,7 +61,7 @@
                         <th>Prior Value</th>
                     </thead>
                     <tbody>
-                    {% for detail in job.details.iteritems %}
+                    {% for detail in job.details.all %}
                         <tr>
                             <td>{{ detail.id }}</td>
                             <td>{{ detail.canvas_course_id }}</td>

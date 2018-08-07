@@ -48,7 +48,7 @@
             <tbody>
             {% for job in jobs %}
                 <tr>
-                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' parent_job=job.id %}"> {{ job.id }} </a> </td>
+                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' job_id=job.id %}"> {{ job.id }} </a> </td>
                     <td>{{ job.get_term_name }}</td>
                     <td>{{ job.get_setting_to_be_modified_display }}</td>
                     <td>
