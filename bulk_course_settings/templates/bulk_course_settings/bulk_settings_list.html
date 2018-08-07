@@ -9,13 +9,9 @@
 
 {% block js %}
     <script>
-{#        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';#}
-    </script>
-
-    <script>
 		$(document).ready(function() {
 			$('.datatable').dataTable( {
-				aaSorting: [[0, 'asc']],
+				aaSorting: [[0, 'desc']],
 				"aoColumnDefs": [ {
 					'bSortable': false,
 					'aTargets': [3] } ],

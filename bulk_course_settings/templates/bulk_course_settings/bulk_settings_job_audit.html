@@ -9,10 +9,7 @@
     <script>
         $(document).ready(function() {
             $('#details_table').dataTable( {
-                aaSorting: [[0, 'asc']],
-                "aoColumnDefs": [ {
-                    'bSortable': false,
-                    'aTargets': [4] } ],
+                aaSorting: [[0, 'desc']],
                 "oLanguage": {
                     "sSearch": "Search"
                 }
@@ -78,8 +75,6 @@
                                 <td>{{ detail.current_setting_value }}</td>
                             </tr>
                         {% endfor %}
-                    {% else %}
-                        <tr><td>No details were found for the current job.</td></tr>
                     {% endif %}
                 </table>
             </div>
