@@ -13,14 +13,11 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# TODO Review workflow status' ie: completed_errors vs failed
-
 
 class Command(BaseCommand):
     help = 'Process Bulk Course Setting Jobs from queue.'
 
     def add_arguments(self, parser):
-        # TODO Look into implementation of this
         parser.add_argument('--job-limit', help="Shutdown after processing this many jobs", type=int)
 
     def handle(self, *args, **options):
@@ -36,34 +33,39 @@ class Command(BaseCommand):
 
         logger.info('Starting a worker for queue %s with a job limit of %d', utils.QUEUE_NAME, self.job_limit)
 
+        job_count = 0
         # Loop indefinitely and get jobs from an SQS queue
         while True:
-            # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
-            messages = self.queue.receive_messages(
-                MaxNumberOfMessages=10,
-                MessageAttributeNames=['All'],
-                AttributeNames=['All'],
-                WaitTimeSeconds=20,
-            )
-
-            if messages:
-                for message in messages:
-                    self.handle_message(message)
-
-                    # Check to see if the job had any errors and update the workflow appropriately
-                    bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
-                    job = Job.objects.get(id=bulk_settings_id)
-                    failed = Details.objects.filter(parent_job=bulk_settings_id, workflow_status=constants.FAILED)
-                    if failed:
-                        job.workflow_status = constants.COMPLETED_ERRORS
-                    else:
-                        job.workflow_status = constants.COMPLETED_SUCCESS
-                    job.updated_at = datetime.now()
-                    job.save()
-
+            # Check to see if we hit the job limit for this process, if so break out of the while loop
+            if job_count >= self.job_limit:
+                break
             else:
-                logger.info('No messages in queue {}'.format(utils.QUEUE_NAME))
-                time.sleep(40)
+                # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
+                messages = self.queue.receive_messages(
+                    MaxNumberOfMessages=10,
+                    MessageAttributeNames=['All'],
+                    AttributeNames=['All'],
+                    WaitTimeSeconds=20,
+                )
+
+                if messages:
+                    for message in messages:
+                        self.handle_message(message)
+
+                        # Check to see if the job had any errors and update the workflow appropriately
+                        bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
+                        job = Job.objects.get(id=bulk_settings_id)
+                        failed = Details.objects.filter(parent_job=bulk_settings_id, workflow_status=constants.FAILED)
+                        if failed:
+                            job.workflow_status = constants.COMPLETED_ERRORS
+                        else:
+                            job.workflow_status = constants.COMPLETED_SUCCESS
+                        job.updated_at = datetime.now()
+                        job.save()
+                        job_count += 1
+                else:
+                    logger.info('No messages in queue {}'.format(utils.QUEUE_NAME))
+                    time.sleep(40)
 
     @staticmethod
     def handle_message(message):
