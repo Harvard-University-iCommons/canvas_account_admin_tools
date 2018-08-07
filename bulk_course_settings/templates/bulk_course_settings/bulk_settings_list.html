@@ -45,8 +45,7 @@
 
             <a href="{% url 'bulk_course_settings:create_new_setting' %}" class="btn btn-primary">Create New Setting</a>
 
-            {#    TODO- Cleanup the commented link. This was used to test the method to add the jobs to the queue, using the values from the table            #}
-            {# <a href="{% url 'bulk_course_settings:add_bulk_job' %}" class="btn btn-primary">Create New Settings</a>#}
+
 
             </div>
         </div>
@@ -54,6 +53,7 @@
 
         <table class="datatable table table-striped table-bordered">
             <thead>
+                <th>Job ID</th>
                 <th>Term</th>
                 <th>Setting Modified</th>
                 <th>Desired Setting</th>
@@ -62,11 +62,18 @@
             <tbody>
             {% for item  in bulk_settings_list %}
                 <tr>
+                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' parent_job_process_id=item.id %}"> {{ item.id }} </a> </td>
                     <td>{{ item.get_term_name }}</td>
                     <td>{{ item.get_setting_to_be_modified_display }}</td>
-                    <td>{{ item.get_desired_setting_display }}</td>
+
+                    <td>
+                        {% if item.related_job_id is None %}
+                            {{ item.get_desired_setting_display }}
+                        {% else %}
+                            Reversion
+                        {% endif %}
+                    </td>
                     <td>{{ item.get_workflow_status_display }}</td>
-                    <td><a href="{% url 'bulk_course_settings:revert_setting' %}" class="btn btn-primary">Revert Setting</a></td>
                 </tr>
             {% endfor %}
             </tbody>
