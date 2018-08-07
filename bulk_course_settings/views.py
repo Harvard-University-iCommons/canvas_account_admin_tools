@@ -1,11 +1,12 @@
 import logging
 
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import ListView
-from django.views.generic.edit import FormView, CreateView
 from django.views import View
+from django.views.generic import ListView
+from django.views.generic.edit import CreateView
 
 from bulk_course_settings import constants
 from bulk_course_settings import utils
@@ -27,11 +28,12 @@ class BulkSettingsListView(LoginRequiredMixin, ListView):
     queryset = Job.objects.all()
 
 
-class BulkSettingsCreateView(LoginRequiredMixin, CreateView, FormView):
+class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
     context_object_name = 'create_new_setting'
     model = Job
+    success_message = "Job was created successfully"
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)

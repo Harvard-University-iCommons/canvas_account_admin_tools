@@ -26,6 +26,11 @@
                 Manage Bulk Course Settings
             </h3>
         </header>
+        {% for message in messages %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
         <div class="row">
             <h4>Set Bulk Course settings </h4>
             <div align="right">
