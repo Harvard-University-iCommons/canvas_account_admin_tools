@@ -37,9 +37,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
-        self.request.session['account_sis_id'] = self.request.LTI.get('custom_canvas_account_sis_id',
-                                                                      self.request.session['account_sis_id'])
-        account_sis_id = self.request.session['account_sis_id']
+        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
         context['account_sis_id'] = account_sis_id
         context['school_id'] = account_sis_id.split(':')[1]
         context['terms'] = utils.get_term_data_for_school(account_sis_id)
