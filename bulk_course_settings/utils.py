@@ -170,28 +170,32 @@ def build_update_arg_for_course(course, bulk_course_settings_job):
     return update_args
 
 
-def update_course(course, update_args, bulk_course_settings_job):
+def update_course(course, update_args, job):
     setting_args = update_args.copy()
     setting_to_change, desired_value = setting_args.popitem()
-    bulk_setting_detail = Details.objects.create(
-        parent_job=bulk_course_settings_job,
+    detail = Details.objects.create(
+        parent_job=job,
         canvas_course_id=course['id'],
         current_setting_value=course[REVERSE_API_MAPPING[setting_to_change]],
         is_modified=True,
         prior_state=course,
         post_state=''
     )
-
+    job.details_total_count += 1
     try:
         update_response = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
 
-        bulk_setting_detail.workflow_status = constants.COMPLETED
-        bulk_setting_detail.post_state = update_response.json()
-        bulk_setting_detail.save()
+        detail.workflow_status = constants.COMPLETED
+        detail.post_state = update_response.json()
+        detail.save()
+        job.details_success_count += 1
     except CanvasAPIError as e:
         message = 'Error updating course {} via SDK with parameters={}, SDK error details={}'\
             .format(course['id'], update_args, e)
         logger.exception(message)
 
-        bulk_setting_detail.workflow_status = constants.FAILED
-        bulk_setting_detail.save()
+        detail.workflow_status = constants.FAILED
+        detail.save()
+        job.details_failed_count += 1
+
+    job.save()

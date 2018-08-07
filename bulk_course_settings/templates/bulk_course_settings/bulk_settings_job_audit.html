@@ -37,14 +37,14 @@
             </div>
             <div class="col-sm-5">
                 <table class="datatable">
-                    <tr><td>Total: </td><td> #### </td></tr>
-                    <tr><td>Success: </td><td> #### </td></tr>
-                    <tr><td>Failure: </td><td> #### </td></tr>
-                    <tr><td>No Change: </td><td> #### </td></tr>
+                    <tr><td>Total: </td><td>{{ job.details_total_count}}</td></tr>
+                    <tr><td>Success: </td><td>{{ job.details_success_count }}</td></tr>
+                    <tr><td>Failure: </td><td>{{ job.details_failed_count }}</td></tr>
+                    <tr><td>Skipped: </td><td>{{ job.details_skipped_count }}</td></tr>
                 </table>
             </div>
             <div class="col-sm-2">
-                {% if job.related_job_id is None and job_details%}
+                {% if job.related_job_id is None and job.details_total_count > 0 %}
                     <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary">Revert Setting</a>
                 {% else %}
                     <a class="btn btn-primary disabled">Revert Setting</a>

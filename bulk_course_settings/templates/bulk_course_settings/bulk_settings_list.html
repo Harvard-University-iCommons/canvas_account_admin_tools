@@ -40,21 +40,29 @@
                 <th>Setting Modified</th>
                 <th>Desired Setting</th>
                 <th>Status</th>
+                <th>Total</th>
+                <th>Success</th>
+                <th>Failed</th>
+                <th>Skipped</th>
             </thead>
             <tbody>
-            {% for item  in bulk_settings_list %}
+            {% for job in jobs %}
                 <tr>
-                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' parent_job=item.id %}"> {{ item.id }} </a> </td>
-                    <td>{{ item.get_term_name }}</td>
-                    <td>{{ item.get_setting_to_be_modified_display }}</td>
+                    <td><a href="{% url 'bulk_course_settings:bulk_settings_job_audit' parent_job=job.id %}"> {{ job.id }} </a> </td>
+                    <td>{{ job.get_term_name }}</td>
+                    <td>{{ job.get_setting_to_be_modified_display }}</td>
                     <td>
-                        {% if item.related_job_id is None %}
-                            {{ item.get_desired_setting_display }}
+                        {% if job.related_job_id is None %}
+                            {{ job.get_desired_setting_display }}
                         {% else %}
                             Reversion
                         {% endif %}
                     </td>
-                    <td>{{ item.get_workflow_status_display }}</td>
+                    <td>{{ job.get_workflow_status_display }}</td>
+                    <td>{{ job.details_total_count}}</td>
+                    <td>{{ job.details_success_count }}</td>
+                    <td>{{ job.details_failed_count }}</td>
+                    <td>{{ job.details_skipped_count }}</td>
                 </tr>
             {% endfor %}
             </tbody>
