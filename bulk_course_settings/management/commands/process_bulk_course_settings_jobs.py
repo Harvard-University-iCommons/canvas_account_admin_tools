@@ -84,9 +84,10 @@ class Command(BaseCommand):
                 if job.related_job_id is not None:
                     # Check if this is a reversion, if so get the detail records from the related job and use
                     # the previous setting as the new desired setting to update the course.
-                    # TODO add check for workflow skipped?
-                    related_job_details = Details.objects.filter(
-                        parent_job=job.related_job_id)
+                    # Exclude detail records that were skipped
+                    related_job_details = Details.objects.\
+                        filter(parent_job=job.related_job_id).\
+                        exclude(workflow_status=constants.SKIPPED)
                     for detail in related_job_details:
                         utils.update_course(course={'id': detail.canvas_course_id, job.setting_to_be_modified: detail.current_setting_value},
                                             update_args={utils.API_MAPPING[job.setting_to_be_modified]: detail.current_setting_value},
