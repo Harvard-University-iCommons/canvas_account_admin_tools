@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 
 from bulk_course_settings import constants
-from bulk_course_settings.models import BulkCourseSettingsJobDetails
+from bulk_course_settings.models import Details
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
 from canvas_sdk.methods.courses import update_course as sdk_update_course
@@ -173,8 +173,8 @@ def build_update_arg_for_course(course, bulk_course_settings_job):
 def update_course(course, update_args, bulk_course_settings_job):
     setting_args = update_args.copy()
     setting_to_change, desired_value = setting_args.popitem()
-    bulk_setting_detail = BulkCourseSettingsJobDetails.objects.create(
-        parent_job_process_id=bulk_course_settings_job,
+    bulk_setting_detail = Details.objects.create(
+        parent_job=bulk_course_settings_job,
         canvas_course_id=course['id'],
         current_setting_value=course[REVERSE_API_MAPPING[setting_to_change]],
         is_modified=True,

@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 import bulk_course_settings.utils as utils
 from bulk_course_settings import constants
-from bulk_course_settings.models import BulkCourseSettingsJob, BulkCourseSettingsJobDetails
+from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
 from datetime import datetime
 
@@ -52,9 +52,8 @@ class Command(BaseCommand):
 
                     # Check to see if the job had any errors and update the workflow appropriately
                     bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
-                    bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
-                    failed = BulkCourseSettingsJobDetails.objects.filter(parent_job_process_id=bulk_settings_id,
-                                                                         workflow_status=constants.FAILED)
+                    bulk_course_settings_job = Job.objects.get(id=bulk_settings_id)
+                    failed = Details.objects.filter(parent_job=bulk_settings_id, workflow_status=constants.FAILED)
                     if failed:
                         bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
                     else:
@@ -71,10 +70,10 @@ class Command(BaseCommand):
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
-            bulk_course_settings_job = BulkCourseSettingsJob.objects.get(id=bulk_settings_id)
+            bulk_course_settings_job = Job.objects.get(id=bulk_settings_id)
             bulk_course_settings_job.workflow_status = constants.IN_PROGRESS
             bulk_course_settings_job.save()
-        except BulkCourseSettingsJob.DoesNotExist:
+        except Job.DoesNotExist:
             logger.exception('The bulk setting with a job id of {} does not exist'.format(bulk_settings_id))
             message.delete()
 
@@ -86,8 +85,8 @@ class Command(BaseCommand):
                     # Check if this is a reversion, if so get the detail records from the related job and use
                     # the previous setting as the new desired setting to update the course.
                     # TODO add check for workflow skipped?
-                    related_job_details = BulkCourseSettingsJobDetails.objects.filter(
-                        parent_job_process_id=bulk_course_settings_job.related_job_id)
+                    related_job_details = Details.objects.filter(
+                        parent_job=bulk_course_settings_job.related_job_id)
                     for detail in related_job_details:
                         utils.update_course(course={'id': detail.canvas_course_id, bulk_course_settings_job.setting_to_be_modified: detail.current_setting_value},
                                             update_args={utils.API_MAPPING[bulk_course_settings_job.setting_to_be_modified]: detail.current_setting_value},

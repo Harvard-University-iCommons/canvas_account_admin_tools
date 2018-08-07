@@ -1,10 +1,5 @@
 {% extends 'bulk_course_settings/base.html' %}
 
-{% load static %}
-{% load collections %}
-{% load django_helpers %}
-{% load i18n staticfiles %}
-
 {% block js %}
     <script>
         $(document).ready(function() {
@@ -28,16 +23,16 @@
                 Manage Bulk Course Settings
             </h3>
         </header>
-        Parent Job: {{ parent_job.id }}
+        Job: {{ job.id }}
         <div class="row">
             <div class="col-sm-5">
                 <table class="datatable">
-                    <tr><td>Setting: </td><td>{{ parent_job.setting_to_be_modified }}</td></tr>
-                    <tr><td>Term: </td><td>{{ parent_job.get_term_name }}</td></tr>
-                    <tr><td>Target Value: </td><td>{{ parent_job.desired_setting }}</td></tr>
-                    <tr><td>Created at: </td><td>{{ parent_job.created_at }}</td></tr>
-                    <tr><td>Created by: </td><td>{{ parent_job.created_by  }}</td></tr>
-                    <tr><td>Status: </td><td>{{ parent_job.workflow_status }}</td></tr>
+                    <tr><td>Setting: </td><td>{{ job.setting_to_be_modified }}</td></tr>
+                    <tr><td>Term: </td><td>{{ job.get_term_name }}</td></tr>
+                    <tr><td>Target Value: </td><td>{{ job.desired_setting }}</td></tr>
+                    <tr><td>Created at: </td><td>{{ job.created_at }}</td></tr>
+                    <tr><td>Created by: </td><td>{{ job.created_by  }}</td></tr>
+                    <tr><td>Status: </td><td>{{ job.workflow_status }}</td></tr>
                 </table>
             </div>
             <div class="col-sm-5">
@@ -49,8 +44,8 @@
                 </table>
             </div>
             <div class="col-sm-2">
-                {% if parent_job.related_job_id is None and job_details%}
-                    <a href="{% url 'bulk_course_settings:revert_setting' parent_job.school_id parent_job.id %}" class="btn btn-primary">Revert Setting</a>
+                {% if job.related_job_id is None and job_details%}
+                    <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary">Revert Setting</a>
                 {% else %}
                     <a class="btn btn-primary disabled">Revert Setting</a>
                 {% endif %}
@@ -66,16 +61,14 @@
                         <th>Prior Value</th>
                     </thead>
                     <tbody>
-                    {% if job_details %}
-                        {% for detail in job_details %}
-                            <tr>
-                                <td>{{ detail.id }}</td>
-                                <td>{{ detail.canvas_course_id }}</td>
-                                <td>{{ detail.workflow_status }}</td>
-                                <td>{{ detail.current_setting_value }}</td>
-                            </tr>
-                        {% endfor %}
-                    {% endif %}
+                    {% for detail in job.details.iteritems %}
+                        <tr>
+                            <td>{{ detail.id }}</td>
+                            <td>{{ detail.canvas_course_id }}</td>
+                            <td>{{ detail.workflow_status }}</td>
+                            <td>{{ detail.current_setting_value }}</td>
+                        </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>

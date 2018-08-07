@@ -10,7 +10,7 @@ from bulk_course_settings import constants
 logger = logging.getLogger(__name__)
 
 
-class BulkCourseSettingsJob(models.Model):
+class Job(models.Model):
     """
     Master table to manage bulk changes to course settings
     """
@@ -46,9 +46,6 @@ class BulkCourseSettingsJob(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        db_table = 'bulk_course_settings_job'
-
     @staticmethod
     def get_absolute_url():
         return reverse('bulk_course_settings:bulk_settings_list')
@@ -58,7 +55,7 @@ class BulkCourseSettingsJob(models.Model):
         return term.display_name
 
 
-class BulkCourseSettingsJobDetails(models.Model):
+class Details(models.Model):
     """
     Details for each bulk course settings job run
     """
@@ -70,7 +67,7 @@ class BulkCourseSettingsJobDetails(models.Model):
         (constants.FAILED, 'Failed')
     )
 
-    parent_job_process_id = models.ForeignKey(BulkCourseSettingsJob, on_delete=models.CASCADE)
+    parent_job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='details')
     canvas_course_id = models.IntegerField(null=True, blank=True)
     current_setting_value = models.CharField(max_length=20, null=True, blank=True)
     prior_state = models.CharField(max_length=2000, null=True)
@@ -78,6 +75,3 @@ class BulkCourseSettingsJobDetails(models.Model):
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
     is_modified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'bulk_course_settings_job_details'
