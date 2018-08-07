@@ -140,13 +140,13 @@ def get_canvas_courses(account_id=None, term_id=None, search_term=None, state=No
     return canvas_courses
 
 
-def check_and_update_course(course, bulk_course_settings_job):
-    update_args = build_update_arg_for_course(course, bulk_course_settings_job)
+def check_and_update_course(course, job):
+    update_args = build_update_arg_for_course(course, job)
     logger.debug('Update args for course {}: {}'.format(course['id'], update_args))
 
     # Only update the course if the arg dict is not empty
     if len(update_args):
-        update_course(course, update_args, bulk_course_settings_job)
+        update_course(course, update_args, job)
     else:
         # TODO
         # Create detail obj with skipped status
@@ -154,13 +154,13 @@ def check_and_update_course(course, bulk_course_settings_job):
         pass
 
 
-def build_update_arg_for_course(course, bulk_course_settings_job):
+def build_update_arg_for_course(course, ob):
     # Since we only update one setting at a time, check if the given courses setting differs from the value we want
     # and if it does make it an update argument.
     update_args = {}
 
-    setting_to_be_modified = bulk_course_settings_job.setting_to_be_modified
-    desired_value = bulk_course_settings_job.desired_setting
+    setting_to_be_modified = job.setting_to_be_modified
+    desired_value = job.desired_setting
 
     if course[setting_to_be_modified] is not True and desired_value is True:
         update_args[API_MAPPING[setting_to_be_modified]] = 'true'

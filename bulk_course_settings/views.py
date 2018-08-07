@@ -23,7 +23,7 @@ def lti_auth_error(request):
 class BulkSettingsListView(LoginRequiredMixin, ListView):
     model = Job
     template_name = 'bulk_course_settings/bulk_settings_list.html'
-    context_object_name = 'bulk_settings_list'
+    context_object_name = 'jobs'
     queryset = Job.objects.all()
 
 

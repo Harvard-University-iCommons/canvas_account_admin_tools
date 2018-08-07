@@ -52,14 +52,14 @@ class Command(BaseCommand):
 
                     # Check to see if the job had any errors and update the workflow appropriately
                     bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
-                    bulk_course_settings_job = Job.objects.get(id=bulk_settings_id)
+                    job = Job.objects.get(id=bulk_settings_id)
                     failed = Details.objects.filter(parent_job=bulk_settings_id, workflow_status=constants.FAILED)
                     if failed:
-                        bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
+                        job.workflow_status = constants.COMPLETED_ERRORS
                     else:
-                        bulk_course_settings_job.workflow_status = constants.COMPLETED_SUCCESS
-                    bulk_course_settings_job.updated_at = datetime.now()
-                    bulk_course_settings_job.save()
+                        job.workflow_status = constants.COMPLETED_SUCCESS
+                    job.updated_at = datetime.now()
+                    job.save()
 
             else:
                 logger.info('No messages in queue {}'.format(utils.QUEUE_NAME))
@@ -70,35 +70,35 @@ class Command(BaseCommand):
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
-            bulk_course_settings_job = Job.objects.get(id=bulk_settings_id)
-            bulk_course_settings_job.workflow_status = constants.IN_PROGRESS
-            bulk_course_settings_job.save()
+            job = Job.objects.get(id=bulk_settings_id)
+            job.workflow_status = constants.IN_PROGRESS
+            job.save()
         except Job.DoesNotExist:
             logger.exception('The bulk setting with a job id of {} does not exist'.format(bulk_settings_id))
             message.delete()
 
-        if bulk_course_settings_job:
+        if job:
             try:
-                term = Term.objects.get(term_id=bulk_course_settings_job.term_id)
+                term = Term.objects.get(term_id=job.term_id)
 
-                if bulk_course_settings_job.related_job_id is not None:
+                if job.related_job_id is not None:
                     # Check if this is a reversion, if so get the detail records from the related job and use
                     # the previous setting as the new desired setting to update the course.
                     # TODO add check for workflow skipped?
                     related_job_details = Details.objects.filter(
-                        parent_job=bulk_course_settings_job.related_job_id)
+                        parent_job=job.related_job_id)
                     for detail in related_job_details:
-                        utils.update_course(course={'id': detail.canvas_course_id, bulk_course_settings_job.setting_to_be_modified: detail.current_setting_value},
-                                            update_args={utils.API_MAPPING[bulk_course_settings_job.setting_to_be_modified]: detail.current_setting_value},
-                                            bulk_course_settings_job=bulk_course_settings_job)
+                        utils.update_course(course={'id': detail.canvas_course_id, job.setting_to_be_modified: detail.current_setting_value},
+                                            update_args={utils.API_MAPPING[job.setting_to_be_modified]: detail.current_setting_value},
+                                            job=job)
                 else:
                     # Otherwise get a list of active courses in the given account and given term
                     canvas_courses = utils.get_canvas_courses(
-                        account_id='sis_account_id:school:{}'.format(bulk_course_settings_job.school_id),
+                        account_id='sis_account_id:school:{}'.format(job.school_id),
                         term_id='sis_term_id:{}'.format(term.meta_term_id()))
 
                     for course in canvas_courses:
-                        utils.check_and_update_course(course, bulk_course_settings_job)
+                        utils.check_and_update_course(course, job)
 
                 logger.info("Message has been processed , deleting from sqs...")
                 message.delete()
@@ -106,8 +106,8 @@ class Command(BaseCommand):
             except Exception as e:
                 # Put the message back on the queue
                 logger.exception('Exception caught; re-queueing message %s', message.message_id)
-                bulk_course_settings_job.workflow_status = constants.COMPLETED_ERRORS
-                bulk_course_settings_job.save()
+                job.workflow_status = constants.COMPLETED_ERRORS
+                job.save()
                 message.change_visibility(VisibilityTimeout=0)
 
 
