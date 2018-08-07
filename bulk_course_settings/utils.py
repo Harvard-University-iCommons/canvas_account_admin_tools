@@ -148,13 +148,20 @@ def check_and_update_course(course, job):
     if len(update_args):
         update_course(course, update_args, job)
     else:
-        # TODO
-        # Create detail obj with skipped status
-        print 'SKIPPING COURSE'
-        pass
+        Details.objects.create(
+            parent_job=job,
+            canvas_course_id=course['id'],
+            current_setting_value=course[job.setting_to_be_modified],
+            is_modified=True,
+            prior_state=course,
+            post_state='',
+            workflow_status=constants.SKIPPED)
+        job.details_total_count += 1
+        job.details_skipped_count += 1
+        job.save()
 
 
-def build_update_arg_for_course(course, ob):
+def build_update_arg_for_course(course, job):
     # Since we only update one setting at a time, check if the given courses setting differs from the value we want
     # and if it does make it an update argument.
     update_args = {}
