@@ -57,6 +57,10 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
 
         return response
 
+    def get_success_url(self):
+        resource_link_id = self.request.GET['resource_link_id']
+        return reverse('bulk_course_settings:bulk_settings_list') + '?resource_link_id='+resource_link_id
+
 
 class BulkSettingsRevertView(LoginRequiredMixin, View):
 

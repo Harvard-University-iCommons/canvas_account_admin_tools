@@ -50,10 +50,6 @@ class Job(models.Model):
     details_failed_count = models.IntegerField(default=0)
     details_skipped_count = models.IntegerField(default=0)
 
-    @staticmethod
-    def get_absolute_url():
-        return reverse('bulk_course_settings:bulk_settings_list')
-
     def get_term_name(self):
         term = Term.objects.get(term_id=int(self.term_id))
         return term.display_name
