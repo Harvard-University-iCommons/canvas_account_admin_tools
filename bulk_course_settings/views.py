@@ -22,13 +22,19 @@ def lti_auth_error(request):
 
 
 class BulkSettingsListView(LoginRequiredMixin, ListView):
+    """Display a table with all Jobs created from this account."""
     model = Job
     template_name = 'bulk_course_settings/bulk_settings_list.html'
     context_object_name = 'jobs'
-    queryset = Job.objects.all()
+
+    def get_queryset(self):
+        account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
+        school_id = account_sis_id.split(':')[1]
+        return Job.objects.filter(school_id=school_id)
 
 
 class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_setting.html'
     context_object_name = 'create_new_setting'
@@ -44,7 +50,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
         return context
 
     def form_valid(self, form):
-        # If the form is valid, create the Job and add it to the SQS queue
+        """If the form is valid, create the Job and add it to the SQS queue"""
         form.instance.created_by = str(self.request.user)
         response = super(BulkSettingsCreateView, self).form_valid(form)
 
@@ -58,6 +64,11 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
         return response
 
     def get_success_url(self):
+        """
+        If the submitted form is valid and was saved, build the url that is used in the redirect to the job listing page
+        Check if the resource_link_id is already in the url, otherwise you may get a duplicate resource_link_id,
+        depending on the environment you are in
+        """
         url = reverse('bulk_course_settings:bulk_settings_list')
         if 'resource_link_id' not in url:
             url += '?resource_link_id=' + self.request.GET['resource_link_id']
@@ -65,6 +76,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
 
 
 class BulkSettingsRevertView(LoginRequiredMixin, View):
+    """Endpoint used in reverting the given Job for the given school"""
 
     def get(self, request, school_id, job_id):
         related_bulk_job = Job.objects.get(id=job_id)
@@ -85,6 +97,7 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
 
 
 class BulkSettingsAuditView(LoginRequiredMixin, ListView):
+    """Display information regarding the given Job and its Details"""
     model = Job
     template_name = 'bulk_course_settings/bulk_settings_job_audit.html'
     context_object_name = 'job'

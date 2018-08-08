@@ -32,6 +32,8 @@ KW = {
     'region_name':  AWS_REGION_NAME
 }
 
+# The Canvas SDK requires a course_ prefix when making requests
+# Use these 2 mappings to translate between the DB values and update arguments
 API_MAPPING = {
     'is_public': 'course_is_public',
     'is_public_to_auth_users': 'course_is_public_to_auth_users',
@@ -58,6 +60,7 @@ except Exception as e:
 
 
 def get_term_data_for_school(school_sis_account_id):
+    """Retrieves a list of active terms for the given school_sis_account_id"""
     school_id = school_sis_account_id.split(':')[1]
     year_floor = datetime.now().year - 5  # Limit term query to the past 5 years
     terms = []
@@ -81,6 +84,7 @@ def get_term_data_for_school(school_sis_account_id):
 
 
 def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting, queue_name=QUEUE_NAME):
+    """Adds a message to the SQS queue using the given parameters """
     logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s ,"
                  "desired_setting=%s"
                  % (bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting))
@@ -117,6 +121,7 @@ def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_
 
 
 def get_canvas_courses(account_id=None, term_id=None, search_term=None, state=None):
+    """Returns a list of active courses for the given account and term"""
     try:
         canvas_courses = get_all_list_data(
             SDK_CONTEXT,
@@ -141,6 +146,10 @@ def get_canvas_courses(account_id=None, term_id=None, search_term=None, state=No
 
 
 def check_and_update_course(course, job):
+    """
+    Checks if the given course requires an update using the value from the given Job.
+    If it does not, create a skipped Detail entry for the given Job.
+    """
     update_args = build_update_arg_for_course(course, job)
     logger.debug('Update args for course {}: {}'.format(course['id'], update_args))
 
@@ -162,8 +171,11 @@ def check_and_update_course(course, job):
 
 
 def build_update_arg_for_course(course, job):
-    # Since we only update one setting at a time, check if the given courses setting differs from the value we want
-    # and if it does make it an update argument.
+    """
+    Check if the given courses setting differs from the desired value of the given Job.
+    If it does, make an entry in the update_args return dict with the API translated setting to be modified as the key
+    and the job's desired value as its value.
+    """
     update_args = {}
 
     setting_to_be_modified = job.setting_to_be_modified
@@ -178,6 +190,7 @@ def build_update_arg_for_course(course, job):
 
 
 def update_course(course, update_args, job):
+    """Uses the Canvas SDK to update the given course with the given update values."""
     setting_args = update_args.copy()
     setting_to_change, desired_value = setting_args.popitem()
     detail = Details.objects.create(
