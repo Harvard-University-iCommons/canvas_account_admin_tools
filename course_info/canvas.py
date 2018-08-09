@@ -29,7 +29,7 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
             SDK_CONTEXT,
             get_sub_accounts_of_account,
             settings.ICOMMONS_COMMON['CANVAS_ROOT_ACCOUNT_ID'],
-            recursive=True)
+            recursive=False)
 
         # filter so we only have the school accounts
         all_school_accounts = {a['id']: a for a in all_canvas_accounts
