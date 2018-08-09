@@ -1,0 +1,92 @@
+{% extends 'bulk_course_settings/base.html' %}
+
+{% block js %}
+    <script>
+        $(document).ready(function() {
+            $('#details_table').dataTable( {
+                aaSorting: [[0, 'desc']],
+                "oLanguage": {
+                    "sSearch": "Search"
+                }
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        });
+    </script>
+{% endblock js %}
+
+{% block body %}
+<body role="application">
+    <div class="container">
+        <header>
+            <h3 class="breadcrumbs">
+                <a href="{% url 'dashboard_account' %}">Admin Console</a>
+                <small><i class="fa fa-chevron-right"></i></small>
+                <a href="{% url 'bulk_course_settings:job_list' %}">Bulk Course Settings</a>
+            </h3>
+        </header>
+
+        <h4>Details for Job ID: {{ job.id }}</h4>
+
+        <div class="row">
+            <div class="col-sm-5">
+                <table class="table">
+                    <tr><th>Setting: </th><td>{{ job.setting_to_be_modified }}</td></tr>
+                    <tr><th>Term: </th><td>{{ job.get_term_name }}</td></tr>
+                    <tr><th>Target Value: </th><td>{{ job.desired_setting }}</td></tr>
+                    <tr><th>Created at: </th><td>{{ job.created_at }}</td></tr>
+                    <tr><th>Status: </th><td>{{ job.workflow_status }}</td></tr>
+                </table>
+            </div>
+            <div class="col-sm-5">
+                <table class="table">
+                    <tr><th>Total courses processed: </th><td>{{ job.details_total_count}}</td></tr>
+                    <tr><th>Courses successfully updated: </th><td>{{ job.details_success_count }}</td></tr>
+                    <tr><th>Course update failures: </th><td>{{ job.details_failed_count }}</td></tr>
+                    <tr><th>Skipped courses: </th><td>{{ job.details_skipped_count }}</td></tr>
+                </table>
+            </div>
+            <div class="col-sm-2">
+                {% if reversion_job %}
+                    <a class="btn btn-primary disabled">Revert Job</a>
+                    <br/><i>This job has already been reverted and cannot be reverted again.</i>
+                {% elif job.related_job_id %}
+                    <a class="btn btn-primary disabled">Revert Job</a>
+                    <br/><i>This job is a reversion and cannot itself be reverted.</i>
+                {% elif job.workflow_status == 'COMPLETED_SUCCESS' and job.details_total_count == job.details_skipped_count %}
+                    <a class="btn btn-primary disabled">Revert Job</a>
+                    <br/><i>There are no settings to be reverted because all courses were skipped.</i>
+                {% elif job.workflow_status == 'NEW' or job.workflow_status == 'QUEUED' or job.workflow_status == 'IN_PROGRESS' %}
+                    <a class="btn btn-primary disabled">Revert Job</a>
+                    <br/><i>This job is still in progress and cannot be reverted until it is complete.</i>
+                {% elif job.related_job_id is None and job.workflow_status == 'COMPLETED_SUCCESS' %}
+                    <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary">Revert Job</a>
+                {% else %}
+                    <a class="btn btn-primary disabled" data-toggle="tooltip" title="test">Revert Job</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+              <h5>Courses processed by this job</h5>
+                <table class="datatable table table-striped table-bordered" id="details_table">
+                    <thead>
+                        <th>Canvas Course ID</th>
+                        <th>Status</th>
+                        <th>Prior Value</th>
+                    </thead>
+                    <tbody>
+                    {% for detail in job.details.all %}
+                        <tr>
+                            <td>{{ detail.canvas_course_id }}</td>
+                            <td>{{ detail.workflow_status }}</td>
+                            <td>{{ detail.current_setting_value }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock body %}

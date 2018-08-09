@@ -24,7 +24,7 @@ def lti_auth_error(request):
 class BulkSettingsListView(LoginRequiredMixin, ListView):
     """Display a table with all Jobs created from this account."""
     model = Job
-    template_name = 'bulk_course_settings/bulk_settings_list.html'
+    template_name = 'bulk_course_settings/job_list.html'
     context_object_name = 'jobs'
 
     def get_queryset(self):
@@ -36,8 +36,8 @@ class BulkSettingsListView(LoginRequiredMixin, ListView):
 class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
-    template_name = 'bulk_course_settings/create_new_setting.html'
-    context_object_name = 'create_new_setting'
+    template_name = 'bulk_course_settings/create_new_job.html'
+    context_object_name = 'create_new_job'
     model = Job
     success_message = "Job was created successfully"
 
@@ -69,7 +69,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
         Check if the resource_link_id is already in the url, otherwise you may get a duplicate resource_link_id,
         depending on the environment you are in
         """
-        url = reverse('bulk_course_settings:bulk_settings_list')
+        url = reverse('bulk_course_settings:job_list')
         if 'resource_link_id' not in url:
             url += '?resource_link_id=' + self.request.GET['resource_link_id']
         return url
@@ -80,6 +80,9 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
 
     def get(self, request, school_id, job_id):
         related_bulk_job = Job.objects.get(id=job_id)
+
+        # todo: check to make sure the original job hasn't already been reverted
+
         new_bulk_job = Job.objects.create(related_job_id=related_bulk_job.id,
                                           school_id=school_id,
                                           term_id=related_bulk_job.term_id,
@@ -93,14 +96,21 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
         new_bulk_job.workflow_status = constants.QUEUED
         new_bulk_job.save()
 
-        return redirect(reverse('bulk_course_settings:bulk_settings_list'))
+        return redirect(reverse('bulk_course_settings:job_list'))
 
 
-class BulkSettingsAuditView(LoginRequiredMixin, ListView):
+class BulkSettingsDetailView(LoginRequiredMixin, ListView):
     """Display information regarding the given Job and its Details"""
     model = Job
-    template_name = 'bulk_course_settings/bulk_settings_job_audit.html'
+    template_name = 'bulk_course_settings/job_detail.html'
     context_object_name = 'job'
 
     def get_queryset(self):
         return Job.objects.get(id=self.kwargs['job_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super(BulkSettingsDetailView, self).get_context_data(**kwargs)
+        original_job_id = self.kwargs['job_id']
+        reversion_job = Job.objects.filter(related_job_id=original_job_id).first()
+        context['reversion_job'] = reversion_job
+        return context

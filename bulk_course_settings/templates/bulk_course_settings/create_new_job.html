@@ -4,7 +4,7 @@
 
 <body role="application">
 
-    <h2 style="padding-bottom: 2em">Create a new bulk course setting</h2>
+    <h2 style="padding-bottom: 2em">Create a new bulk course settings job</h2>
 
     <form action="" method="post">{% csrf_token %}
         <div class="col-sm-2">
@@ -23,9 +23,12 @@
         <div class="col-sm-2">
             <strong>Target value: </strong> {{ form.desired_setting }}
         </div>
+        <input type="hidden" name="school_id" value="{{ school_id }}" />
 
-        <input type='hidden' name="school_id" value={{ school_id }} />
-        <input type="submit" class="btn btn-primary" style="margin-top: 1em" value="Submit" />
+        &nbsp;<br/>
+        <input type="submit" class="btn btn-primary"value="Submit" />
+        <a href="{% url 'bulk_course_settings:job_list' %}" class="btn btn-default">Cancel</a>
+
     </form>
 
 </body>
