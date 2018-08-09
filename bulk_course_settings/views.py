@@ -77,6 +77,7 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
 
 class BulkSettingsRevertView(LoginRequiredMixin, View):
     """Endpoint used in reverting the given Job for the given school"""
+    success_message = "Reversion job was created successfully"
 
     def get(self, request, school_id, job_id):
         related_bulk_job = Job.objects.get(id=job_id)
