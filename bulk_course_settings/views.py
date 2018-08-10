@@ -13,6 +13,7 @@ from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
 from icommons_common.auth.views import LoginRequiredMixin
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
@@ -76,28 +77,35 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
 
 class BulkSettingsRevertView(LoginRequiredMixin, View):
     """Endpoint used in reverting the given Job for the given school"""
-    success_message = "Reversion job was created successfully"
 
     def get(self, request, school_id, job_id):
-        related_bulk_job = Job.objects.get(id=job_id)
+        job_has_already_been_reverted = Job.objects.filter(related_job_id=job_id)
+        if job_has_already_been_reverted:
+            logger.info('Job {} has already been reverted'.format(job_id))
+            messages.error(request, 'Job has already been reverted')
+        else:
+            messages.success(request, 'Reversion job was created successfully')
+            related_bulk_job = Job.objects.get(id=job_id)
 
-        # todo: check to make sure the original job hasn't already been reverted
+            new_bulk_job = Job.objects.create(related_job_id=related_bulk_job.id,
+                                              school_id=school_id,
+                                              term_id=related_bulk_job.term_id,
+                                              setting_to_be_modified=related_bulk_job.setting_to_be_modified,
+                                              created_by=str(self.request.user))
 
-        new_bulk_job = Job.objects.create(related_job_id=related_bulk_job.id,
-                                          school_id=school_id,
+            utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
                                           term_id=related_bulk_job.term_id,
                                           setting_to_be_modified=related_bulk_job.setting_to_be_modified,
-                                          created_by=str(self.request.user))
+                                          desired_setting='REVERT')
+            new_bulk_job.workflow_status = constants.QUEUED
+            new_bulk_job.save()
+            logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
 
-        utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
-                                      term_id=related_bulk_job.term_id,
-                                      setting_to_be_modified=related_bulk_job.setting_to_be_modified,
-                                      desired_setting='REVERT')
-        new_bulk_job.workflow_status = constants.QUEUED
-        new_bulk_job.save()
-        logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
+        url = reverse('bulk_course_settings:job_list')
+        if 'resource_link_id' not in url:
+            url += '?resource_link_id=' + self.request.GET['resource_link_id']
 
-        return redirect(reverse('bulk_course_settings:job_list'))
+        return redirect(url)
 
 
 class BulkSettingsDetailView(LoginRequiredMixin, ListView):
