@@ -184,9 +184,9 @@ def build_update_arg_for_course(course, job):
     setting_to_be_modified = job.setting_to_be_modified
     desired_value = job.desired_setting
 
-    if course[setting_to_be_modified] is not True and desired_value is True:
+    if course[setting_to_be_modified] is not True and desired_value == 'True':
         update_args[API_MAPPING[setting_to_be_modified]] = 'true'
-    if course[setting_to_be_modified] is True and desired_value is False:
+    if course[setting_to_be_modified] is True and desired_value == 'False':
         update_args[API_MAPPING[setting_to_be_modified]] = 'false'
 
     return update_args

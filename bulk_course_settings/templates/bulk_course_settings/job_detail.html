@@ -36,7 +36,7 @@
                     <tr><th>Term: </th><td>{{ job.get_term_name }}</td></tr>
                     <tr><th>Target Value: </th><td>{{ job.desired_setting }}</td></tr>
                     <tr><th>Created at: </th><td>{{ job.created_at }}</td></tr>
-                    <tr><th>Status: </th><td>{{ job.workflow_status }}</td></tr>
+                    <tr><th>Status: </th><td>{{ job.get_workflow_status_display }}</td></tr>
                 </table>
             </div>
             <div class="col-sm-5">
@@ -80,7 +80,7 @@
                     {% for detail in job.details.all %}
                         <tr>
                             <td>{{ detail.canvas_course_id }}</td>
-                            <td>{{ detail.workflow_status }}</td>
+                            <td>{{ detail.get_workflow_status_display }}</td>
                             <td>{{ detail.current_setting_value }}</td>
                         </tr>
                     {% endfor %}
