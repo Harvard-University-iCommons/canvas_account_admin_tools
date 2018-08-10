@@ -31,8 +31,8 @@ class Job(models.Model):
         (constants.NEW, 'New'),
         (constants.QUEUED, 'Queued'),
         (constants.IN_PROGRESS, 'In progress'),
-        (constants.COMPLETED_SUCCESS, 'Completed Success'),
-        (constants.COMPLETED_ERRORS, 'Completed Errors'),
+        (constants.COMPLETED_SUCCESS, 'Completed successfully'),
+        (constants.COMPLETED_ERRORS, 'Completed with errors'),
         (constants.FAILED, 'Failed')
     )
 
