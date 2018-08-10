@@ -103,7 +103,7 @@ class Command(BaseCommand):
                     for course in canvas_courses:
                         utils.check_and_update_course(course, job)
 
-                logger.info("Message has been processed , deleting from sqs...")
+                logger.info('Message has been processed , deleting from sqs...')
                 message.delete()
 
             except Exception as e:
