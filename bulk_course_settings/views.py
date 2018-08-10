@@ -37,7 +37,6 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
     """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_job.html'
-    context_object_name = 'create_new_job'
     model = Job
     success_message = "Job was created successfully"
 
@@ -96,6 +95,7 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
                                       desired_setting='REVERT')
         new_bulk_job.workflow_status = constants.QUEUED
         new_bulk_job.save()
+        logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
 
         return redirect(reverse('bulk_course_settings:job_list'))
 
