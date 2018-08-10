@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
@@ -13,7 +14,6 @@ from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
 from icommons_common.auth.views import LoginRequiredMixin
-from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
