@@ -35,7 +35,6 @@
             <div class="col-sm-6">
                 <table class="table table-condensed">
                     <tr><th>Setting: </th><td>{{ job.setting_to_be_modified }}</td></tr>
-                    <tr><th>Term: </th><td>{{ job.get_term_name }}</td></tr>
                     <tr><th>Target Value: </th><td>{{ job.desired_setting }}</td></tr>
                     <tr><th>Created at: </th><td>{{ job.created_at }}</td></tr>
                     <tr><th>Status: </th><td>{{ job.get_workflow_status_display }}</td></tr>
@@ -43,10 +42,11 @@
             </div>
             <div class="col-sm-6">
                 <table class="table table-condensed">
+                    <tr><th>Term: </th><td>{{ job.get_term_name }}</td></tr>
                     <tr><th>Total courses processed: </th><td>{{ job.details_total_count}}</td></tr>
                     <tr><th>Courses successfully updated: </th><td>{{ job.details_success_count }}</td></tr>
-                    <tr><th>Course update failures: </th><td>{{ job.details_failed_count }}</td></tr>
                     <tr><th>Skipped courses: </th><td>{{ job.details_skipped_count }}</td></tr>
+                    <tr><th>Course update failures: </th><td>{{ job.details_failed_count }}</td></tr>
                 </table>
             </div>
             <div class="row">
@@ -72,7 +72,7 @@
                 </div>
                 <div class="col-sm-2">
                     {% if job.related_job_id is None and job.workflow_status == 'COMPLETED_SUCCESS' %}
-                        <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary">Revert Job</a>
+                        <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary pull-right">Revert Job</a>
                     {% else %}
                         <a class="btn btn-default disabled pull-right">Revert Job</a>
                     {% endif %}
