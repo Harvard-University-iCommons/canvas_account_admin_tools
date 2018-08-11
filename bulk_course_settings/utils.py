@@ -80,6 +80,7 @@ def get_term_data_for_school(school_sis_account_id):
             'id': str(term.term_id),
             'name': term.display_name
         })
+    logger.info('Terms retrieved for account {}: {}'.format(school_sis_account_id, terms))
     return terms
 
 
@@ -155,8 +156,10 @@ def check_and_update_course(course, job):
 
     # Only update the course if the arg dict is not empty
     if len(update_args):
+        logger.info('Course {} requires an update'.format(course['id']))
         update_course(course, update_args, job)
     else:
+        logger.info('Course {} does not require an update, skipping...'.format(course['id']))
         Details.objects.create(
             parent_job=job,
             canvas_course_id=course['id'],
@@ -181,9 +184,9 @@ def build_update_arg_for_course(course, job):
     setting_to_be_modified = job.setting_to_be_modified
     desired_value = job.desired_setting
 
-    if course[setting_to_be_modified] is not True and desired_value is True:
+    if course[setting_to_be_modified] is not True and desired_value == 'True':
         update_args[API_MAPPING[setting_to_be_modified]] = 'true'
-    if course[setting_to_be_modified] is True and desired_value is False:
+    if course[setting_to_be_modified] is True and desired_value == 'False':
         update_args[API_MAPPING[setting_to_be_modified]] = 'false'
 
     return update_args
@@ -203,13 +206,15 @@ def update_course(course, update_args, job):
     )
     job.details_total_count += 1
     try:
+        logger.info('Updating course {} with update args {}'.format(course['id'], update_args))
         update_response = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
+        logger.info('Successfully updated course {}'.format(course['id']))
 
         detail.workflow_status = constants.COMPLETED
         detail.post_state = update_response.json()
         detail.save()
         job.details_success_count += 1
-    except CanvasAPIError as e:
+    except Exception as e:
         message = 'Error updating course {} via SDK with parameters={}, SDK error details={}'\
             .format(course['id'], update_args, e)
         logger.exception(message)

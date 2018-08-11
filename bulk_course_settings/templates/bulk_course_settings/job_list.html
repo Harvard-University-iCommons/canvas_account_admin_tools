@@ -1,0 +1,96 @@
+{% extends 'bulk_course_settings/base.html' %}
+
+{% block js %}
+    <script>
+		$(document).ready(function() {
+			$('.datatable').dataTable( {
+				aaSorting: [[0, 'desc']],
+				"aoColumnDefs": [ {
+					'bSortable': false,
+					'aTargets': [3] } ],
+				"oLanguage": {
+                  "sSearch": "Search"
+                }
+			});
+
+      $('[data-toggle="tooltip"]').tooltip();
+
+		});
+
+    function refreshPage() {
+		  window.location.reload();
+    }
+	</script>
+{% endblock js %}
+
+{% block body %}
+<body role="application">
+    <div class="container-fluid">
+        <div class="row">
+            <header>
+                <h3 class="breadcrumbs">
+                    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+                    <small><i class="fa fa-chevron-right"></i></small>
+                    Bulk Course Settings
+                </h3>
+            </header>
+        </div>
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="row" style="margin-top: 1em;">
+            <button class="btn btn-primary fa fa-refresh pull-right"
+                    onclick="refreshPage()" aria-label="refresh page"
+                    data-toggle="tooltip" title="Refresh page"></button>
+            <a href="{% url 'bulk_course_settings:create_new_job' %}" class="btn btn-primary pull-right">Create New Job</a>
+            <h4>Bulk Course Settings Jobs</h4>
+        </div>
+        <div class="row" style="margin-top: .25em;">
+            <table class="datatable table display no-footer">
+                <thead>
+                    <th>Job ID</th>
+                    <th>Created</th>
+                    <th>Term</th>
+                    <th>Setting Modified</th>
+                    <th>Desired Setting</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Updated</th>
+                    <th>Skipped</th>
+                    <th>Failed</th>
+                </thead>
+                <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td><a href="{% url 'bulk_course_settings:job_detail' job_id=job.id %}"> {{ job.id }} </a> </td>
+                        <td>{{ job.created_at }}</td>
+                        <td>{{ job.get_term_name }}</td>
+                        <td>{{ job.get_setting_to_be_modified_display }}</td>
+                        <td>
+                            {% if job.related_job_id is None %}
+                                {{ job.get_desired_setting_display }}
+                            {% else %}
+                                <i>reversion of job {{ job.related_job_id }}</i>
+                            {% endif %}
+                        </td>
+                        <td>{{ job.get_workflow_status_display }}</td>
+                        <td>{{ job.details_total_count}}</td>
+                        <td>{{ job.details_success_count }}</td>
+                        <td>{{ job.details_skipped_count }}</td>
+                        <td>{{ job.details_failed_count }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+{% endblock body %}

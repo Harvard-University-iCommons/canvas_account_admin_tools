@@ -1,0 +1,47 @@
+{% extends 'bulk_course_settings/base.html' %}
+
+{% block body %}
+
+<body role="application">
+    <div class="container-fluid">
+        <div class="row">
+            <header>
+                <h3 class="breadcrumbs">
+                    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+                    <small><i class="fa fa-chevron-right"></i></small>
+                    <a href="{% url 'bulk_course_settings:job_list' %}">Bulk Course Settings</a>
+                </h3>
+            </header>
+        </div>
+        <div class="row">
+            <h3 style="padding-bottom: 2em">Create a new bulk course settings job</h3>
+        </div>
+        <form action="" method="post">{% csrf_token %}
+            <div class="row">
+                <div class="col-sm-4">
+                    <strong>Term: </strong>
+                    <select name="term_id" id="id_term_id" class="form-control">
+                        {% for term  in terms %}
+                            <option value="{{ term.id }}">{{term.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <strong>Setting to change: </strong> {{ form.setting_to_be_modified }}
+                </div>
+                <div class="col-sm-4">
+                    <strong>Target value: </strong> {{ form.desired_setting }}
+                </div>
+            </div>
+            <input type="hidden" name="school_id" value="{{ school_id }}" />
+            <div class="row" style="padding-top: 1em">
+                <div class="col-sm-12">
+                    <input type="submit" class="btn btn-primary pull-right" value="Submit" />
+                    <a href="{% url 'bulk_course_settings:job_list' %}" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+
+{% endblock body %}

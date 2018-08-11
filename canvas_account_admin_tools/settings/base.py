@@ -207,7 +207,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 # A boolean that specifies whether Django's translation system should be enabled. This provides
 # an easy way to turn it off, for performance. If this is set to False, Django will make some
 # optimizations so as not to load the translation machinery.

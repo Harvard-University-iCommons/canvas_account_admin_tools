@@ -16,8 +16,8 @@ class Job(models.Model):
     """
 
     DESIRED_SETTING_CHOICES = (
-        (True, 'True'),
-        (False, 'False')
+        ('True', 'True'),
+        ('False', 'False')
     )
 
     SETTINGS_TO_MODIFY_CHOICES = (
@@ -31,15 +31,15 @@ class Job(models.Model):
         (constants.NEW, 'New'),
         (constants.QUEUED, 'Queued'),
         (constants.IN_PROGRESS, 'In progress'),
-        (constants.COMPLETED_SUCCESS, 'Completed Success'),
-        (constants.COMPLETED_ERRORS, 'Completed Errors'),
+        (constants.COMPLETED_SUCCESS, 'Completed successfully'),
+        (constants.COMPLETED_ERRORS, 'Completed with errors'),
         (constants.FAILED, 'Failed')
     )
 
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
-    setting_to_be_modified = models.CharField(max_length=20, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
-    desired_setting = models.BooleanField(choices=DESIRED_SETTING_CHOICES, default=True)
+    setting_to_be_modified = models.CharField(max_length=50, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
+    desired_setting = models.CharField(max_length=50, choices=DESIRED_SETTING_CHOICES, default='True')
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
     related_job_id = models.IntegerField(null=True)
     created_by = models.CharField(max_length=15)
