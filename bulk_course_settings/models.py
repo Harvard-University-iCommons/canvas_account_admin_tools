@@ -21,10 +21,10 @@ class Job(models.Model):
     )
 
     SETTINGS_TO_MODIFY_CHOICES = (
-        ('is_public', 'Course is public'),
-        ('is_public_to_auth_users', 'Course is public to auth users'),
-        ('public_syllabus', 'Public syllabus'),
-        ('public_syllabus_to_auth', 'Syllabus is public to auth users')
+        ('is_public', 'Course is open to the public'),
+        ('is_public_to_auth_users', 'Course is open to all authenticated users'),
+        ('public_syllabus', 'Syllabus is open to the public'),
+        ('public_syllabus_to_auth', 'Syllabus is open to all authenticated users')
     )
 
     WORKFLOW_STATUS = (
