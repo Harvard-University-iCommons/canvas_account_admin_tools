@@ -78,7 +78,7 @@
                             {% if job.related_job_id is None %}
                                 {{ job.get_desired_setting_display }}
                             {% else %}
-                                <i>reversion of job {{ job.related_job_id }}</i>
+                                <a href="{% url 'bulk_course_settings:job_detail' job_id=job.related_job_id %}"> <i>reversion of job {{ job.related_job_id }}</i> </a>
                             {% endif %}
                         </td>
                         <td>{{ job.get_workflow_status_display }}</td>
