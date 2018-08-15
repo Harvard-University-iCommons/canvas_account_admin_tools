@@ -1,6 +1,8 @@
+import json
 import logging
 import signal
 import time
+from datetime import datetime
 
 from botocore.exceptions import ClientError
 from django.core.management.base import BaseCommand
@@ -9,7 +11,6 @@ import bulk_course_settings.utils as utils
 from bulk_course_settings import constants
 from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +92,11 @@ class Command(BaseCommand):
                         filter(parent_job=job.related_job_id).\
                         exclude(workflow_status=constants.SKIPPED)
                     for detail in related_job_details:
-                        utils.update_course(course={'id': detail.canvas_course_id, job.setting_to_be_modified: detail.current_setting_value},
-                                            update_args={utils.API_MAPPING[job.setting_to_be_modified]: detail.current_setting_value},
+                        # Check to see if the course originally had a None value for the setting to be modified,
+                        # Use false as the update arg value in the reversion call.
+                        desired_setting = detail.current_setting_value or 'false'
+                        utils.update_course(course=json.loads(detail.post_state),
+                                            update_args={utils.API_MAPPING[job.setting_to_be_modified]: desired_setting},
                                             job=job)
                 else:
                     # Otherwise get a list of active courses in the given account and given term

@@ -20,7 +20,6 @@ from icommons_common.models import Term
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
-boto3.set_stream_logger('')
 AWS_REGION_NAME = settings.BULK_COURSE_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
@@ -201,7 +200,7 @@ def update_course(course, update_args, job):
         canvas_course_id=course['id'],
         current_setting_value=course[REVERSE_API_MAPPING[setting_to_change]],
         is_modified=True,
-        prior_state=course,
+        prior_state=json.dumps(course),
         post_state=''
     )
     job.details_total_count += 1
@@ -211,7 +210,7 @@ def update_course(course, update_args, job):
         logger.info('Successfully updated course {}'.format(course['id']))
 
         detail.workflow_status = constants.COMPLETED
-        detail.post_state = update_response.json()
+        detail.post_state = json.dumps(update_response.json())
         detail.save()
         job.details_success_count += 1
     except Exception as e:
