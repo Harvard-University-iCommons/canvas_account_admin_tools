@@ -18,7 +18,6 @@ from icommons_common.models import School, Term, Department, CourseGroup, Person
 from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 
 from lti_permissions.decorators import lti_permission_required
-from lti_permissions.verification import get_school_sub_account_from_account_id
 
 from .models import (
     get_course_instance_query_set,
@@ -53,7 +52,7 @@ def index(request):
     sis_account_id = request.LTI['custom_canvas_account_sis_id']
     ci_filters = {key: request.GET.get(key, '')
                   for key in COURSE_INSTANCE_FILTERS}
-    (account_type, _) = canvas_api_accounts.parse_canvas_account_id(sis_account_id)
+    (account_type, local_id) = canvas_api_accounts.parse_canvas_account_id(sis_account_id)
     schools = []
     terms = []
     departments = []
@@ -72,9 +71,11 @@ def index(request):
 
         # We are in the context of a SIS type account, so limit options to that
         # context
-        account = get_school_sub_account_from_account_id(sis_account_id)
-        school = {'id': account.get('sis_account_id'),
-                  'name': account.get('name')}
+        s = School.objects.get(pk=local_id)
+        school = {
+            'id': sis_account_id,
+            'name': s.title_short,
+        }
 
         ci_filters[canvas_api_accounts.ACCOUNT_TYPE_SCHOOL] = school['id']
         schools.append(school)

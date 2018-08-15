@@ -140,4 +140,30 @@
           </a>
         </div>
     {% endif %}
+
+     {% if bulk_course_settings_is_allowed %}
+        <div class="card card_color">
+            <a href="{% url 'bulk_course_settings:job_list' %}" id="bulk_course_settings">
+              <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-files-o icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Bulk Course Settings">
+                      <span class="content-link">
+                        Bulk Course Settings
+                      </span>
+                    </h2>
+                    <p title="Bulk Course Settings">Change a Canvas setting for multiple courses at once</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
 {% endblock content %}

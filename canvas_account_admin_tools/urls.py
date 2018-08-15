@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^not_authorized$', icommons_ui_views.not_authorized, name='not_authorized'),
     url(r'^people_tool/', include('people_tool.urls', namespace='people_tool')),
     url(r'^publish_courses/', include('publish_courses.urls', namespace='publish_courses')),
+    url(r'^bulk_course_settings/', include('bulk_course_settings.urls', namespace='bulk_course_settings')),
+
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
 

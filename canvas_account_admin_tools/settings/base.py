@@ -70,8 +70,10 @@ INSTALLED_APPS = (
     'people_tool',
     'proxy',
     'publish_courses',
+    'bulk_course_settings',
     'rest_framework'
 )
+
 
 MIDDLEWARE_CLASSES = (
     # NOTE - djng needs to be the first item in this list
@@ -205,7 +207,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 # A boolean that specifies whether Django's translation system should be enabled. This provides
 # an easy way to turn it off, for performance. If this is set to False, Django will make some
 # optimizations so as not to load the translation machinery.
@@ -278,11 +280,6 @@ LOGGING = {
         'handlers': ['console', 'default'],
     },
     'loggers': {
-        'django': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
-            'propagate': False,
-        },
         'bulk_utilities': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -314,6 +311,11 @@ LOGGING = {
             'propagate': False,
         },
         'publish_courses': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'bulk_course_settings': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,
@@ -375,6 +377,8 @@ PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
+PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
+
 
 
 # in search courses, when you add a person to a course. This list
@@ -392,6 +396,16 @@ BULK_COURSE_CREATION = {
                                'course sites were created successfully.\n',
     'notification_email_body_failed_count': ' - {} course sites were not '
                                             'created.',
+}
+
+
+BULK_COURSE_SETTINGS = {
+    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
+    's3_bucket': SECURE_SETTINGS.get('bulk_course_settings_s3_bucket'),
+    'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
+    'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
+    'job_queue_name': SECURE_SETTINGS.get('job_queue_name'),
+
 }
 
 CANVAS_EMAIL_NOTIFICATION = {
