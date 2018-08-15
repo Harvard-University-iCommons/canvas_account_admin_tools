@@ -201,7 +201,7 @@ def update_course(course, update_args, job):
         canvas_course_id=course['id'],
         current_setting_value=course[REVERSE_API_MAPPING[setting_to_change]],
         is_modified=True,
-        prior_state=course,
+        prior_state=json.dumps(course),
         post_state=''
     )
     job.details_total_count += 1
@@ -211,7 +211,7 @@ def update_course(course, update_args, job):
         logger.info('Successfully updated course {}'.format(course['id']))
 
         detail.workflow_status = constants.COMPLETED
-        detail.post_state = update_response.json()
+        detail.post_state = json.dumps(update_response.json())
         detail.save()
         job.details_success_count += 1
     except Exception as e:
