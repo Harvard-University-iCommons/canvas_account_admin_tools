@@ -20,7 +20,6 @@ from icommons_common.models import Term
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
-boto3.set_stream_logger('')
 AWS_REGION_NAME = settings.BULK_COURSE_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
