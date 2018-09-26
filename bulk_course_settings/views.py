@@ -14,6 +14,8 @@ from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
 from icommons_common.auth.views import LoginRequiredMixin
+from lti_permissions.mixins import LTIPermissionRequiredMixin
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +24,12 @@ def lti_auth_error(request):
     raise PermissionDenied
 
 
-class BulkSettingsListView(LoginRequiredMixin, ListView):
+class BulkSettingsListView(LTIPermissionRequiredMixin, LoginRequiredMixin, ListView):
     """Display a table with all Jobs created from this account."""
     model = Job
     template_name = 'bulk_course_settings/job_list.html'
     context_object_name = 'jobs'
+    permission = 'bulk_course_settings'
 
     def get_queryset(self):
         account_sis_id = self.request.LTI['custom_canvas_account_sis_id']
@@ -34,12 +37,13 @@ class BulkSettingsListView(LoginRequiredMixin, ListView):
         return Job.objects.filter(school_id=school_id)
 
 
-class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
     """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_job.html'
     model = Job
-    success_message = "Job was created successfully"
+    success_message = 'Job was created successfully'
+    permission = 'bulk_course_settings'
 
     def get_context_data(self, **kwargs):
         context = super(BulkSettingsCreateView, self).get_context_data(**kwargs)
@@ -75,8 +79,9 @@ class BulkSettingsCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView
         return url
 
 
-class BulkSettingsRevertView(LoginRequiredMixin, View):
+class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, View):
     """Endpoint used in reverting the given Job for the given school"""
+    permission = 'bulk_course_settings'
 
     def get(self, request, school_id, job_id):
         job_has_already_been_reverted = Job.objects.filter(related_job_id=job_id)
@@ -114,11 +119,12 @@ class BulkSettingsRevertView(LoginRequiredMixin, View):
         return redirect(url)
 
 
-class BulkSettingsDetailView(LoginRequiredMixin, ListView):
+class BulkSettingsDetailView(LTIPermissionRequiredMixin, LoginRequiredMixin, ListView):
     """Display information regarding the given Job and its Details"""
     model = Job
     template_name = 'bulk_course_settings/job_detail.html'
     context_object_name = 'job'
+    permission = 'bulk_course_settings'
 
     def get_queryset(self):
         return Job.objects.get(id=self.kwargs['job_id'])
