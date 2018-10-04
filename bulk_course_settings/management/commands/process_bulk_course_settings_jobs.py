@@ -13,6 +13,7 @@ from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
+VISIBILITY_TIMEOUT = 60
 
 
 class Command(BaseCommand):
@@ -70,6 +71,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def handle_message(message):
+        start_time = time.time()
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
@@ -92,6 +94,13 @@ class Command(BaseCommand):
                         filter(parent_job=job.related_job_id).\
                         exclude(workflow_status=constants.SKIPPED)
                     for detail in related_job_details:
+                        # if it's less than 15 seconds left, increase the timeout by another chunk of
+                        # VISIBILITY_TIMEOUT settings and reset start_time
+                        if (time.time() - start_time) < VISIBILITY_TIMEOUT-15:
+                            message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
+                            start_time = time.time()
+                            logger.info("Extended message visibility to %d and reset start time to  %d", VISIBILITY_TIMEOUT, start_time)
+
                         # Check to see if the course originally had a None value for the setting to be modified,
                         # Use false as the update arg value in the reversion call.
                         desired_setting = detail.current_setting_value or 'false'
@@ -105,6 +114,12 @@ class Command(BaseCommand):
                         term_id='sis_term_id:{}'.format(term.meta_term_id()))
 
                     for course in canvas_courses:
+                        # if it's less than 15 seconds left, increase the timeout by another chunk of
+                        # VISIBILITY_TIMEOUT settings and reset start_time
+                        if (time.time() - start_time) < VISIBILITY_TIMEOUT-15:
+                            message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
+                            start_time = time.time()
+                            logger.info("Extended message visibility to %d and reset start time to  %d", VISIBILITY_TIMEOUT, start_time)
                         utils.check_and_update_course(course, job)
 
                 logger.info('Message has been processed , deleting from sqs...')
