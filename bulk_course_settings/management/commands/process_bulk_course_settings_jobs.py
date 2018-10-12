@@ -72,6 +72,7 @@ class Command(BaseCommand):
     @staticmethod
     def handle_message(message):
         start_time = time.time()
+        logger.info(" START TIME =", str(time.ctime(int(start_time))))
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
 
@@ -100,7 +101,8 @@ class Command(BaseCommand):
                             message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
                             start_time = time.time()
                             # todo: change debug  to info after testing
-                            logger.debug("Extended message visibility to %d and reset start time to  %d", VISIBILITY_TIMEOUT, start_time)
+                            logger.debug("Extended message visibility to %d and reset start time to  %d, detail.id= %d",
+                                         VISIBILITY_TIMEOUT, str(time.ctime(int(start_time))), detail.id)
 
                         # Check to see if the course originally had a None value for the setting to be modified,
                         # Use false as the update arg value in the reversion call.
@@ -120,11 +122,13 @@ class Command(BaseCommand):
                         if (time.time() - start_time) < VISIBILITY_TIMEOUT-15:
                             message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
                             start_time = time.time()
-                            logger.debug("Extended message visibility to %d and reset start time to  %d", VISIBILITY_TIMEOUT, start_time)
+                            logger.debug("Extended message visibility to %d and reset start time to %d, canvas id= %s",
+                                         VISIBILITY_TIMEOUT, str(time.ctime(int(start_time))), course['id'])
                         utils.check_and_update_course(course, job)
 
                 logger.info('Message has been processed , deleting from sqs...')
                 message.delete()
+                logger.info(" END TIME =", str(time.ctime(int(time.time()))))
 
             except Exception as e:
                 # Put the message back on the queue
