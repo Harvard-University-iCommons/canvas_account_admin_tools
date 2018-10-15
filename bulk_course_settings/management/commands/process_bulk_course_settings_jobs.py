@@ -59,7 +59,6 @@ class Command(BaseCommand):
 
                         # Check to see if the job had any errors and update the workflow appropriately
                         bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
-                        print "bulk_settings_id=", bulk_settings_id
                         job = Job.objects.get(id=bulk_settings_id)
                         failed = Details.objects.filter(parent_job=bulk_settings_id, workflow_status=constants.FAILED)
                         if failed:
