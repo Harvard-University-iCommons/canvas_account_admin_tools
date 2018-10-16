@@ -85,9 +85,9 @@ def get_term_data_for_school(school_sis_account_id):
 
 def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting, queue_name=QUEUE_NAME):
     """Adds a message to the SQS queue using the given parameters """
-    logger.debug("queue_bulk_settings_job:  bulk_settings_id=%s, school_id=%s, term_id=%s, setting_to_be_modified=%s ,"
-                 "desired_setting=%s"
-                 % (bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting))
+    logger.debug("queue_bulk_settings_job:  bulk_settings_id={}, school_id={}, term_id={}, setting_to_be_modified={} , "
+                 "desired_setting={}"
+                 .format(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting))
     queue = SQS.get_queue_by_name(QueueName=queue_name)
     message = queue.send_message(
         MessageBody='_'.join(['msg_body', str(bulk_settings_id)]),

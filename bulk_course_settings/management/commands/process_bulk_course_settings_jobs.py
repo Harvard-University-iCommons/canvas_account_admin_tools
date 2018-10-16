@@ -103,9 +103,10 @@ class Command(BaseCommand):
                         # VISIBILITY_TIMEOUT settings and reset start_time
                         if (time.time() - start_time) > VISIBILITY_TIMEOUT-15:
                             message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
-                            start_date = datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+                            start_time = time.time()
                             logger.info("Extended message visibility to %d and reset start time to %s, detail.id= %d",
-                                        VISIBILITY_TIMEOUT, start_date, detail.id)
+                                        VISIBILITY_TIMEOUT,
+                                        datetime.utcfromtimestamp(start_time).strftime('%Y-%m-%dT%H:%M:%S'), detail.id)
 
                         # Check to see if the course originally had a None value for the setting to be modified,
                         # Use false as the update arg value in the reversion call.
@@ -124,9 +125,10 @@ class Command(BaseCommand):
                         # VISIBILITY_TIMEOUT settings and reset start_time
                         if (time.time() - start_time) > VISIBILITY_TIMEOUT-15:
                             message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
-                            start_date = datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+                            start_time = time.time()
                             logger.info("Extended message visibility to %d and reset start time to %s, canvas id= %s",
-                                        VISIBILITY_TIMEOUT, start_date, course['id'])
+                                        VISIBILITY_TIMEOUT,
+                                        datetime.utcfromtimestamp(start_time).strftime('%Y-%m-%dT%H:%M:%S'), course['id'])
                         utils.check_and_update_course(course, job)
 
                 logger.info('Message has been processed , deleting from sqs...')
