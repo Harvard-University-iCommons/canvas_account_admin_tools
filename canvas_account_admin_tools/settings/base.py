@@ -405,6 +405,7 @@ BULK_COURSE_SETTINGS = {
     'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
     'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
     'job_queue_name': SECURE_SETTINGS.get('job_queue_name'),
+    'visibility_timeout': SECURE_SETTINGS.get('visibility_timeout', 120),
 
 }
 

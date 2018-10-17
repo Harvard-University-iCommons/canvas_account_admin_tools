@@ -24,6 +24,7 @@ AWS_REGION_NAME = settings.BULK_COURSE_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']
 QUEUE_NAME = settings.BULK_COURSE_SETTINGS['job_queue_name']
+VISIBILITY_TIMEOUT = settings.BULK_COURSE_SETTINGS['visibility_timeout']
 
 KW = {
     'aws_access_key_id': AWS_ACCESS_KEY_ID,

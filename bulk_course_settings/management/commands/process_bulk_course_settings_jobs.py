@@ -13,8 +13,7 @@ from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
-# set to 120 seconds
-VISIBILITY_TIMEOUT = 120
+VISIBILITY_TIMEOUT = utils.VISIBILITY_TIMEOUT
 
 
 class Command(BaseCommand):
@@ -45,10 +44,11 @@ class Command(BaseCommand):
             else:
                 # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
                 messages = self.queue.receive_messages(
-                    MaxNumberOfMessages=10,
+                    MaxNumberOfMessages=1,
                     MessageAttributeNames=['All'],
                     AttributeNames=['All'],
                     WaitTimeSeconds=20,
+                    VisibilityTimeout=VISIBILITY_TIMEOUT
                 )
 
                 if messages:
