@@ -15,7 +15,7 @@ from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
-# set to 60 seconds
+# set to 120 seconds
 VISIBILITY_TIMEOUT = 120
 
 
