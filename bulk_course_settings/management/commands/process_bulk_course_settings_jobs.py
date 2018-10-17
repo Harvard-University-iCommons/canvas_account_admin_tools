@@ -16,7 +16,7 @@ from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
 # set to 60 seconds
-VISIBILITY_TIMEOUT = 60
+VISIBILITY_TIMEOUT = 120
 
 
 class Command(BaseCommand):
