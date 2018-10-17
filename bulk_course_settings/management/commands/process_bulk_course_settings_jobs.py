@@ -3,8 +3,6 @@ import logging
 import signal
 import time
 from datetime import datetime
-from time import strftime
-
 
 from botocore.exceptions import ClientError
 from django.core.management.base import BaseCommand
