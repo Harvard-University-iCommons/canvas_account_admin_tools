@@ -282,22 +282,22 @@ LOGGING = {
     'loggers': {
         'bulk_utilities': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'canvas_account_admin_tools': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'canvas_course_site_wizard': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'canvas_site_creator': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'course_info': {
@@ -312,12 +312,12 @@ LOGGING = {
         },
         'publish_courses': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'bulk_course_settings': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'rq.worker': {
@@ -405,6 +405,7 @@ BULK_COURSE_SETTINGS = {
     'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
     'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
     'job_queue_name': SECURE_SETTINGS.get('job_queue_name'),
+    'visibility_timeout': SECURE_SETTINGS.get('visibility_timeout', 120),
 
 }
 
