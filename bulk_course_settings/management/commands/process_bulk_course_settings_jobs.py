@@ -13,6 +13,7 @@ from bulk_course_settings.models import Job, Details
 from icommons_common.models import Term
 
 logger = logging.getLogger(__name__)
+VISIBILITY_TIMEOUT = utils.VISIBILITY_TIMEOUT
 
 
 class Command(BaseCommand):
@@ -43,10 +44,11 @@ class Command(BaseCommand):
             else:
                 # Use long polling (wait up to 20 seconds) to reduce the number of receive_messages requests we make
                 messages = self.queue.receive_messages(
-                    MaxNumberOfMessages=10,
+                    MaxNumberOfMessages=1,
                     MessageAttributeNames=['All'],
                     AttributeNames=['All'],
                     WaitTimeSeconds=20,
+                    VisibilityTimeout=VISIBILITY_TIMEOUT
                 )
 
                 if messages:
@@ -68,11 +70,14 @@ class Command(BaseCommand):
                     logger.info('No messages in queue {}'.format(utils.QUEUE_NAME))
                     time.sleep(40)
 
+
     @staticmethod
     def handle_message(message):
+        start_time = time.time()
+        start_date = datetime.utcfromtimestamp(start_time).strftime('%Y-%m-%dT%H:%M:%S')
+        logger.info("START DATE =%s", start_date)
         try:
             bulk_settings_id = message.message_attributes['bulk_settings_id']['StringValue']
-
             job = Job.objects.get(id=bulk_settings_id)
             job.workflow_status = constants.IN_PROGRESS
             job.save()
@@ -92,6 +97,15 @@ class Command(BaseCommand):
                         filter(parent_job=job.related_job_id).\
                         exclude(workflow_status=constants.SKIPPED)
                     for detail in related_job_details:
+                        # if it's less than 15 seconds left, increase the timeout by another chunk of
+                        # VISIBILITY_TIMEOUT settings and reset start_time
+                        if (time.time() - start_time) > VISIBILITY_TIMEOUT-15:
+                            message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
+                            start_time = time.time()
+                            logger.info("Extended message visibility to %d and reset start time to %s, detail.id= %d",
+                                        VISIBILITY_TIMEOUT,
+                                        datetime.utcfromtimestamp(start_time).strftime('%Y-%m-%dT%H:%M:%S'), detail.id)
+
                         # Check to see if the course originally had a None value for the setting to be modified,
                         # Use false as the update arg value in the reversion call.
                         desired_setting = detail.current_setting_value or 'false'
@@ -105,10 +119,20 @@ class Command(BaseCommand):
                         term_id='sis_term_id:{}'.format(term.meta_term_id()))
 
                     for course in canvas_courses:
+                        # if it's less than 15 seconds left, increase the timeout by another chunk of
+                        # VISIBILITY_TIMEOUT settings and reset start_time
+                        if (time.time() - start_time) > VISIBILITY_TIMEOUT-15:
+                            message.change_visibility(VisibilityTimeout=VISIBILITY_TIMEOUT)
+                            start_time = time.time()
+                            logger.info("Extended message visibility to %d and reset start time to %s, canvas id= %s",
+                                        VISIBILITY_TIMEOUT,
+                                        datetime.utcfromtimestamp(start_time).strftime('%Y-%m-%dT%H:%M:%S'), course['id'])
                         utils.check_and_update_course(course, job)
 
                 logger.info('Message has been processed , deleting from sqs...')
                 message.delete()
+                end_date = datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%dT%H:%M:%S')
+                logger.info("END DATE =%s", end_date)
 
             except Exception as e:
                 # Put the message back on the queue
