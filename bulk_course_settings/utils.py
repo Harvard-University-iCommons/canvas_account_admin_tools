@@ -165,7 +165,7 @@ def check_and_update_course(course, job):
             canvas_course_id=course['id'],
             current_setting_value=course[job.setting_to_be_modified],
             is_modified=True,
-            prior_state=course,
+            prior_state=json.dumps(course),
             post_state='',
             workflow_status=constants.SKIPPED)
         job.details_total_count += 1
