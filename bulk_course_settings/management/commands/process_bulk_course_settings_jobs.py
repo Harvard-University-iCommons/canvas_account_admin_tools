@@ -108,7 +108,7 @@ class Command(BaseCommand):
 
                         # Check to see if the course originally had a None value for the setting to be modified,
                         # Use false as the update arg value in the reversion call.
-                        desired_setting = detail.current_setting_value or 'false'
+                        desired_setting = detail.current_setting_value.lower() or 'false'
                         utils.update_course(course=json.loads(detail.post_state),
                                             update_args={utils.API_MAPPING[job.setting_to_be_modified]: desired_setting},
                                             job=job)
