@@ -4,7 +4,6 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +13,7 @@ from proxy.views import proxy_view
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
+from django_auth_lti.patch_reverse import reverse
 from lti_permissions.decorators import lti_permission_required
 from lti_permissions.verification import is_allowed
 
@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
-    # url = "%s://%s%s" % (request.scheme, request.get_host(),
-    #                      reverse('lti_launch', exclude_resource_link_id=True))
-    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch', exclude_resource_link_id=True))
 
     title = 'Admin Console'
     lti_tool_config = ToolConfig(
