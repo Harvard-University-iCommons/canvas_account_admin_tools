@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
@@ -13,7 +14,6 @@ from proxy.views import proxy_view
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from django_auth_lti.patch_reverse import reverse
 from lti_permissions.decorators import lti_permission_required
 from lti_permissions.verification import is_allowed
 
