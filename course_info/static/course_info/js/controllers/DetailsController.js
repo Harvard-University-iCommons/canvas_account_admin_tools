@@ -125,6 +125,7 @@
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
                 courseInstance['section'] = ci.section ? ci.section : '';
+                courseInstance['parent_course_instance'] = ci.parent_course_instance ? ci.parent_course_instance : '';
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -251,7 +252,8 @@
                 'exclude_from_isites',
                 'exclude_from_catalog',
                 'section',
-                'conclude_date'
+                'conclude_date',
+                'parent_course_instance'
             ];
             fields.forEach(function(field) {
                 if (field == 'conclude_date') {
