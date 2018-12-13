@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
+# Need to import patch_reverse here to override the loading order of Django's reverse function.
+from django_auth_lti import patch_reverse
 from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
@@ -48,7 +50,7 @@ EMAIL_SUBJECT_PREFIX = ''
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -72,27 +74,27 @@ INSTALLED_APPS = (
     'publish_courses',
     'bulk_course_settings',
     'rest_framework'
-)
+]
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = [
     # NOTE - djng needs to be the first item in this list
     'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
+    'django.middleware.common.CommonMiddleware',
+]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
-)
+]
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
