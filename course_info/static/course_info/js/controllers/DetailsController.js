@@ -281,7 +281,11 @@
                     dc.showNewGlobalAlert('updateSucceeded');
                 }, function cleanUpFailedCourseDetailsPatch(response) {
                     dc.handleAjaxErrorResponse(response);
-                    dc.showNewGlobalAlert('updateFailed', response.statusText);
+                    // Show the status text by default, ie: 'Bad Request'
+                    // If we have a validation error from the REST API, display the message from the serializer
+                    var errorMessage = response.statusText;
+                    if (response.data["non_field_errors"]) {errorMessage=response.data["non_field_errors"][0]}
+                    dc.showNewGlobalAlert('updateFailed', errorMessage);
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     // leaves 'edit' mode, re-enables edit button
