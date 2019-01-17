@@ -240,6 +240,7 @@
                 [dc.apiBase + dc.courseInstanceId + '/']);
             // we could also get these from editable properties on the DOM
             var fields = [
+                'course_instance_id',
                 'description',
                 'instructors_display',
                 'location',
@@ -284,7 +285,12 @@
                     // Show the status text by default, ie: 'Bad Request'
                     // If we have a validation error from the REST API, display the message from the serializer
                     var errorMessage = response.statusText;
-                    if (response.data["non_field_errors"]) {errorMessage=response.data["non_field_errors"][0]}
+                    if (Object.keys(response.data).length != 0) {
+                        errorMessage = '';
+                        for (var key in response.data) {
+                            errorMessage += response.data[key][0];
+                        }
+                    }
                     dc.showNewGlobalAlert('updateFailed', errorMessage);
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
