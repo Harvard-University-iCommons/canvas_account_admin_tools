@@ -13,7 +13,7 @@ from bulk_course_settings import constants
 from bulk_course_settings import utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
-from icommons_common.auth.views import LoginRequiredMixin
+from harvardkey_cas.mixins import LoginRequiredMixin
 from lti_permissions.mixins import LTIPermissionRequiredMixin
 
 
@@ -38,6 +38,7 @@ class BulkSettingsListView(LTIPermissionRequiredMixin, LoginRequiredMixin, ListV
 
 
 class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
+
     """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_job.html'

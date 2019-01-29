@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'course_info',
     'cross_list_courses',
     'django_auth_lti',
+    'django_cas_ng',
     'django_rq',
     'djng',
     'icommons_common',
@@ -88,12 +89,15 @@ MIDDLEWARE = [
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
 
 AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'harvardkey_cas.backends.CASAuthBackend',
 ]
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
