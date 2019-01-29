@@ -100,8 +100,6 @@ AUTHENTICATION_BACKENDS = [
     'harvardkey_cas.backends.CASAuthBackend',
 ]
 
-#CAS_SERVER_URL = 'https://www.pin1.harvard.edu/cas/'
-
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
 ROOT_URLCONF = 'canvas_account_admin_tools.urls'
