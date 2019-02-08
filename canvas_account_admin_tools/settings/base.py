@@ -76,7 +76,9 @@ INSTALLED_APPS = [
 ]
 
 
-MIDDLEWARE = [
+MIDDLEWARE_CLASSES = [
+    # NOTE - djng needs to be the first item in this list
+    'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
@@ -86,8 +88,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # NOTE - djng needs to be the last item in this list
-    'djng.middleware.AngularUrlMiddleware',
+
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'

@@ -15,7 +15,7 @@ CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
 
 
 INSTALLED_APPS += ['debug_toolbar', 'sslserver']
-MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware']
 
 # For Django Debug Toolbar:
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
