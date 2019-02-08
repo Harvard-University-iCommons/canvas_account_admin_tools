@@ -88,7 +88,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
