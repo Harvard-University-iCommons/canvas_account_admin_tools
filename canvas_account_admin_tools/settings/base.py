@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
-# Need to import patch_reverse here to override the loading order of Django's reverse function.
-from django_auth_lti import patch_reverse
 from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
@@ -79,8 +77,6 @@ INSTALLED_APPS = [
 
 
 MIDDLEWARE = [
-    # NOTE - djng needs to be the first item in this list
-    'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
@@ -90,6 +86,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # NOTE - djng needs to be the last item in this list
+    'djng.middleware.AngularUrlMiddleware',
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
