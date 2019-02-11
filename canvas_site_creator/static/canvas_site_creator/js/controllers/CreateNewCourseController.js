@@ -323,6 +323,7 @@
             var data = {
                 canvas_course_id: $scope.canvasCourse.id,
                 sync_to_canvas: 1,
+                parent_course_instance: null
             };
 
             $http.patch(url, data).then(
