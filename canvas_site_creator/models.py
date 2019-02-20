@@ -6,7 +6,9 @@ from canvas_course_site_wizard.models import CanvasCourseGenerationJob
 
 
 def get_course_instance_query_set(sis_term_id, sis_account_id):
-    filters = {'exclude_from_isites': 0, 'term_id': sis_term_id}
+    # Exclude records that have parent_course_instance_id  set(TLT-3558) as we don't want to create sites for the
+    # children; they will be associated with the parent site
+    filters = {'exclude_from_isites': 0, 'term_id': sis_term_id, 'parent_course_instance_id__isnull': True}
 
     (account_type, account_id) = sis_account_id.split(':')
     if account_type == 'school':

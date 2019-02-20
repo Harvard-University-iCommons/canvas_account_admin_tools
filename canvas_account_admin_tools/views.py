@@ -4,9 +4,9 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
@@ -22,9 +22,7 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
-    # url = "%s://%s%s" % (request.scheme, request.get_host(),
-    #                      reverse('lti_launch', exclude_resource_link_id=True))
-    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch', exclude_resource_link_id=True))
 
     title = 'Admin Console'
     lti_tool_config = ToolConfig(

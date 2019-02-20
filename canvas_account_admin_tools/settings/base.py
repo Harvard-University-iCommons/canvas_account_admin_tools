@@ -48,7 +48,7 @@ EMAIL_SUBJECT_PREFIX = ''
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -62,6 +62,7 @@ INSTALLED_APPS = (
     'course_info',
     'cross_list_courses',
     'django_auth_lti',
+    'django_cas_ng',
     'django_rq',
     'djng',
     'icommons_common',
@@ -72,27 +73,30 @@ INSTALLED_APPS = (
     'publish_courses',
     'bulk_course_settings',
     'rest_framework'
-)
+]
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     # NOTE - djng needs to be the first item in this list
     'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-)
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
-)
+    'django.contrib.auth.backends.ModelBackend',
+    'harvardkey_cas.backends.CASAuthBackend',
+]
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 

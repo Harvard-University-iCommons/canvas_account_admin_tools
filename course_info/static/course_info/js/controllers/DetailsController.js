@@ -125,6 +125,7 @@
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
                 courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
                 courseInstance['section'] = ci.section ? ci.section : '';
+                courseInstance['parent_course_instance'] = ci.parent_course_instance ? ci.parent_course_instance : '';
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
@@ -239,6 +240,7 @@
                 [dc.apiBase + dc.courseInstanceId + '/']);
             // we could also get these from editable properties on the DOM
             var fields = [
+                'course_instance_id',
                 'description',
                 'instructors_display',
                 'location',
@@ -251,7 +253,8 @@
                 'exclude_from_isites',
                 'exclude_from_catalog',
                 'section',
-                'conclude_date'
+                'conclude_date',
+                'parent_course_instance'
             ];
             fields.forEach(function(field) {
                 if (field == 'conclude_date') {
@@ -279,7 +282,16 @@
                     dc.showNewGlobalAlert('updateSucceeded');
                 }, function cleanUpFailedCourseDetailsPatch(response) {
                     dc.handleAjaxErrorResponse(response);
-                    dc.showNewGlobalAlert('updateFailed', response.statusText);
+                    // Show the status text by default, ie: 'Bad Request'
+                    // If we have a validation error from the REST API, display the message from the serializer
+                    var errorMessage = response.statusText;
+                    if (Object.keys(response.data).length != 0) {
+                        errorMessage = '';
+                        for (var key in response.data) {
+                            errorMessage += response.data[key][0];
+                        }
+                    }
+                    dc.showNewGlobalAlert('updateFailed', errorMessage);
                 })
                 .finally( function courseDetailsUpdateNoLongerInProgress() {
                     // leaves 'edit' mode, re-enables edit button
