@@ -30,7 +30,7 @@ def index(request):
                  XlistMap.objects.filter(secondary_course_instance__term__end_date__isnull=True)
 
     context = {
-        'xlist_maps': xlist_maps,  # Only getting 10 results to temporarily reduce loading time
+        'xlist_maps': xlist_maps,
         'tool_launch_school': tool_launch_school
     }
 
