@@ -71,6 +71,13 @@ def dashboard_account(request):
                                           canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
+    Verify that the current user has permission to see the cross listing V2 tool
+    """
+    cross_listing_v2_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                             settings.PERMISSION_XLIST_TOOL,
+                                             canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
     verify that user has permissions to view the People tool
     """
     people_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
@@ -100,6 +107,7 @@ def dashboard_account(request):
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'cross_listing_allowed': cross_listing_is_allowed,
+        'cross_listing_v2_allowed': cross_listing_v2_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed':site_creator_is_allowed,
         'publish_courses_allowed':publish_courses_allowed,

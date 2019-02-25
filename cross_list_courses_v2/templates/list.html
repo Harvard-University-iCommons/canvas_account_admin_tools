@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Cross Listing V2
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        <div class="row" style="margin-top: .25em;">
+            <table class="datatable table display no-footer">
+                <thead>
+                    <th>Primary</th>
+                    <th>Secondary</th>
+                    <th>Approver</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody>
+                {% for xlist_map in xlist_maps %}
+                    <tr>
+                        <td>{{ xlist_map.primary_course_instance.title }}</td>
+                        <td>{{ xlist_map.secondary_course_instance.title }}</td>
+                        <td></td>
+                        <td>
+                            {% if xlist_map.primary_course_instance.course.school_id == tool_launch_school or   xlist_map.secondary_course_instance.course.school_id == tool_launch_school %}
+                                <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+{% endblock %}
