@@ -24,9 +24,9 @@
                     <tr>
                         <td>{{ xlist_map.primary_course_instance.title }}</td>
                         <td>{{ xlist_map.secondary_course_instance.title }}</td>
-                        <td></td>
+                        <td>{{ xlist_map.last_modified_by }}</td>
                         <td>
-                            {% if xlist_map.primary_course_instance.course.school_id == tool_launch_school or   xlist_map.secondary_course_instance.course.school_id == tool_launch_school %}
+                            {% if xlist_map.primary_course_instance.course.school_id == tool_launch_school or xlist_map.secondary_course_instance.course.school_id == tool_launch_school %}
                                 <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
                             {% endif %}
                         </td>
