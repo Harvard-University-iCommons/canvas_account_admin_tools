@@ -16,7 +16,7 @@
                 <thead>
                     <th>Primary</th>
                     <th>Secondary</th>
-                    <th>Approver</th>
+                    <th>Modified By</th>
                     <th>Delete</th>
                 </thead>
                 <tbody>
@@ -26,9 +26,7 @@
                         <td>{{ xlist_map.secondary_course_instance.title }}</td>
                         <td>{{ xlist_map.last_modified_by }}</td>
                         <td>
-                            {% if xlist_map.primary_course_instance.course.school_id == tool_launch_school or xlist_map.secondary_course_instance.course.school_id == tool_launch_school %}
-                                <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
-                            {% endif %}
+                            <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -37,5 +35,18 @@
         </div>
     </div>
 </body>
+
+<script>
+    $(document).ready(function() {
+        $('.datatable').dataTable( {
+            paging: false,
+            "bInfo" : false,
+            "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+            "oLanguage": {
+              "sSearch": "Search"
+            }
+        });
+    });
+</script>
 
 {% endblock %}

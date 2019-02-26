@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
@@ -24,14 +25,16 @@ def index(request):
     tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
 
     # Only get cross listings with current or future terms
-    xlist_maps = XlistMap.objects.filter(primary_course_instance__term__end_date__gte=today) | \
-                 XlistMap.objects.filter(secondary_course_instance__term__end_date__gte=today) | \
-                 XlistMap.objects.filter(primary_course_instance__term__end_date__isnull=True) | \
-                 XlistMap.objects.filter(secondary_course_instance__term__end_date__isnull=True)
+    # Either the primary or secondary courses must be from the school launching the tool
+    xlist_maps = XlistMap.objects.filter(Q(primary_course_instance__term__end_date__gte=today) |
+                                         Q(secondary_course_instance__term__end_date__gte=today) |
+                                         Q(primary_course_instance__term__end_date__isnull=True) |
+                                         Q(secondary_course_instance__term__end_date__isnull=True)).filter(
+                                         Q(primary_course_instance__course__school=tool_launch_school) |
+                                         Q(secondary_course_instance__course__school=tool_launch_school)).select_related()
 
     context = {
         'xlist_maps': xlist_maps,
-        'tool_launch_school': tool_launch_school
     }
 
     return render(request, 'list.html', context=context)
