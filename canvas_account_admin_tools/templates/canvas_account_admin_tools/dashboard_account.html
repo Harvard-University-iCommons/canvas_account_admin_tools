@@ -115,32 +115,6 @@
         </div>
     {% endif %}
 
-    {% if cross_listing_v2_allowed %}
-        <div class="card card_color">
-          <a href="{% url 'cross_list_courses_v2:index' %}" id="manage-cross-listings-v2">
-            <div class="card-body">
-              <div class="card-header card-header_color5">
-              </div>
-              <div class="card-content card-content_normal">
-                <div class="card-content-width">
-                  <div class="card-content-icon">
-                    <i class="fa fa-link icon-size"></i>
-                  </div>
-                  <div class="card-content-data">
-                    <h2 class="card-content-title ellipsis" title="Cross-list Courses V2">
-                      <span class="content-link">
-                        Cross-list Courses V2
-                      </span>
-                    </h2>
-                    <p title="Cross-list Courses">Set up and modify cross-listings</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-    {% endif %}
-
     {% if publish_courses_allowed %}
         <div class="card card_color">
           <a href="{% url 'publish_courses:index' %}" id="publish_courses">
