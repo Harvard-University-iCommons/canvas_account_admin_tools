@@ -40,7 +40,7 @@
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>
-                            <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                            <a href="{% url 'cross_list_courses:delete_cross_listing' pk=xlist_map.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
