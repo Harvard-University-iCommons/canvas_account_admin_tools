@@ -22,8 +22,22 @@
                 <tbody>
                 {% for xlist_map in xlist_maps %}
                     <tr>
-                        <td>{{ xlist_map.primary_course_instance.title }}</td>
-                        <td>{{ xlist_map.secondary_course_instance.title }}</td>
+                        <td>
+                            {{ xlist_map.primary_course_instance.course.school_id | upper }}
+                            {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {{ xlist_map.primary_course_instance.short_title }}
+                            {{ xlist_map.primary_course_instance.course_instance_id }}
+                            <br>
+                            {{ xlist_map.primary_course_instance.title }}
+                        </td>
+                        <td>
+                            {{ xlist_map.secondary_course_instance.course.school_id | upper }}
+                            {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {{ xlist_map.secondary_course_instance.short_title }}
+                            {{ xlist_map.secondary_course_instance.course_instance_id }}
+                            <br>
+                            {{ xlist_map.secondary_course_instance.title }}
+                        </td>
                         <td>{{ xlist_map.last_modified_by }}</td>
                         <td>
                             <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
