@@ -31,7 +31,8 @@ def index(request):
                                          Q(primary_course_instance__term__end_date__isnull=True) |
                                          Q(secondary_course_instance__term__end_date__isnull=True)).filter(
                                          Q(primary_course_instance__course__school=tool_launch_school) |
-                                         Q(secondary_course_instance__course__school=tool_launch_school)).select_related()
+                                         Q(secondary_course_instance__course__school=tool_launch_school)).select_related('primary_course_instance',
+                                                                                                                         'secondary_course_instance')
 
     context = {
         'xlist_maps': xlist_maps,
