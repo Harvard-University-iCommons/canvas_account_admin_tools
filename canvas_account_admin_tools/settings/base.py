@@ -358,7 +358,6 @@ CANVAS_SDK_SETTINGS = {
     'base_api_url': CANVAS_URL + '/api',
     'max_retries': 3,
     'per_page': 40,
-    'session_inactivity_expiration_time_secs': 50,
 }
 
 ICOMMONS_COMMON = {
