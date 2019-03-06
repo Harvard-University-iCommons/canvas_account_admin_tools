@@ -54,13 +54,13 @@ def remove_cross_listing(xlist_id, request):
             instance.delete()
             messages.success(request, "Successfully decrosslisted primary: {} and secondary: {}"
                              .format(instance.primary_course_instance.course_instance_id, secondary_id))
+
+        # From here on, errors should not roll back the de-cross-listing action
+        _remove_xlist_name_modifier(secondary_canvas_course, request)
     except:
         msg = 'Unable to delete cross-listing {}.'.format(xlist_id)
         logger.exception(msg)
         messages.error(request, msg)
-
-    # From here on, errors should not roll back the de-cross-listing action
-    _remove_xlist_name_modifier(secondary_canvas_course, request)
 
 
 def _get_canvas_course(course_sis_id, request):
@@ -70,7 +70,7 @@ def _get_canvas_course(course_sis_id, request):
     except:
         msg = 'Canvas course {} unavailable.'.format(course_id)
         logger.exception('Error during cross-listing: ' + msg)
-        messages.error(msg)
+        messages.error(request, msg)
     return None
 
 
