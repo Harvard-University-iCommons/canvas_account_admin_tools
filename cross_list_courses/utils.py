@@ -39,7 +39,6 @@ def remove_cross_listing(xlist_id, request):
 
     _validate_destroy(instance, request)
 
-    secondary_canvas_course = None
     try:
         secondary = instance.secondary_course_instance
         secondary_id = secondary.course_instance_id
