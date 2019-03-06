@@ -18,6 +18,7 @@ from icommons_common.canvas_api.helpers import (
     enrollments as canvas_api_helper_enrollments,
     sections as canvas_api_helper_sections
 )
+from django.contrib import messages
 
 from canvas_sdk import RequestContext
 
@@ -25,64 +26,51 @@ from icommons_common.models import XlistMap, SiteMap, CourseSite
 
 logger = logging.getLogger(__name__)
 
-_errors = []
 _xlist_name_modifier = ' [CROSSLISTED - NOT ACTIVE]'
 SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
 
-def remove_cross_listing(xlist_id):
+def remove_cross_listing(xlist_id, request):
     """
     If there is an exception in the Canvas SDK, the XREG_MAP record will not
     be deleted.
     """
     instance = XlistMap.objects.get(xlist_map_id=xlist_id)
 
-    print "INSTANCE"
-    print instance.primary_course_instance.title
-
-    _validate_destroy(instance)
-    # if self._errors:
-    #     raise ValidationError(self._errors)
+    _validate_destroy(instance, request)
 
     secondary_canvas_course = None
     try:
         secondary = instance.secondary_course_instance
         secondary_id = secondary.course_instance_id
-        secondary_canvas_course = _get_canvas_course(secondary_id)
+        secondary_canvas_course = _get_canvas_course(secondary_id, request)
         canvas_id = secondary_canvas_course.get('id', secondary.canvas_course_id) \
             if secondary_canvas_course else None
 
         with transaction.atomic(using='coursemanager'):
-            _update_site_maps(secondary, canvas_id)
+            _update_site_maps(secondary, canvas_id, request)
             _reset_canvas_course_id(secondary, canvas_id)
             _remove_cross_listing_in_canvas(secondary_id)
+            instance.delete()
+            messages.success(request, "Successfully decrosslisted primary: {} and secondary: {}"
+                             .format(instance.primary_course_instance.course_instance_id, secondary_id))
     except:
         msg = 'Unable to delete cross-listing {}.'.format(xlist_id)
         logger.exception(msg)
-        # raise APIException(msg)
+        messages.error(request, msg)
 
     # From here on, errors should not roll back the de-cross-listing action
-    _remove_xlist_name_modifier(secondary_canvas_course)
-
-    # some steps may succeed but log warnings/notifications in self._errors
-    # response_data = self._errors or None
-    # response_status = status.HTTP_200_OK if response_data \
-    #     else status.HTTP_204_NO_CONTENT
+    _remove_xlist_name_modifier(secondary_canvas_course, request)
 
 
-def _get_canvas_course(course_sis_id):
-    print 'COURSE SIS ID!!'
-    print course_sis_id
+def _get_canvas_course(course_sis_id, request):
     course_id = 'sis_course_id:{}'.format(course_sis_id)
     try:
-        canvas_course = canvas_get_course(SDK_CONTEXT, course_id).json()
-        print "CANVAS COURSE!!!!"
-        print canvas_course
-        return canvas_course
+        return canvas_get_course(SDK_CONTEXT, course_id).json()
     except:
         msg = 'Canvas course {} unavailable.'.format(course_id)
         logger.exception('Error during cross-listing: ' + msg)
-        _errors.append(msg)
+        messages.error(msg)
     return None
 
 
@@ -102,7 +90,7 @@ def _reset_canvas_course_id(secondary, canvas_id):
                 '{}'.format(secondary.course_instance_id, canvas_id))
 
 
-def _update_site_maps(secondary, canvas_id):
+def _update_site_maps(secondary, canvas_id, request):
     secondary_id = secondary.course_instance_id
     secondary_site_maps = SiteMap.objects.filter(
         course_instance=secondary_id)
@@ -134,7 +122,7 @@ def _update_site_maps(secondary, canvas_id):
               'course. No site mapping was created when ' \
               'de-cross-listing.'.format(secondary_id)
         logger.error(msg)
-        _errors.append(msg)
+        messages.error(request, msg)
 
 
 def _get_or_create_course_site(course_url):
@@ -148,7 +136,7 @@ def _get_or_create_course_site(course_url):
         site_type_id='external')
 
 
-def _validate_destroy(instance):
+def _validate_destroy(instance, request):
     primary_id = instance.primary_course_instance.course_instance_id
     secondary_id = instance.secondary_course_instance.course_instance_id
     site_maps = {}
@@ -156,27 +144,26 @@ def _validate_destroy(instance):
         site_maps[course_id] = SiteMap.objects.filter(
             course_instance=course_id)
         if len(site_maps[course_id]) > 1:
-            _errors.append(
-                '{} has multiple site maps.'.format(course_id))
+            messages.error(request, '{} has multiple site maps.'.format(course_id))
 
 
-def _remove_xlist_name_modifier(canvas_course):
+def _remove_xlist_name_modifier(canvas_course, request):
     canvas_course_name = canvas_course.get('name', '')
     if canvas_course_name.endswith(_xlist_name_modifier):
         i = canvas_course_name.rfind(_xlist_name_modifier)
         canvas_course_name = canvas_course_name[:i]
-        _update_canvas_course_name(canvas_course['id'], canvas_course_name)
+        _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
-def _remove_xlist_name_modifier(canvas_course):
+def _remove_xlist_name_modifier(canvas_course, request):
     canvas_course_name = canvas_course.get('name', '')
     if canvas_course_name.endswith(_xlist_name_modifier):
         i = canvas_course_name.rfind(_xlist_name_modifier)
         canvas_course_name = canvas_course_name[:i]
-        _update_canvas_course_name(canvas_course['id'], canvas_course_name)
+        _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
-def _update_canvas_course_name(course_id, course_name):
+def _update_canvas_course_name(course_id, course_name, request):
     try:
         response = canvas_update_course(SDK_CONTEXT, course_id,
                                         course_name=course_name)
@@ -187,4 +174,4 @@ def _update_canvas_course_name(course_id, course_name):
         msg = 'Name for Canvas course {} could not be ' \
               'updated.'.format(course_id)
         logger.exception('Error during cross-listing: ' + msg)
-        _errors.append(msg)
+        messages.error(request, msg)

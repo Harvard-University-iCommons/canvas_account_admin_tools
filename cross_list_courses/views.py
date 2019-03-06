@@ -47,5 +47,5 @@ def index(request):
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)
 @require_http_methods(['GET'])
 def delete_cross_listing(request, pk):
-    remove_cross_listing(pk)
-    return redirect('index')
+    remove_cross_listing(pk, request)
+    return redirect('cross_list_courses:index')

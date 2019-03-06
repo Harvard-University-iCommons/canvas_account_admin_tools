@@ -11,6 +11,17 @@
 
 <body role="application">
     <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
         <div class="row" style="margin-top: .25em;">
             <table class="datatable table display no-footer">
                 <thead>
