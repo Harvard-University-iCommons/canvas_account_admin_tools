@@ -20,14 +20,14 @@ from icommons_common.canvas_api.helpers import (
 )
 from django.contrib import messages
 
-from canvas_sdk import RequestContext
+from icommons_common.canvas_utils import SessionInactivityExpirationRC
 
 from icommons_common.models import XlistMap, SiteMap, CourseSite
 
 logger = logging.getLogger(__name__)
 
 _xlist_name_modifier = ' [CROSSLISTED - NOT ACTIVE]'
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
 
 def remove_cross_listing(xlist_id, request):
