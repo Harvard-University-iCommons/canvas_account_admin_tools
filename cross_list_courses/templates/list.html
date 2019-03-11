@@ -11,6 +11,17 @@
 
 <body role="application">
     <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
         <div class="row" style="margin-top: .25em;">
             <table class="datatable table display no-footer">
                 <thead>
@@ -22,11 +33,25 @@
                 <tbody>
                 {% for xlist_map in xlist_maps %}
                     <tr>
-                        <td>{{ xlist_map.primary_course_instance.title }}</td>
-                        <td>{{ xlist_map.secondary_course_instance.title }}</td>
-                        <td>{{ xlist_map.last_modified_by }}</td>
                         <td>
-                            <a href="#"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                            {{ xlist_map.primary_course_instance.course.school_id | upper }}
+                            {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {{ xlist_map.primary_course_instance.short_title }}
+                            {{ xlist_map.primary_course_instance.course_instance_id }}
+                            <br>
+                            {{ xlist_map.primary_course_instance.title }}
+                        </td>
+                        <td>
+                            {{ xlist_map.secondary_course_instance.course.school_id | upper }}
+                            {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {{ xlist_map.secondary_course_instance.short_title }}
+                            {{ xlist_map.secondary_course_instance.course_instance_id }}
+                            <br>
+                            {{ xlist_map.secondary_course_instance.title }}
+                        </td>
+                        <td>{{ xlist_map.last_modified_by_full_name }}</td>
+                        <td>
+                            <a href="{% url 'cross_list_courses:delete_cross_listing' pk=xlist_map.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
