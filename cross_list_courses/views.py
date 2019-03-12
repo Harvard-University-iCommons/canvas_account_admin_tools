@@ -4,13 +4,14 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.models import XlistMap, CombinedSectionXlistMap
 from lti_permissions.decorators import lti_permission_required
+from utils import remove_cross_listing
 
 logger = logging.getLogger(__name__)
 
@@ -66,3 +67,11 @@ def create_new_pair(request):
 
     return render(request, 'add_new.html', context=context)
 
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
+@require_http_methods(['GET'])
+def delete_cross_listing(request, pk):
+    remove_cross_listing(pk, request)
+    return redirect('cross_list_courses:index')
