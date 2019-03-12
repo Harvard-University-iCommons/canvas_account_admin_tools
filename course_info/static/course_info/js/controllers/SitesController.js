@@ -97,10 +97,14 @@
                 function modalConfirmed() {
                     var delete_course_site_url = djangoUrl.reverse(sc.apiProxy,
                         [sc.apiBase + sc.courseInstance.course_instance_id + '/sites/' + sc.courseInstance.sites[siteListIndex].site_map_id + '/']);
+                    // Get the Canvas course ID that is at the end of the site URL
+                    var canvas_course_id = sc.courseInstance.sites[siteListIndex]['course_site_url'].match(/\d+/)[0];
                     $http.delete(delete_course_site_url)
                         .then(function(response){
                             sc.dissociateSiteInProgressIndex = siteListIndex;
                             sc.courseInstance.sites.splice(siteListIndex, 1);
+                            var clear_sis_url = djangoUrl.reverse('course_info:clear_sis_id', [canvas_course_id]);
+                            $http.get(clear_sis_url)
                         }, function(response){
                             sc.handleAjaxErrorResponse(response);
                             sc.alerts.form.siteOperationFailed = {

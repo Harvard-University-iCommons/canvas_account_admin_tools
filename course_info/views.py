@@ -13,6 +13,8 @@ from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
 from icommons_common.models import UserRole
 from canvas_sdk.exceptions import CanvasAPIError
+from utils import clear_course_sis_id
+from django.http import HttpResponse
 logger = logging.getLogger(__name__)
 
 
@@ -38,6 +40,14 @@ def index(request):
 @require_http_methods(['GET'])
 def partials(request, path):
     return render(request, 'course_info/partials/' + path, {})
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@require_http_methods(['GET'])
+def clear_sis_id(request, canvas_course_id):
+    return HttpResponse(clear_course_sis_id(canvas_course_id))
 
 
 def _get_canvas_roles():
