@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import XlistMap
+from icommons_common.models import XlistMap, CombinedSectionXlistMap
 from lti_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
@@ -32,10 +32,37 @@ def index(request):
                                          Q(secondary_course_instance__term__end_date__isnull=True)).filter(
                                          Q(primary_course_instance__course__school=tool_launch_school) |
                                          Q(secondary_course_instance__course__school=tool_launch_school)).select_related('primary_course_instance',
-                                                                                                                         'secondary_course_instance')
+                                                                                                                         'secondary_course_instance')[:10]
 
     context = {
         'xlist_maps': xlist_maps,
     }
-
     return render(request, 'list.html', context=context)
+
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
+@require_http_methods(['GET'])
+def add_new_pair(request):
+    # get the school id
+    sis_account_id = request.LTI['custom_canvas_account_sis_id']
+    school_id = sis_account_id.split(':')[1]
+    print "school_id-------->", school_id
+
+    potential_mappings = CombinedSectionXlistMap.objects.filter(primary_school_id=school_id)
+
+    context = {
+        'potential_mappings': potential_mappings,
+    }
+
+    return render(request, 'add_new.html', context=context)
+
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
+@require_http_methods(['GET'])
+def create_new_pair(request):
+    # get the school id
+    sis_account_id = request.LTI['custom_canvas_account_sis_id']
+    school_id = sis_account_id.split(':')[1]
+
+    return render(request, 'add_new.html', context=context)
+
