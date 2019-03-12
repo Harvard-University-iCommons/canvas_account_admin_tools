@@ -64,6 +64,8 @@ def create_new_pair(request):
     # get the school id
     sis_account_id = request.LTI['custom_canvas_account_sis_id']
     school_id = sis_account_id.split(':')[1]
+    context = {
+    }
 
     return render(request, 'add_new.html', context=context)
 
