@@ -3,6 +3,8 @@ import logging
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.messages import get_messages
+
 from django.db import IntegrityError, transaction
 
 from canvas_sdk.exceptions import CanvasAPIError
@@ -39,6 +41,7 @@ _messages = {
                                      'secondary.',
         'secondary_already_secondary': '{s_id} is currently cross-listed with '
                                        '{p_id} as its primary.',
+        'invalid input': 'Invalid value for primary {p_id} or secondary {p_id} '
     }
 
 
@@ -104,14 +107,13 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
 
         messages.success(request, "Successfully crosslisted primary: {} and secondary: {}"
                          .format(primary_id, secondary_id))
-        print messages
 
     except Exception as e:
 
-        if not messages:
-            msg = 'Unable to create cross-listing for primary {}, secondary {}.'.format(primary_id, secondary_id)
-            logger.exception(msg)
-            messages.error(request, msg)
+        msg = 'Unable to create cross-listing for primary {}, secondary {}.'.format(primary_id, secondary_id)
+        logger.exception(msg)
+        logger.exception(e)
+        messages.error(request, msg)
 
 
 def _get_canvas_course(course_sis_id, request):
@@ -450,12 +452,16 @@ def msg_for_error( msg_key, context):
             print msg
             return msg
 
-def validate_inputs(primary_id,secondary_id, request):
 
-        # Foreign key checks should always have run before we hit this, so no
-        # need for ValidationError()s, allow any errors to bubble up
-        primary_ci = CourseInstance.objects.get(pk=primary_id)
-        secondary_ci = CourseInstance.objects.get(pk=secondary_id)
+def validate_inputs(primary_id, secondary_id, request):
+
+        try:
+            primary_ci = CourseInstance.objects.get(pk=primary_id)
+            secondary_ci = CourseInstance.objects.get(pk=secondary_id)
+        except Exception as e:
+            msg_context = {'p_id': primary_id, 's_id': secondary_id}
+            msg = msg_for_error('invalid input', msg_context)
+            messages.error(request, msg)
 
         # 1.check to make sure that neither the primary or secondary instances
         # are excluded from isites
@@ -521,7 +527,8 @@ def validate_inputs(primary_id,secondary_id, request):
                 msg = msg_for_error('multiple_site_maps', {'id': course_id})
                 messages.error(request, msg)
 
+        # raise an exception to display a validation error and abandon further  processing
+        if len(get_messages(request)) > 0 :
+            raise Exception()
 
-        if len(messages.error()) > 0:
-            raise Exception(msg)
 
