@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
+{% load static %}
 
 <nav>
   <h3>
@@ -10,6 +11,10 @@
 </nav>
 
 <body role="application">
+   <div class="row" style="margin-top: 1em;">
+
+        <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
+    </div>
     <div class="container-fluid">
         {% for message in messages %}
             {% if message.level_tag == "success" %}

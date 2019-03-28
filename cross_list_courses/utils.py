@@ -3,6 +3,8 @@ import logging
 from collections import OrderedDict
 
 from django.conf import settings
+from django.contrib.messages import get_messages
+
 from django.db import IntegrityError, transaction
 
 from canvas_sdk.exceptions import CanvasAPIError
@@ -12,22 +14,35 @@ from canvas_sdk.methods.courses import (
 from canvas_sdk.methods.sections import (
     cross_list_section,
     de_cross_list_section)
-from canvas_sdk.utils import get_all_list_data
-from icommons_common.canvas_api.helpers import (
-    courses as canvas_api_helper_courses,
-    enrollments as canvas_api_helper_enrollments,
-    sections as canvas_api_helper_sections
-)
+
 from django.contrib import messages
 
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 
-from icommons_common.models import XlistMap, SiteMap, CourseSite
+from icommons_common.models import XlistMap, SiteMap, CourseSite, CourseInstance
 
 logger = logging.getLogger(__name__)
 
 _xlist_name_modifier = ' [CROSSLISTED - NOT ACTIVE]'
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+
+_messages = {
+        'ci_does_not_exist': '{id} does not exist.',
+        'excluded': '{id} is excluded from iSites.',
+        'multiple_site_maps': '{id} has multiple site maps.',
+        'not_synced': 'Could not cross-list {p_id} with {s_id}. The primary '
+                      'course {p_id} must be synced to Canvas.',
+        'primary_already_xlisted': '{s_id} is currently crosslisted as a '
+                                   'secondary with {p_id} as a primary.',
+        'reverse': 'A reverse pairing for these IDs (primary:{s_id}, '
+                   'secondary:{p_id}) already exists.',
+        'secondary_already_primary': '{p_id} is currently cross-listed as a '
+                                     'primary course with {s_id} as its '
+                                     'secondary.',
+        'secondary_already_secondary': '{s_id} is currently cross-listed with '
+                                       '{p_id} as its primary.',
+        'invalid input': 'Invalid value for primary {p_id} or secondary {p_id} '
+    }
 
 
 def remove_cross_listing(xlist_id, request):
@@ -59,6 +74,45 @@ def remove_cross_listing(xlist_id, request):
     except:
         msg = 'Unable to delete cross-listing {}.'.format(xlist_id)
         logger.exception(msg)
+        messages.error(request, msg)
+
+def create_crosslisting_pair(primary_id, secondary_id, request):
+
+    try:
+        # validate the  primary and secondary values before processing. Validation messages are transmitted to the view
+        # by this method
+        validate_inputs(primary_id, secondary_id, request)
+
+        primary_canvas_course = _get_canvas_course(primary_id, request)
+        primary = CourseInstance.objects.get(course_instance_id=primary_id)
+
+        canvas_id = primary_canvas_course.get('id', primary.canvas_course_id) \
+            if primary_canvas_course else primary.canvas_course_id
+
+        if not canvas_id:
+            messages.error(request, 'The primary course {} is not associated with a Canvas course.'.format(primary_id))
+            return
+
+        secondary = CourseInstance.objects.get(course_instance_id=secondary_id)
+        secondary_canvas_course = _get_canvas_course(secondary_id, request)
+
+        # this step can raise an unhandled error, aborting the process and
+        # returning a non-201 error response
+        _update_course_db(primary, secondary, canvas_id)
+
+        # these steps will not abort the process, and a 201 response will be
+        # returned, possibly with error details
+        _update_canvas_cross_listing(primary_id, secondary_id, request)
+        _update_canvas_course_names(primary_canvas_course, secondary_canvas_course, request)
+
+        messages.success(request, "Successfully crosslisted primary: {} and secondary: {}"
+                         .format(primary_id, secondary_id))
+
+    except Exception as e:
+
+        msg = 'Unable to create cross-listing for primary {}, secondary {}.'.format(primary_id, secondary_id)
+        logger.exception(msg)
+        logger.exception(e)
         messages.error(request, msg)
 
 
@@ -166,6 +220,7 @@ def _update_canvas_course_name(course_id, course_name, request):
     try:
         response = canvas_update_course(SDK_CONTEXT, course_id,
                                         course_name=course_name)
+
         logger.info('Updated course name for canvas course {} to be '
                     '{}'.format(course_id, course_name))
         return response
@@ -174,3 +229,305 @@ def _update_canvas_course_name(course_id, course_name, request):
               'updated.'.format(course_id)
         logger.exception('Error during cross-listing: ' + msg)
         messages.error(request, msg)
+
+def _update_course_db(primary, secondary, canvas_id):
+    try:
+        with transaction.atomic(using='coursemanager'):
+            _create_xlist_map(primary, secondary)
+            _update_canvas_course_id(primary, secondary, canvas_id)
+            _update_course_sites(primary, secondary)
+    except Exception as e:
+        msg = 'Unable to create cross-listing for {}, {}. There was an error ' \
+              'accessing the database.'.format(primary.course_instance_id, secondary.course_instance_id)
+
+        logger.exception(msg)
+        logger.exception(e)
+        raise Exception(msg)
+
+def _create_xlist_map(primary,secondary):
+    # Save the mapping
+    xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary)
+    xlist_map.save()
+
+    # Set sync to Canvas of primary
+    # primary = xlist_map.primary_course_instance
+    primary.sync_to_canvas = 1
+    primary.save(update_fields=['sync_to_canvas'])
+    logger.info(
+        'Created XlistMap {} and ensured sync_to_canvas=1 for primary '
+        'course instance {}'.format(xlist_map.xlist_map_id,
+                                    primary.course_instance_id))
+
+def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
+    # The sections for the two courses should exist in the new primary
+    # course. Neither of these sections should exist in the former
+    # primary course (though there may still appear to be manually
+    # created sections there that we will have to clean up manually).
+    secondary_section_id = 'sis_section_id:{}'.format(secondary_sis_id)
+    primary_course_id = 'sis_course_id:{}'.format(primary_sis_id)
+
+    try:
+        response = cross_list_section(SDK_CONTEXT, secondary_section_id,
+                                      primary_course_id)
+        logger.info(
+            'Cross-listed secondary Canvas section {} to primary Canvas '
+            'course {}'.format(secondary_section_id, primary_course_id))
+        return response
+    except:
+        msg = 'Unable to cross-list Canvas section {} in Canvas course {}' \
+              .format(secondary_section_id,
+                                         primary_course_id,)
+        logger.exception(msg)
+        messages.error(request, msg)
+
+def _update_canvas_course_names( primary, secondary, request):
+    # The newly cross-listed secondary course should have the customary
+    # [CROSSLISTED - NOT ACTIVE] in its title
+
+    if primary and primary.get('id'):
+        _remove_xlist_name_modifier(primary, request)
+    if secondary and secondary.get('id'):
+        _append_xlist_name_modifier(secondary, request)
+
+
+def _append_xlist_name_modifier(canvas_course, request):
+        canvas_course_name = canvas_course.get('name', '')
+        if not canvas_course_name.endswith(_xlist_name_modifier):
+            canvas_course_name += _xlist_name_modifier
+            _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
+
+
+
+
+def _update_canvas_course_id(primary, secondary, canvas_id):
+        # update the course instances to point to the primary canvas course
+
+        if primary.canvas_course_id != canvas_id:
+            logger.warning(
+                'Course instance {} has missing/wrong canvas_course_id; '
+                'old:{} new:{}'.format(primary.course_instance_id,
+                                       primary.canvas_course_id, canvas_id))
+        for course in [primary, secondary]:
+            if course.canvas_course_id != canvas_id:
+
+                course.canvas_course_id = canvas_id
+                course.save(update_fields=['canvas_course_id'])
+
+                logger.info(
+                    'Updated Canvas course ID for course instance {} to '
+                    '{}'.format(course.course_instance_id, canvas_id))
+
+def _update_course_sites(primary, secondary):
+
+    # if no SiteMap exists for primary to its Canvas Site, create one and
+    # point it to its Canvas site (note: we will create a new CourseSite,
+    # and not worry about any existing CourseSites with the same
+    # external_id)
+
+    official_canvas_site = None
+    other_primary_site_map = None
+    primary_canvas_course_url = '{}/courses/{}'.format(
+        settings.CANVAS_URL, primary.canvas_course_id)
+
+    primary_sites = primary.sites.all()
+    secondary_sites = secondary.sites.all()
+
+    if len(primary_sites) == 0:
+        pass  # official_canvas_site needs to be created below
+    elif len(primary_sites) == 1:
+
+        primary_site = primary_sites[0]
+        site_map = SiteMap.objects.get(course_instance=primary)
+        if primary_site.external_id == primary_canvas_course_url:
+            official_canvas_site = primary_site
+            if site_map.map_type_id != 'official':
+                site_map.map_type_id = 'official'
+                site_map.save(update_fields=['map_type'])
+                logger.info(
+                    'Updated existing SiteMap {} for primary course '
+                    'instance {} to be official'.format(
+                        site_map.site_map_id, primary.course_instance_id))
+        elif settings.CANVAS_URL in primary_site.external_id:
+
+            # note: this differs from canvas_integration.fix_external_links
+            # command behavior, which only marks the existing Canvas link
+            # as unofficial
+            primary_site.external_id = primary_canvas_course_url
+            primary_site.save(update_fields=['external_id'])
+            if site_map.map_type_id != 'official':
+
+                site_map.map_type_id = 'official'
+                site_map.save(update_fields=['map_type'])
+                logger.info(
+                    'Updated existing SiteMap {} for primary course '
+                    'instance {} to be official'.format(
+                        site_map.site_map_id, primary.course_instance_id))
+            logger.info(
+                'Updated existing CourseSite {} for primary course '
+                'instance {} to point to primary canvas site {}'.format(
+                    primary_site.course_site_id,
+                    primary.course_instance_id,
+                    primary_canvas_course_url))
+        else:
+
+            logger.info(
+                'Primary course instance {} has a single, non-Canvas '
+                'site map: {}'.format(primary.course_instance_id,
+                                      primary_site.external_id))
+            other_primary_site_map = primary_site
+    else:
+
+        msg = 'Primary course instance {} unexpectedly has more than ' \
+              'one site map.'.format(primary.course_instance_id)
+        logger.exception(msg)
+        # raise ValidationError(msg)
+
+    if official_canvas_site is None:
+        official_canvas_site = CourseSite.objects.create(
+            external_id=primary_canvas_course_url,
+            site_type_id='external')
+        site_map = SiteMap.objects.create(
+            course_instance=primary,
+            course_site=official_canvas_site,
+            map_type_id='official')
+        logger.info('Created SiteMap {} to CourseSite {} (external_id = '
+                    '{}) for primary course instance '
+                    '{}'.format(site_map.site_map_id,
+                                official_canvas_site.course_site_id,
+                                official_canvas_site.external_id,
+                                primary.course_instance_id))
+
+    # Secondary will inherit the primary's site maps (at this point there
+    # should be only be one Canvas site map and possibly one other site map)
+
+    if len(secondary_sites) == 0:
+
+        site_map = SiteMap.objects.create(
+            course_instance=secondary,
+            course_site=official_canvas_site,
+            map_type_id='official')
+        logger.info('Created SiteMap {} to CourseSite {} (external_id = '
+                    '{}) for secondary course instance '
+                    '{}'.format(site_map.site_map_id,
+                                official_canvas_site.course_site_id,
+                                official_canvas_site.external_id,
+                                secondary.course_instance_id))
+    elif len(secondary_sites) == 1:
+
+        site_map = SiteMap.objects.get(course_instance=secondary)
+        site_map.course_site = official_canvas_site
+        site_map.map_type_id = 'official'
+        site_map.save(update_fields=['course_site', 'map_type'])
+        logger.info('Created SiteMap {} to CourseSite {} (external_id = '
+                    '{}) for secondary course instance '
+                    '{}'.format(site_map.site_map_id,
+                                official_canvas_site.course_site_id,
+                                official_canvas_site.external_id,
+                                secondary.course_instance_id))
+    else:
+
+        msg = 'Secondary course instance {} unexpectedly has more than ' \
+              'one site map.'.format(secondary.course_instance_id)
+        logger.exception(msg)
+        # raise ValidationError(msg)
+
+    if other_primary_site_map is not None:
+
+        site_map = SiteMap.objects.create(
+            course_instance=secondary,
+            course_site=other_primary_site_map,
+            map_type_id='map_type')
+        logger.info(
+            'Copied over SiteMap {} from primary course instance {} to '
+            'secondary course instance '
+            '{}'.format(site_map.site_map_id,
+                        primary.course_instance_id,
+                        secondary.course_instance_id))
+
+
+def msg_for_error( msg_key, context):
+        msg = _messages.get(msg_key, '')
+        if msg and isinstance(context, dict):
+            msg = msg.format(**context)
+            return msg
+
+
+def validate_inputs(primary_id, secondary_id, request):
+
+        try:
+            primary_ci = CourseInstance.objects.get(pk=primary_id)
+            secondary_ci = CourseInstance.objects.get(pk=secondary_id)
+        except Exception as e:
+            msg_context = {'p_id': primary_id, 's_id': secondary_id}
+            msg = msg_for_error('invalid input', msg_context)
+            messages.error(request, msg)
+
+        # 1.check to make sure that neither the primary or secondary instances
+        # are excluded from isites
+        for course in [primary_ci, secondary_ci]:
+            if course.exclude_from_isites == 1:
+                msg = msg_for_error('excluded', {'id': course.course_instance_id})
+                messages.error(request, msg)
+
+        # 1b. TLT-2618: check that primary is currently syncing to Canvas
+        if primary_ci.sync_to_canvas == 0:
+            msg_context = {'p_id': primary_id, 's_id': secondary_id}
+            msg = msg_for_error('not_synced', msg_context)
+            messages.error(request, msg)
+
+        # 2. check to make sure that the secondary instance is not already
+        # cross-listed with a different primary.
+        # Note: Using the data from the first record found
+        existing_xlist = XlistMap.objects.filter(
+            secondary_course_instance=secondary_id
+        ).values_list('primary_course_instance', 'secondary_course_instance')
+        if len(existing_xlist) > 0:
+            msg_context = {'s_id': secondary_id, 'p_id': existing_xlist[0][0]}
+            msg = msg_for_error('secondary_already_secondary', msg_context)
+            messages.error(request, msg)
+
+        # 3. reverse check
+        reverse_xlist = XlistMap.objects.filter(
+            secondary_course_instance=primary_id,
+            primary_course_instance=secondary_id
+        ).values_list('primary_course_instance', 'secondary_course_instance')
+        if len(reverse_xlist) > 0:
+            msg_context = {'p_id': primary_id, 's_id': secondary_id}
+            msg = msg_for_error('reverse', msg_context)
+            messages.error(request, msg)
+
+        # 4. check to make sure that the primary instance is not a secondary to
+        #  any instance
+        existing_xlist = XlistMap.objects.filter(
+            secondary_course_instance=primary_id
+        ).values_list('primary_course_instance', 'secondary_course_instance')
+        if len(existing_xlist) > 0:
+            msg_context = {'p_id': existing_xlist[0][0], 's_id': primary_id}
+            msg = msg_for_error('primary_already_xlisted', msg_context)
+            messages.error(request, msg)
+
+        # 5. check to make sure that the secondary is not already a primary to
+        # another instance
+        existing_primary = XlistMap.objects.filter(
+            primary_course_instance=secondary_id
+        ).values_list('primary_course_instance', 'secondary_course_instance')
+        if len(existing_primary) > 0:
+            msg_context = {'p_id': secondary_id, 's_id': existing_primary[0][1]}
+            msg = msg_for_error('secondary_already_primary', msg_context)
+            messages.error(request, msg)
+
+        # 6. TLT-2900: only allow cross-listings for cases where no complex
+        # site map relationship exists.
+        site_maps = {}
+        for course_id in [primary_id, secondary_id]:
+            site_maps[course_id] = SiteMap.objects.filter(
+                course_instance=course_id)
+            if len(site_maps[course_id]) > 1:
+                msg = msg_for_error('multiple_site_maps', {'id': course_id})
+                messages.error(request, msg)
+
+        # raise an exception to display a validation error and abandon further  processing
+        if len(get_messages(request)) > 0 :
+            raise Exception()
+
+

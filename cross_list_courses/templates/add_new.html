@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block body %}
+{% load static %}
+
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Add Cross Listings
+  </h3>
+</nav>
+<br>
+<body role="application">
+<form action="{% url 'cross_list_courses:create_new_pair' %}" method="post">{% csrf_token %}
+    <input type="hidden" name="school_id" value="{{ school_id }}" />
+
+
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger alert-dismissable " role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+          <div class="panel panel-default">
+              <div class="panel-heading"><h4>Create a New Cross Listing Pair</h4></div>
+              <div class="panel-body">
+                  <label  for="primary-course">
+                       Primary Course
+                  </label>
+                  <input  name="primary_course_input" id="primary-course">
+                    </input>
+                    &nbsp;&nbsp
+
+                  <label for="secondary-course">
+                      Secondary Course
+                  </label>
+                  <input  name="secondary_course_input"  id="secondary-course"
+                           >
+                  </input>
+                  <div class="form-group" style="margin-top: 1em; align:center;">
+
+                      <input type="submit" class="btn btn-primary" value="Pair Courses" />
+                  </div>
+
+              </div>
+          </div>
+
+    </div>
+
+
+    <div> <h4>Potential Cross Listings </h4></div>
+    <div class="container-fluid">
+        <div class="row" style="margin-top: .25em;">
+
+            <table class="datatable table display no-footer">
+                <thead>
+                    <th>Primary Course</th>
+                    <th>Secondary Course</th>
+                    <th></th>
+
+                </thead>
+                <tbody>
+                {% for mapping in potential_mappings %}
+                    <tr>
+                        <td>{{ mapping.primary_school_id | upper }}: {{ mapping.primary_short_title }} :{{ mapping.primary_course_instance_id }}
+                             <br>
+                            {{ mapping.primary_sub_title }}
+                        </td>
+                        <td>{{ mapping.secondary_school_id | upper }}: {{ mapping.secondary_short_title }} : {{ mapping.secondary_course_instance_id }}
+                                <br>
+                            {{ mapping.secondary_sub_title }}
+                        </td>
+                         <td>
+                             <a href="{% url 'cross_list_courses:create_new_pair' %}&primary_course_input={{ mapping.primary_course_instance_id }}&secondary_course_input={{ mapping.secondary_course_instance_id }}" class="btn btn-primary pull-right">Pair Courses</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</form>
+</body>
+
+<script>
+    $(document).ready(function() {
+        $('.datatable').dataTable( {
+            paging: true,
+            "bInfo" : false,
+            "aoColumnDefs": [ { "orderable": false, "targets": 2 } ],
+            "oLanguage": {
+              "sSearch": "Search"
+            }
+        });
+    });
+</script>
+
+{% endblock %}
