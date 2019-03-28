@@ -449,7 +449,6 @@ def msg_for_error( msg_key, context):
         msg = _messages.get(msg_key, '')
         if msg and isinstance(context, dict):
             msg = msg.format(**context)
-            print msg
             return msg
 
 
