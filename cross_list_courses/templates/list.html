@@ -19,10 +19,12 @@
         {% for message in messages %}
             {% if message.level_tag == "success" %}
                 <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "error" %}
                 <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% endif %}
