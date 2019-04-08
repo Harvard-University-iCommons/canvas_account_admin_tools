@@ -96,9 +96,11 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
         secondary = CourseInstance.objects.get(course_instance_id=secondary_id)
         secondary_canvas_course = _get_canvas_course(secondary_id, request)
 
+        created_by = request.user
+
         # this step can raise an unhandled error, aborting the process and
         # returning a non-201 error response
-        _update_course_db(primary, secondary, canvas_id)
+        _update_course_db(primary, secondary, canvas_id, created_by)
 
         # these steps will not abort the process, and a 201 response will be
         # returned, possibly with error details
@@ -231,7 +233,8 @@ def _update_canvas_course_name(course_id, course_name, request):
         logger.exception('Error during cross-listing: ' + msg)
         messages.error(request, msg)
 
-def _update_course_db(primary, secondary, canvas_id):
+
+def _update_course_db(primary, secondary, canvas_id, created_by):
     try:
         with transaction.atomic(using='coursemanager'):
             _create_xlist_map(primary, secondary)
@@ -247,9 +250,10 @@ def _update_course_db(primary, secondary, canvas_id):
         logger.exception(e)
         raise Exception(msg)
 
-def _create_xlist_map(primary,secondary):
+
+def _create_xlist_map(primary, secondary, created_by):
     # Save the mapping
-    xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary)
+    xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary, last_modified_by=created_by)
     xlist_map.save()
 
     # Set sync to Canvas of primary
@@ -260,6 +264,7 @@ def _create_xlist_map(primary,secondary):
         'Created XlistMap {} and ensured sync_to_canvas=1 for primary '
         'course instance {}'.format(xlist_map.xlist_map_id,
                                     primary.course_instance_id))
+
 
 def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
     # The sections for the two courses should exist in the new primary
@@ -283,6 +288,7 @@ def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
         logger.exception(msg)
         messages.warning(request, msg)
 
+
 def _update_canvas_course_names( primary, secondary, request):
     # The newly cross-listed secondary course should have the customary
     # [CROSSLISTED - NOT ACTIVE] in its title
@@ -298,8 +304,6 @@ def _append_xlist_name_modifier(canvas_course, request):
         if not canvas_course_name.endswith(_xlist_name_modifier):
             canvas_course_name += _xlist_name_modifier
             _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
-
-
 
 
 def _update_canvas_course_id(primary, secondary, canvas_id):
@@ -319,6 +323,7 @@ def _update_canvas_course_id(primary, secondary, canvas_id):
                 logger.info(
                     'Updated Canvas course ID for course instance {} to '
                     '{}'.format(course.course_instance_id, canvas_id))
+
 
 def _update_course_sites(primary, secondary):
 
@@ -383,7 +388,6 @@ def _update_course_sites(primary, secondary):
         msg = 'Primary course instance {} unexpectedly has more than ' \
               'one site map.'.format(primary.course_instance_id)
         logger.exception(msg)
-        # raise ValidationError(msg)
 
     if official_canvas_site is None:
         official_canvas_site = CourseSite.objects.create(
@@ -448,7 +452,7 @@ def _update_course_sites(primary, secondary):
                         secondary.course_instance_id))
 
 
-def msg_for_error( msg_key, context):
+def msg_for_error(msg_key, context):
         msg = _messages.get(msg_key, '')
         if msg and isinstance(context, dict):
             msg = msg.format(**context)
