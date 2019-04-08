@@ -237,7 +237,7 @@ def _update_canvas_course_name(course_id, course_name, request):
 def _update_course_db(primary, secondary, canvas_id, created_by):
     try:
         with transaction.atomic(using='coursemanager'):
-            _create_xlist_map(primary, secondary)
+            _create_xlist_map(primary, secondary, created_by)
             if canvas_id:
                 _update_canvas_course_id(primary, secondary, canvas_id)
                 _update_course_sites(primary, secondary)
