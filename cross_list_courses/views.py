@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import XlistMap, CombinedSectionXlistMap
+from icommons_common.models import XlistMap, CsXlistMapOverview
 from lti_permissions.decorators import lti_permission_required
 from utils import create_crosslisting_pair, remove_cross_listing
 
@@ -55,9 +55,10 @@ def add_new_pair(request):
     # todo filter those entries that are already cross listed and are present in XLIST tables.
     #  Possibly add a column in the view to do so
 
-    potential_mappings = CombinedSectionXlistMap.objects.filter(Q(primary_school_id=school_id)).filter(
-        Q(term_end_date__gte=today) | Q(term_end_date__isnull=True))\
-        # .exclude(primary_course_instance_id__in = XlistMap.objects.all().values_list('primary_course_instance', flat=True))
+    potential_mappings = CsXlistMapOverview.objects.filter(Q(primary_school_id=school_id)).filter(
+        Q(term_end_date__gte=today) | Q(term_end_date__isnull=True)).filter(
+        Q(existing_mapping__isnull=True)).filter(
+        Q(existing_reverse_mapping__isnull=True))
 
     context = {
         'potential_mappings': potential_mappings,
