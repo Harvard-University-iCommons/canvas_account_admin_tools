@@ -96,6 +96,9 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
         secondary = CourseInstance.objects.get(course_instance_id=secondary_id)
         secondary_canvas_course = _get_canvas_course(secondary_id, request)
 
+        sec_canvas_id = secondary_canvas_course.get('id', secondary.canvas_course_id) \
+            if secondary_canvas_course else secondary.canvas_course_id
+
         created_by = request.user
 
         # this step can raise an unhandled error, aborting the process and
@@ -104,7 +107,7 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
 
         # these steps will not abort the process, and a 201 response will be
         # returned, possibly with error details
-        if canvas_id:
+        if canvas_id and sec_canvas_id:
             _update_canvas_cross_listing(primary_id, secondary_id, request)
             _update_canvas_course_names(primary_canvas_course, secondary_canvas_course, request)
 
