@@ -166,4 +166,33 @@
           </a>
         </div>
     {% endif %}
+
+    {% if canvas_site_deletion_is_allowed %}
+        <div class="card card_color">
+            <a href="{% url 'canvas_site_deletion:index' %}" id="canvas_site_deletion">
+              <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-trash icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Canvas Site Deletion">
+                      <span class="content-link">
+                        Canvas Site Deletion
+                      </span>
+                    </h2>
+                    <p title="Canvas Site Deletion">Cleanup Canvas Site Data</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
+
 {% endblock content %}
+
+
