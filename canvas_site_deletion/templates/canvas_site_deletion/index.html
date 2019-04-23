@@ -1,0 +1,67 @@
+{% extends 'canvas_site_deletion/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Canvas Site Deletion
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    <br><br>
+    <div class="row">
+            Enter a SIS Course Id to lookup a course :
+    </div>
+    <br>
+    <form class="form-inline" method="POST" action="{% url 'canvas_site_deletion:lookup' %}">{% csrf_token %}
+        <div class="form-group">
+            <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
+        <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID"/>
+        </div>
+        <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+        <i class="fa fa-search"></i> Find Course</button>
+    </form>
+    <br>
+    {% if course_instance %}
+            <table class="table table-striped table-hover">
+                <caption><b>Course Data for {{course_instance.course_instance_id}} </b></caption>
+                <tr> <th>School</th><td>{{course_instance.term.school.school_id|upper }}</td></tr>
+
+                <tr> <th>Title</th><td>{{course_instance.title}}</td></tr>
+                <tr> <th>Short Title</th><td>{{course_instance.short_title}}</td></tr>
+                <tr> <th> course_instance_id</th><td>{{course_instance.course_instance_id}}</td></tr>
+                <tr> <th>Sync To Canvas</th><td>{{course_instance.sync_to_canvas}}</td></tr>
+                <tr> <th>Term</th><td>{{course_instance.term.display_name}}</td></tr>
+                <tr> <th>Canvas Course ID</th><td>{{course_instance.canvas_course_id}}</td></tr>
+
+            </table>
+            <div>
+                <p><i>This cleans up Canvas Course id and Site Map data for this course</i></p>
+
+                <a href="{% url 'canvas_site_deletion:delete' pk=course_instance.pk %}" class="btn btn-primary">Delete</a>
+            </div>
+    {% endif %}
+
+
+</div>
+</body>
+
+
+{% endblock %}

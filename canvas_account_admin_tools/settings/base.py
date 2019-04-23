@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'proxy',
     'publish_courses',
     'bulk_course_settings',
+    'canvas_site_deletion',
     'rest_framework'
 ]
 
@@ -382,6 +383,7 @@ PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
+PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 
 
 

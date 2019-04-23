@@ -19,6 +19,7 @@ urlpatterns = [
     url(r'^people_tool/', include('people_tool.urls', namespace='people_tool')),
     url(r'^publish_courses/', include('publish_courses.urls', namespace='publish_courses')),
     url(r'^bulk_course_settings/', include('bulk_course_settings.urls', namespace='bulk_course_settings')),
+    url(r'^canvas_site_deletion/', include('canvas_site_deletion.urls', namespace='canvas_site_deletion')),
 
     url(r'^tool_config$', views.tool_config, name='tool_config'),
 ]
