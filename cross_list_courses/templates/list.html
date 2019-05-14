@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 {% block body %}
 
-<nav>
-  <h3>
-    <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    <small><i class="fa fa-chevron-right"></i></small>
-    Cross Listings
-  </h3>
-</nav>
+    <nav>
+    <h3>
+        <a href="{% url 'dashboard_account' %}">Admin Console</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        Cross Listings
+    </h3>
+    </nav>
 
-<body role="application">
-   <div class="row" style="margin-top: 1em;">
-
-        <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
-    </div>
     <div class="container-fluid">
-        {% for message in messages %}
+        <div class="row" style="margin-top: 1em;">
+            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
+        </div>
+            {% for message in messages %}
             {% if message.level_tag == "success" %}
                 <div class="alert alert-success" role="alert">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -33,7 +31,7 @@
                 <thead>
                     <th>Primary</th>
                     <th>Secondary</th>
-                    <th>Modified By</th>
+                    <th>Modified&nbsp;By</th>
                     <th>Delete</th>
                 </thead>
                 <tbody>
@@ -57,7 +55,7 @@
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>
-                            <a href="{% url 'cross_list_courses:delete_cross_listing' pk=xlist_map.pk %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                            <a href="{% url 'cross_list_courses:delete_cross_listing' pk=xlist_map.pk %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -65,7 +63,6 @@
             </table>
         </div>
     </div>
-</body>
 
 <script>
     $(document).ready(function() {
