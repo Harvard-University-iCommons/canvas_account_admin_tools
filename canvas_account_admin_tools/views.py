@@ -121,12 +121,20 @@ def dashboard_account(request):
                                          settings.PERMISSION_BULK_COURSE_SETTING,
                                          canvas_account_sis_id=custom_canvas_account_sis_id)
 
+    """
+       verify that user has permissions to view the Canvas Site deletion tool
+       """
+    canvas_site_deletion_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                                 settings.PERMISSION_CANVAS_SITE_DELETION,
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
+
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed':site_creator_is_allowed,
         'publish_courses_allowed':publish_courses_allowed,
         'bulk_course_settings_is_allowed': bulk_course_settings_is_allowed,
+        'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
 
     })
 
