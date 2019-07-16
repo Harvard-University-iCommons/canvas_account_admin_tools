@@ -1,3 +1,4 @@
+from sets import Set
 import logging
 from datetime import datetime
 from django.utils import timezone
@@ -10,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import XlistMap, CsXlistMapOverview
+from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson
 from lti_permissions.decorators import lti_permission_required
 from utils import create_crosslisting_pair, remove_cross_listing
 
@@ -29,18 +30,23 @@ def index(request):
     # Only get cross listings with current or future terms
     # Either the primary or secondary courses must be from the school launching the tool
     xlist_maps = XlistMap.objects.filter(Q(primary_course_instance__term__end_date__gte=today) |
-                                         Q(secondary_course_instance__term__end_date__gte=today) |
-                                         Q(primary_course_instance__term__end_date__isnull=True) |
-                                         Q(secondary_course_instance__term__end_date__isnull=True)).filter(
-                                         Q(primary_course_instance__course__school=tool_launch_school) |
-                                         Q(secondary_course_instance__course__school=tool_launch_school)).select_related('primary_course_instance__course',
+                                        Q(secondary_course_instance__term__end_date__gte=today)).filter(
+                                        Q(primary_course_instance__course__school=tool_launch_school) |
+                                        Q(secondary_course_instance__course__school=tool_launch_school)).select_related('primary_course_instance__course',
                                                                                                                         'secondary_course_instance__course',
                                                                                                                         )
+    updater_ids = Set()
+    for xm in xlist_maps:
+        updater_ids.add(xm.last_modified_by)
 
-
+    updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
+    for xm in xlist_maps:
+        updater = updaters.get(xm.last_modified_by)
+        if updater:
+            xm.last_modified_by_full_name = '{} {}'.format(updater.name_first, updater.name_last)
 
     context = {
-        'xlist_maps': xlist_maps,
+        'xlist_maps': xlist_maps
     }
     return render(request, 'list.html', context=context)
 
