@@ -45,7 +45,7 @@
                             {{ xlist_map.primary_course_instance.short_title }}
                             {{ xlist_map.primary_course_instance.course_instance_id }}
                             <br>
-                            {{ xlist_map.primary_course_instance.title }}
+                            {{ xlist_map.primary_course_instance.title }}/ {{ xlist_map.primary_course_instance.term.display_name}}
                         </td>
                         <td>
                             {{ xlist_map.secondary_course_instance.course.school_id | upper }}
@@ -53,7 +53,7 @@
                             {{ xlist_map.secondary_course_instance.short_title }}
                             {{ xlist_map.secondary_course_instance.course_instance_id }}
                             <br>
-                            {{ xlist_map.secondary_course_instance.title }}
+                            {{ xlist_map.secondary_course_instance.title }}/ {{ xlist_map.secondary_course_instance.term.display_name}}
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>

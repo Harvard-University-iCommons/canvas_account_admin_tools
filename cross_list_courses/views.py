@@ -32,9 +32,10 @@ def index(request):
     xlist_maps = XlistMap.objects.filter(Q(primary_course_instance__term__end_date__gte=today) |
                                         Q(secondary_course_instance__term__end_date__gte=today)).filter(
                                         Q(primary_course_instance__course__school=tool_launch_school) |
-                                        Q(secondary_course_instance__course__school=tool_launch_school)).select_related('primary_course_instance__course',
-                                                                                                                        'secondary_course_instance__course',
-                                                                                                                        )
+                                        Q(secondary_course_instance__course__school=tool_launch_school)).select_related(
+                                                                                'primary_course_instance__course', 'primary_course_instance__term',
+                                                                                'secondary_course_instance__course', 'secondary_course_instance__term'
+                                                                                )
     updater_ids = Set()
     for xm in xlist_maps:
         updater_ids.add(xm.last_modified_by)
