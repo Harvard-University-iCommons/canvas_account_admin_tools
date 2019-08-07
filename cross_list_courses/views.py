@@ -119,17 +119,23 @@ def get_ci_data(request):
         courses = CourseInstance.objects.filter(Q(term__end_date__gte=today - timedelta(days=120))).filter(
             Q(course_instance_id__icontains=q)|
             Q(title__icontains=q)|
-            Q(short_title__icontains=q))[:10]
+            Q(sub_title__icontains=q) |
+            Q(short_title__icontains=q)).filter(Q(cs_class_type='E') |
+                                                Q(cs_class_type__isnull=True)).select_related('term')[:10]
         logger.debug(courses.query)
-
         logger.debug(courses)
         
         results = []
         for course in courses:
             course_json = {}
             course_json['id'] = str(course.course_instance_id)
-            course_json['label'] = course.title
-            course_json['value'] = str(course.course_instance_id)+":"+course.title
+            course_json['label'] = '{}{} [{}]'.format(course.title,
+                                                      ': '+course.sub_title[:40]+'...' if course.sub_title else '',
+                                                      course.term.display_name)
+            course_json['value'] = '{}{}{} [{}]'.format(course.course_instance_id, ': '+course.title,
+                                                        ': '+course.sub_title[:40]+'...' if course.sub_title else '',
+                                                        course.term.display_name)
+
             results.append(course_json)
 
         logger.debug("....results")
