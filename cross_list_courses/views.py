@@ -116,14 +116,12 @@ def get_ci_data(request):
     if request.is_ajax():
         q = request.GET.get('term', '')
         logger.debug(q)
-        print q
         courses = CourseInstance.objects.filter(Q(term__end_date__gte=today - timedelta(days=120))).filter(
             Q(course_instance_id__icontains=q)|
             Q(title__icontains=q)|
             Q(sub_title__icontains=q) |
             Q(short_title__icontains=q)).filter(Q(cs_class_type='E') |
                                                 Q(cs_class_type__isnull=True)).select_related('term')[:10]
-        # logger.debug(courses.query)
         logger.debug(courses)
         
         results = []

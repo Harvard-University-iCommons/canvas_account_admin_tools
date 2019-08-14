@@ -112,19 +112,6 @@
         });
     });
 
-    $(document).ready(function(){
-        var location_input=$('input[id="autocomplete-pcourse"]');
-        location_input.autocomplete({
-            source: "get_ci_data",
-          minLength: 2
-        });
-      } );
-
-    //   keeps same width as box
-      jQuery.ui.autocomplete.prototype._resizeMenu = function () {
-          var ul = this.menu.element;
-          ul.outerWidth(this.element.outerWidth());
-        }
 
     $(document).ready(function(){
             var location_input=$('input[id="primary-course"]');
@@ -134,6 +121,11 @@
             });
           } );
 
+    //   keeps same width as box
+      jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+          var ul = this.menu.element;
+          ul.outerWidth(this.element.outerWidth());
+        }
 
     $(document).ready(function(){
             var location_input=$('input[id="secondary-course"]');
