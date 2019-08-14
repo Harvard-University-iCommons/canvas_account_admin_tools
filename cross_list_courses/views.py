@@ -106,6 +106,7 @@ def delete_cross_listing(request, pk):
     remove_cross_listing(pk, request)
     return redirect('cross_list_courses:index')
 
+
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)
 @require_http_methods(['GET'])
@@ -122,7 +123,7 @@ def get_ci_data(request):
             Q(sub_title__icontains=q) |
             Q(short_title__icontains=q)).filter(Q(cs_class_type='E') |
                                                 Q(cs_class_type__isnull=True)).select_related('term')[:10]
-        logger.debug(courses.query)
+        # logger.debug(courses.query)
         logger.debug(courses)
         
         results = []
@@ -138,7 +139,6 @@ def get_ci_data(request):
 
             results.append(course_json)
 
-        logger.debug("....results")
         logger.debug(results)
         data = json.dumps(results)
     else:
