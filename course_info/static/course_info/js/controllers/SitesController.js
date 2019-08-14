@@ -195,7 +195,6 @@
                 courseInstance['conclude_date'] = ci.conclude_date;
                 courseInstance['sync_to_canvas'] = ci.sync_to_canvas;
                 courseInstance['exclude_from_isites'] = ci.exclude_from_isites;
-                courseInstance['exclude_from_catalog'] = ci.exclude_from_catalog;
 
                 if (ci.secondary_xlist_instances &&
                     ci.secondary_xlist_instances.length > 0) {
