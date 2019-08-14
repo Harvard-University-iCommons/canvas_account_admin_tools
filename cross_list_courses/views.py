@@ -1,6 +1,6 @@
 from sets import Set
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils import timezone
 
 from django.conf import settings
@@ -8,14 +8,20 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse
+
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson
+
+from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson, CourseInstance
 from lti_permissions.decorators import lti_permission_required
 from utils import create_crosslisting_pair, remove_cross_listing
+import json
+
 
 logger = logging.getLogger(__name__)
+
 
 
 @login_required
@@ -81,8 +87,8 @@ def add_new_pair(request):
 def create_new_pair(request):
 
     if request.method == 'POST':
-        primary_id = request.POST['primary_course_input']
-        secondary_id = request.POST['secondary_course_input']
+        primary_id = request.POST['primary_course_input'].split(':')[0]
+        secondary_id = request.POST['secondary_course_input'].split(':')[0]
         create_crosslisting_pair(primary_id, secondary_id,request)
 
     else:
@@ -99,3 +105,43 @@ def create_new_pair(request):
 def delete_cross_listing(request, pk):
     remove_cross_listing(pk, request)
     return redirect('cross_list_courses:index')
+
+
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
+@require_http_methods(['GET'])
+def get_ci_data(request):
+    today = datetime.now()
+
+    if request.is_ajax():
+        q = request.GET.get('term', '')
+        logger.debug(q)
+        courses = CourseInstance.objects.filter(Q(term__end_date__gte=today - timedelta(days=120))).filter(
+            Q(course_instance_id__icontains=q)|
+            Q(title__icontains=q)|
+            Q(sub_title__icontains=q) |
+            Q(short_title__icontains=q)).filter(Q(cs_class_type='E') |
+                                                Q(cs_class_type__isnull=True)).select_related('term')[:10]
+        logger.debug(courses)
+        results = []
+        for course in courses:
+            course_json = {}
+            course_json['id'] = str(course.course_instance_id)
+            course_json['label'] = '{}{} [{}, {}]'.format(course.title.encode("utf-8"),
+                                                          ': '+course.sub_title.encode("utf-8")[:40]+'...' if course.sub_title else '',
+                                                          course.term.school_id.upper(), course.term.display_name)
+            course_json['value'] = '{}{}{} [{}, {}]'.format(course.course_instance_id, ': '+course.title.encode("utf-8"),
+                                                            ': '+course.sub_title.encode("utf-8")[:40]+'...' if course.sub_title else '',
+                                                            course.term.school_id.upper(), course.term.display_name)
+
+            results.append(course_json)
+
+        logger.debug(results)
+        data = json.dumps(results)
+    else:
+        data = 'fail'
+
+    mimetype = 'application/json'
+    return HttpResponse(data, mimetype)
+
+

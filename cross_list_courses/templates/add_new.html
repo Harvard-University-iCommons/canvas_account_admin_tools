@@ -40,19 +40,19 @@
 
           <div class="panel panel-default">
               <div class="panel-heading"><h4>Create a New Cross Listing Pair</h4></div>
-              <div class="panel-body">
+              <div class="panel-body ui-widget">
                   <label  for="primary-course">
-                       Primary Course
+                       Primary Course &nbsp;&nbsp;&nbsp;&nbsp;
                   </label>
-                  <input  name="primary_course_input" id="primary-course">
+                  <input  name="primary_course_input" id="primary-course" style="width: 650px;">
                     </input>
-                    &nbsp;&nbsp
+              </div>
+              <div class="panel-body ui-widget">
 
-                  <label for="secondary-course">
+                  <label for="secondary-course ui-widget">
                       Secondary Course
                   </label>
-                  <input  name="secondary_course_input"  id="secondary-course"
-                           >
+                  <input  name="secondary_course_input"  id="secondary-course" style="width: 650px;">
                   </input>
                   <div class="form-group" style="margin-top: 1em; align:center;">
 
@@ -107,10 +107,35 @@
             "bInfo" : false,
             "aoColumnDefs": [ { "orderable": false, "targets": 2 } ],
             "oLanguage": {
-              "sSearch": "Search"
+              "sSearch": "Filter"
             }
         });
     });
+
+
+    $(document).ready(function(){
+            var location_input=$('input[id="primary-course"]');
+            location_input.autocomplete({
+                source: "get_ci_data",
+              minLength: 2
+            });
+          } );
+
+    //   keeps same width as box
+      jQuery.ui.autocomplete.prototype._resizeMenu = function () {
+          var ul = this.menu.element;
+          ul.outerWidth(this.element.outerWidth());
+        }
+
+    $(document).ready(function(){
+            var location_input=$('input[id="secondary-course"]');
+            location_input.autocomplete({
+                source: "get_ci_data",
+              minLength: 2
+            });
+    } );
+
+
 </script>
 
 {% endblock %}
