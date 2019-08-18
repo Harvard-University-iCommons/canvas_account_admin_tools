@@ -57,9 +57,9 @@
         </div>
     </div>
 
-    <div><h4>Potential Cross Listings </h4></div>
     <div class="container-fluid">
         <div class="row" style="margin-top: .25em;">
+            <div style="margin-bottom: -20px; padding-top: 50px;"><h4><u>Potential Cross Listings</u></h4></div>
             <table class="datatable table display no-footer">
                 <thead>
                     <th>Primary Course</th>
@@ -70,14 +70,40 @@
                 <tbody>
                 {% for mapping in potential_mappings %}
                     <tr>
-                        <td>{{ mapping.primary_school_id | upper }}: {{ mapping.primary_short_title }} :{{ mapping.primary_course_instance_id }}
+                        <td>
+                            {{ mapping.primary_school_id | upper }}
                             <br>
-                            {{ mapping.primary_sub_title }}
+                            {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
+                                {{ mapping.primary_course_instance.course.registrar_code }}
+                            {% else %}
+                                {{ mapping.primary_short_title }}
+                            {% endif %}
+                            {{ mapping.term_id }}
+                            (course instance ID {{ mapping.primary_course_instance_id }})
+                            <br>
+                            {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
+                                {{ mapping.primary_short_title }}
+                            {% else %}
+                                {{ mapping.primary_sub_title }}
+                            {% endif %}
                         </td>
                         <td><i class="fa fa-exchange fa-2x btn btn-primary" onclick="swapCourses(this);" aria-hidden="true"></i></td>
-                        <td>{{ mapping.secondary_school_id | upper }}: {{ mapping.secondary_short_title }} : {{ mapping.secondary_course_instance_id }}
+                        <td>
+                            {{ mapping.secondary_school_id | upper }}
                             <br>
-                            {{ mapping.secondary_sub_title }}
+                            {% if mapping.seondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
+                                {{ mapping.secondarycourse_instance.course.registrar_code }}
+                            {% else %}
+                                {{ mapping.secondary_short_title }}
+                            {% endif %}
+                            {{ mapping.term_id }}
+                            (course instance ID {{ mapping.secondary_course_instance_id }})
+                            <br>
+                            {% if mapping.secondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
+                                {{ mapping.secondary_short_title }}
+                            {% else %}
+                                {{ mapping.secondary_sub_title }}
+                            {% endif %}
                         </td>
                         <td>
                             <a href="{% url 'cross_list_courses:create_new_pair' %}&primary_course_input={{ mapping.primary_course_instance_id }}&secondary_course_input={{ mapping.secondary_course_instance_id }}" class="btn btn-primary pull-right">Pair Courses</a>
@@ -98,7 +124,7 @@
             "bInfo" : false,
             "aoColumnDefs": [ { "orderable": false, "targets": [1,3] } ],
             "oLanguage": {
-              "sSearch": "Filter"
+              "sSearch": "Filter the list below"
             }
         });
     });

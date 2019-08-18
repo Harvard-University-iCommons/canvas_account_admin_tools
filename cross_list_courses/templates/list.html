@@ -10,12 +10,6 @@
     </nav>
 
     <div class="container-fluid">
-        <div class="row" style="margin-top: 1em;">
-            <div class="col-xs-6">
-                <h4 class="modal-title bottom-spacing">Cross-listed courses in current terms</h4>
-            </div>
-            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
-        </div>
             {% for message in messages %}
             <div class="row">
                     {% if message.level_tag == "success" %}
@@ -31,7 +25,13 @@
                 {% endif %}
             </div>
         {% endfor %}
+        <div class="row" style="margin-top: 1em;">
+            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
+        </div>
         <div class="row" style="margin-top: .25em;">
+            <div style="margin-bottom: -20px; padding-top: 50px;">
+                <h4 class="modal-title bottom-spacing"><u>Cross-listed Courses in Current Terms</u></h4>
+            </div>
             <table class="datatable table display no-footer">
                 <thead>
                     <th>Primary</th>
@@ -44,19 +44,37 @@
                     <tr>
                         <td>
                             {{ xlist_map.primary_course_instance.course.school_id | upper }}
-                            {{ xlist_map.primary_course_instance.course.registrar_code }}
-                            {{ xlist_map.primary_course_instance.short_title }}
-                            {{ xlist_map.primary_course_instance.course_instance_id }}
                             <br>
-                            {{ xlist_map.primary_course_instance.title }}/ {{ xlist_map.primary_course_instance.term.display_name}}
+                            {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {% else %}
+                                {{ xlist_map.primary_course_instance.short_title }}
+                            {% endif %}
+                            {{ xlist_map.primary_course_instance.term.display_name}}
+                            (course instance ID {{ xlist_map.primary_course_instance.course_instance_id }})
+                            <br>
+                            {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.primary_course_instance.title }}
+                            {% else %}
+                                {{ xlist_map.primary_course_instance.sub_title }}
+                            {% endif %}
                         </td>
                         <td>
                             {{ xlist_map.secondary_course_instance.course.school_id | upper }}
-                            {{ xlist_map.secondary_course_instance.course.registrar_code }}
-                            {{ xlist_map.secondary_course_instance.short_title }}
-                            {{ xlist_map.secondary_course_instance.course_instance_id }}
                             <br>
-                            {{ xlist_map.secondary_course_instance.title }}/ {{ xlist_map.secondary_course_instance.term.display_name}}
+                            {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {% else %}
+                                {{ xlist_map.secondary_course_instance.short_title }}
+                            {% endif %}
+                            {{ xlist_map.secondary_course_instance.term.display_name}}
+                            (course instance ID {{ xlist_map.secondary_course_instance.course_instance_id }})
+                            <br>
+                            {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.secondary_course_instance.title }}
+                            {% else %}
+                                {{ xlist_map.secondary_course_instance.sub_title }}
+                            {% endif %}
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>
@@ -76,7 +94,7 @@
             "bInfo" : false,
             "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
             "oLanguage": {
-              "sSearch": "Search"
+              "sSearch": "Filter the list below"
             }
         });
     });
