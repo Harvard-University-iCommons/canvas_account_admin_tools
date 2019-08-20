@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -61,13 +61,14 @@ def _url(url):
     URL manually and remove the resource_link_id parameter if present. This will
     prevent any issues upon redirect from the launch.
     """
-    parts = urlparse.urlparse(url)
-    query_dict = urlparse.parse_qs(parts.query)
+
+    parts = urllib.parse.urlparse(url)
+    query_dict = urllib.parse.parse_qs(parts.query)
     if 'resource_link_id' in query_dict:
         query_dict.pop('resource_link_id', None)
     new_parts = list(parts)
-    new_parts[4] = urllib.urlencode(query_dict)
-    return urlparse.urlunparse(new_parts)
+    new_parts[4] = urllib.parse.urlencode(query_dict)
+    return urllib.parse.urlunparse(new_parts)
 
 
 @login_required
@@ -97,29 +98,29 @@ def dashboard_account(request):
     verify that user has permissions to view the People tool
     """
     people_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_PEOPLE_TOOL,
-                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+                                        settings.PERMISSION_PEOPLE_TOOL,
+                                        canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
     verify that user has permissions to view the canvas site creator tool
     """
     site_creator_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_SITE_CREATOR,
-                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+                                         settings.PERMISSION_SITE_CREATOR,
+                                         canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
     verify that user has permissions to view the publish courses tool
     """
     publish_courses_allowed = is_allowed(custom_canvas_membership_roles,
-                                          settings.PERMISSION_PUBLISH_COURSES,
-                                          canvas_account_sis_id=custom_canvas_account_sis_id)
+                                         settings.PERMISSION_PUBLISH_COURSES,
+                                         canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
     verify that user has permissions to view the bulk course settings tool
     """
     bulk_course_settings_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                         settings.PERMISSION_BULK_COURSE_SETTING,
-                                         canvas_account_sis_id=custom_canvas_account_sis_id)
+                                                 settings.PERMISSION_BULK_COURSE_SETTING,
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
        verify that user has permissions to view the Canvas Site deletion tool

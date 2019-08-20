@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import logging
 
 from django.conf import settings
@@ -16,7 +16,7 @@ from rest_framework.serializers import (
     JSONField,
     ModelSerializer)
 
-from async.models import Process
+from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from lti_permissions.decorators import lti_permission_required_check
 from publish_courses.async_operations import bulk_publish_canvas_sites
@@ -103,7 +103,7 @@ class CourseDetailList(ListAPIView):
             'concluded': 'completed',
         }
         summary_counts_by_state = {'total': len(course_list)}
-        for k, v in state_map.items():
+        for k, v in list(state_map.items()):
             summary_counts_by_state[k] = len(
                 [c for c in course_list if c['workflow_state'] == v])
 

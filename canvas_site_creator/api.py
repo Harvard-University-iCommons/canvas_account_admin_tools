@@ -225,8 +225,8 @@ def create_canvas_course_and_section(request):
         term_id = 'sis_term_id:%s' % data['term_id']
         title = data['title']
     except Exception:
-        message = (u'Failed to extract canvas parameters from posted data; '
-                   u'request body={}'.format(request.body))
+        message = ('Failed to extract canvas parameters from posted data; '
+                   'request body={}'.format(request.body))
         logger.exception(message)
         return JsonResponse({'error': message}, status=400)
 
@@ -256,10 +256,10 @@ def create_canvas_course_and_section(request):
                 logger.exception("Error creating blueprint course via update with request {}".format(update_parameters))
                 return JsonResponse({}, status=500)
     except Exception as e:
-        message = u'Error creating new course via SDK with request={}'.format(
+        message = 'Error creating new course via SDK with request={}'.format(
             request_parameters)
         if isinstance(e, CanvasAPIError):
-            message += u', SDK error details={}'.format(e)
+            message += ', SDK error details={}'.format(e)
         logger.exception(message)
         return JsonResponse({}, status=500)
 
@@ -270,7 +270,7 @@ def create_canvas_course_and_section(request):
         # format section name similar to how it is handled in the bulk feed :
         #  school + short title/course_code  + section id
 
-        section_name = u'{} {} {}'.format(school.upper(), course_code,
+        section_name = '{} {} {}'.format(school.upper(), course_code,
                                           section_id)
         request_parameters = dict(
             request_ctx=SDK_CONTEXT,
@@ -279,10 +279,10 @@ def create_canvas_course_and_section(request):
             course_section_sis_section_id=course_instance_id)
         section_result = create_course_section(**request_parameters).json()
     except Exception as e:
-        message = (u'Error creating section for new course via SDK with '
-                   u'request={}'.format(request_parameters))
+        message = ('Error creating section for new course via SDK with '
+                   'request={}'.format(request_parameters))
         if isinstance(e, CanvasAPIError):
-            message += u', SDK error details={}'.format(e)
+            message += ', SDK error details={}'.format(e)
         logger.exception(message)
         return JsonResponse(section_result, status=500)
 
@@ -297,8 +297,8 @@ def copy_from_canvas_template(request):
         canvas_course_id = data['canvas_course_id']
         template_id = data['template_id']
     except Exception:
-        message = (u'Failed to extract canvas parameters from posted data; '
-                   u'request body={}'.format(request.body))
+        message = ('Failed to extract canvas parameters from posted data; '
+                   'request body={}'.format(request.body))
         logger.exception(message)
         return JsonResponse({'error': message}, status=400)
 
@@ -313,10 +313,10 @@ def copy_from_canvas_template(request):
         logger.debug('content migration API call result: %s' % migration_result)
 
     except Exception as e:
-        message = u'Error creating content migration via SDK with request={}'\
+        message = 'Error creating content migration via SDK with request={}'\
             .format(request_parameters)
         if isinstance(e, CanvasAPIError):
-            message += u', SDK error details={}'.format(e)
+            message += ', SDK error details={}'.format(e)
         logger.exception(message)
         return JsonResponse({}, status=500)
     return JsonResponse(migration_result, status=200)

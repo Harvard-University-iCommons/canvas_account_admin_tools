@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import json
 from mock import (
     patch,
@@ -69,7 +69,7 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['state'], 'queued')
-        self.assertNotEquals(response.data['date_created'], None)
+        self.assertNotEqual(response.data['date_created'], None)
 
     def test_queues_job(self):
         """
@@ -100,7 +100,7 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
         """
         data = {}
         msg = 'account and term are required'
-        with self.assertRaisesRegexp(DRFValidationError, msg):
+        with self.assertRaisesRegex(DRFValidationError, msg):
             self._prep_request_and_post(data=data)
 
     def test_missing_lti_data(self):
@@ -110,7 +110,7 @@ class BulkPublishListCreateTestCase(PublishCoursesAPIBaseTestCase):
         """
         lti_data = {}
         msg = 'Invalid LTI session'
-        with self.assertRaisesRegexp(DRFValidationError, msg):
+        with self.assertRaisesRegex(DRFValidationError, msg):
             self._prep_request_and_post(lti_data=lti_data)
 
     def test_create_selected(self):

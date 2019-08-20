@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import logging
 import re
 import sys
@@ -154,7 +154,7 @@ class BulkCourseSettingsOperation(object):
                              'complete logging of metrics and summary stats.')
 
         if exc_during_execution is not None:
-            raise exc_during_execution, None, exc_traceback
+            raise exc_during_execution.with_traceback(exc_traceback)
 
     def check_and_update_course(self, course):
         if self.options.get('skip') and \
@@ -309,7 +309,7 @@ class BulkCourseSettingsOperation(object):
             summary[m] = {'total': m_total}
 
         course_totals = [m['total']
-                         for c, m in self.metrics.get('update_course', {}).items()
+                         for c, m in list(self.metrics.get('update_course', {}).items())
                          if m.get('total') is not None]
         total_for_courses = sum(course_totals)
         average_for_courses = total_for_courses/(len(course_totals) or 1)

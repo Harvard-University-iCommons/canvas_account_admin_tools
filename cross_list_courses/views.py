@@ -1,27 +1,22 @@
-from sets import Set
+import json
 import logging
 from datetime import datetime, timedelta
-from django.utils import timezone
+from sets import Set
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
-
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-
 from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson, CourseInstance
 from lti_permissions.decorators import lti_permission_required
-from utils import create_crosslisting_pair, remove_cross_listing
-import json
-
+from .utils import create_crosslisting_pair, remove_cross_listing
 
 logger = logging.getLogger(__name__)
-
 
 
 @login_required
@@ -57,6 +52,7 @@ def index(request):
     }
     return render(request, 'list.html', context=context)
 
+
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)
 @require_http_methods(['GET'])
@@ -80,6 +76,7 @@ def add_new_pair(request):
     }
 
     return render(request, 'add_new.html', context=context)
+
 
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)

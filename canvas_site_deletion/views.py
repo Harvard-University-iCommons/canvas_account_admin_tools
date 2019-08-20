@@ -34,8 +34,8 @@ def lookup(request):
         ci = CourseInstance.objects.get(course_instance_id=course_search_term)
 
     except CourseInstance.DoesNotExist:
-        logger.exception(u'Could not determine the course instance for Canvas '
-                         u'course instance id %s' % course_search_term)
+        logger.exception('Could not determine the course instance for Canvas '
+                         'course instance id %s' % course_search_term)
 
     context = {'course_instance': ci}
 
@@ -73,8 +73,8 @@ def delete(request, pk):
         ci.save()
 
     except Exception as e:
-        logger.exception(u'Could not cleanup  the course instance for Canvas '
-                         u'course instance id %s.' % pk)
+        logger.exception('Could not cleanup  the course instance for Canvas '
+                         'course instance id %s.' % pk)
         messages.error(request, 'Unable to delete cleanup course instance id {}.'.format(pk))
 
     messages.success(request, "Successfully cleaned up  the Course Site for course_instance_id: {}"

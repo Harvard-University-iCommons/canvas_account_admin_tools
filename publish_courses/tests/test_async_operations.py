@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 from mock import patch
 
 from django.conf import settings
@@ -11,7 +11,7 @@ from rq import (
     get_current_job,
     SimpleWorker)
 
-from async.models import Process
+from async_operations.models import Process
 from publish_courses.async_operations import bulk_publish_canvas_sites
 
 QUEUE_NAME = settings.RQWORKER_QUEUE_NAME
@@ -118,7 +118,7 @@ class CompletedStateTestCase(BulkPublishCanvasSitesBaseTestCase):
         self._refresh_from_db()
         self._assert_complete()
         self.assertEqual(self.process.status, '')
-        self.assertNotIn('error', self.process.details.keys())
+        self.assertNotIn('error', list(self.process.details.keys()))
 
     def test_failed(self, mock_execute, *args, **kwargs):
         # process status, timestamps, details updated when failed (completed)
@@ -127,7 +127,7 @@ class CompletedStateTestCase(BulkPublishCanvasSitesBaseTestCase):
         self._refresh_from_db()
         self._assert_complete()
         self.assertEqual(self.process.status, 'failed')
-        self.assertIn('error', self.process.details.keys())
+        self.assertIn('error', list(self.process.details.keys()))
 
 
 class PublishCoursesTestCase(BulkPublishCanvasSitesBaseTestCase):

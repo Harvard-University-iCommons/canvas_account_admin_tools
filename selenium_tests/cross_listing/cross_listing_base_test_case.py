@@ -1,5 +1,5 @@
 from os.path import abspath, dirname, join
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
 from selenium_tests.canvas_account_admin_tools_base_test_case \

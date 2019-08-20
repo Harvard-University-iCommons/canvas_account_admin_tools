@@ -1,10 +1,10 @@
 import json
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.test import RequestFactory, TestCase
 from mock import patch, Mock
 
-from views import icommons_rest_api_proxy
+from .views import icommons_rest_api_proxy
 
 
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
