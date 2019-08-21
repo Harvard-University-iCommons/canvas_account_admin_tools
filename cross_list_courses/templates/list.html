@@ -47,8 +47,14 @@
                             <b>
                             {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.primary_course_instance.course.registrar_code }}
-                            {% else %}
+                            {% elif xlist_map.primary_course_instance.short_title %}
                                 {{ xlist_map.primary_course_instance.short_title }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.primary_course_instance.course.course_id }}
                             {% endif %}
                             </b>
                             <br>
@@ -66,8 +72,14 @@
                             <b>
                             {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.secondary_course_instance.course.registrar_code }}
-                            {% else %}
+                            {% elif xlist_map.secondary_course_instance.short_title %}
                                 {{ xlist_map.secondary_course_instance.short_title }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.secondary_course_instance.course.course_id }}
                             {% endif %}
                             </b>
                             <br>
