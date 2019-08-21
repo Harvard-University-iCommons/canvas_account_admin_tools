@@ -128,8 +128,7 @@ def _get_canvas_course(course_sis_id, request):
         return canvas_get_course(SDK_CONTEXT, course_id).json()
     except:
         msg = 'Canvas course {} unavailable.'.format(course_id)
-        logger.exception('Error during cross-listing: ' + msg)
-        messages.warning(request, msg)
+        logger.info('Error during cross-listing: ' + msg)
     return None
 
 
