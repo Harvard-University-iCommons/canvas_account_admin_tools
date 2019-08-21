@@ -6,12 +6,12 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from ims_lti_py.tool_config import ToolConfig
+from lti import ToolConfig
 from proxy.views import proxy_view
 
 from django_auth_lti import const
