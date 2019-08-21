@@ -61,11 +61,13 @@
                             {{ xlist_map.primary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.primary_course_instance.course_instance_id }})
                             <br>
+                            <i>
                             {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.primary_course_instance.title }}
                             {% else %}
                                 {{ xlist_map.primary_course_instance.sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>
                             {{ xlist_map.secondary_course_instance.course.school_id | upper }}
@@ -86,11 +88,13 @@
                             {{ xlist_map.secondary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.secondary_course_instance.course_instance_id }})
                             <br>
+                            <i>
                             {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.secondary_course_instance.title }}
                             {% else %}
                                 {{ xlist_map.secondary_course_instance.sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>

@@ -83,11 +83,13 @@
                             {{ mapping.primary_term_display_name }}
                             (course instance ID {{ mapping.primary_course_instance_id }})
                             <br>
+                            <i>
                             {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
                                 {{ mapping.primary_title }}
                             {% else %}
                                 {{ mapping.primary_sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td><i class="fa fa-exchange fa-2x btn btn-info" onclick="swapCourses(this);" aria-hidden="true"></i></td>
                         <td>
@@ -103,11 +105,13 @@
                             {{ mapping.secondary_term_display_name }}
                             (course instance ID {{ mapping.secondary_course_instance_id }})
                             <br>
+                            <i>
                             {% if mapping.secondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
                                 {{ mapping.secondary_title }}
                             {% else %}
                                 {{ mapping.secondary_sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>
                             <a href="{% url 'cross_list_courses:create_new_pair' %}&primary_course_input={{ mapping.primary_course_instance_id }}&secondary_course_input={{ mapping.secondary_course_instance_id }}" class="btn btn-primary pull-right">Pair Courses</a>
