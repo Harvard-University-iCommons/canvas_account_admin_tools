@@ -78,11 +78,12 @@ def lti_launch(request):
     return redirect('dashboard_account')
 
 
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+# @login_required
+# @lti_role_required(const.ADMINISTRATOR)
+# @lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
 @require_http_methods(['GET'])
 def dashboard_account(request):
+    logger.info(request.LTI)
     custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
 
