@@ -1,7 +1,6 @@
 from sets import Set
 import logging
 from datetime import datetime, timedelta
-from django.utils import timezone
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -21,7 +20,6 @@ import json
 
 
 logger = logging.getLogger(__name__)
-
 
 
 @login_required
@@ -57,6 +55,7 @@ def index(request):
     }
     return render(request, 'list.html', context=context)
 
+
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)
 @require_http_methods(['GET'])
@@ -70,7 +69,8 @@ def add_new_pair(request):
     #  Possibly add a column in the view to do so
 
     potential_mappings = CsXlistMapOverview.objects.filter(Q(primary_school_id=school_id)).filter(
-        Q(term_end_date__gte=today) | Q(term_end_date__isnull=True)).filter(
+        Q(primary_term_end_date__gte=today) | Q(primary_term_end_date__isnull=True) |
+        Q(secondary_term_end_date__gte=today) | Q(secondary_term_end_date__isnull=True)).filter(
         Q(existing_mapping__isnull=True)).filter(
         Q(existing_reverse_mapping__isnull=True))
 
@@ -80,6 +80,7 @@ def add_new_pair(request):
     }
 
     return render(request, 'add_new.html', context=context)
+
 
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_XLIST_TOOL)
@@ -97,6 +98,7 @@ def create_new_pair(request):
         create_crosslisting_pair(primary_id, secondary_id,request)
 
     return redirect('cross_list_courses:add_new_pair')
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
