@@ -15,6 +15,7 @@ import os
 import logging
 from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
+import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -212,7 +213,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 # A boolean that specifies whether Django's translation system should be enabled. This provides
 # an easy way to turn it off, for performance. If this is set to False, Django will make some
 # optimizations so as not to load the translation machinery.
@@ -231,6 +232,9 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # Logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#configuring-logging
+
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
 
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
