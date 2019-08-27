@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import logging
 from django.core.urlresolvers import reverse_lazy
+import time
 from dj_secure_settings.loader import load_secure_settings
 
 SECURE_SETTINGS = load_secure_settings()
