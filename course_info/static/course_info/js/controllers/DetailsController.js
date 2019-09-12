@@ -38,8 +38,7 @@
         dc.init = function() {
             var instances = courseInstances.instances;
             if (instances && instances[dc.courseInstanceId]) {
-                dc.courseInstance = dc.getFormattedCourseInstance(
-                    instances[dc.courseInstanceId]);
+                dc.courseInstance = dc.getFormattedCourseInstance(instances[dc.courseInstanceId]);
             }
             dc.fetchCourseInstanceDetails(dc.courseInstanceId);
         };
@@ -78,7 +77,6 @@
                             show: true,
                             details: response.statusText || 'None'};
                 });
-
         };
         // todo: move this into a service/app.js?
         dc.getCourseDescription = function(course) {
@@ -101,6 +99,7 @@
                 courseInstance['title'] = ci.title;
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
+                courseInstance['term_id'] = ci.term.term_id.toString();
                 courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy', 'Z');
                 courseInstance['year'] = ci.term.academic_year;
                 courseInstance['departments'] = ci.course.departments;
@@ -140,6 +139,63 @@
 
             return courseInstance;
         };
+
+        dc.getTermList = function() {
+            var termUrl = djangoUrl.reverse(dc.apiProxy, ['api/course/v2/terms/']);
+            var now = new Date();
+            var previousYear = now.getFullYear()-1;
+
+            var termQueryConfig = {
+                params: {
+                    'calendar_year__gte': previousYear,
+                    'school': dc.courseInstance['school'].toLowerCase()
+                }
+            };
+
+            var ongoingTermQueryConfig = {
+                params: {
+                    'academic_year': '1900',
+                    'school': dc.courseInstance['school'].toLowerCase()
+                }
+            };
+
+            $http.get(termUrl, termQueryConfig)
+                .then(function successCallback(response) {
+                    dc.termList = response.data.results;
+                    $http.get(termUrl, ongoingTermQueryConfig)
+                        .then(function successCallback(response) {
+                            // Append the Ongoing term to the term list as it was filtered out of the initial get
+                            dc.termList.push(response.data.results[0]);
+                            // If the course is in a term older than 1 calendar year from today,
+                            // append the term to the term list
+                            dc.verifyTermList();
+                        });
+                }, function errorCallback(response) {
+                    console.log(response.statusText);
+                });
+
+            dc.editable = true;
+        };
+
+        dc.verifyTermList = function() {
+            // Checks to see if the course's term is in the filtered list of terms.
+            // If it is not, then append it to the controllers term list
+            var termInList = false;
+            dc.termList.forEach(function(term) {
+                if (term['term_id'] == dc.courseInstance['term_id']) {
+                    termInList = true;
+                }
+            });
+            if (!termInList) {
+                dc.termList.unshift(
+                    {
+                        'display_name': dc.courseInstance.term,
+                        'term_id': dc.courseInstance.term_id
+                    }
+                );
+            }
+        };
+
         dc.getPeopleCoursesRoute = function() {
             // returns URL for the Search People app's course list
             // route for the user specified by dc.arrivedFromPeopleCourses
@@ -166,7 +222,11 @@
                     dc.getFormattedCourseInstance(response.data));
                 // TLT-2376: only sandbox and ILE courses are currently editable
                 var rc = response.data.course.registrar_code;
-                dc.editable = dc.isCourseInstanceEditable(rc);
+                // Only get the term list if this course is editable
+                if (dc.isCourseInstanceEditable(rc)) {
+                    // Once the CI has been loaded, proceed to get the term list
+                    dc.getTermList();
+                }
                 dc.resetForm();
             } else {
                 $log.error('CourseInstance record mismatch for id :'
@@ -249,13 +309,14 @@
                 'sync_to_canvas',
                 'exclude_from_isites',
                 'section',
-                'conclude_date'
+                'conclude_date',
+                'term'
             ];
             fields.forEach(function(field) {
                 if (field == 'conclude_date') {
                     // Conclude date is a DateTimeField in the CI model.
                     // Convert the formatted date back into a DateTime string to be submitted.
-                    if (dc.formDisplayData['conclude_date']){
+                    if (dc.formDisplayData['conclude_date']) {
                         // Validate that the selected date is not in the past before submitting.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
                             var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
@@ -266,14 +327,16 @@
                         // If the conclude date field is left blank, then set the conclude_date to null in the DB.
                         patchData['conclude_date'] = null;
                     }
+                } else if (field == 'term') {
+                    patchData['term'] = dc.formDisplayData['term_id'];
                 } else {
                     patchData[field] = dc.formDisplayData[field];
                 }
             });
             $http.patch(url, patchData)
-                .then(function finalizeCourseDetailsPatch() {
+                .then(function finalizeCourseDetailsPatch(response) {
                     // update form data so reset button will pick up changes
-                    angular.extend(dc.courseInstance, patchData);
+                    angular.extend(dc.courseInstance, dc.getFormattedCourseInstance(response.data));
                     dc.showNewGlobalAlert('updateSucceeded');
                 }, function cleanUpFailedCourseDetailsPatch(response) {
                     dc.handleAjaxErrorResponse(response);
