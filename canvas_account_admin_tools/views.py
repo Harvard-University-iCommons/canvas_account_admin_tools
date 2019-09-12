@@ -1,12 +1,14 @@
 import json
 import logging
 import os
+import urllib
+import urlparse
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ims_lti_py.tool_config import ToolConfig
@@ -22,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
-    url = "https://{}{}".format(request.get_host(), reverse('lti_launch', exclude_resource_link_id=True))
+    url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
+    url = _url(url)
 
     title = 'Admin Console'
     lti_tool_config = ToolConfig(
@@ -45,6 +48,26 @@ def tool_config(request):
     lti_tool_config.set_ext_param('canvas.instructure.com', 'privacy_level', 'public')
 
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
+
+
+def _url(url):
+    """
+    *** Taken from ATG's django-app-lti repo to fix the issue of resource_link_id being included in the launch url
+    *** TLT-3591
+    Returns the URL with the resource_link_id parameter removed from the URL, which
+    may have been automatically added by the reverse() method. The reverse() method is
+    patched by django-auth-lti in applications using the MultiLTI middleware. Since
+    some applications may not be using the patched version of reverse(), we must parse the
+    URL manually and remove the resource_link_id parameter if present. This will
+    prevent any issues upon redirect from the launch.
+    """
+    parts = urlparse.urlparse(url)
+    query_dict = urlparse.parse_qs(parts.query)
+    if 'resource_link_id' in query_dict:
+        query_dict.pop('resource_link_id', None)
+    new_parts = list(parts)
+    new_parts[4] = urllib.urlencode(query_dict)
+    return urlparse.urlunparse(new_parts)
 
 
 @login_required

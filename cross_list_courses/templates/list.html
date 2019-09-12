@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block body %}
+
+    <nav>
+    <h3>
+        <a href="{% url 'dashboard_account' %}">Admin Console</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        Cross-Listings
+    </h3>
+    </nav>
+
+    <div class="container-fluid">
+            {% for message in messages %}
+            <div class="row">
+                    {% if message.level_tag == "success" %}
+                    <div class="alert alert-success" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                {% elif message.level_tag == "error" %}
+                    <div class="alert alert-danger" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="row" style="margin-top: 1em;">
+            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
+        </div>
+        <div class="row" style="margin-top: .25em;">
+            <div style="margin-bottom: -20px; padding-top: 50px;">
+                <h4 class="modal-title bottom-spacing">Cross-Listed Courses in Current Terms:</h4>
+            </div>
+            <table class="datatable table display no-footer">
+                <thead>
+                    <th>Primary</th>
+                    <th>Secondary</th>
+                    <th>Modified&nbsp;By</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody>
+                {% for xlist_map in xlist_maps %}
+                    <tr>
+                        <td>
+                            {{ xlist_map.primary_course_instance.course.school_id | upper }}
+                            <b>
+                            {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {% elif xlist_map.primary_course_instance.short_title %}
+                                {{ xlist_map.primary_course_instance.short_title }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.primary_course_instance.course.course_id }}
+                            {% endif %}
+                            </b>
+                            <br>
+                            {{ xlist_map.primary_course_instance.term.display_name}}
+                            (course instance ID {{ xlist_map.primary_course_instance.course_instance_id }})
+                            <br>
+                            <i>
+                            {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.primary_course_instance.title }}
+                            {% else %}
+                                {{ xlist_map.primary_course_instance.sub_title }}
+                            {% endif %}
+                            </i>
+                        </td>
+                        <td>
+                            {{ xlist_map.secondary_course_instance.course.school_id | upper }}
+                            <b>
+                            {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {% elif xlist_map.secondary_course_instance.short_title %}
+                                {{ xlist_map.secondary_course_instance.short_title }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.secondary_course_instance.course.course_id }}
+                            {% endif %}
+                            </b>
+                            <br>
+                            {{ xlist_map.secondary_course_instance.term.display_name}}
+                            (course instance ID {{ xlist_map.secondary_course_instance.course_instance_id }})
+                            <br>
+                            <i>
+                            {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
+                                {{ xlist_map.secondary_course_instance.title }}
+                            {% else %}
+                                {{ xlist_map.secondary_course_instance.sub_title }}
+                            {% endif %}
+                            </i>
+                        </td>
+                        <td>{{ xlist_map.last_modified_by_full_name }}</td>
+                        <td>
+                            <a href="{% url 'cross_list_courses:delete_cross_listing' pk=xlist_map.pk %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(function() {
+        $('.datatable').dataTable( {
+            paging: false,
+            "bInfo" : false,
+            "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+            "oLanguage": {
+              "sSearch": "Filter the list below"
+            }
+        });
+    });
+</script>
+
+{% endblock %}
