@@ -138,12 +138,20 @@
           </div>
       </hu-field-label-wrapper>
 
-      <hu-editable-input
-          is-loading="dc.isUndefined(dc.courseInstance.term)"
-          form-value="dc.courseInstance.term"
-          model-value="dc.courseInstance.term"
-          field="term"
-          label="Term"></hu-editable-input>
+      <div class="form-group">
+        <label for="term" class="col-sm-2">
+          Term
+        </label>
+        <div class="col-sm-2">
+          <span ng-show="dc.isUndefined(dc.courseInstance.registrar_code_display)"><i class="fa fa-refresh fa-spin"></i></span>
+          <div ng-hide="dc.isUndefined(dc.courseInstance.registrar_code_display)">
+            <span id="span-course-term" ng-hide="dc.editable && dc.editInProgress">{{dc.courseInstance.term}}</span>
+            <select id="term" class="form-control" ng-show="dc.editable && dc.editInProgress" ng-model="dc.formDisplayData.term_id">
+              <option ng-repeat="term in dc.termList" value="{{term.term_id}}">{{term.display_name}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
       <hu-editable-input
           is-loading="dc.isUndefined(dc.courseInstance.course_instance_id)"
