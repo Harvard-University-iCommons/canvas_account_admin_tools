@@ -164,13 +164,36 @@
                     dc.termList = response.data.results;
                     $http.get(termUrl, ongoingTermQueryConfig)
                         .then(function successCallback(response) {
+                            // Append the Ongoing term to the term list as it was filtered out of the initial get
                             dc.termList.push(response.data.results[0]);
+                            // If the course is in a term older than 1 calendar year from today,
+                            // append the term to the term list
+                            dc.verifyTermList();
                         });
                 }, function errorCallback(response) {
                     console.log(response.statusText);
                 });
 
             dc.editable = true;
+        };
+
+        dc.verifyTermList = function() {
+            // Checks to see if the course's term is in the filtered list of terms.
+            // If it is not, then append it to the controllers term list
+            var termInList = false;
+            dc.termList.forEach(function(term) {
+                if (term['term_id'] == dc.courseInstance['term_id']) {
+                    termInList = true;
+                }
+            });
+            if (!termInList) {
+                dc.termList.unshift(
+                    {
+                        'display_name': dc.courseInstance.term,
+                        'term_id': dc.courseInstance.term_id
+                    }
+                );
+            }
         };
 
         dc.getPeopleCoursesRoute = function() {
