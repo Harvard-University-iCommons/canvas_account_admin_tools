@@ -14,7 +14,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import logging
 from django.core.urlresolvers import reverse_lazy
-from .secure import SECURE_SETTINGS
+import time
+from dj_secure_settings.loader import load_secure_settings
+
+SECURE_SETTINGS = load_secure_settings()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -72,6 +75,7 @@ INSTALLED_APPS = [
     'proxy',
     'publish_courses',
     'bulk_course_settings',
+    'canvas_site_deletion',
     'rest_framework'
 ]
 
@@ -231,6 +235,9 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 # Logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#configuring-logging
 
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
+
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
 LOGGING_CONFIG = None
@@ -382,6 +389,7 @@ PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
+PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 
 
 
