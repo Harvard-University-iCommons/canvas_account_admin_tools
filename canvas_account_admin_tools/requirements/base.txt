@@ -2,34 +2,33 @@ Django==2.2.4
 cx-Oracle==7.2.2
 boto== 2.49.0
 boto3==1.9.210
+
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
 # new copies of django-angular[.min].js.
 django-angular==2.2.1
 django-cached-authentication-middleware==0.2.2
+
 django-proxy==1.2.0
 django-redis-cache==2.0.0
 djangorestframework==3.10.2
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v1.3.13#egg=django-canvas-course-site-wizard==1.3.13
 
-#-e ../django-auth-lti
 git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@task/python3#egg=django-auth-lti==task/python3
 
-#-e ../django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@task/thornton/tlt-3672/python3#egg=django-icommons-common[async]==task/thornton/tlt-3672/python3
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.0#egg=django-icommons-common[async_operations]==v2.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v1.5.3#egg=django-icommons-ui==1.5.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.0#egg=django-icommons-ui==2.0
 
-#-e ../canvas_python_sdk
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
 
--e ../django-harvardkey-cas
-#git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@task/python3#egg=django-harvardkey-cas==task/python3
+git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v2.0#egg=django-harvardkey-cas==v2.0
 
 hiredis==1.0.0
-lti==0.9.4
 kitchen==1.2.4
 psycopg2==2.7.4
 redis==3.3.8
+
 requests==2.22.0
 simplejson==3.10.0
+git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.2#egg=django-ssm-parameter-store==0.2

@@ -55,7 +55,7 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
         else:
             # filter out the accounts where the user does not have the proper
             # permissions
-            school_accounts = [acct for id_, acct in all_school_accounts.items()
+            school_accounts = [acct for id_, acct in list(all_school_accounts.items())
                                    if id_ in allowed_accounts]
 
         logger.debug('%s has access to %s', canvas_user_id,

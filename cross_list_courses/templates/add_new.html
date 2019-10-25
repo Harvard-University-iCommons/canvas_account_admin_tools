@@ -6,9 +6,9 @@
     <h3>
         <a href="{% url 'dashboard_account' %}">Admin Console</a>
         <small><i class="fa fa-chevron-right"></i></small>
-        <a href="{% url 'cross_list_courses:index' %}">Cross Listings</a>
+        <a href="{% url 'cross_list_courses:index' %}">Cross-Listings</a>
         <small><i class="fa fa-chevron-right"></i></small>
-        Add Cross Listings
+        Add Cross-Listings
     </h3>
 </nav>
 <br>
@@ -36,7 +36,7 @@
         {% endfor %}
 
         <div class="panel panel-default">
-            <div class="panel-heading"><h4>Create a New Cross Listing Pair</h4></div>
+            <div class="panel-heading"><h4>Create a New Cross-Listing Pair</h4></div>
             <div class="panel-body ui-widget">
                 <label  for="primary-course">
                     Primary Course &nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,7 +59,7 @@
 
     <div class="container-fluid">
         <div class="row" style="margin-top: .25em;">
-            <div style="margin-bottom: -20px; padding-top: 50px;"><h4><u>Potential Cross Listings</u></h4></div>
+            <div style="margin-bottom: -20px; padding-top: 50px;"><h4>Potential Cross-Listings:</h4></div>
             <table class="datatable table display no-footer">
                 <thead>
                     <th>Primary Course</th>
@@ -72,38 +72,46 @@
                     <tr>
                         <td>
                             {{ mapping.primary_school_id | upper }}
-                            <br>
+                            <b>
                             {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
-                                {{ mapping.primary_course_instance.course.registrar_code }}
+                                {{ mapping.primary_registrar_code }}
                             {% else %}
                                 {{ mapping.primary_short_title }}
                             {% endif %}
-                            {{ mapping.term_id }}
+                            </b>
+                            <br>
+                            {{ mapping.primary_term_display_name }}
                             (course instance ID {{ mapping.primary_course_instance_id }})
                             <br>
+                            <i>
                             {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
-                                {{ mapping.primary_short_title }}
+                                {{ mapping.primary_title }}
                             {% else %}
                                 {{ mapping.primary_sub_title }}
                             {% endif %}
+                            </i>
                         </td>
-                        <td><i class="fa fa-exchange fa-2x btn btn-primary" onclick="swapCourses(this);" aria-hidden="true"></i></td>
+                        <td><i class="fa fa-exchange fa-2x btn btn-info" onclick="swapCourses(this);" aria-hidden="true"></i></td>
                         <td>
                             {{ mapping.secondary_school_id | upper }}
-                            <br>
+                            <b>
                             {% if mapping.seondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
-                                {{ mapping.secondarycourse_instance.course.registrar_code }}
+                                {{ mapping.secondary_registrar_code }}
                             {% else %}
                                 {{ mapping.secondary_short_title }}
                             {% endif %}
-                            {{ mapping.term_id }}
+                            </b>
+                            <br>
+                            {{ mapping.secondary_term_display_name }}
                             (course instance ID {{ mapping.secondary_course_instance_id }})
                             <br>
+                            <i>
                             {% if mapping.secondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
-                                {{ mapping.secondary_short_title }}
+                                {{ mapping.secondary_title }}
                             {% else %}
                                 {{ mapping.secondary_sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>
                             <a href="{% url 'cross_list_courses:create_new_pair' %}&primary_course_input={{ mapping.primary_course_instance_id }}&secondary_course_input={{ mapping.secondary_course_instance_id }}" class="btn btn-primary pull-right">Pair Courses</a>

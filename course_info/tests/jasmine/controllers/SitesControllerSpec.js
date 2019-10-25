@@ -127,7 +127,6 @@ describe('Unit testing SitesController', function () {
                 description: '<p>hello</p>',
                 sync_to_canvas : 1,
                 exclude_from_isites:0,
-                exclude_from_catalog:0,
                 sites: [
                     {
                         external_id: 'https://x.y.z/888',
@@ -185,7 +184,6 @@ describe('Unit testing SitesController', function () {
                 description: '<p>hello</p>',
                 sync_to_canvas : 1,
                 exclude_from_isites:0,
-                exclude_from_catalog:0,
                 sites: [
                     {
                         external_id: 'https://x.y.z/888',

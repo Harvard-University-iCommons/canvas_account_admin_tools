@@ -13,8 +13,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
+
 from django.urls import reverse_lazy
-from .secure import SECURE_SETTINGS
+import time
+from dj_secure_settings.loader import load_secure_settings
+
+SECURE_SETTINGS = load_secure_settings()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -231,6 +235,9 @@ STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # Logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#configuring-logging
+
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
 
 # Turn off default Django logging
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration

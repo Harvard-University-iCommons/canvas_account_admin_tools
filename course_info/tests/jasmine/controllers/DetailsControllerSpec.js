@@ -192,7 +192,6 @@ describe('Unit testing DetailsController', function () {
                 primary_xlist_instances: [],
                 sync_to_canvas: '1',
                 exclude_from_isites: '0',
-                exclude_from_catalog: '0'
             };
 
             members = {
@@ -225,7 +224,6 @@ describe('Unit testing DetailsController', function () {
             expect(dc.courseInstance['members']).toEqual(100);
             expect(dc.courseInstance['sync_to_canvas']).toEqual(ci.sync_to_canvas);
             expect(dc.courseInstance['exclude_from_isites']).toEqual(ci.exclude_from_isites);
-            expect(dc.courseInstance['exclude_from_catalog']).toEqual(ci.exclude_from_catalog);
 
         });
 
@@ -325,7 +323,6 @@ describe('Unit testing DetailsController', function () {
                 "title":"test title",
                 "sync_to_canvas": 1,
                 "exclude_from_isites":0,
-                "exclude_from_catalog":0,
                 "conclude_date":null
             };
 
@@ -338,7 +335,6 @@ describe('Unit testing DetailsController', function () {
                 description: '<p>hello</p>',
                 sync_to_canvas : 1,
                 exclude_from_isites:0,
-                exclude_from_catalog:0,
                 sites: [
                     {
                         external_id: 'https://x.y.z/888',
@@ -400,7 +396,6 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0,
                 "conclude_date":null
             };
 
@@ -429,7 +424,6 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0,
                 "conclude_date":null
             };
 
@@ -459,7 +453,6 @@ describe('Unit testing DetailsController', function () {
                 'title': 'test title',
                 'sync_to_canvas' : 1,
                 'exclude_from_isites':0,
-                'exclude_from_catalog':0,
                 "conclude_date":null
             };
 

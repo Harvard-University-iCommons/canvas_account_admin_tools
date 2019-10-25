@@ -61,11 +61,9 @@ def add_new_pair(request):
     school_id = sis_account_id.split(':')[1]
     today = datetime.now()
 
-    # todo filter those entries that are already cross listed and are present in XLIST tables.
-    #  Possibly add a column in the view to do so
-
     potential_mappings = CsXlistMapOverview.objects.filter(Q(primary_school_id=school_id)).filter(
-        Q(term_end_date__gte=today) | Q(term_end_date__isnull=True)).filter(
+        Q(primary_term_end_date__gte=today) | Q(primary_term_end_date__isnull=True) |
+        Q(secondary_term_end_date__gte=today) | Q(secondary_term_end_date__isnull=True)).filter(
         Q(existing_mapping__isnull=True)).filter(
         Q(existing_reverse_mapping__isnull=True))
 
@@ -93,6 +91,7 @@ def create_new_pair(request):
         create_crosslisting_pair(primary_id, secondary_id,request)
 
     return redirect('cross_list_courses:add_new_pair')
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -139,5 +138,3 @@ def get_ci_data(request):
 
     mimetype = 'application/json'
     return HttpResponse(data, mimetype)
-
-

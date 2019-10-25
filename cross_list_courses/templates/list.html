@@ -5,7 +5,7 @@
     <h3>
         <a href="{% url 'dashboard_account' %}">Admin Console</a>
         <small><i class="fa fa-chevron-right"></i></small>
-        Cross Listings
+        Cross-Listings
     </h3>
     </nav>
 
@@ -30,7 +30,7 @@
         </div>
         <div class="row" style="margin-top: .25em;">
             <div style="margin-bottom: -20px; padding-top: 50px;">
-                <h4 class="modal-title bottom-spacing"><u>Cross-listed Courses in Current Terms</u></h4>
+                <h4 class="modal-title bottom-spacing">Cross-Listed Courses in Current Terms:</h4>
             </div>
             <table class="datatable table display no-footer">
                 <thead>
@@ -44,37 +44,57 @@
                     <tr>
                         <td>
                             {{ xlist_map.primary_course_instance.course.school_id | upper }}
-                            <br>
+                            <b>
                             {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.primary_course_instance.course.registrar_code }}
-                            {% else %}
+                            {% elif xlist_map.primary_course_instance.short_title %}
                                 {{ xlist_map.primary_course_instance.short_title }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.primary_course_instance.course.registrar_code %}
+                                {{ xlist_map.primary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.primary_course_instance.course.course_id }}
                             {% endif %}
+                            </b>
+                            <br>
                             {{ xlist_map.primary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.primary_course_instance.course_instance_id }})
                             <br>
+                            <i>
                             {% if xlist_map.primary_course_instance.course.school_id == 'hls' or xlist_map.primary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.primary_course_instance.title }}
                             {% else %}
                                 {{ xlist_map.primary_course_instance.sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>
                             {{ xlist_map.secondary_course_instance.course.school_id | upper }}
-                            <br>
+                            <b>
                             {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.secondary_course_instance.course.registrar_code }}
-                            {% else %}
+                            {% elif xlist_map.secondary_course_instance.short_title %}
                                 {{ xlist_map.secondary_course_instance.short_title }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code_display %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code_display }}
+                            {% elif xlist_map.secondary_course_instance.course.registrar_code %}
+                                {{ xlist_map.secondary_course_instance.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ xlist_map.secondary_course_instance.course.course_id }}
                             {% endif %}
+                            </b>
+                            <br>
                             {{ xlist_map.secondary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.secondary_course_instance.course_instance_id }})
                             <br>
+                            <i>
                             {% if xlist_map.secondary_course_instance.course.school_id == 'hls' or xlist_map.secondary_course_instance.course.school_id == 'ext'%}
                                 {{ xlist_map.secondary_course_instance.title }}
                             {% else %}
                                 {{ xlist_map.secondary_course_instance.sub_title }}
                             {% endif %}
+                            </i>
                         </td>
                         <td>{{ xlist_map.last_modified_by_full_name }}</td>
                         <td>
