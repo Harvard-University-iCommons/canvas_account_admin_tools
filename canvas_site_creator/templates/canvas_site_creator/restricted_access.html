@@ -6,9 +6,9 @@
   {% block stylesheet %}
 
     {% if debug == True %}
-      <link rel="stylesheet/less" type="text/css" href="{% static "harvard-bootstrap/less/harvard-bootstrap.less" %}" media="screen"/>
+      <link rel="stylesheet/less" type="text/css" href="https://static.tlt.harvard.edu/shared/harvard-bootstrap/less/harvard-bootstrap.less" media="screen"/>
     {% else %}
-      <link rel="stylesheet" type="text/css" href="{% static "harvard-bootstrap/css/harvard-bootstrap.css" %}" media="screen"/>
+      <link rel="stylesheet" type="text/css" href="https://static.tlt.harvard.edu/shared/harvard-bootstrap/css/harvard-bootstrap.css" media="screen"/>
     {% endif %}
  {% endblock stylesheet %}
 </head>
@@ -34,9 +34,9 @@
 	</div>
 
     {% block javascript %}
-        <script src="{% static "harvard-bootstrap/js/less-1.5.0.min.js" %}"></script>
-        <script src="{% static "jquery-2.2.2/jquery-2.2.2.min.js"  %}"></script>
-        <script src="{% static "bootstrap-3.3.6/dist/js/bootstrap.min.js" %}"></script>
+        <script src="https://static.tlt.harvard.edu/shared/harvard-bootstrap/js/less-1.5.0.min.js"></script>
+        <script src="https://static.tlt.harvard.edu/shared/jquery-2.2.2/jquery-2.2.2.min.js"></script>
+        <script src="https://static.tlt.harvard.edu/shared/bootstrap-3.3.6/dist/js/bootstrap.min.js"></script>
         {% endblock javascript %}
   </body>
 {% endblock body %}
