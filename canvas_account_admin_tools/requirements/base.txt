@@ -9,7 +9,7 @@ boto3==1.9.210
 django-angular==2.2.1
 django-cached-authentication-middleware==0.2.2
 
-django-proxy==1.2.0
+django-proxy==1.2.1
 django-redis-cache==2.0.0
 djangorestframework==3.10.2
 django-storages==1.7.2
