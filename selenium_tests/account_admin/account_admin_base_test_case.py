@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from django.conf import settings
 
@@ -24,5 +24,5 @@ class AccountAdminBaseTestCase(BaseSeleniumTestCase):
         if login_page.is_loaded():
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
-            print '(User {} already logged in to PIN)'.format(cls.USERNAME)
+            print('(User {} already logged in to PIN)'.format(cls.USERNAME))
 

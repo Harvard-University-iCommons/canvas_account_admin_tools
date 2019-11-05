@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from people_tool import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^partials/(?P<path>.+)$', views.partials, name='partials'),
+    path('', views.index, name='index'),
+    re_path(r'^partials/(?P<path>.+)$', views.partials, name='partials'),
 ]

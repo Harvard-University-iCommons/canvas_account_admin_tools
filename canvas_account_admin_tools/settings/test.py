@@ -11,7 +11,7 @@ DATABASE_ROUTERS = []
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_account_admin_tools_test'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),

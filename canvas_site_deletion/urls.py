@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from canvas_site_deletion import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^lookup$', views.lookup, name='lookup'),
-    url(r'^delete/(?P<pk>\d+)/$', views.delete, name='delete'),
+    path('', views.index, name='index'),
+    path('lookup', views.lookup, name='lookup'),
+    re_path(r'^delete/(?P<pk>\d+)/$', views.delete, name='delete'),
 ]

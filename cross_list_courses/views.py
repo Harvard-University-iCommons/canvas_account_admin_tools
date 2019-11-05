@@ -1,23 +1,19 @@
-from sets import Set
+import json
 import logging
 from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
-
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-
 from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson, CourseInstance
 from lti_permissions.decorators import lti_permission_required
-from utils import create_crosslisting_pair, remove_cross_listing
-import json
-
+from .utils import create_crosslisting_pair, remove_cross_listing
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +36,7 @@ def index(request):
                                                                                 'primary_course_instance__course', 'primary_course_instance__term',
                                                                                 'secondary_course_instance__course', 'secondary_course_instance__term'
                                                                                 )
-    updater_ids = Set()
+    updater_ids = set()
     for xm in xlist_maps:
         updater_ids.add(xm.last_modified_by)
 

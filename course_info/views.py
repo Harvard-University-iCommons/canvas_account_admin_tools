@@ -13,7 +13,7 @@ from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
 from icommons_common.models import UserRole
 from canvas_sdk.exceptions import CanvasAPIError
-from utils import clear_course_sis_id
+from .utils import clear_course_sis_id
 from django.http import HttpResponse
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 from django.conf import settings
 from os.path import abspath, dirname, join
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from selenium_common.base_test_case import BaseSeleniumTestCase
 from selenium_common.pin.page_objects.pin_login_page_object \
@@ -47,7 +47,7 @@ class CourseInfoBaseTestCase(BaseSeleniumTestCase):
         if login_page.is_loaded():
             login_page.login_xid(cls.USERNAME, cls.PASSWORD)
         else:
-            print '(User {} already logged in to PIN)'.format(cls.USERNAME)
+            print('(User {} already logged in to PIN)'.format(cls.USERNAME))
             
         cls.detail_page = CourseInfoDetailPageObject(cls.driver)
         cls.people_page = CoursePeoplePageObject(cls.driver)

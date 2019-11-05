@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 from canvas_site_creator.views import index
 import json
 from mock import ANY, DEFAULT, call, Mock, patch

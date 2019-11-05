@@ -1,28 +1,36 @@
-Django==1.11.24
-cx-Oracle==6.1
-boto==2.45.0
-boto3==1.7.58
+Django==2.2.4
+cx-Oracle==7.2.2
+boto== 2.49.0
+boto3==1.9.210
+
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
 # new copies of django-angular[.min].js.
-django-angular==1.1.4
+django-angular==2.2.1
 django-cached-authentication-middleware==0.2.2
-django-proxy==1.0.2
-django-redis-cache==1.7.1
-djangorestframework==3.5.3
-django-storages==1.7.1
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v1.3.14#egg=django-canvas-course-site-wizard==1.3.14
-git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v1.3.0#egg=django-auth-lti==1.3.0
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.52.1#egg=django-icommons-common[async]==1.52.1
+django-proxy==1.2.1
+django-redis-cache==2.0.0
+djangorestframework==3.10.2
+django-storages==1.7.2
+
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v2.0#egg=django-canvas-course-site-wizard==2.0
+
+git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
+
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.0.2#egg=django-icommons-common[async_operations]==v2.0.2
+
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.0#egg=django-icommons-ui==2.0
-git+ssh://git@github.com/penzance/canvas_python_sdk.git@v0.11#egg=canvas-python-sdk==0.11
-git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v1.0#egg=django-harvardkey-cas==1.0
-hiredis==0.2.0
-ims_lti_py==0.6
+
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
+
+git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v2.0#egg=django-harvardkey-cas==v2.0
+
+hiredis==1.0.0
 kitchen==1.2.4
 psycopg2==2.7.4
-redis==2.10.5
+redis==3.3.8
+
 requests==2.22.0
 simplejson==3.10.0
 git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.2#egg=django-ssm-parameter-store==0.2

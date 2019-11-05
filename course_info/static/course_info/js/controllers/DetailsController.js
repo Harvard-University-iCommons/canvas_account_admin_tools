@@ -148,7 +148,9 @@
             var termQueryConfig = {
                 params: {
                     'calendar_year__gte': previousYear,
-                    'school': dc.courseInstance['school'].toLowerCase()
+                    'school': dc.courseInstance['school'].toLowerCase(),
+                    'limit': 100,
+                    'ordering': '-end_date'
                 }
             };
 
