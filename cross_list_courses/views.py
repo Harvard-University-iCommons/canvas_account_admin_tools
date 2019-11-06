@@ -65,7 +65,7 @@ def add_new_pair(request):
     school_id = sis_account_id.split(':')[1]
     today = datetime.now()
 
-    potential_mappings = CsXlistMapOverview.objects.filter(Q(primary_school_id=school_id)).filter(
+    potential_mappings = CsXlistMapOverview.objects.filter(Q(primary_school_id=school_id) | Q(secondary_school_id=school_id)).filter(
         Q(primary_term_end_date__gte=today) | Q(primary_term_end_date__isnull=True) |
         Q(secondary_term_end_date__gte=today) | Q(secondary_term_end_date__isnull=True)).filter(
         Q(existing_mapping__isnull=True)).filter(
