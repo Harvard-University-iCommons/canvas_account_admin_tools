@@ -4,5 +4,5 @@ from people_tool import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    re_path(r'^partials/(?P<path>.+)$', views.partials, name='partials'),
+    re_path(r'^partials/(?P<path>.+)', views.partials, name='partials'),
 ]
