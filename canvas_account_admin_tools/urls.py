@@ -20,11 +20,10 @@ urlpatterns = [
     path('tool_config', views.tool_config, name='tool_config'),
 ]
 
-if settings.SECURE_SETTINGS.get('enable_debug'):
-    try:
-        import debug_toolbar
-        urlpatterns += [
-            re_path(r'^__debug__/', include(debug_toolbar.urls)),
-        ]
-    except ImportError:
-        pass  # This is OK for a deployed instance running in DEBUG mode
+try:
+    import debug_toolbar
+    urlpatterns += [
+        re_path(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
+except ImportError:
+    pass  # This is OK for a deployed instance running in DEBUG mode
