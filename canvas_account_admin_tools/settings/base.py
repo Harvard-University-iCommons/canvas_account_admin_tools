@@ -77,7 +77,8 @@ INSTALLED_APPS = [
     'publish_courses',
     'bulk_course_settings',
     'canvas_site_deletion',
-    'rest_framework'
+    'rest_framework',
+    'debug_toolbar'
 ]
 
 
