@@ -94,6 +94,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
