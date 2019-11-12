@@ -58,7 +58,6 @@
     <script type="text/javascript">
       // inject some constants from django
       angular.module('PublishCourses').constant("DjangoContextData", {
-        resource_link_id: '{{ request.LTI.resource_link_id }}',
         school: '{{ school | safe }}'
       });
     </script>
