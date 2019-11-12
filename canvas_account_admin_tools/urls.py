@@ -20,7 +20,7 @@ urlpatterns = [
     path('tool_config', views.tool_config, name='tool_config'),
 ]
 
-if settings.DEBUG:
+if settings.SECURE_SETTINGS.get('enable_debug'):
     try:
         import debug_toolbar
         urlpatterns += [
