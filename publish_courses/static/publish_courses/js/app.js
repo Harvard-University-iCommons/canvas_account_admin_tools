@@ -1,7 +1,6 @@
 (function(){
     var app = angular.module('PublishCourses',
-      ['resourceLinkModule',       // append resource link IDs
-       'djangoAJAXConfigModule',   // CSRF compatibility with DRF
+      ['djangoAJAXConfigModule',   // CSRF compatibility with DRF
        'angularDRFModule',         // DRF-specific services like fetch all
        'ActRestAPIModule',         // Act (icommons) REST API helpers
        'pendingHandlerModule',     // cancels pending requests
