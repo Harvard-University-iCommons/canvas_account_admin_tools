@@ -44,7 +44,7 @@
 
   <body class="lti-tool" role="application" ng-app="PublishCourses">
     <div ng-view class="container-fluid"></div>
-    <script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkService.js' %}"></script>
+    <!--<script src="{% static 'canvas_account_admin_tools/js/services/ResourceLinkService.js' %}"></script>-->
     <script src="{% static 'canvas_account_admin_tools/js/services/angularDRFService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/DjangoAJAXConfigService.js' %}"></script>
     <script src="{% static 'canvas_account_admin_tools/js/services/ActRestAPIService.js' %}"></script>
@@ -58,6 +58,7 @@
     <script type="text/javascript">
       // inject some constants from django
       angular.module('PublishCourses').constant("DjangoContextData", {
+        resource_link_id: '{{ request.LTI.resource_link_id }}',
         school: '{{ school | safe }}'
       });
     </script>
