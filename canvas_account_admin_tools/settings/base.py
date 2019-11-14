@@ -342,6 +342,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'django_auth_lti': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
 
     }
 }
