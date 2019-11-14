@@ -2,7 +2,7 @@
   var module = angular.module('PublishCoursesAPIModule', []);
   module.factory('pcapi', ['djangoUrl', '$http', 'DjangoContextData',
                             PublishCoursesAPIServiceFactory]);
-  function PublishCoursesAPIServiceFactory(djangoUrl, $http) {
+  function PublishCoursesAPIServiceFactory(djangoUrl, $http, DjangoContextData) {
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
       return djangoUrl.reverse(djangoApp + resource);
