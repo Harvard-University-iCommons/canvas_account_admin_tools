@@ -20,7 +20,7 @@
         params: {
           account_id: accountId,
           term_id: termId,
-          resource_link_id: DjangoContextData.resource_link_id
+          exclude_resource_link_id: true
         },
         logError: {enabled: true, detail: 'fetch course information'},
         pendingRequestTag: 'courseList'
