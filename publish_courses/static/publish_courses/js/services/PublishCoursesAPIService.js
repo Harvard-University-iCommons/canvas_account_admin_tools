@@ -20,7 +20,6 @@
         params: {
           account_id: accountId,
           term_id: termId,
-          exclude_resource_link_id: true
         },
         logError: {enabled: true, detail: 'fetch course information'},
         pendingRequestTag: 'courseList'

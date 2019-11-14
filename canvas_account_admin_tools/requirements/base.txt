@@ -16,7 +16,7 @@ django-storages==1.7.2
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v2.0#egg=django-canvas-course-site-wizard==2.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
+git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@reverse_testing#egg=django-auth-lti==reverse_testing
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.0.2#egg=django-icommons-common[async_operations]==v2.0.2
 
