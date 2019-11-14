@@ -1,11 +1,11 @@
 (function() {
   var module = angular.module('PublishCoursesAPIModule', []);
-  module.factory('pcapi', ['djangoUrl', '$http',
+  module.factory('pcapi', ['djangoUrl', '$http', 'DjangoContextData',
                             PublishCoursesAPIServiceFactory]);
   function PublishCoursesAPIServiceFactory(djangoUrl, $http) {
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
-      return djangoUrl.reverse(djangoApp + ":" + resource);
+      return djangoUrl.reverse(djangoApp + resource);
     };
 
     var resources = {
@@ -19,12 +19,12 @@
       var config = {
         params: {
           account_id: accountId,
-          term_id: termId
+          term_id: termId,
+          resource_link_id: DjangoContextData.resource_link_id
         },
         logError: {enabled: true, detail: 'fetch course information'},
         pendingRequestTag: 'courseList'
       };
-      console.info('INFO!!');
       console.info(resources.courseList.url);
       return $http.get(resources.courseList.url, config
       ).then(function gotCourseList(response) {
