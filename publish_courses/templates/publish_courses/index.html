@@ -55,6 +55,7 @@
     <script src="{% static 'publish_courses/js/directives/TermDropdown.js' %}"></script>
     <script src="{% static 'publish_courses/js/services/AppConfig.js' %}"></script>
     <script src="{% static 'publish_courses/js/services/PublishCoursesAPIService.js' %}"></script>
+    {% include 'django_auth_lti/resource_link_id.html' %}
     <script type="text/javascript">
       // inject some constants from django
       angular.module('PublishCourses').constant("DjangoContextData", {
