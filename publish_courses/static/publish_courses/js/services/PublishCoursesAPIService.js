@@ -5,7 +5,7 @@
   function PublishCoursesAPIServiceFactory(djangoUrl, $http) {
     var djangoApp = 'publish_courses:';
     var getUrl = function(resource) {
-      return djangoUrl.reverse(djangoApp + resource);
+      return djangoUrl.reverse(djangoApp + ":" + resource);
     };
 
     var resources = {
@@ -24,6 +24,8 @@
         logError: {enabled: true, detail: 'fetch course information'},
         pendingRequestTag: 'courseList'
       };
+      console.info('INFO!!');
+      console.info(resources.courseList.url);
       return $http.get(resources.courseList.url, config
       ).then(function gotCourseList(response) {
         return response.data;
