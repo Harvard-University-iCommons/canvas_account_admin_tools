@@ -45,7 +45,7 @@
                 dom: '<l<rt>ip>',
                 language: {
                     lengthMenu: 'Show _MENU_ jobs',
-                    processing: '<img src="' + window.globals.STATIC_URL + 'images/ajax-loader-small.gif" class="loading"/> Searching...',
+                    processing: '<img src="https://static.tlt.harvard.edu/shared/images/ajax-loader-small.gif" class="loading"/> Searching...',
                     search: 'Search',
                     info: 'Showing _START_ to _END_ of _TOTAL_ jobs',
                     emptyTable: 'There are no course site creation jobs to display.'
