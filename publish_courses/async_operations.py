@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 import logging
 
 from django.utils import timezone
 from rq import get_current_job
 
-from async.models import Process
+from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 
 

@@ -13,7 +13,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import logging
-from django.core.urlresolvers import reverse_lazy
+
+from django.urls import reverse_lazy
 import time
 from dj_secure_settings.loader import load_secure_settings
 
@@ -57,7 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'async',
+    'async_operations',
     'bulk_utilities',
     'canvas_account_admin_tools',
     'canvas_course_site_wizard',
@@ -80,7 +81,7 @@ INSTALLED_APPS = [
 ]
 
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     # NOTE - djng needs to be the first item in this list
     'djng.middleware.AngularUrlMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -133,7 +134,7 @@ COURSE_SCHEMA_DB_NAME = 'coursemanager'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_account_admin_tools'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),

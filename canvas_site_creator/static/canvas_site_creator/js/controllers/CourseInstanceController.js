@@ -59,7 +59,7 @@
                 dom: '<lf<rt>ip>',
                 language: {
                     lengthMenu: 'Show _MENU_ courses',
-                    processing: '<img src="' + window.globals.STATIC_URL + 'images/ajax-loader-small.gif" class="loading"/> Searching...',
+                    processing: '<img src="https://static.tlt.harvard.edu/shared/images/ajax-loader-small.gif" class="loading"/> Searching...',
                     search: 'Search by Course Code, Course Title or SIS ID',
                     info: 'Showing _START_ to _END_ of _TOTAL_ courses',
                     emptyTable: 'There are no courses to display.'

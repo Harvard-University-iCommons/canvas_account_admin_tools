@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 
 from selenium_tests.course_info.course_info_base_test_case \
     import CourseInfoBaseTestCase

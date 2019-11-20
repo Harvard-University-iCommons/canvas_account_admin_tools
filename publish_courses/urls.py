@@ -1,12 +1,12 @@
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from publish_courses import (
     api,
     views)
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^api/jobs$', api.BulkPublishListCreate.as_view(), name='api_jobs'),
-    url(r'^api/course_list$', api.CourseDetailList.as_view(), name='api_course_list'),
-    url(r'^partials/(?P<path>.+)$', views.partials, name='partials'),
+    path('', views.index, name='index'),
+    re_path(r'^api/jobs/', api.BulkPublishListCreate.as_view(), name='api_jobs'),
+    re_path(r'^api/course_list/', api.CourseDetailList.as_view(), name='api_course_list'),
+    re_path(r'^partials/(?P<path>.+)/', views.partials, name='partials'),
 ]

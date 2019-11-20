@@ -32,14 +32,14 @@ class BulkCreatePermissionTests(AccountAdminBaseTestCase):
         self.driver.get(self.TOOL_URL)
 
         if given_access == 'no':
-            print "Verifying user %s is denied access to course bulk create " \
-                  "tool" % user_id
+            print("Verifying user %s is denied access to course bulk create " \
+                  "tool" % user_id)
             self.assertFalse(index_page.is_authorized(),
                              'User {} unexpectedly authorized'.format(user_id))
 
         elif given_access == 'yes':
-            print "Verifying user %s is granted access to course bulk create " \
-                  "tool" % user_id
+            print("Verifying user %s is granted access to course bulk create " \
+                  "tool" % user_id)
 
             # Clicks into Canvas Site Create tool
             self.acct_admin_dashboard_page.select_create_canvas_site_link()

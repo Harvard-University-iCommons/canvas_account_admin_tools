@@ -2,7 +2,7 @@ import logging
 
 from django import forms
 
-from models import Job
+from .models import Job
 
 logger = logging.getLogger(__name__)
 

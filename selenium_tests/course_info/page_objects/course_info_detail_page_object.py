@@ -93,7 +93,7 @@ class CourseInfoDetailPageObject(CourseInfoBasePageObject):
             """
             // selenium passes a callback as the final arg; we need to access
             // it and pass it to angular's internals so selenium can be notified
-            // when the async angular digest cycle completes
+            // when the async_operations angular digest cycle completes
             var callback = arguments[arguments.length - 1];
             // todo: the injector base element should be configurable ultimately
             var $browser = angular.element('body').injector().get('$browser');
