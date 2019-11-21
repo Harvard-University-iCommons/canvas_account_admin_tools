@@ -30,16 +30,21 @@ def index(request):
 def lookup(request):
     course_search_term = request.POST.get('course_search_term')
     course_search_term = course_search_term.strip()
-    try:
-        ci = CourseInstance.objects.get(course_instance_id=course_search_term)
+    context = {}
 
-    except CourseInstance.DoesNotExist:
-        logger.exception('Could not determine the course instance for Canvas '
-                         'course instance id %s' % course_search_term)
-
-    context = {'course_instance': ci}
+    if course_search_term.isnumeric():
+        try:
+            ci = CourseInstance.objects.get(course_instance_id=course_search_term)
+            context['course_instance'] = ci
+        except CourseInstance.DoesNotExist:
+            logger.exception('Could not determine the course instance for Canvas '
+                             'course instance id %s' % course_search_term)
+            messages.error(request, 'Could not find a Course Instance from search term')
+    else:
+        messages.error(request, 'Search term must be populated and may only be numbers')
 
     return render(request, 'canvas_site_deletion/index.html', context)
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)

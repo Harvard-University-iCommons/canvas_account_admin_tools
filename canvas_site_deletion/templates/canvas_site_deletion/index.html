@@ -27,17 +27,23 @@
         {% endfor %}
     <br><br>
     <div class="row">
-            Enter a SIS Course Id to lookup a course :
+        <div class="col-sm-6">
+            <b>Enter a SIS Course Id to lookup a course :</b>
+        </div>
     </div>
     <br>
-    <form class="form-inline" method="POST" action="{% url 'canvas_site_deletion:lookup' %}">{% csrf_token %}
-        <div class="form-group">
-            <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
-        <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID"/>
-        </div>
-        <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
-        <i class="fa fa-search"></i> Find Course</button>
-    </form>
+    <div class="row">
+        <form class="form-inline" method="POST" action="{% url 'canvas_site_deletion:lookup' %}">{% csrf_token %}
+            <div class="form-group col-sm-3">
+                <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
+                <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID" style="width: 100%"/>
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+                <i class="fa fa-search"></i> Find Course</button>
+            </div>
+        </form>
+    </div>
     <br>
     {% if course_instance %}
             <table class="table table-striped table-hover">
