@@ -158,19 +158,22 @@ def get_canvas_site_templates_for_school(school_id):
     if templates is None:
         templates = []
         for t in CanvasSchoolTemplate.objects.filter(school_id=school_id):
-            canvas_course_id = t.template_id
-            course = get_all_list_data(
-                SDK_CONTEXT,
-                canvas_api_courses.get_single_course_courses,
-                canvas_course_id,
-                None
-            )
-            templates.append({
-                'canvas_course_name': course['name'],
-                'canvas_course_id': canvas_course_id,
-                'canvas_course_url': "%s/courses/%d" % (settings.CANVAS_URL, canvas_course_id),
-                'is_default': t.is_default
-            })
+            try:
+                canvas_course_id = t.template_id
+                course = get_all_list_data(
+                    SDK_CONTEXT,
+                    canvas_api_courses.get_single_course_courses,
+                    canvas_course_id,
+                    None
+                )
+                templates.append({
+                    'canvas_course_name': course['name'],
+                    'canvas_course_id': canvas_course_id,
+                    'canvas_course_url': "%s/courses/%d" % (settings.CANVAS_URL, canvas_course_id),
+                    'is_default': t.is_default
+                })
+            except Exception as e:
+                logger.warn('Failed to retrieve Canvas course for template/course ID {}: {}'.format(t.template_id, e))
 
         logger.debug("Caching canvas site templates for school_id %s %s", school_id, json.dumps(templates))
         cache.set(cache_key, templates)
