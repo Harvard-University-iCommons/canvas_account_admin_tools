@@ -1,7 +1,7 @@
 from .base import *
 from logging.config import dictConfig
 
-DEBUG = True  # Always run in debug mode locally
+DEBUG = SECURE_SETTINGS.get('enable_debug', True)
 
 #  Dummy secret key value for testing and local usage
 SECRET_KEY = "q9frwftd7&)vn9zonjy2&vgmq1i9csn20+f0r5whb%%u-mzm_i"
