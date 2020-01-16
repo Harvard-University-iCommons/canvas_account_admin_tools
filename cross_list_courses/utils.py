@@ -114,8 +114,6 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
 
             messages.success(request, "Successfully cross-listed primary: {} and secondary: {}"
                              .format(primary_id, secondary_id))
-        else:
-            messages.error(request, 'Input is not valid')
 
     except Exception as e:
 
