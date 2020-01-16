@@ -78,9 +78,18 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
         
         if is_valid:
             primary = CourseInstance.objects.get(course_instance_id=primary_id)
-            primary_canvas_course = _get_canvas_course(primary_id, request)
-            canvas_id = primary_canvas_course.get('id', primary.canvas_course_id) \
-                if primary_canvas_course else primary.canvas_course_id
+            canvas_id = None
+
+            # TLT-2618: check that primary is currently syncing to Canvas
+            # If the setting is false, show a warning but continue to process the request
+            if primary.sync_to_canvas == 0:
+                msg_context = {'p_id': primary_id, 's_id': secondary_id}
+                msg = msg_for_error('not_synced', msg_context)
+                messages.warning(request, msg)
+            else:
+                primary_canvas_course = _get_canvas_course(primary_id, request)
+                canvas_id = primary_canvas_course.get('id', primary.canvas_course_id) \
+                    if primary_canvas_course else primary.canvas_course_id
 
             if not canvas_id:
                 logger.debug('The primary course {} is not associated with a Canvas course.'.format(primary_id))
@@ -106,7 +115,7 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
             messages.success(request, "Successfully cross-listed primary: {} and secondary: {}"
                              .format(primary_id, secondary_id))
         else:
-            messages.error('Input was not valid')
+            messages.error(request, 'Input is not valid')
 
     except Exception as e:
 
@@ -457,6 +466,10 @@ def msg_for_error(msg_key, context):
 
 
 def validate_inputs(primary_id, secondary_id, request):
+    """
+    Validates the given primary and secondary inputs.
+    If any of the conditions fail, return False and do not continue to process the request
+    """
 
         if primary_id == secondary_id:
             msg_context = {'s_id': secondary_id, 'p_id': primary_id}
@@ -473,14 +486,7 @@ def validate_inputs(primary_id, secondary_id, request):
             messages.error(request, msg)
             return False
 
-        # 1. TLT-2618: check that primary is currently syncing to Canvas
-        if primary_ci.sync_to_canvas == 0:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('not_synced', msg_context)
-            messages.warning(request, msg)
-            return False
-
-        # 2. reverse check
+        # 1. reverse check
         reverse_xlist = XlistMap.objects.filter(
             secondary_course_instance=primary_id,
             primary_course_instance=secondary_id
@@ -491,7 +497,7 @@ def validate_inputs(primary_id, secondary_id, request):
             messages.error(request, msg)
             return False
 
-        # 3. check to make sure that the secondary instance is not already
+        # 2. check to make sure that the secondary instance is not already
         # cross-listed with a different primary.
         # Note: Using the data from the first record found
         existing_xlist = XlistMap.objects.filter(
@@ -503,7 +509,7 @@ def validate_inputs(primary_id, secondary_id, request):
             messages.error(request, msg)
             return False
 
-        # 4. check to make sure that the primary instance is not a secondary to
+        # 3. check to make sure that the primary instance is not a secondary to
         #  any instance
         existing_xlist = XlistMap.objects.filter(
             secondary_course_instance=primary_id
@@ -514,7 +520,7 @@ def validate_inputs(primary_id, secondary_id, request):
             messages.error(request, msg)
             return False
 
-        # 5. check to make sure that the secondary is not already a primary to
+        # 4. check to make sure that the secondary is not already a primary to
         # another instance
         existing_primary = XlistMap.objects.filter(
             primary_course_instance=secondary_id
@@ -525,7 +531,7 @@ def validate_inputs(primary_id, secondary_id, request):
             messages.error(request, msg)
             return False
 
-        # 6. TLT-2900: only allow cross-listings for cases where no complex
+        # 5. TLT-2900: only allow cross-listings for cases where no complex
         # site map relationship exists.
         site_maps = {}
         for course_id in [primary_id, secondary_id]:
