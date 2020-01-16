@@ -459,10 +459,10 @@ def _update_course_sites(primary, secondary):
 
 
 def msg_for_error(msg_key, context):
-        msg = _messages.get(msg_key, '')
-        if msg and isinstance(context, dict):
-            msg = msg.format(**context)
-            return msg
+    msg = _messages.get(msg_key, '')
+    if msg and isinstance(context, dict):
+        msg = msg.format(**context)
+        return msg
 
 
 def validate_inputs(primary_id, secondary_id, request):
