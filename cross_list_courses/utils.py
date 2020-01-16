@@ -471,75 +471,76 @@ def validate_inputs(primary_id, secondary_id, request):
     If any of the conditions fail, return False and do not continue to process the request
     """
 
-        if primary_id == secondary_id:
-            msg_context = {'s_id': secondary_id, 'p_id': primary_id}
-            msg = msg_for_error('primary_same_as_secondary', msg_context)
+    if primary_id == secondary_id:
+        msg_context = {'s_id': secondary_id, 'p_id': primary_id}
+        msg = msg_for_error('primary_same_as_secondary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    try:
+        primary_ci = CourseInstance.objects.get(pk=primary_id)
+        secondary_ci = CourseInstance.objects.get(pk=secondary_id)
+    except Exception as e:
+        msg_context = {'p_id': primary_id, 's_id': secondary_id}
+        msg = msg_for_error('invalid input', msg_context)
+        messages.error(request, msg)
+        logger.info(e)
+        return False
+
+    # 1. reverse check
+    reverse_xlist = XlistMap.objects.filter(
+        secondary_course_instance=primary_id,
+        primary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(reverse_xlist) > 0:
+        msg_context = {'p_id': primary_id, 's_id': secondary_id}
+        msg = msg_for_error('reverse', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 2. check to make sure that the secondary instance is not already
+    # cross-listed with a different primary.
+    # Note: Using the data from the first record found
+    existing_xlist = XlistMap.objects.filter(
+        secondary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_xlist) > 0:
+        msg_context = {'s_id': secondary_id, 'p_id': existing_xlist[0][0]}
+        msg = msg_for_error('secondary_already_secondary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 3. check to make sure that the primary instance is not a secondary to
+    #  any instance
+    existing_xlist = XlistMap.objects.filter(
+        secondary_course_instance=primary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_xlist) > 0:
+        msg_context = {'p_id': existing_xlist[0][0], 's_id': primary_id}
+        msg = msg_for_error('primary_already_xlisted', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 4. check to make sure that the secondary is not already a primary to
+    # another instance
+    existing_primary = XlistMap.objects.filter(
+        primary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_primary) > 0:
+        msg_context = {'p_id': secondary_id, 's_id': existing_primary[0][1]}
+        msg = msg_for_error('secondary_already_primary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 5. TLT-2900: only allow cross-listings for cases where no complex
+    # site map relationship exists.
+    site_maps = {}
+    for course_id in [primary_id, secondary_id]:
+        site_maps[course_id] = SiteMap.objects.filter(
+            course_instance=course_id)
+        if len(site_maps[course_id]) > 1:
+            msg = msg_for_error('multiple_site_maps', {'id': course_id})
             messages.error(request, msg)
             return False
 
-        try:
-            primary_ci = CourseInstance.objects.get(pk=primary_id)
-            secondary_ci = CourseInstance.objects.get(pk=secondary_id) # This value is not being used
-        except Exception as e:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('invalid input', msg_context)
-            messages.error(request, msg)
-            return False
-
-        # 1. reverse check
-        reverse_xlist = XlistMap.objects.filter(
-            secondary_course_instance=primary_id,
-            primary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(reverse_xlist) > 0:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('reverse', msg_context)
-            messages.error(request, msg)
-            return False
-
-        # 2. check to make sure that the secondary instance is not already
-        # cross-listed with a different primary.
-        # Note: Using the data from the first record found
-        existing_xlist = XlistMap.objects.filter(
-            secondary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_xlist) > 0:
-            msg_context = {'s_id': secondary_id, 'p_id': existing_xlist[0][0]}
-            msg = msg_for_error('secondary_already_secondary', msg_context)
-            messages.error(request, msg)
-            return False
-
-        # 3. check to make sure that the primary instance is not a secondary to
-        #  any instance
-        existing_xlist = XlistMap.objects.filter(
-            secondary_course_instance=primary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_xlist) > 0:
-            msg_context = {'p_id': existing_xlist[0][0], 's_id': primary_id}
-            msg = msg_for_error('primary_already_xlisted', msg_context)
-            messages.error(request, msg)
-            return False
-
-        # 4. check to make sure that the secondary is not already a primary to
-        # another instance
-        existing_primary = XlistMap.objects.filter(
-            primary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_primary) > 0:
-            msg_context = {'p_id': secondary_id, 's_id': existing_primary[0][1]}
-            msg = msg_for_error('secondary_already_primary', msg_context)
-            messages.error(request, msg)
-            return False
-
-        # 5. TLT-2900: only allow cross-listings for cases where no complex
-        # site map relationship exists.
-        site_maps = {}
-        for course_id in [primary_id, secondary_id]:
-            site_maps[course_id] = SiteMap.objects.filter(
-                course_instance=course_id)
-            if len(site_maps[course_id]) > 1:
-                msg = msg_for_error('multiple_site_maps', {'id': course_id})
-                messages.error(request, msg)
-                return False
-
-        return True
+    return True
