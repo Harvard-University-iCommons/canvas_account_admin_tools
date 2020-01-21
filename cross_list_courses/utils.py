@@ -1,24 +1,16 @@
-import itertools
 import logging
-from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib.messages import get_messages
+from django.contrib import messages
+from django.db import transaction
 
-from django.db import IntegrityError, transaction
-
-from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.courses import (
     get_single_course_courses as canvas_get_course,
     update_course as canvas_update_course)
 from canvas_sdk.methods.sections import (
     cross_list_section,
     de_cross_list_section)
-
-from django.contrib import messages
-
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-
 from icommons_common.models import XlistMap, SiteMap, CourseSite, CourseInstance
 
 logger = logging.getLogger(__name__)
@@ -70,49 +62,58 @@ def remove_cross_listing(xlist_id, request):
 
         # From here on, errors should not roll back the de-cross-listing action
         _remove_xlist_name_modifier(secondary_canvas_course, request)
-    except:
+    except Exception as e:
         msg = 'Unable to delete cross-listing {}.'.format(xlist_id)
         logger.exception(msg)
+        logger.exception(e)
         messages.error(request, msg)
+
 
 def create_crosslisting_pair(primary_id, secondary_id, request):
 
     try:
-        # validate the  primary and secondary values before processing. Validation messages are transmitted to the view
-        # by this method
+        # Validate the primary and secondary values before processing.
+        # Validation messages are transmitted to the view by this method
+        is_valid = validate_inputs(primary_id, secondary_id, request)
+        
+        if is_valid:
+            primary = CourseInstance.objects.get(course_instance_id=primary_id)
+            canvas_id = None
 
-        warning_flag = validate_inputs(primary_id, secondary_id, request)
+            # TLT-2618: check that primary is currently syncing to Canvas
+            # If the setting is false, show a warning but continue to process the request
+            if primary.sync_to_canvas == 0:
+                msg_context = {'p_id': primary_id, 's_id': secondary_id}
+                msg = msg_for_error('not_synced', msg_context)
+                messages.warning(request, msg)
+            else:
+                primary_canvas_course = _get_canvas_course(primary_id, request)
+                canvas_id = primary_canvas_course.get('id', primary.canvas_course_id) \
+                    if primary_canvas_course else primary.canvas_course_id
 
-        primary = CourseInstance.objects.get(course_instance_id=primary_id)
-        canvas_id = None
-        if not warning_flag:
-            primary_canvas_course = _get_canvas_course(primary_id, request)
-            canvas_id = primary_canvas_course.get('id', primary.canvas_course_id) \
-                if primary_canvas_course else primary.canvas_course_id
+            if not canvas_id:
+                logger.debug('The primary course {} is not associated with a Canvas course.'.format(primary_id))
 
-        if not canvas_id:
-            logger.debug('The primary course {} is not associated with a Canvas course.'.format(primary_id))
+            secondary = CourseInstance.objects.get(course_instance_id=secondary_id)
+            secondary_canvas_course = _get_canvas_course(secondary_id, request)
 
-        secondary = CourseInstance.objects.get(course_instance_id=secondary_id)
-        secondary_canvas_course = _get_canvas_course(secondary_id, request)
+            sec_canvas_id = secondary_canvas_course.get('id', secondary.canvas_course_id) \
+                if secondary_canvas_course else secondary.canvas_course_id
 
-        sec_canvas_id = secondary_canvas_course.get('id', secondary.canvas_course_id) \
-            if secondary_canvas_course else secondary.canvas_course_id
+            created_by = request.user
 
-        created_by = request.user
+            # this step can raise an unhandled error, aborting the process and
+            # returning a non-201 error response
+            _update_course_db(primary, secondary, canvas_id, created_by)
 
-        # this step can raise an unhandled error, aborting the process and
-        # returning a non-201 error response
-        _update_course_db(primary, secondary, canvas_id, created_by)
+            # these steps will not abort the process, and a 201 response will be
+            # returned, possibly with error details
+            if canvas_id and sec_canvas_id:
+                _update_canvas_cross_listing(primary_id, secondary_id, request)
+                _update_canvas_course_names(primary_canvas_course, secondary_canvas_course, request)
 
-        # these steps will not abort the process, and a 201 response will be
-        # returned, possibly with error details
-        if canvas_id and sec_canvas_id:
-            _update_canvas_cross_listing(primary_id, secondary_id, request)
-            _update_canvas_course_names(primary_canvas_course, secondary_canvas_course, request)
-
-        messages.success(request, "Successfully cross-listed primary: {} and secondary: {}"
-                         .format(primary_id, secondary_id))
+            messages.success(request, "Successfully cross-listed primary: {} and secondary: {}"
+                             .format(primary_id, secondary_id))
 
     except Exception as e:
 
@@ -126,9 +127,10 @@ def _get_canvas_course(course_sis_id, request):
     course_id = 'sis_course_id:{}'.format(course_sis_id)
     try:
         return canvas_get_course(SDK_CONTEXT, course_id).json()
-    except:
+    except Exception as e:
         msg = 'Canvas course {} unavailable.'.format(course_id)
         logger.info('Error during cross-listing: ' + msg)
+        logger.info(e)
     return None
 
 
@@ -455,94 +457,88 @@ def _update_course_sites(primary, secondary):
 
 
 def msg_for_error(msg_key, context):
-        msg = _messages.get(msg_key, '')
-        if msg and isinstance(context, dict):
-            msg = msg.format(**context)
-            return msg
+    msg = _messages.get(msg_key, '')
+    if msg and isinstance(context, dict):
+        msg = msg.format(**context)
+        return msg
 
 
 def validate_inputs(primary_id, secondary_id, request):
+    """
+    Validates the given primary and secondary inputs.
+    If any of the conditions fail, return False and do not continue to process the request
+    """
 
-        warning_flag = False
-        if primary_id == secondary_id:
-            msg_context = {'s_id': secondary_id, 'p_id': primary_id}
-            msg = msg_for_error('primary_same_as_secondary', msg_context)
+    if primary_id == secondary_id:
+        msg_context = {'s_id': secondary_id, 'p_id': primary_id}
+        msg = msg_for_error('primary_same_as_secondary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    try:
+        primary_ci = CourseInstance.objects.get(pk=primary_id)
+        secondary_ci = CourseInstance.objects.get(pk=secondary_id)
+    except Exception as e:
+        msg_context = {'p_id': primary_id, 's_id': secondary_id}
+        msg = msg_for_error('invalid input', msg_context)
+        messages.error(request, msg)
+        logger.info(e)
+        return False
+
+    # 1. reverse check
+    reverse_xlist = XlistMap.objects.filter(
+        secondary_course_instance=primary_id,
+        primary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(reverse_xlist) > 0:
+        msg_context = {'p_id': primary_id, 's_id': secondary_id}
+        msg = msg_for_error('reverse', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 2. check to make sure that the secondary instance is not already
+    # cross-listed with a different primary.
+    # Note: Using the data from the first record found
+    existing_xlist = XlistMap.objects.filter(
+        secondary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_xlist) > 0:
+        msg_context = {'s_id': secondary_id, 'p_id': existing_xlist[0][0]}
+        msg = msg_for_error('secondary_already_secondary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 3. check to make sure that the primary instance is not a secondary to
+    #  any instance
+    existing_xlist = XlistMap.objects.filter(
+        secondary_course_instance=primary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_xlist) > 0:
+        msg_context = {'p_id': existing_xlist[0][0], 's_id': primary_id}
+        msg = msg_for_error('primary_already_xlisted', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 4. check to make sure that the secondary is not already a primary to
+    # another instance
+    existing_primary = XlistMap.objects.filter(
+        primary_course_instance=secondary_id
+    ).values_list('primary_course_instance', 'secondary_course_instance')
+    if len(existing_primary) > 0:
+        msg_context = {'p_id': secondary_id, 's_id': existing_primary[0][1]}
+        msg = msg_for_error('secondary_already_primary', msg_context)
+        messages.error(request, msg)
+        return False
+
+    # 5. TLT-2900: only allow cross-listings for cases where no complex
+    # site map relationship exists.
+    site_maps = {}
+    for course_id in [primary_id, secondary_id]:
+        site_maps[course_id] = SiteMap.objects.filter(
+            course_instance=course_id)
+        if len(site_maps[course_id]) > 1:
+            msg = msg_for_error('multiple_site_maps', {'id': course_id})
             messages.error(request, msg)
-            raise Exception()
+            return False
 
-        try:
-            primary_ci = CourseInstance.objects.get(pk=primary_id)
-            secondary_ci = CourseInstance.objects.get(pk=secondary_id)
-        except Exception as e:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('invalid input', msg_context)
-            messages.error(request, msg)
-            raise Exception()
-
-
-        # 1. TLT-2618: check that primary is currently syncing to Canvas
-        if primary_ci.sync_to_canvas == 0:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('not_synced', msg_context)
-            messages.warning(request, msg)
-            warning_flag = True
-
-        # 2. reverse check
-        reverse_xlist = XlistMap.objects.filter(
-            secondary_course_instance=primary_id,
-            primary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(reverse_xlist) > 0:
-            msg_context = {'p_id': primary_id, 's_id': secondary_id}
-            msg = msg_for_error('reverse', msg_context)
-            messages.error(request, msg)
-            raise Exception()
-
-        # 3. check to make sure that the secondary instance is not already
-        # cross-listed with a different primary.
-        # Note: Using the data from the first record found
-        existing_xlist = XlistMap.objects.filter(
-            secondary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_xlist) > 0:
-            msg_context = {'s_id': secondary_id, 'p_id': existing_xlist[0][0]}
-            msg = msg_for_error('secondary_already_secondary', msg_context)
-            messages.error(request, msg)
-            raise Exception()
-
-
-        # 4. check to make sure that the primary instance is not a secondary to
-        #  any instance
-        existing_xlist = XlistMap.objects.filter(
-            secondary_course_instance=primary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_xlist) > 0:
-            msg_context = {'p_id': existing_xlist[0][0], 's_id': primary_id}
-            msg = msg_for_error('primary_already_xlisted', msg_context)
-            messages.error(request, msg)
-            raise Exception()
-
-        # 5. check to make sure that the secondary is not already a primary to
-        # another instance
-        existing_primary = XlistMap.objects.filter(
-            primary_course_instance=secondary_id
-        ).values_list('primary_course_instance', 'secondary_course_instance')
-        if len(existing_primary) > 0:
-            msg_context = {'p_id': secondary_id, 's_id': existing_primary[0][1]}
-            msg = msg_for_error('secondary_already_primary', msg_context)
-            messages.error(request, msg)
-            raise Exception()
-
-        # 6. TLT-2900: only allow cross-listings for cases where no complex
-        # site map relationship exists.
-        site_maps = {}
-        for course_id in [primary_id, secondary_id]:
-            site_maps[course_id] = SiteMap.objects.filter(
-                course_instance=course_id)
-            if len(site_maps[course_id]) > 1:
-                msg = msg_for_error('multiple_site_maps', {'id': course_id})
-                messages.error(request, msg)
-                raise Exception()
-
-        # Indicate if there are warnings so that some steps can be skipped in the subsequent logic
-        return warning_flag
+    return True
