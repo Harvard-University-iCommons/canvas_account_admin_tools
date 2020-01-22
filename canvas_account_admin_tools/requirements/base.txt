@@ -17,7 +17,7 @@ django-storages==1.7.2
 rq==1.1.0
 django-rq==2.1.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v2.0#egg=django-canvas-course-site-wizard==2.0
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@task/thornton/tlt-3689/department_exists_check#egg=django-canvas-course-site-wizard==2.1
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
 
@@ -25,7 +25,7 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.0#egg=django-icommons-ui==2.0
 
-git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.0#egg=canvas-python-sdk==1.0
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@task/thornton/tllt-3689/update_create_enw_sub_account#egg=canvas-python-sdk==1.2.0
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v2.0#egg=django-harvardkey-cas==v2.0
 
