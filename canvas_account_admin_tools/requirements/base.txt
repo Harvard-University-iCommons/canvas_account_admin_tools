@@ -1,4 +1,4 @@
-Django==2.2.4
+Django==2.2.10
 cx-Oracle==7.2.2
 boto== 2.49.0
 boto3==1.9.210
