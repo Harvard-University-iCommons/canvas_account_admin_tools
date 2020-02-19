@@ -314,7 +314,7 @@ LOGGING = {
         },
         'canvas_site_deletion': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default', 'console'],
+            'handlers': ['default'],
             'propagate': False,
         },
         'course_info': {
