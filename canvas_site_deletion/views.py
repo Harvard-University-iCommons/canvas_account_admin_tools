@@ -59,7 +59,7 @@ def delete(request, pk):
             site_maps = SiteMap.objects.filter(course_instance=pk, map_type_id='official')
             for site in site_maps:
 
-                if ('canvas.harvard.edu' in site.course_site.external_id) and (str(ci.canvas_course_id) in site.course_site.external_id):
+                if (settings.CANVAS_URL in site.course_site.external_id) and (str(ci.canvas_course_id) in site.course_site.external_id):
                     logger.debug('Found Canvas site associated with course : {}'.format(site.course_site.external_id))
 
                     # Lookup the CourseSite
