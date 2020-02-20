@@ -322,8 +322,9 @@
                         // Validate that the selected date is not in the past before submitting.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
                             var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
-                            formatted_date += 'T00:01:00Z';
+                            formatted_date += 'T05:01:00Z';
                             patchData['conclude_date'] = formatted_date;
+                            console.log(patchData);
                         }
                     } else {
                         // If the conclude date field is left blank, then set the conclude_date to null in the DB.
@@ -335,6 +336,8 @@
                     patchData[field] = dc.formDisplayData[field];
                 }
             });
+            console.log(url);
+
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch(response) {
                     // update form data so reset button will pick up changes
@@ -365,13 +368,15 @@
 
         dc.init();
 
-        // Checks if the given date is prior to today's date.
+        // Checks if the given date is prior to tomorrow's date(today's date plus 1).
         dc.isSelectedDateInPast = function(selectedDate) {
             // Since the input field is a string representation of a date,
             // we need to convert today's date to the same format as a string to make the comparison.
             var today = new Date();
-            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
-            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+            var tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
+            var tmrwString = (tomorrow.getMonth() + 1) + '/' + tomorrow.getDate() + '/' +  tomorrow.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(tmrwString)<0;
         }
     }
 })();
