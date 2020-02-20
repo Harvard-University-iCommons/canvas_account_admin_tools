@@ -86,7 +86,7 @@
             return 'Untitled Course';
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="' + full.id_type + '"></badge> ' + full.univ_id;
+            return full.univ_id;
         };
         $scope.renderPersonCoursesLink = function(data, type, full, meta) {
             // If person has no name, indicate this with some text so that we
@@ -109,7 +109,7 @@
                 email_address: email,
                 id_type: id_type
             };
-        }
+        };
         $scope.searchPeople = function(event) {
             if ($scope.queryString.length > $scope.searchType.maxLength) {
                 $scope.messages = [{
@@ -144,7 +144,6 @@
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
-                    include: 'id_type', //this optional param collapses rows by role_type_cd
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')
