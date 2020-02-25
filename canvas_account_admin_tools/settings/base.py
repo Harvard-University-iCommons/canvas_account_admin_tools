@@ -312,6 +312,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'canvas_site_deletion': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
