@@ -371,7 +371,7 @@
         // Checks if the given date is prior to tomorrow's date(today's date plus 1).
         dc.isSelectedDateInPast = function(selectedDate) {
             // Since the input field is a string representation of a date,
-            // we need to convert today's date to the same format as a string to make the comparison.
+            // we need to convert tomorrow's's date to the same format as a string to make the comparison.
             var today = new Date();
             var tomorrow = new Date();
             tomorrow.setDate(today.getDate() + 1);

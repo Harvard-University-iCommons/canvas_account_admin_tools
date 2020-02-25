@@ -630,7 +630,7 @@
 
                 // Only begin the update call process if the selected date differs from the original value
                 if (selectedDate != previousValue) {
-                    // We only accept dates from today onward
+                    // We only accept dates from tomorrow onward
                     if ($scope.isSelectedDateInPast(selectedDate)) {
                         // Set a .1 second delay before displaying error message.
                         // When the datepicker is closed, it creates a click event which would close this display
@@ -705,18 +705,20 @@
         $scope.formatConcludeDate = function(date) {
             var concludeDate = null;
             if (date) {
-                concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T00:01:00Z';
+                concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T05:01:00Z';
             }
             return concludeDate;
         };
 
-        // Checks if the given date is prior to today's date.
+        // Checks if the given date is prior to tomorrow's date(today's date plus 1).
         $scope.isSelectedDateInPast = function(selectedDate) {
             // Since the input field is a string representation of a date,
-            // we need to convert today's date to the same format as a string to make the comparison.
+            // we need to convert tomorrow's date to the same format as a string to make the comparison.
             var today = new Date();
-            var todayString = (today.getMonth() + 1) + '/' + today.getDate() + '/' +  today.getFullYear();
-            return Date.parse(selectedDate)-Date.parse(todayString)<0;
+            var tomorrow = new Date();
+            tomorrow.setDate(today.getDate() + 1);
+            var tmrwString = (tomorrow.getMonth() + 1) + '/' + tomorrow.getDate() + '/' +  tomorrow.getFullYear();
+            return Date.parse(selectedDate)-Date.parse(tmrwString)<0;
         };
 
         // Perform the PATCH with the given user ID, role_id, conclude_date
