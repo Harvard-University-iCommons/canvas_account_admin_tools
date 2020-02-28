@@ -701,11 +701,12 @@
             $('#'+divID).html($compile(angular.element(cal_button))($scope));
         };
 
-        // Converts the mm/dd/yyyy date to a yyyy-MM-ddT00:00:01:00Z format
+        // Converts the mm/dd/yyyy date to a 12:01, ISO format
         $scope.formatConcludeDate = function(date) {
             var concludeDate = null;
             if (date) {
-                concludeDate = $filter('date')(new Date(date), 'yyyy-MM-dd', 'Z')+'T05:01:00Z';
+                date = date+ ' 00:01:00'
+                concludeDate = new Date(date).toISOString();
             }
             return concludeDate;
         };

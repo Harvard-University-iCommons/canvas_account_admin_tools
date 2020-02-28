@@ -321,10 +321,8 @@
                     if (dc.formDisplayData['conclude_date']) {
                         // Validate that the selected date is not in the past before submitting.
                         if (!dc.isSelectedDateInPast(dc.formDisplayData['conclude_date'])) {
-                            var formatted_date = $filter('date')(new Date(dc.formDisplayData['conclude_date']), 'yyyy-MM-dd', 'Z');
-                            formatted_date += 'T05:01:00Z';
+                            var formatted_date = new Date(dc.formDisplayData['conclude_date']+' 00:01:00').toISOString();
                             patchData['conclude_date'] = formatted_date;
-                            console.log(patchData);
                         }
                     } else {
                         // If the conclude date field is left blank, then set the conclude_date to null in the DB.
