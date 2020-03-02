@@ -334,7 +334,6 @@
                     patchData[field] = dc.formDisplayData[field];
                 }
             });
-            console.log(url);
 
             $http.patch(url, patchData)
                 .then(function finalizeCourseDetailsPatch(response) {
