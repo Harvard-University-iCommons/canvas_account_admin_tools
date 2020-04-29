@@ -10,7 +10,7 @@
     "angular-ui-bootstrap": "1.2.5",
     "datatables.net": "1.10.15",
     "jasmine-core": "^2.4.1",
-    "jquery": "2.2.2",
+    "jquery": "3.5.0",
     "karma": "^0.13.22",
     "karma-jasmine": "^0.3.8",
     "karma-jasmine-jquery": "^0.1.1",
