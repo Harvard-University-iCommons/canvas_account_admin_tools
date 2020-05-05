@@ -86,7 +86,12 @@
             return 'Untitled Course';
         };
         $scope.renderId = function(data, type, full, meta) {
-            return '<badge ng-cloak role="' + full.id_type + '"></badge> ' + full.univ_id;
+            // If the univ_id is an 8 digit number, display the HUID badge, else display XID
+            if (Number(full.univ_id) && full.univ_id.length == 8) {
+                return '<span class="label label-danger">HUID</span> ' + full.univ_id;
+            } else {
+                return '<span class="label label-primary">XID</span> ' + full.univ_id;
+            }
         };
         $scope.renderPersonCoursesLink = function(data, type, full, meta) {
             // If person has no name, indicate this with some text so that we
@@ -109,7 +114,7 @@
                 email_address: email,
                 id_type: id_type
             };
-        }
+        };
         $scope.searchPeople = function(event) {
             if ($scope.queryString.length > $scope.searchType.maxLength) {
                 $scope.messages = [{
@@ -144,7 +149,6 @@
                 var url = djangoUrl.reverse('icommons_rest_api_proxy',
                                             ['api/course/v2/people/']);
                 var queryParams = {
-                    include: 'id_type', //this optional param collapses rows by role_type_cd
                     offset: data.start,
                     limit: data.length,
                     ordering: (data.order[0].dir === 'desc' ? '-' : '')

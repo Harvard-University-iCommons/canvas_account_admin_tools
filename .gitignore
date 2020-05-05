@@ -18,3 +18,5 @@ secure*.py*
 !secure.py.j2
 selenium_tests/reports/
 sqlnet.log
+parameters.*
+secure.*
