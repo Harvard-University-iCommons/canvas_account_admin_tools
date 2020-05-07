@@ -142,7 +142,7 @@ def _remove_cross_listing_in_canvas(secondary_id):
     except Exception as e:
         logger.info('Error during canvas course cleanup for section {}.'.format(sis_section_id))
         logger.info(e)
-        
+
     logger.info('De-cross-listed Canvas section {}.'.format(sis_section_id))
 
 
@@ -209,15 +209,6 @@ def _validate_destroy(instance, request):
             course_instance=course_id)
         if len(site_maps[course_id]) > 1:
             messages.error(request, '{} has multiple site maps.'.format(course_id))
-
-
-def _remove_xlist_name_modifier(canvas_course, request):
-    if canvas_course:
-        canvas_course_name = canvas_course.get('name', '')
-        if canvas_course_name.endswith(_xlist_name_modifier):
-            i = canvas_course_name.rfind(_xlist_name_modifier)
-            canvas_course_name = canvas_course_name[:i]
-            _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
 def _remove_xlist_name_modifier(canvas_course, request):
