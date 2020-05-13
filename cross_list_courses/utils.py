@@ -135,10 +135,14 @@ def _get_canvas_course(course_sis_id, request):
 
 
 def _remove_cross_listing_in_canvas(secondary_id):
-    # if the SDK throws an exception the
-    # transaction will rollback and nothing will be deleted
+    # if the SDK throws an exception, log the error but continue processing (TLT-3788)
     sis_section_id = 'sis_section_id:{}'.format(secondary_id)
-    de_cross_list_section(SDK_CONTEXT, sis_section_id)
+    try:
+        de_cross_list_section(SDK_CONTEXT, sis_section_id)
+    except Exception as e:
+        logger.info('Error during canvas course cleanup for section {}.'.format(sis_section_id))
+        logger.info(e)
+
     logger.info('De-cross-listed Canvas section {}.'.format(sis_section_id))
 
 
@@ -181,8 +185,8 @@ def _update_site_maps(secondary, canvas_id, request):
         msg = 'The secondary course {} is not associated with a Canvas ' \
               'course. No site mapping was created when ' \
               'de-cross-listing.'.format(secondary_id)
-        logger.error(msg)
-        messages.error(request, msg)
+        # log the message but proceed with the delete process
+        logger.info(msg)
 
 
 def _get_or_create_course_site(course_url):
@@ -208,19 +212,12 @@ def _validate_destroy(instance, request):
 
 
 def _remove_xlist_name_modifier(canvas_course, request):
-    canvas_course_name = canvas_course.get('name', '')
-    if canvas_course_name.endswith(_xlist_name_modifier):
-        i = canvas_course_name.rfind(_xlist_name_modifier)
-        canvas_course_name = canvas_course_name[:i]
-        _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
-
-
-def _remove_xlist_name_modifier(canvas_course, request):
-    canvas_course_name = canvas_course.get('name', '')
-    if canvas_course_name.endswith(_xlist_name_modifier):
-        i = canvas_course_name.rfind(_xlist_name_modifier)
-        canvas_course_name = canvas_course_name[:i]
-        _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
+    if canvas_course:
+        canvas_course_name = canvas_course.get('name', '')
+        if canvas_course_name.endswith(_xlist_name_modifier):
+            i = canvas_course_name.rfind(_xlist_name_modifier)
+            canvas_course_name = canvas_course_name[:i]
+            _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
 def _update_canvas_course_name(course_id, course_name, request):
@@ -257,7 +254,8 @@ def _update_course_db(primary, secondary, canvas_id, created_by):
 
 def _create_xlist_map(primary, secondary, created_by):
     # Save the mapping
-    xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary, last_modified_by=created_by)
+    xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary,
+                         last_modified_by=created_by)
     xlist_map.save()
 
     # Set sync to Canvas of primary
@@ -287,13 +285,13 @@ def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
         return response
     except:
         msg = 'Unable to currently cross-list Canvas section {} in Canvas course {}' \
-              .format(secondary_section_id,
-                                         primary_course_id,)
+            .format(secondary_section_id,
+                    primary_course_id, )
         logger.exception(msg)
         messages.warning(request, msg)
 
 
-def _update_canvas_course_names( primary, secondary, request):
+def _update_canvas_course_names(primary, secondary, request):
     # The newly cross-listed secondary course should have the customary
     # [CROSS-LISTED - NOT ACTIVE] in its title
 
@@ -304,33 +302,31 @@ def _update_canvas_course_names( primary, secondary, request):
 
 
 def _append_xlist_name_modifier(canvas_course, request):
-        canvas_course_name = canvas_course.get('name', '')
-        if not canvas_course_name.endswith(_xlist_name_modifier):
-            canvas_course_name += _xlist_name_modifier
-            _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
+    canvas_course_name = canvas_course.get('name', '')
+    if not canvas_course_name.endswith(_xlist_name_modifier):
+        canvas_course_name += _xlist_name_modifier
+        _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
 def _update_canvas_course_id(primary, secondary, canvas_id):
-        # update the course instances to point to the primary canvas course
+    # update the course instances to point to the primary canvas course
 
-        if primary.canvas_course_id != canvas_id:
-            logger.warning(
-                'Course instance {} has missing/wrong canvas_course_id; '
-                'old:{} new:{}'.format(primary.course_instance_id,
-                                       primary.canvas_course_id, canvas_id))
-        for course in [primary, secondary]:
-            if course.canvas_course_id != canvas_id:
+    if primary.canvas_course_id != canvas_id:
+        logger.warning(
+            'Course instance {} has missing/wrong canvas_course_id; '
+            'old:{} new:{}'.format(primary.course_instance_id,
+                                   primary.canvas_course_id, canvas_id))
+    for course in [primary, secondary]:
+        if course.canvas_course_id != canvas_id:
+            course.canvas_course_id = canvas_id
+            course.save(update_fields=['canvas_course_id'])
 
-                course.canvas_course_id = canvas_id
-                course.save(update_fields=['canvas_course_id'])
-
-                logger.info(
-                    'Updated Canvas course ID for course instance {} to '
-                    '{}'.format(course.course_instance_id, canvas_id))
+            logger.info(
+                'Updated Canvas course ID for course instance {} to '
+                '{}'.format(course.course_instance_id, canvas_id))
 
 
 def _update_course_sites(primary, secondary):
-
     # if no SiteMap exists for primary to its Canvas Site, create one and
     # point it to its Canvas site (note: we will create a new CourseSite,
     # and not worry about any existing CourseSites with the same
@@ -367,7 +363,6 @@ def _update_course_sites(primary, secondary):
             primary_site.external_id = primary_canvas_course_url
             primary_site.save(update_fields=['external_id'])
             if site_map.map_type_id != 'official':
-
                 site_map.map_type_id = 'official'
                 site_map.save(update_fields=['map_type'])
                 logger.info(
@@ -443,7 +438,6 @@ def _update_course_sites(primary, secondary):
         # raise ValidationError(msg)
 
     if other_primary_site_map is not None:
-
         site_map = SiteMap.objects.create(
             course_instance=secondary,
             course_site=other_primary_site_map,
