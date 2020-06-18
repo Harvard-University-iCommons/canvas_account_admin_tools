@@ -2,7 +2,7 @@
   "name": "CanvasAccountAdminTools-JasmineTests",
   "description": "Unit tests for Javascript in CanvasAccountAdminTools project",
   "devDependencies": {
-    "angular": "1.5.2",
+    "angular": "1.8.0",
     "angular-datatables": "0.5.3",
     "angular-mocks": "1.5.2",
     "angular-route": "1.5.2",
