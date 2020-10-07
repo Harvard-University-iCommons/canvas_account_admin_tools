@@ -78,10 +78,10 @@
                             {% else %}
                                 {{ mapping.primary_short_title }}
                             {% endif %}
-                            {% if mapping.primary_section %}
-                                {{ mapping.primary_section }}
-                            {% endif %}
                             </b>
+                            {% if mapping.primary_section %}
+                                - {{ mapping.primary_section }}
+                            {% endif %}
                             <br>
                             {{ mapping.primary_term_display_name }}
                             (course instance ID {{ mapping.primary_course_instance_id }})
@@ -103,10 +103,10 @@
                             {% else %}
                                 {{ mapping.secondary_short_title }}
                             {% endif %}
-                            {% if mapping.secondary_section %}
-                                {{ mapping.secondary_section }}
-                            {% endif %}
                             </b>
+                            {% if mapping.secondary_section %}
+                                - {{ mapping.secondary_section }}
+                            {% endif %}
                             <br>
                             {{ mapping.secondary_term_display_name }}
                             (course instance ID {{ mapping.secondary_course_instance_id }})
