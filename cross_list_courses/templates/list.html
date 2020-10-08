@@ -57,6 +57,9 @@
                                 No course code; course ID {{ xlist_map.primary_course_instance.course.course_id }}
                             {% endif %}
                             </b>
+                            {% if xlist_map.primary_course_instance.section %}
+                                - {{ xlist_map.primary_course_instance.section }}
+                            {% endif %}
                             <br>
                             {{ xlist_map.primary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.primary_course_instance.course_instance_id }})
@@ -84,6 +87,9 @@
                                 No course code; course ID {{ xlist_map.secondary_course_instance.course.course_id }}
                             {% endif %}
                             </b>
+                            {% if xlist_map.secondary_course_instance.section %}
+                                - {{ xlist_map.secondary_course_instance.section }}
+                            {% endif %}
                             <br>
                             {{ xlist_map.secondary_course_instance.term.display_name}}
                             (course instance ID {{ xlist_map.secondary_course_instance.course_instance_id }})

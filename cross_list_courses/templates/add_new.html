@@ -74,9 +74,9 @@
                             {{ mapping.primary_school_id | upper }}
                             <b>
                             {% if mapping.primary_school_id == 'hls' or mapping.primary_school_id == 'ext' %}
-                                {{ mapping.primary_registrar_code }}
+                                {{ mapping.primary_registrar_code|truncatechars:20  }}
                             {% else %}
-                                {{ mapping.primary_short_title }}
+                                {{ mapping.primary_short_title|truncatechars:20  }}
                             {% endif %}
                             </b>
                             {% if mapping.primary_section %}
@@ -99,9 +99,9 @@
                             {{ mapping.secondary_school_id | upper }}
                             <b>
                             {% if mapping.seondary_school_id == 'hls' or mapping.secondary_school_id == 'ext' %}
-                                {{ mapping.secondary_registrar_code }}
+                                {{ mapping.secondary_registrar_code|truncatechars:20 }}
                             {% else %}
-                                {{ mapping.secondary_short_title }}
+                                {{ mapping.secondary_short_title|truncatechars:20 }}
                             {% endif %}
                             </b>
                             {% if mapping.secondary_section %}
