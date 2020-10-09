@@ -124,7 +124,7 @@ def get_ci_data(request):
             course_json['id'] = str(course.course_instance_id)
             course_json['label'] = '{}{} {} [{}, {}]'.format(course.title,
                                                           ': '+course.sub_title[:40]+'...' if course.sub_title else '',
-                                                          course.course_instance_id.section if course.course_instance_id.section else '',
+                                                          course.section if course.section else '',
                                                           course.term.school_id.upper(), course.term.display_name)
             course_json['value'] = '{}{}{} [{}, {}]'.format(course.course_instance_id, ': '+course.title,
                                                             ': '+course.sub_title[:40]+'...' if course.sub_title else '',
