@@ -74,6 +74,8 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
     try:
         # Validate the primary and secondary values before processing.
         # Validation messages are transmitted to the view by this method
+        primary_id = primary_id.strip()
+        secondary_id = secondary_id.strip()
         is_valid = validate_inputs(primary_id, secondary_id, request)
         
         if is_valid:
@@ -273,8 +275,8 @@ def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
     # course. Neither of these sections should exist in the former
     # primary course (though there may still appear to be manually
     # created sections there that we will have to clean up manually).
-    secondary_section_id = 'sis_section_id:{}'.format(secondary_sis_id)
-    primary_course_id = 'sis_course_id:{}'.format(primary_sis_id)
+    secondary_section_id = 'sis_section_id:{}'.format(secondary_sis_id).strip()
+    primary_course_id = 'sis_course_id:{}'.format(primary_sis_id).strip()
 
     try:
         response = cross_list_section(SDK_CONTEXT, secondary_section_id,

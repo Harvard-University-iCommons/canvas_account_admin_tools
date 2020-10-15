@@ -28,7 +28,7 @@
    combines with #course-code-type to form an input group inside
    #course-code-input-group container */
 #course-code {
-    width: 88%;
+    width: 82%;
 }
 
 /* container for #course-code and #course-code-type to form an input group */
@@ -40,7 +40,7 @@
    combines with #course-code to form an input group inside
    #course-code-input-group container */
 #course-code-type {
-    width: 12%;
+    width: 18%;
 }
 
 #courseSelectionDT .remove-selection {
