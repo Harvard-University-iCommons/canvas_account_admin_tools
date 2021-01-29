@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'publish_courses',
     'bulk_course_settings',
     'canvas_site_deletion',
+    'masquerade_tool',
     'rest_framework'
 ]
 
@@ -317,6 +318,11 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
+        'masquerade_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
@@ -396,6 +402,7 @@ PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
+PERMISSION_MASQUERADE_TOOL='masquerade_tool'
 
 
 

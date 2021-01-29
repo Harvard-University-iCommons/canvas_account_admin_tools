@@ -1,0 +1,49 @@
+{% extends 'canvas_site_deletion/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Masquerade Tool
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    <br><br>
+    <div class="row">
+        <div class="col-sm-6">
+            Please click on the button to initiate a request to be granted masquerade role for one hour
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <form class="form-inline" method="POST" action="{% url 'masquerade_tool:add_role' %}">{% csrf_token %}
+
+            <div class="col-sm-3">
+                <button type="submit" name="masquerade_req" id="masquerade_request_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Requesting...">
+                <i class="fa"></i> Request Masquerade Access</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+
+
+{% endblock %}

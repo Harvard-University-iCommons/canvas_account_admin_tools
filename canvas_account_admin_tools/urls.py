@@ -17,6 +17,7 @@ urlpatterns = [
     path('publish_courses/', include(('publish_courses.urls', 'publish_courses'), namespace='publish_courses')),
     path('bulk_course_settings/', include(('bulk_course_settings.urls', 'bulk_course_settings'), namespace='bulk_course_settings')),
     path('canvas_site_deletion/', include(('canvas_site_deletion.urls', 'canvas_site_deletion'), namespace='canvas_site_deletion')),
+    path('masquerade_tool/', include(('masquerade_tool.urls', 'masquerade_tool'), namespace='masquerade_tool')),
     path('tool_config/', views.tool_config, name='tool_config'),
 ]
 
