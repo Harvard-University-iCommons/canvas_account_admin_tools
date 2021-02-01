@@ -34,14 +34,16 @@ def add_role(request):
         expiry_time = datetime.now() + timedelta(hours=1)
         formatted_time = format(expiry_time, '%A %Y-%m-%d %H:%M:%S')
         logger.info('User {} requested masqeurade access at {}, for one hour until {}'.format(
-            request.user, datetime.now(), formatted_time ))
+            request.user, datetime.now(), formatted_time))
 
-        lambda_client = boto3.client('lambda')
+        # TODO: move the region_name to SSM
+        lambda_client = boto3.client('lambda', region_name='us-east-1')
         payload = {
             'user_id': canvas_user_id,
             'action': 'add',
         }
         logger.debug('payload :{}'.format(payload))
+        # TODO: move move the FunctionName to SSM
         result = lambda_client.invoke(
             FunctionName='arn:aws:lambda:us-east-1:482956169056:function:temporary-masquerade-dev-TemporaryMasqueradeFuncti-1IECMNSLQXP1X',
             Payload=json.dumps(payload),
