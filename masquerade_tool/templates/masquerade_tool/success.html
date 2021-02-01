@@ -1,0 +1,27 @@
+{% extends 'canvas_site_deletion/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Masquerade Tool
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+    <br><br>
+    <div class="row">
+        <div class="col-sm-6">
+            You have been sucessfully granted masquerade access for one hour, until <b>{{ expiry_time }}</b>.
+            Please refer this KB article for  instructions on how to use the role in Canvas.
+        </div>
+    </div>
+
+
+</div>
+</body>
+
+{% endblock %}
