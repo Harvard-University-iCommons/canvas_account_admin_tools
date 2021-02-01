@@ -31,18 +31,17 @@ def add_role(request):
     context = {}
     try:
         canvas_user_id = request.LTI['custom_canvas_user_id']
-        now = datetime.now()
         expiry_time = datetime.now() + timedelta(hours=1)
         formatted_time = format(expiry_time, '%A %Y-%m-%d %H:%M:%S')
         logger.info('User {} requested masqeurade access at {}, for one hour until {}'.format(
-            request.user, now, formatted_time ))
+            request.user, datetime.now(), formatted_time ))
 
-        expiry_time
         lambda_client = boto3.client('lambda')
         payload = {
             'user_id': canvas_user_id,
             'action': 'add',
         }
+        logger.debug('payload :{}'.format(payload))
         result = lambda_client.invoke(
             FunctionName='arn:aws:lambda:us-east-1:482956169056:function:temporary-masquerade-dev-TemporaryMasqueradeFuncti-1IECMNSLQXP1X',
             Payload=json.dumps(payload),
