@@ -15,8 +15,16 @@
     <br><br>
     <div class="row">
         <div class="col-sm-6">
-            You have been sucessfully granted masquerade access for one hour, until <b>{{ expiry_time }}</b>.
-            Please refer to this KB article for instructions on how to use this role in Canvas.
+            <p>
+            {% if status == 'role_exists' %}
+                Sorry, you already have the Masquerade role and it cannot be granted again until the current session expires.
+            {% else %}
+                You've successfully been granted the Masquerade role, automatically expiring in 60 minutes.
+                You can use the "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
+                                    target="_blank">Act As User</a>" function until {{ expiry_time }}.
+                Please remember while you're acting as another user, all activity is logged for audit purposes.
+            {% endif %}
+            </p>
         </div>
     </div>
 
