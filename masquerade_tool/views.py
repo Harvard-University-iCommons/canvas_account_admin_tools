@@ -1,6 +1,7 @@
 import logging
 import boto3
 import json
+import dateutil.parser
 
 from datetime import datetime,timedelta
 from django.conf import settings
@@ -31,10 +32,8 @@ def add_role(request):
     context = {}
     try:
         canvas_user_id = request.LTI['custom_canvas_user_id']
-        expiry_time = datetime.now() + timedelta(hours=1)
-        formatted_time = format(expiry_time, '%A %Y-%m-%d %H:%M:%S')
-        logger.info('User {} requested masqeurade access at {}, for one hour until {}'.format(
-            request.user, datetime.now(), formatted_time))
+        logger.info('User {} requested masqeurade access at {}'.format(
+            request.user, datetime.now()))
 
         # TODO: move the region_name to SSM
         lambda_client = boto3.client('lambda', region_name='us-east-1')
@@ -48,9 +47,11 @@ def add_role(request):
             FunctionName='arn:aws:lambda:us-east-1:482956169056:function:temporary-masquerade-dev-TemporaryMasqueradeFuncti-1IECMNSLQXP1X',
             Payload=json.dumps(payload),
         )
-        logger.info(result)
         status = result['ResponseMetadata']['HTTPStatusCode']
-        context = {'expiry_time': formatted_time}
+        response_payload = json.loads(result['Payload'].read().decode("utf-8"))
+        exp_dt = dateutil.parser.isoparse(response_payload["expires"])
+        logger.info('lambda result = {},  payload response =  {}'.format(result, response_payload))
+        context = {'expiry_time': exp_dt}
     except Exception as e:
         logger.error(e)
 
