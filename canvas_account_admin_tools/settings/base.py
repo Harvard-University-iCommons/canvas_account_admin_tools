@@ -458,6 +458,12 @@ CANVAS_EMAIL_NOTIFICATION = {
     'environment': ENV_NAME.capitalize(),
 }
 
+MASQUERADE_TOOL_SETTINGS = {
+    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
+    'temporary_masquerade_function_arn': SECURE_SETTINGS.get('temporary_masquerade_function_arn'),
+    'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,  # default result set size without a limit GET param
