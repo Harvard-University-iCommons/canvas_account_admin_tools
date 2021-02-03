@@ -27,7 +27,7 @@
         <form class="form-inline" method="POST" action="{% url 'masquerade_tool:add_role' %}">{% csrf_token %}
 
             <div class="col-sm-3">
-                <button type="submit" name="masquerade_req" id="masquerade_request_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Requesting...">
+                <button type="submit" name="masquerade_req" id="masquerade" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Requesting...">
                 <i class="fa"></i> Request Masquerade Access</button>
             </div>
         </form>
@@ -36,5 +36,13 @@
 </div>
 </body>
 
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $('#masquerade').on('click', function () {
+            var $btn = $(this).button('loading')
+        })
+    </script>
+{% endblock javascript %}
 
 {% endblock %}
