@@ -62,6 +62,8 @@ def add_role(request):
         logger.info(' payload response =  {}'.format( response_payload))
         context = {'expiry_time': exp_dt, 'status': status}
     except Exception as e:
+        logger.error("Error while processing request from {}".format(request.LTI['lis_person_name_full']))
         logger.error(e)
+        return render(request, 'masquerade_tool/error.html', context)
 
     return render(request, 'masquerade_tool/success.html', context)

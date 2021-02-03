@@ -1,6 +1,7 @@
-{% extends 'canvas_site_deletion/base.html' %}
+{% extends 'masquerade_tool/base.html' %}
 
 {% block body %}
+{% load static %}
 
 <nav>
   <h3>
@@ -12,19 +13,6 @@
 
 <body role="application">
     <div class="container-fluid">
-        {% for message in messages %}
-            {% if message.level_tag == "success" %}
-                <div class="alert alert-success" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% elif message.level_tag == "error" %}
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
     <br><br>
     <div class="row">
         <div class="col-sm-6">
@@ -32,7 +20,6 @@
                 "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
                 target="_blank">Act As User</a>" function for 60 minutes.
             </p>
-            <p>Please click on the button to initiate a request to be granted masquerade role for one hour</p>
         </div>
     </div>
     <br>
