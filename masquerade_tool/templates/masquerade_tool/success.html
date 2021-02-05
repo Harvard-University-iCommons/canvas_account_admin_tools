@@ -14,22 +14,23 @@
     <div class="row">
       <div class="col-sm-6">
         {% if status == 'role_exists' %}
-        <p class="lead bg-warning">
-          Sorry, you already have the Masquerade role and you can use the
-          "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
-            target="_blank">Act As User</a>" function. It cannot be granted again until the current session
-          expires.
+        <p class="lead text-warning">
+          <strong>
+            Sorry, you already have the Masquerade role and you can use the
+            "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
+              target="_blank">Act As User</a>" function. It cannot be granted again until the current session expires.
+          </strong>
         </p>
         {% else %}
-        <p class="lead bg-success">
-          <i class="fa fa-check-circle text-success"></i> You've successfully been granted the Masquerade role, automatically expiring in {{ session_mins }} minutes.
+        <p class="lead text-success">
+          <strong><i class="fa fa-check-circle"></i> You've successfully been granted the Masquerade role, automatically expiring in {{ session_mins }} minutes.</strong>
         </p>
-        <p class="lead">
+        <p>
           You can use the "<a
             href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
             target="_blank">Act As User</a>" function until {{ expiry_time }}.
         </p>
-        <p class="lead">
+        <p>
           Please remember that while you're acting as another user, all activity is logged for audit purposes.
         </p>
         {% endif %}
