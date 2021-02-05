@@ -1,48 +1,44 @@
 {% extends 'masquerade_tool/base.html' %}
-
-{% block body %}
 {% load static %}
 
-<nav>
-  <h3>
-    <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    <small><i class="fa fa-chevron-right"></i></small>
-    Masquerade Tool
-  </h3>
-</nav>
+{% block body %}
+  <nav>
+    <h3>
+      <a href="{% url 'dashboard_account' %}">Admin Console</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      Masquerade Tool
+    </h3>
+  </nav>
 
-<body role="application">
-    <div class="container-fluid">
+  <div class="container-fluid">
     <br><br>
     <div class="row">
-        <div class="col-sm-6">
-            <p>Click the button below to temporarily assume the Masquerade role. Once granted, you'll be able to use Canvas
-                "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
-                target="_blank">Act As User</a>" function for {{ session_mins }} minutes.
-            </p>
-        </div>
+      <div class="col-sm-6">
+        <p class="lead">Click the button below to temporarily assume the Masquerade role. Once granted, you'll be able to use
+          Canvas'
+          "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
+            target="_blank">Act As User</a>" function for {{ session_mins }} minutes.
+        </p>
+      </div>
     </div>
     <br>
     <div class="row">
-        <form class="form-inline" method="POST" action="{% url 'masquerade_tool:add_role' %}">{% csrf_token %}
-
-            <div class="col-sm-3">
-                <button type="submit" name="masquerade_req" id="masquerade" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Requesting...">
-                <i class="fa"></i> Request Masquerade Access</button>
-            </div>
-        </form>
+      <form class="form-inline" method="POST" action="{% url 'masquerade_tool:add_role' %}">{% csrf_token %}
+        <div class="col-sm-3">
+          <button type="submit" name="masquerade_req" id="masquerade" class="btn btn-primary"
+            data-loading-text="<i class='fa fa-spinner fa-spin'></i> Requesting...">
+            <i class="fa"></i> Request Masquerade Access</button>
+        </div>
+      </form>
     </div>
-
-</div>
-</body>
+  </div>
+{% endblock %}
 
 {% block javascript %}
-    {{ block.super }}
-    <script>
-        $('#masquerade').on('click', function () {
-            var $btn = $(this).button('loading')
-        })
-    </script>
+  {{ block.super }}
+  <script>
+    $('#masquerade').on('click', function () {
+      var $btn = $(this).button('loading')
+    })
+  </script>
 {% endblock javascript %}
-
-{% endblock %}
