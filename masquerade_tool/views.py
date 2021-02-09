@@ -38,17 +38,14 @@ def add_role(request):
         logger.info('User {} requested masquerade access at {}'.format(
             request.LTI['lis_person_name_full'], datetime.now()))
 
-        # TODO: move the region_name to SSM
         lambda_client = boto3.client('lambda', region_name=AWS_REGION_NAME)
         payload = {
             'user_id': canvas_user_id,
             'action': 'add',
         }
         logger.debug('payload :{}'.format(payload))
-        # TODO: move move the FunctionName to SSM
         result = lambda_client.invoke(
             FunctionName =FUNCTION_ARN,
-            # FunctionName='arn:aws:lambda:us-east-1:482956169056:function:temporary-masquerade-dev-TemporaryMasqueradeFuncti-1IECMNSLQXP1X',
             Payload=json.dumps(payload),
         )
         logger.info('lambda result = {}'.format(result))
@@ -57,7 +54,7 @@ def add_role(request):
 
         status = response_payload["status"]
         exp_dt = None
-        # Check if expires is being sent. if role already exists, expires won't be set.
+        # Check if 'expires' is being sent. If role already exists, expires won't be set.
         if "expires" in response_payload:
             exp_dt = dateutil.parser.isoparse(response_payload["expires"])
 
