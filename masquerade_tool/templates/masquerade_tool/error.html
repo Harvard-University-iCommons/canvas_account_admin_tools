@@ -1,0 +1,22 @@
+{% extends 'masquerade_tool/base.html' %}
+
+{% block breadcrumb %}
+  <nav>
+    <h3>
+      <a href="{% url 'dashboard_account' %}">Admin Console</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      Masquerade Tool
+    </h3>
+  </nav>
+{% endblock %}
+
+{% block content %}
+  <div>
+    <br><br>
+    <p class="lead">
+      We are currently unable to process your request. Please try again.
+      If the problem persists, please contact <a href="mailto:academictechnology@harvard.edu ">HUIT Academic
+        Technology</a>.
+    </p>
+  </div>
+{% endblock %}

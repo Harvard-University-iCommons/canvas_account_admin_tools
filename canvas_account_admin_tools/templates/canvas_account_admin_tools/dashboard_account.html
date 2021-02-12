@@ -193,6 +193,32 @@
         </div>
     {% endif %}
 
+    {% if masquerade_tool_is_allowed %}
+        <div class="card card_color">
+            <a href="{% url 'masquerade_tool:index' %}" id="masquerade_tool">
+              <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-user-secret icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Masquerade Tool">
+                      <span class="content-link">
+                        Masquerade Tool
+                      </span>
+                    </h2>
+                    <p title="Masquerade Tool">Request Masquerade Role</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
+
 {% endblock content %}
 
 
