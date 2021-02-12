@@ -30,7 +30,7 @@ def index(request):
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_MASQUERADE_TOOL)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 def add_role(request):
     context = {}
     try:
@@ -45,10 +45,10 @@ def add_role(request):
         }
         logger.debug('payload :{}'.format(payload))
         result = lambda_client.invoke(
-            FunctionName =FUNCTION_ARN,
+            FunctionName=FUNCTION_ARN,
             Payload=json.dumps(payload),
         )
-        logger.info('lambda result = {}'.format(result))
+        logger.info('lambda FUNCTION_ARN={}, result = {}'.format(FUNCTION_ARN, result))
         invoke_status = result['ResponseMetadata']['HTTPStatusCode']
         response_payload = json.loads(result['Payload'].read().decode("utf-8"))
 
@@ -61,8 +61,9 @@ def add_role(request):
         logger.info(' payload response =  {}'.format( response_payload))
         context = {'expiry_time': exp_dt, 'status': status, 'session_mins': MASQUERADE_SESSION_MINS}
     except Exception as e:
-        logger.error("Error while processing request from {}".format(request.LTI['lis_person_name_full']))
-        logger.error(e)
+        logger.error("Error while processing request from {}".
+                     format(request.get('lis_person_name_full', '(list_person_name_full missing from LTI context)')))
+        logger.exception(e)
         return render(request, 'masquerade_tool/error.html', context)
 
     return render(request, 'masquerade_tool/success.html', context)
