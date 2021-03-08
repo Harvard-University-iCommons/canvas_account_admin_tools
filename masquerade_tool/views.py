@@ -19,6 +19,7 @@ AWS_REGION_NAME = settings.MASQUERADE_TOOL_SETTINGS['aws_region_name']
 FUNCTION_ARN = settings.MASQUERADE_TOOL_SETTINGS['temporary_masquerade_function_arn']
 MASQUERADE_SESSION_MINS = settings.MASQUERADE_TOOL_SETTINGS['masquerade_session_minutes']
 
+
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_MASQUERADE_TOOL)
@@ -26,6 +27,7 @@ MASQUERADE_SESSION_MINS = settings.MASQUERADE_TOOL_SETTINGS['masquerade_session_
 def index(request):
     context = {'session_mins': MASQUERADE_SESSION_MINS}
     return render(request, 'masquerade_tool/index.html', context)
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -58,7 +60,7 @@ def add_role(request):
         if "expires" in response_payload:
             exp_dt = dateutil.parser.isoparse(response_payload["expires"])
 
-        logger.info(' payload response =  {}'.format( response_payload))
+        logger.info(' payload response =  {}'.format(response_payload))
         context = {'expiry_time': exp_dt, 'status': status, 'session_mins': MASQUERADE_SESSION_MINS}
     except Exception as e:
         logger.error("Error while processing request from {}".
