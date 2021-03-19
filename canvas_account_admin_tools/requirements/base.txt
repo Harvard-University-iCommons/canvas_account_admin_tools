@@ -11,7 +11,7 @@ django-cached-authentication-middleware==0.2.2
 
 django-proxy==1.2.1
 django-redis-cache==2.0.0
-djangorestframework==3.10.2
+djangorestframework==3.11.2
 django-storages==1.7.2
 
 rq==1.1.0
