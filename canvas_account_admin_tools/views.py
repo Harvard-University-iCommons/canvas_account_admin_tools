@@ -1,23 +1,23 @@
 import json
 import logging
 import os
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
 import urllib.parse
+import urllib.request
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from lti import ToolConfig
-from proxy.views import proxy_view
-
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
+from lti import ToolConfig
 from lti_permissions.decorators import lti_permission_required
 from lti_permissions.verification import is_allowed
+from proxy.views import proxy_view
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,16 @@ def dashboard_account(request):
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
 
     """
-    Verify that the curernt user has permission to see the cross listing button
+    Verify that the current user has permission to see the Search Courses (aka course_info) tool
+    """
+    search_courses_allowed = is_allowed(
+        custom_canvas_membership_roles,
+        settings.PERMISSION_SEARCH_COURSES,
+        canvas_account_sis_id=custom_canvas_account_sis_id
+    )
+
+    """
+    Verify that the current user has permission to see the cross listing button
     on the dashboard TLT-2569
     """
     cross_listing_is_allowed = is_allowed(custom_canvas_membership_roles,
@@ -133,18 +142,18 @@ def dashboard_account(request):
         verify that user has permissions to view the masquerade tool
         """
     masquerade_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
-                                                 settings.PERMISSION_MASQUERADE_TOOL,
-                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
+                                            settings.PERMISSION_MASQUERADE_TOOL,
+                                            canvas_account_sis_id=custom_canvas_account_sis_id)
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
+        'search_courses_allowed': search_courses_allowed,
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
-        'site_creator_is_allowed':site_creator_is_allowed,
-        'publish_courses_allowed':publish_courses_allowed,
+        'site_creator_is_allowed': site_creator_is_allowed,
+        'publish_courses_allowed': publish_courses_allowed,
         'bulk_course_settings_is_allowed': bulk_course_settings_is_allowed,
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
-
     })
 
 

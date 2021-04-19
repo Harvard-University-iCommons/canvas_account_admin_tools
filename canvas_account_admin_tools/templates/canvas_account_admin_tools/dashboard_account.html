@@ -14,31 +14,33 @@
       </nav>
     </header>
 
-    <div class="card card_color">
-      <a href="{% url 'course_info:index' %}" id="course-roster">
-        <div class="card-body">
-          <div class="card-header card-header_color5">
-          </div>
-          <div class="card-content card-content_normal">
-            <div class="card-content-width">
-              <div class="card-content-icon">
-                <i class="fa fa-search icon-size"></i>
-              </div>
-              <div class="card-content-data">
-                <h2 class="card-content-title ellipsis" title="Search Courses">
-                  <span class="content-link">
-                    Search Courses
-                  </span>
-                </h2>
-                <p title="Search Courses">
-                  Find courses in order to add people or edit course details
-                </p>
+    {% if search_courses_allowed %}
+      <div class="card card_color">
+        <a href="{% url 'course_info:index' %}" id="course-info">
+          <div class="card-body">
+            <div class="card-header card-header_color5">
+            </div>
+            <div class="card-content card-content_normal">
+              <div class="card-content-width">
+                <div class="card-content-icon">
+                  <i class="fa fa-search icon-size"></i>
+                </div>
+                <div class="card-content-data">
+                  <h2 class="card-content-title ellipsis" title="Search Courses">
+                    <span class="content-link">
+                      Search Courses
+                    </span>
+                  </h2>
+                  <p title="Search Courses">
+                    Find courses in order to add people or edit course details
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </a>
-    </div>
+        </a>
+      </div>
+    {% endif search_courses_allowed %}
 
     {% if people_tool_allowed %}
         <div class="card card_color">
@@ -220,5 +222,3 @@
     {% endif %}
 
 {% endblock content %}
-
-

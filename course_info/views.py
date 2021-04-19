@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@lti_permission_required(settings.PERMISSION_SEARCH_COURSES)
 @require_http_methods(['GET'])
 def index(request):
     canvas_user_id = request.LTI['custom_canvas_user_id']
@@ -36,7 +36,7 @@ def index(request):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@lti_permission_required(settings.PERMISSION_SEARCH_COURSES)
 @require_http_methods(['GET'])
 def partials(request, path):
     return render(request, 'course_info/partials/' + path, {})
@@ -44,7 +44,7 @@ def partials(request, path):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_ACCOUNT_ADMIN_TOOLS)
+@lti_permission_required(settings.PERMISSION_SEARCH_COURSES)
 @require_http_methods(['GET'])
 def clear_sis_id(request, canvas_course_id):
     return HttpResponse(clear_course_sis_id(canvas_course_id))
@@ -62,10 +62,10 @@ def _get_canvas_roles():
         user_roles = UserRole.objects.filter(pk__in=settings.ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST)
         for role in user_roles:
             label = canvas_roles[role.canvas_role_id]['label']
-            roles.append({'roleId': role.role_id,'roleName': label})
+            roles.append({'roleId': role.role_id, 'roleName': label})
     except CanvasAPIError:
         logger.exception("Failed to retrieve roles for the root account from Canvas API")
-    except:
+    except Exception:
         logger.exception("Unhandled exception in _get_canvas_roles; aborting.")
 
     roles.sort(key=lambda x: x['roleName'])
