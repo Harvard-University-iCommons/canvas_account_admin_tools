@@ -259,15 +259,8 @@ def _create_xlist_map(primary, secondary, created_by):
     xlist_map = XlistMap(primary_course_instance=primary, secondary_course_instance=secondary,
                          last_modified_by=created_by)
     xlist_map.save()
-
-    # Set sync to Canvas of primary
-    # primary = xlist_map.primary_course_instance
-    primary.sync_to_canvas = 1
-    primary.save(update_fields=['sync_to_canvas'])
     logger.info(
-        'Created XlistMap {} and ensured sync_to_canvas=1 for primary '
-        'course instance {}'.format(xlist_map.xlist_map_id,
-                                    primary.course_instance_id))
+        'Created XlistMap {} '.format(xlist_map.xlist_map_id))
 
 
 def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
