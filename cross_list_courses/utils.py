@@ -32,7 +32,7 @@ _messages = {
                                      'secondary.',
         'secondary_already_secondary': '{s_id} is currently cross-listed with '
                                        '{p_id} as its primary.',
-        'invalid input': 'Invalid value for primary {p_id} or secondary {p_id} '
+        'invalid input': 'Invalid value for primary {p_id} or secondary {s_id} '
     }
 
 
@@ -260,7 +260,8 @@ def _create_xlist_map(primary, secondary, created_by):
                          last_modified_by=created_by)
     xlist_map.save()
     logger.info(
-        'Created XlistMap {} '.format(xlist_map.xlist_map_id))
+        'Created XlistMap {} with primary {} and secondary {} '.format(xlist_map.xlist_map_id,
+                    xlist_map.primary_course_instance, xlist_map.secondary_course_instance))
 
 
 def _update_canvas_cross_listing(primary_sis_id, secondary_sis_id, request):
