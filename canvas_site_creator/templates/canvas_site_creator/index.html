@@ -81,6 +81,23 @@
                             {% verbatim %}
                             {{ courseInstanceModel.totalCoursesWithoutCanvasSiteWithExternal }} external)
                             {% endverbatim %}
+                            {% comment %} <br>
+                            <button type="button" class="btn btn-link pull-right" id="createSitesButton" ng-disabled="createDisabled()" ng-click="handleCreate($event)" data-href="{% url 'canvas_site_creator:course_selection' %}">Continue</button> {% endcomment %}
+                        </li>
+                        <li>
+                            <ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse"
+                                      when="{'0': '0 courses eligible for creation via Canvas Site Creator ',
+                                             '1': '1 course eligible for creation via Canvas Site Creator ',
+                                             'other': '{} courses eligible for creation via Canvas Site Creator '}">
+                            </ng-pluralize>
+                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite"
+                                      when="{'0': '0 iSites, ',
+                                             '1': '1 iSites, ',
+                                             'other': '{} iSites, '}">
+                            </ng-pluralize>
+                            {% verbatim %}
+                            {{ courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal }} external)
+                            {% endverbatim %}
                             <br>
                             <button type="button" class="btn btn-link pull-right" id="createSitesButton" ng-disabled="createDisabled()" ng-click="handleCreate($event)" data-href="{% url 'canvas_site_creator:course_selection' %}">Continue</button>
                         </li>

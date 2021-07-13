@@ -28,10 +28,10 @@
     <main ng-controller="CourseSelectionController">
         <p>
             <strong>
-                <span id="totalCourses">{{ course_instance_summary.recordsTotalWithoutCanvasSite }}</span>
-                course{{ course_instance_summary.recordsTotalWithoutCanvasSite|pluralize }}
-                ({{ course_instance_summary.recordsTotalWithoutCanvasSiteWithISite }} iSite{{ course_instance_summary.recordsTotalWithoutCanvasSiteWithISite|pluralize }},
-                {{ course_instance_summary.recordsTotalWithoutCanvasSiteWithExternal }} external) without Canvas sites for:
+                <span id="totalCourses">{{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse }}</span>
+                course{{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse|pluralize }}
+                ({{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithISite }} iSite{{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithISite|pluralize }},
+                {{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithExternal }} external) without Canvas sites for:
             </strong>
         </p>
         <p>
@@ -51,7 +51,7 @@
             <form id="createForm" action="{% url 'canvas_site_creator:create_job' %}" method="POST">{% csrf_token %}
                 <h2>
                     <span ng-hide="courseInstanceModel.getSelectedCourseIdsCount()">
-                        {{ course_instance_summary.recordsTotalWithoutCanvasSite }} course{{ course_instance_summary.recordsTotalWithoutCanvasSite|pluralize }}
+                        {{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse }} course{{ course_instance_summary.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse|pluralize }}
                     </span>
                     <ng-pluralize count="courseInstanceModel.getSelectedCourseIdsCount()"
                                   when="{'0': '',
