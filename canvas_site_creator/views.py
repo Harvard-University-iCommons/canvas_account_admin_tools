@@ -318,8 +318,10 @@ def create_job(request):
         else:
             account = filters['school']
 
-        # Retrieve all course instances for the given term and account that do not have Canvas course sites.
-        ci_query_set_without_canvas = get_course_instance_query_set(term, account).filter(canvas_course_id__isnull=True)
+        # Retrieve all course instances for the given term and account that do not have Canvas course sites
+        # nor are set to be fed into Canvas via the automated feed
+        ci_query_set_without_canvas = get_course_instance_query_set(term, account).filter(
+            canvas_course_id__isnull=True, sync_to_canvas=0)
 
         # Iterate through the query set to build a list of all the course instance id's
         # for a school/course_group/department, which course sites will be created for.
