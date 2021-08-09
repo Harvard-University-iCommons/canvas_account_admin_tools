@@ -24,6 +24,9 @@
             self.totalCoursesWithoutCanvasSite= 0;
             self.totalCoursesWithoutCanvasSiteWithISite = 0;
             self.totalCoursesWithoutCanvasSiteWithExternal = 0;
+            self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse = 0
+            self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite = 0
+            self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal = 0
         };
         self.initSummaryData();
 
@@ -91,6 +94,9 @@
                 self.totalCoursesWithoutCanvasSite = data.recordsTotalWithoutCanvasSite;
                 self.totalCoursesWithoutCanvasSiteWithISite = data.recordsTotalWithoutCanvasSiteWithISite;
                 self.totalCoursesWithoutCanvasSiteWithExternal = data.recordsTotalWithoutCanvasSiteWithExternal;
+                self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse;
+                self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithISite;
+                self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithExternal;
             }).error(function (data, status, headers, config) {
                 // status == 0 indicates that the request was cancelled,
                 // which means that (a) the user navigated away from the
