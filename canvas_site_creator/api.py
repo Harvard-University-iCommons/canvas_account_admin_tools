@@ -352,10 +352,8 @@ def course_instances(request, sis_term_id, sis_account_id):
         order_by_operator = '-' if sort_dir == 'desc' else ''
         query_set = query_set.order_by(order_by_operator + COURSE_INSTANCE_DATA_FIELDS[sort_index])
 
-        # fixes TLT-1570 where courses that already have a Canvas course were showing up
-        # in the create list
-        query_set = query_set.exclude(canvas_course_id__isnull=False)
-
+        # Exclude courses that are automatically fed to Canvas and already have a Canvas site
+        query_set = query_set.exclude(sync_to_canvas=1).exclude(canvas_course_id__isnull=False)
         result = get_course_instance_summary_data(query_set)
 
         data = []
