@@ -122,5 +122,13 @@ SELENIUM_CONFIG = {
    'use_htmlrunner': SECURE_SETTINGS.get('selenium_use_htmlrunner', True),
 }
 
-# make sure dictConfig(LOGGING) stays at the bottom of the file
+# Logging
+
+# Log to console instead of a file when running locally
+LOGGING['handlers']['default'] = {
+    'level': logging.DEBUG,
+    'class': 'logging.StreamHandler',
+    'formatter': 'simple',
+}
+
 dictConfig(LOGGING)

@@ -17,6 +17,7 @@ import logging
 from django.urls import reverse_lazy
 import time
 from dj_secure_settings.loader import load_secure_settings
+from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
 
 SECURE_SETTINGS = load_secure_settings()
 
@@ -78,7 +79,8 @@ INSTALLED_APPS = [
     'bulk_course_settings',
     'canvas_site_deletion',
     'masquerade_tool',
-    'rest_framework'
+    'rest_framework',
+    'watchman'
 ]
 
 
@@ -94,6 +96,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
 FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
@@ -131,7 +134,6 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_MIGRATION_WHITELIST = ['default']
 DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
-COURSE_SCHEMA_DB_NAME = 'coursemanager'
 
 DATABASES = {
     'default': {
@@ -235,52 +237,75 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
 # Logging
-# https://docs.djangoproject.com/en/1.8/topics/logging/#configuring-logging
+# https://docs.djangoproject.com/en/2.2/topics/logging/#configuring-logging
 
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
-
-# Turn off default Django logging
-# https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
-LOGGING_CONFIG = None
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
             'datefmt': '%Y-%m-%dT%H:%M:%S'
+        },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': JSON_LOG_FORMAT,
         },
         'simple': {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
     'filters': {
+        'context': {
+            '()': 'icommons_common.logging.ContextFilter',
+            'env': SECURE_SETTINGS.get('env_name'),
+            'project': 'canvas_account_admin_tools',
+            'department': 'uw',
+        },
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         },
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
-        },
+        }
     },
     'handlers': {
-        # Log to a text file that can be rotated by logrotate
         'default': {
-            'class': 'logging.handlers.WatchedFileHandler',
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'django-canvas_account_admin_tools',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-canvas_account_admin_tools.log'),
+            'filters': ['context'],
+        },
+        'gunicorn': {
+            'class': 'splunk_handler.SplunkHandler',
+            'formatter': 'json',
+            'sourcetype': 'json',
+            'source': 'gunicorn-canvas_manage_course',
+            'host': 'http-inputs-harvard.splunkcloud.com',
+            'port': '443',
+            'index': 'soc-isites',
+            'token': SECURE_SETTINGS['splunk_token'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'filters': ['context'],
         },
         'console': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
             'filters': ['require_debug_true'],
-        },
+        }
     },
     # This is the default logger for any apps or libraries that use the logger
     # package, but are not represented in the `loggers` dict below.  A level
@@ -293,6 +318,11 @@ LOGGING = {
         'handlers': ['console', 'default'],
     },
     'loggers': {
+        'gunicorn': {
+            'handlers': ['gunicorn', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'bulk_utilities': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
@@ -473,3 +503,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
+
+WATCHMAN_TOKENS = SECURE_SETTINGS['watchman_token']
+WATCHMAN_TOKEN_NAME = SECURE_SETTINGS['watchman_token_name']
+WATCHMAN_CHECKS = (
+    'watchman.checks.databases',
+    'watchman.checks.caches',
+)
