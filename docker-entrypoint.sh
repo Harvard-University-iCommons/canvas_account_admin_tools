@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 ./python_venv/bin/python3 manage.py migrate                  # Apply database migrations
