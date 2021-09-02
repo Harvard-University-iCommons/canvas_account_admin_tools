@@ -244,6 +244,11 @@
             sc.courseInstance['members'] = response.data.count;
         };
 
+        sc.isPrimaryCourse = function() {
+            return (sc.courseInstance.xlist_status &&
+                sc.courseInstance.xlist_status === 'Primary')
+        }
+
         sc.isCourseInstanceEditable = function(courseRegistrarCode) {
             // TLT-2376: sandbox and ILE courses are editable, and are
             // identified by their course (registrar) code
