@@ -95,7 +95,7 @@
             </div>
             <hr>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-if="sc.isPrimaryCourse()">
           <div class="col-sm-8 col-sm-offset-1">
             <label class="sr-only" for="newAssociatedCourseURL">
               New associated course URL
@@ -124,6 +124,11 @@
               </span>
             </button>
           </div>
+        </div>
+        <div ng-if="!sc.isPrimaryCourse()">
+          <span>
+            <strong>Sites cannot be associated with secondarily-crosslisted courses.</strong>
+          </span>
         </div>
         <div class="form-group"
              ng-if="sc.alertPresent('form', 'siteOperationFailed')">
