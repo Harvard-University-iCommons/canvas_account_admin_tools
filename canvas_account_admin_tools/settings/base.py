@@ -292,7 +292,7 @@ LOGGING = {
             'class': 'splunk_handler.SplunkHandler',
             'formatter': 'json',
             'sourcetype': 'json',
-            'source': 'gunicorn-canvas_manage_course',
+            'source': 'gunicorn-canvas_account_admin_tools',
             'host': 'http-inputs-harvard.splunkcloud.com',
             'port': '443',
             'index': 'soc-isites',
