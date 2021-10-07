@@ -510,3 +510,8 @@ WATCHMAN_CHECKS = (
     'watchman.checks.databases',
     'watchman.checks.caches',
 )
+
+try:
+    from build_info import BUILD_INFO
+except ImportError:
+    BUILD_INFO = {}

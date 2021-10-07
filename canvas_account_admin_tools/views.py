@@ -86,6 +86,7 @@ def dashboard_account(request):
     logger.info(request.LTI)
     custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
+    build_info = settings.BUILD_INFO
 
     """
     Verify that the current user has permission to see the Search Courses (aka course_info) tool
@@ -154,6 +155,7 @@ def dashboard_account(request):
         'bulk_course_settings_is_allowed': bulk_course_settings_is_allowed,
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
+        'build_info': build_info
     })
 
 
