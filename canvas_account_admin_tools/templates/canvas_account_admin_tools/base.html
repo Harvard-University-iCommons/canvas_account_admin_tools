@@ -21,4 +21,8 @@
         <script src="https://static.tlt.harvard.edu/shared/bootstrap-3.3.6/dist/js/bootstrap.min.js"></script>
         {% block javascript %}{% endblock javascript %}
     </body>
+    {# Place build information into a HTML comment to avoid cluttering the page for users #}
+    {% if build_info %}
+        <!-- BUILD INFO: {{ build_info.image_tag }} | {{ build_info.image_hash_tag }} | {{ build_info.build_timestamp }} -->
+    {% endif %}
 </html>

@@ -3,6 +3,7 @@ from logging.config import dictConfig
 
 # tlt hostnames
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
+ALLOWED_CIDR_NETS = [SECURE_SETTINGS.get('vpc_cidr_block')]
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECURE_SETTINGS['django_secret_key']
@@ -21,7 +22,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
 EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
 
-#Store static files in S3
+# Store static files in S3
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = SECURE_SETTINGS.get('static_files_s3_bucket')
 AWS_QUERYSTRING_AUTH = False

@@ -3,6 +3,7 @@ from django.urls import include, path, re_path
 
 from canvas_account_admin_tools import views
 from icommons_ui import views as icommons_ui_views
+import watchman.views
 
 urlpatterns = [
     path('account_dashboard', views.dashboard_account, name='dashboard_account'),
@@ -19,6 +20,8 @@ urlpatterns = [
     path('canvas_site_deletion/', include(('canvas_site_deletion.urls', 'canvas_site_deletion'), namespace='canvas_site_deletion')),
     path('masquerade_tool/', include(('masquerade_tool.urls', 'masquerade_tool'), namespace='masquerade_tool')),
     path('tool_config/', views.tool_config, name='tool_config'),
+    path('w/', include('watchman.urls')),
+    re_path(r'^status/?$', watchman.views.bare_status),
 ]
 
 if settings.DEBUG:
