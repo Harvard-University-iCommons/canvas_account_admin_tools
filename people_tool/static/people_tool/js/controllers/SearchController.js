@@ -12,7 +12,7 @@
             // `key` is the query key name to use with the $scope.queryString
             // `name` is the description to use for option labeling
             // `maxlength` is the max length allowed by the backend
-            {key:'univ_id', name:'HUID or XID', maxLength:32},
+            {key:'univ_id', name:'HUID or HKL', maxLength:32},
             {key:'email_address', name:'Email Address', maxLength:284},
             {key:'search', name:'First OR Last Name', maxLength:30}
         ];
@@ -86,11 +86,11 @@
             return 'Untitled Course';
         };
         $scope.renderId = function(data, type, full, meta) {
-            // If the univ_id is an 8 digit number, display the HUID badge, else display XID
+            // If the univ_id is an 8 digit number, display the HUID badge, else display HKL
             if (Number(full.univ_id) && full.univ_id.length == 8) {
                 return '<span class="label label-danger">HUID</span> ' + full.univ_id;
             } else {
-                return '<span class="label label-primary">XID</span> ' + full.univ_id;
+                return '<span class="label label-primary">HKL</span> ' + full.univ_id;
             }
         };
         $scope.renderPersonCoursesLink = function(data, type, full, meta) {
