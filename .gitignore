@@ -20,3 +20,5 @@ selenium_tests/reports/
 sqlnet.log
 parameters.*
 secure.*
+.venv/
+.vscode/
