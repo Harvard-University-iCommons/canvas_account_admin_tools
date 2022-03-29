@@ -50,21 +50,35 @@ def add_role(request):
             FunctionName=FUNCTION_ARN,
             Payload=json.dumps(payload),
         )
-        logger.info('lambda FUNCTION_ARN={}, result = {}'.format(FUNCTION_ARN, result))
         invoke_status = result['ResponseMetadata']['HTTPStatusCode']
-        response_payload = json.loads(result['Payload'].read().decode("utf-8"))
+        logger_method = logger.info if str(invoke_status) == '200' else logger.error
+        logger_method(
+            f"lambda FUNCTION_ARN={FUNCTION_ARN} "
+            f"status={invoke_status} "
+            f"result={result}",
+            extra={"invoke_status": invoke_status, "result": result}
+        )
 
-        status = response_payload["status"]
+        response_payload = json.loads(result['Payload'].read().decode("utf-8"))
+        status = response_payload.get("status")
+
+        if status is None or str(status) == 'error':
+            raise(ValueError(f'Unexpected status={status}; response_payload={response_payload}'))
+
+        logger.info(' payload response =  {}'.format(response_payload))
+
         exp_dt = None
         # Check if 'expires' is being sent. If role already exists, expires won't be set.
         if "expires" in response_payload:
             exp_dt = dateutil.parser.isoparse(response_payload["expires"])
-
-        logger.info(' payload response =  {}'.format(response_payload))
         context = {'expiry_time': exp_dt, 'status': status, 'session_mins': MASQUERADE_SESSION_MINS}
+
     except Exception as e:
-        logger.error("Error while processing request from {}".
-                     format(request.get('lis_person_name_full', '(list_person_name_full missing from LTI context)')))
+        requestor_name = getattr(request, 'LTI', {}).get(
+            'lis_person_name_full',
+            '(list_person_name_full missing from LTI context)'
+        )
+        logger.error(f"Error while processing request from {requestor_name}")
         logger.exception(e)
         return render(request, 'masquerade_tool/error.html', context)
 

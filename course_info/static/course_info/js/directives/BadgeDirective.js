@@ -15,7 +15,7 @@
                     EMPLOYEE: 'HUID',
                     STUDENT: 'HUID',
                     WIDENER: 'LIBRARY',
-                    XIDHOLDER: 'XID',
+                    XIDHOLDER: 'HKL',
                 };
                 $scope.roleToBadge = function(role) {
                     return $scope.roleToBadgeMap[role] || 'OTHER';
@@ -24,7 +24,7 @@
                 // get the css class we want for a badge
                 $scope.badgeToClassMap = {
                     HUID: 'label-danger',
-                    XID: 'label-primary',
+                    HKL: 'label-primary',
                     LIBRARY: 'label-success',
                     OTHER: 'label-warning',
                 }
