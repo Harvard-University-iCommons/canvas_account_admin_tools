@@ -11,6 +11,7 @@ from canvas_sdk.methods.accounts import (
     list_accounts,
 )
 from canvas_sdk.utils import get_all_list_data
+from canvas_sdk.exceptions import CanvasAPIError
 
 
 logger = logging.getLogger(__name__)
@@ -43,8 +44,17 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
         # role for all the assigned accounts
         allowed_accounts = {}
         for account in assigned_accounts:
-            admins = get_all_list_data(SDK_CONTEXT, list_account_admins,
-                                       account['id'], user_id=canvas_user_id)
+            if account['id'] > 100000:
+                # when a Canvas Trust is active, accounts from the remote end will have the shard prefix; we wnat to skip these
+                logger.info(f"skipping remote Trust account {account['id']}")
+                continue
+
+            try:
+                admins = get_all_list_data(SDK_CONTEXT, list_account_admins,
+                                           account['id'], user_id=canvas_user_id)
+            except CanvasAPIError:
+                logger.exception(f"Failed to retrieve admins for account {account['id']}")
+                continue
 
             if allowed_roles.intersection({a['role'] for a in admins}):
                 allowed_accounts[account['id']] = account
