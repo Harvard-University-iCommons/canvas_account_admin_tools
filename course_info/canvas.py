@@ -45,7 +45,7 @@ def get_administered_school_accounts(canvas_user_id, allowed_roles=ADMINISTRATOR
         allowed_accounts = {}
         for account in assigned_accounts:
             if account['id'] > 100000:
-                # when a Canvas Trust is active, accounts from the remote end will have the shard prefix; we wnat to skip these
+                # when a Canvas Trust is active, accounts from the remote end will have the shard prefix; we want to skip these
                 logger.info(f"skipping remote Trust account {account['id']}")
                 continue
 
