@@ -325,52 +325,52 @@ LOGGING = {
         },
         'bulk_utilities': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_account_admin_tools': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_course_site_wizard': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_site_creator': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_site_deletion': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'masquerade_tool': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'cross_list_courses': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'publish_courses': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'bulk_course_settings': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'rq.worker': {
@@ -380,7 +380,12 @@ LOGGING = {
         },
         'canvas_sdk': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'django_auth_lti': {
+            'level': logging.ERROR,
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
 
