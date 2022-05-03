@@ -56,6 +56,7 @@ def _get_canvas_roles():
     create a list in the format the front end wants.
     :return:
     """
+    logger.debug(f"called _get_canvas_roles()")
     roles = []
     try:
         canvas_roles = canvas_api_helpers_roles.get_roles_for_account_id('self')
@@ -69,12 +70,14 @@ def _get_canvas_roles():
         logger.exception("Unhandled exception in _get_canvas_roles; aborting.")
 
     roles.sort(key=lambda x: x['roleName'])
-
+    logger.debug(f"returning roles: {roles}")
     return json.dumps(roles)
 
 
 def _get_schools_context(canvas_user_id):
+    logger.debug(f"called _get_schools_context({canvas_user_id})")
     accounts = get_administered_school_accounts(canvas_user_id)
+    logger.debug(f"found accounts: {accounts}")
     schools = [{
                     'key': 'school',
                     'value': a['sis_account_id'].split(':')[1],
@@ -83,4 +86,5 @@ def _get_schools_context(canvas_user_id):
                     'text': a['name'] + ' <span class="caret"></span>',
                 } for a in accounts]
     schools = sorted(schools, key=lambda s: s['name'].lower())
+    logger.debug(f"returning schools: {schools}")
     return json.dumps(schools)
