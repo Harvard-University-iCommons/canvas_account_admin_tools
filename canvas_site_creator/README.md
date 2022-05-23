@@ -13,7 +13,7 @@ Each batch is recorded in the `bulk_canvas_course_crtn_job` table, and each site
     setup ---> pending
     pending ---> finalizing
     finalizing ---> notification_successful
-    finalizing --error-> notification_failed
+    finalizing -- error --> notification_failed
 ```
 
 ## Task workflow steps
@@ -21,11 +21,11 @@ Each batch is recorded in the `bulk_canvas_course_crtn_job` table, and each site
 ```mermaid
     graph LR;
     setup ---> queued
-    setup --error-> setup_failed
+    setup -- error --> setup_failed
     queued ---> running
     running ---> completed
-    running --error-> failed
+    running -- error --> failed
     completed ---> pending_finalize
     pending_finalize ---> finalized
-    pending_finalize --error-> finalize_failed
+    pending_finalize -- error --> finalize_failed
 ```
