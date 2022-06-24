@@ -1,4 +1,4 @@
-Django==2.2.24
+Django==2.2.28
 cx-Oracle==7.2.2
 boto3==1.18.54
 
@@ -20,7 +20,7 @@ django-rq==2.1.0
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v2.5#egg=django-icommons-common[async_operations]==2.5
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v2.2.3#egg=django-canvas-course-site-wizard==2.2.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v2.2.4#egg=django-canvas-course-site-wizard==2.2.4
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.0.1#egg=django-auth-lti==2.0.1
 
@@ -32,12 +32,12 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v
 
 hiredis==1.0.0
 kitchen==1.2.4
-psycopg2==2.7.4
+psycopg2==2.8.6
 redis==3.3.8
-
+urllib3>=1.26
 requests==2.26.0
 simplejson==3.10.0
-git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.3#egg=django-ssm-parameter-store==0.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.6#egg=django-ssm-parameter-store==0.6
 
 splunk_handler==3.0.0
 python-json-logger==2.0.2

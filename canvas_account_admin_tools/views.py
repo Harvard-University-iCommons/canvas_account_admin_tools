@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
 def tool_config(request):
+    logger.debug("called tool_config()")
     url = "https://{}{}".format(request.get_host(), reverse('lti_launch'))
     url = _url(url)
 
