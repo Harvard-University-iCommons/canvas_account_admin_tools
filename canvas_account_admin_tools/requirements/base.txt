@@ -5,7 +5,7 @@ boto3==1.24.2
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
 # new copies of django-angular[.min].js.
-django-angular==2.3
+git+ssh://git@github.com/Harvard-University-iCommons/django-angular.git@v2.3#egg=django-angular==2.3
 django-cached-authentication-middleware==0.2.2
 
 django-proxy==1.2.1
