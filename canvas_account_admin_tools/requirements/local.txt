@@ -5,6 +5,7 @@
 
 # below are requirements specific to the local environment
 
+django-debug-toolbar==3.5.0
 ddt==1.5.0
 django-extensions==3.1.5 # provides `runserver_plus` local dev server
 pyOpenSSL==22.0.0 # dependency for django-extensions
