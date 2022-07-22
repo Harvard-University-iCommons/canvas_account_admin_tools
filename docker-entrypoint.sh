@@ -1,7 +1,7 @@
 #!/bin/sh
 
-./python_venv/bin/python3 manage.py migrate                  # Apply database migrations
-./python_venv/bin/python3 manage.py collectstatic --noinput  # Collect static files
+./python_venv/bin/python manage.py migrate                  # Apply database migrations
+./python_venv/bin/python manage.py collectstatic --noinput  # Collect static files
 
 # Start Gunicorn processes
 echo Starting Gunicorn.

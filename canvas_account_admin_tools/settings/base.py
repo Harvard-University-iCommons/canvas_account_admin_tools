@@ -99,8 +99,6 @@ MIDDLEWARE = [
     'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
-FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
-
 AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
