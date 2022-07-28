@@ -1,18 +1,22 @@
 import logging
 
+from canvas_sdk import RequestContext
+from canvas_sdk.methods import courses, sections
+from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import CourseInstance, SiteMap, CourseSite
+from icommons_common.models import CourseInstance, CourseSite, SiteMap
 from lti_permissions.decorators import lti_permission_required
+from canvas_sdk.exceptions import CanvasAPIError
 
 logger = logging.getLogger(__name__)
 
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -50,20 +54,52 @@ def lookup(request):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
 @require_http_methods(['GET', 'POST'])
-def delete(request, pk):
+def delete(request, course_instance_id):
     try:
-        ci = CourseInstance.objects.get(course_instance_id=pk)
+        ci = CourseInstance.objects.get(course_instance_id=course_instance_id)
+        canvas_course_id = ci.canvas_course_id
+
+        if not canvas_course_id:
+            # the course_instance specified doesn't appear to have a Canvas course
+            logger.error(f'User {request.user} is trying to delete the Canvas site associated with course_instance {course_instance_id} but it has no canvas_course_id')
+            messages.error(f'Course instance {course_instance_id} does not have an associated Canvas site -- cannot delete.')
+            return render(request, 'canvas_site_deletion/index.html')
+
+        # turn off sync_to_canvas and remove canvas_course_id
+        logger.info('Turning off sync_to_canvas and removing canvas_course_id {} from course instance {}'.format(ci.canvas_course_id,
+                                                                                   ci.course_instance_id))
+        ci.sync_to_canvas = 0
+        ci.canvas_course_id = None
+        ci.save()
+
+        # change the course/section SIS IDs and then delete the courses and sections
+        try:
+            canvas_course = courses.get_single_course_courses(SDK_CONTEXT, id=canvas_course_id)
+            courses.update_course(SDK_CONTEXT, id=canvas_course.id, course_sis_course_id=f'{canvas_course.sis_course_id}-deleted')
+            canvas_sections = get_all_list_data(SDK_CONTEXT, sections.list_course_sections, canvas_course_id)
+            for s in canvas_sections:
+                sections.edit_section(
+                    SDK_CONTEXT,
+                    id=s.id,
+                    course_section_sis_section_id=f'{s.sis_section_id}-deleted'
+                )
+                sections.delete_section(id=s.id)
+                logger.info(f'Changed section {s.id} SIS ID to {s.sis_section_id}-deleted and then deleted the section')
+            courses.conclude_course(SDK_CONTEXT, id=canvas_course.id, event='delete')
+            logger.info(f'Changed course {canvas_course.id} SIS ID to {canvas_course.sis_course_id}-deleted and then deleted the course')
+        except CanvasAPIError e:
+            logger.exception(f'Failed to clean up Canvas course/sections for Canvas course ID {canvas_course_id}')
 
         # fetch course sites and site_map data
         try:
-            site_maps = SiteMap.objects.filter(course_instance=pk, map_type_id='official')
-            for site in site_maps:
+            site_maps = SiteMap.objects.filter(course_instance=course_instance_id, map_type_id='official')
+            for site_map in site_maps:
 
-                if (settings.CANVAS_URL in site.course_site.external_id) and (str(ci.canvas_course_id) in site.course_site.external_id):
-                    logger.debug('Found Canvas site associated with course : {}'.format(site.course_site.external_id))
+                if (settings.CANVAS_URL in site_map.course_site.external_id) and (str(ci.canvas_course_id) in site_map.course_site.external_id):
+                    logger.debug('Found Canvas site associated with course : {}'.format(site_map.course_site.external_id))
 
                     # Lookup the CourseSite
-                    course_site_queryset = CourseSite.objects.filter(course_site_id=site.course_site_id)
+                    course_site_queryset = CourseSite.objects.filter(course_site_id=site_map.course_site_id)
                     logger.debug('Number of Courses from CourseSite table is %s', course_site_queryset.count())
                     # 1. delete course site
                     logger.info('User {} is deleting the following course sites {}, from course instance {}'.format(
@@ -72,29 +108,21 @@ def delete(request, pk):
                     # 2. delete site map
                     logger.info('Deleting site map with the follow details, site map ID:{}, '
                                 'course instance ID:{}, course site id:{}, '
-                                'map type: {}'.format(site.site_map_id, site.course_instance.course_instance_id,
-                                                      site.course_site.course_site_id, site.map_type))
-                    site.delete()
+                                'map type: {}'.format(site_map.site_map_id, site_map.course_instance.course_instance_id,
+                                                      site_map.course_site.course_site_id, site_map.map_type))
+                    site_map.delete()
 
         except Exception as e:
-            logger.error('Error in deleting Course site or Site map , error:%s' % e)
+            logger.error(f'Error removing associated site_map/course_site from {course_instance_id}, error: {e}')
 
-        # 3. cleanup the canvas course id
-        logger.info('Removing canvas course ID:{} from course instance: {}'.format(ci.canvas_course_id,
-                                                                                   ci.course_instance_id))
-        ci.canvas_course_id = None
-        ci.save()
 
     except Exception as e:
         logger.exception('Could not cleanup  the course instance for Canvas '
-                         'course instance id %s.' % pk)
+                         'course instance id %s.' % course_instance_id)
         logger.exception(e)
-        messages.error(request, 'Unable to delete cleanup course instance id {}.'.format(pk))
+        messages.error(request, 'Unable to cleanup course instance id {}.'.format(course_instance_id))
 
-    messages.success(request, "Successfully cleaned up  the Course Site for course_instance_id: {}"
-                     .format(pk))
+    messages.success(request, "Successfully cleaned up the Course Site for course_instance_id: {}"
+                     .format(course_instance_id))
 
     return render(request, 'canvas_site_deletion/index.html')
-
-
-
