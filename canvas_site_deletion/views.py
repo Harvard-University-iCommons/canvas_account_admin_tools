@@ -1,4 +1,5 @@
 import logging
+import time
 
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
@@ -58,6 +59,7 @@ def delete(request, pk):
     try:
         ci = CourseInstance.objects.get(course_instance_id=pk)
         canvas_course_id = ci.canvas_course_id
+        ts = int(time.time())
 
         if not canvas_course_id:
             # the course_instance specified doesn't appear to have a Canvas course
@@ -66,7 +68,7 @@ def delete(request, pk):
             return render(request, 'canvas_site_deletion/index.html')
 
         # turn off sync_to_canvas and remove canvas_course_id
-        logger.info('Turning off sync_to_canvas and removing canvas_course_id {} from course instance {}'.format(ci.canvas_course_id,
+        logger.info('Step 1/4: turning off sync_to_canvas and removing canvas_course_id {} from course instance {}'.format(ci.canvas_course_id,
                                                                                    ci.course_instance_id))
         ci.sync_to_canvas = 0
         ci.canvas_course_id = None
@@ -75,23 +77,25 @@ def delete(request, pk):
         # change the course/section SIS IDs and then delete the courses and sections
         try:
             canvas_course = courses.get_single_course_courses(SDK_CONTEXT, id=canvas_course_id).json()
-            courses.update_course(SDK_CONTEXT, id=canvas_course_id, course_sis_course_id=f'{canvas_course["sis_course_id"]}-deleted')
             canvas_sections = get_all_list_data(SDK_CONTEXT, sections.list_course_sections, canvas_course_id)
             for s in canvas_sections:
+                logger.info(f'Step 2/4: changing section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted-{ts} and then deleting the section')
                 sections.edit_section(
                     SDK_CONTEXT,
                     id=s['id'],
-                    course_section_sis_section_id=f'{s["sis_section_id"]}-deleted'
+                    course_section_sis_section_id=f'{s["sis_section_id"]}-deleted-{ts}'
                 )
                 sections.delete_section(SDK_CONTEXT, id=s['id'])
-                logger.info(f'Changed section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted and then deleted the section')
+
+            logger.info(f'Step 3/4: changing course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted-{ts} and then deleting the course')
+            courses.update_course(SDK_CONTEXT, id=canvas_course_id, course_sis_course_id=f'{canvas_course["sis_course_id"]}-deleted-{ts}')
             courses.conclude_course(SDK_CONTEXT, id=canvas_course_id, event='delete')
-            logger.info(f'Changed course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted and then deleted the course')
         except CanvasAPIError as e:
             logger.exception(f'Failed to clean up Canvas course/sections for Canvas course ID {canvas_course_id}')
 
         # fetch course sites and site_map data
         try:
+            logger.info(f'Step 4/4: deleting site_map and course_site records associated with course instance {pk}')
             site_maps = SiteMap.objects.filter(course_instance=pk, map_type_id='official')
             for site_map in site_maps:
 
