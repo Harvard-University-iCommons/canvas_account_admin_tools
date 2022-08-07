@@ -6,13 +6,15 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
+from django.utils.text import Truncator
 from django.views.decorators.http import require_http_methods
-
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import XlistMap, CsXlistMapOverview, SimplePerson, CourseInstance
+from icommons_common.models import (CourseInstance, CsXlistMapOverview,
+                                    SimplePerson, XlistMap)
 from lti_permissions.decorators import lti_permission_required
+
 from .utils import create_crosslisting_pair, remove_cross_listing
 
 logger = logging.getLogger(__name__)
@@ -123,11 +125,11 @@ def get_ci_data(request):
             course_json = {}
             course_json['id'] = str(course.course_instance_id)
             course_json['label'] = '{}{} {} [{}, {}]'.format(course.title,
-                                                          ': '+course.sub_title[:40]+'...' if course.sub_title else '',
+                                                          ': ' + Truncator(course.sub_title).chars(75) if course.sub_title else '',
                                                           course.section if course.section else '',
                                                           course.term.school_id.upper(), course.term.display_name)
             course_json['value'] = '{}{}{} [{}, {}]'.format(course.course_instance_id, ': '+course.title,
-                                                            ': '+course.sub_title[:40]+'...' if course.sub_title else '',
+                                                            ': ' + Truncator(course.sub_title).chars(75) if course.sub_title else '',
                                                             course.term.school_id.upper(), course.term.display_name)
 
             results.append(course_json)
