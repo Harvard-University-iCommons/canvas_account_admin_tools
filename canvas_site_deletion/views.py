@@ -79,13 +79,12 @@ def delete(request, pk):
             canvas_course = courses.get_single_course_courses(SDK_CONTEXT, id=canvas_course_id).json()
             canvas_sections = get_all_list_data(SDK_CONTEXT, sections.list_course_sections, canvas_course_id)
             for s in canvas_sections:
-                logger.info(f'Step 2/4: changing section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted-{ts} and then deleting the section')
+                logger.info(f'Step 2/4: changing section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted-{ts}')
                 sections.edit_section(
                     SDK_CONTEXT,
                     id=s['id'],
                     course_section_sis_section_id=f'{s["sis_section_id"]}-deleted-{ts}'
                 )
-                sections.delete_section(SDK_CONTEXT, id=s['id'])
 
             logger.info(f'Step 3/4: changing course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted-{ts} and then deleting the course')
             courses.update_course(SDK_CONTEXT, id=canvas_course_id, course_sis_course_id=f'{canvas_course["sis_course_id"]}-deleted-{ts}')
