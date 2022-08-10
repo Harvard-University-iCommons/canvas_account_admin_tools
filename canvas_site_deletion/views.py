@@ -35,16 +35,44 @@ def index(request):
 def lookup(request):
     course_search_term = request.POST.get('course_search_term')
     course_search_term = course_search_term.strip()
-    context = {}
+    context = {
+        'canvas_url': settings.CANVAS_URL,
+        'abort': False,
+    }
 
     if course_search_term.isnumeric():
         try:
             ci = CourseInstance.objects.get(course_instance_id=course_search_term)
             context['course_instance'] = ci
+
+            if ci.canvas_course_id:
+                # get the Canvas course and make sure that the SIS ID matches
+                response = courses.get_single_course_courses(SDK_CONTEXT, id=ci.canvas_course_id)
+                if response.status_code == 200:
+                    cc = response.json()
+                else:
+                    logger.error(f'Could not retrieve Canvas course {ci.canvas_course_id}')
+                    messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}')
+                    context['abort'] = True
+
+                if ci.course_instance_id != int(cc['sis_course_id']):
+                    logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                    messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas course SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                    context['abort'] = True
+            else:
+                logger.error(f'Course instance {ci.course_instance_id} does not have a Canvas course ID set.')
+                messages.error(request, f'Course instance {ci.course_instance_id} does not have a Canvas course ID set. Cannot continue.')
+                context['abort'] = True
+
         except CourseInstance.DoesNotExist:
             logger.exception('Could not determine the course instance for Canvas '
                              'course instance id %s' % course_search_term)
             messages.error(request, 'Could not find a Course Instance from search term')
+            context['abort'] = True
+        except CanvasAPIError:
+            logger.exception(f'Could not find Canvas course {ci.canvas_course_id} via Canvas API')
+            messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}. Aborting.')
+            context['abort'] = True
     else:
         messages.error(request, 'Search term must be populated and may only be numbers')
 
@@ -68,7 +96,7 @@ def delete(request, pk):
             return render(request, 'canvas_site_deletion/index.html')
 
         # turn off sync_to_canvas and remove canvas_course_id
-        logger.info('Step 1/4: turning off sync_to_canvas and removing canvas_course_id {} from course instance {}'.format(ci.canvas_course_id,
+        logger.info('Step 1/5: turning off sync_to_canvas and removing canvas_course_id {} from course instance {}'.format(ci.canvas_course_id,
                                                                                    ci.course_instance_id))
         ci.sync_to_canvas = 0
         ci.canvas_course_id = None
@@ -79,22 +107,23 @@ def delete(request, pk):
             canvas_course = courses.get_single_course_courses(SDK_CONTEXT, id=canvas_course_id).json()
             canvas_sections = get_all_list_data(SDK_CONTEXT, sections.list_course_sections, canvas_course_id)
             for s in canvas_sections:
-                logger.info(f'Step 2/4: changing section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted-{ts}')
+                logger.info(f'Step 2/5: changing section {s["id"]} SIS ID to {s["sis_section_id"]}-deleted-{ts}')
                 sections.edit_section(
                     SDK_CONTEXT,
                     id=s['id'],
                     course_section_sis_section_id=f'{s["sis_section_id"]}-deleted-{ts}'
                 )
 
-            logger.info(f'Step 3/4: changing course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted-{ts} and then deleting the course')
+            logger.info(f'Step 3/5: changing course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted-{ts} and then deleting the course')
             courses.update_course(SDK_CONTEXT, id=canvas_course_id, course_sis_course_id=f'{canvas_course["sis_course_id"]}-deleted-{ts}')
+            logger.info(f'Step 4/5: deleting Canvas course {canvas_course_id}')
             courses.conclude_course(SDK_CONTEXT, id=canvas_course_id, event='delete')
         except CanvasAPIError as e:
             logger.exception(f'Failed to clean up Canvas course/sections for Canvas course ID {canvas_course_id}')
 
         # fetch course sites and site_map data
         try:
-            logger.info(f'Step 4/4: deleting site_map and course_site records associated with course instance {pk}')
+            logger.info(f'Step 5/5: deleting site_map and course_site records associated with course instance {pk}')
             site_maps = SiteMap.objects.filter(course_instance=pk, map_type_id='official')
             for site_map in site_maps:
 
@@ -125,7 +154,6 @@ def delete(request, pk):
         logger.exception(e)
         messages.error(request, 'Unable to cleanup course instance id {}.'.format(pk))
 
-    messages.success(request, "Successfully cleaned up the Course Site for course_instance_id: {}"
-                     .format(pk))
+    messages.success(request, f"Successfully deleted Canvas course {canvas_course_id} and cleaned up course_instance {pk}")
 
     return render(request, 'canvas_site_deletion/index.html')
