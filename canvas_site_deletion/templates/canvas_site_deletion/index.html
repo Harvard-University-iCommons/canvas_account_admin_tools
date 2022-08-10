@@ -28,7 +28,7 @@
     <br><br>
     <div class="row">
         <div class="col-sm-6">
-            <b>Enter a SIS Course Id to lookup a course :</b>
+            <b>Enter an SIS Course Id to lookup a course:</b>
         </div>
     </div>
     <br>
@@ -45,21 +45,35 @@
         </form>
     </div>
     <br>
-    {% if course_instance %}
+    {% if course_instance and abort is False %}
+        <h3>Confirm the Canvas site to be deleted:</h3>
             <table class="table table-striped table-hover">
-                <caption><b>Course Data for {{course_instance.course_instance_id}} </b></caption>
+                <tr> <th>Canvas course ID</th><td><a href="{{ canvas_url }}/courses/{{ course_instance.canvas_course_id}}" target="_new">{{course_instance.canvas_course_id}}</a></td></tr>
                 <tr> <th>School</th><td>{{course_instance.term.school.school_id|upper }}</td></tr>
-
                 <tr> <th>Title</th><td>{{course_instance.title}}</td></tr>
-                <tr> <th>Short Title</th><td>{{course_instance.short_title}}</td></tr>
-                <tr> <th> course_instance_id</th><td>{{course_instance.course_instance_id}}</td></tr>
-                <tr> <th>Sync To Canvas</th><td>{{course_instance.sync_to_canvas}}</td></tr>
+                {% if course_instance.short_title %}
+                    <tr> <th>Short title</th><td>{{course_instance.short_title}}</td></tr>
+                {% endif %}
+                {% if course_instance.sub_title %}
+                    <tr><th>Subtitle</th><td>{{ course_instance.sub_title }}</td></tr>
+                {% endif %}
+                <tr> <th>Course instance ID</th><td>{{course_instance.course_instance_id}}</td></tr>
+                <tr> <th>Sync to Canvas</th><td>{{course_instance.sync_to_canvas}}</td></tr>
                 <tr> <th>Term</th><td>{{course_instance.term.display_name}}</td></tr>
-                <tr> <th>Canvas Course ID</th><td>{{course_instance.canvas_course_id}}</td></tr>
 
             </table>
             <div>
-                <p><i>This cleans up Canvas Course id and Site Map data for this course</i></p>
+                <h4>The following steps will be performed:</h4>
+                <ol>
+                    <li>The sync_to_canvas flag will be turned off and the canvas_course_id will be removed from
+                        course_instance {{course_instance.course_instance_id}} in the database.</li>
+                    <li>The section SIS IDs for all sections associated with Canvas course {{course_instance.canvas_course_id}}
+                        will have '-deleted' appended.</li>
+                    <li>The course SIS ID for Canvas course {{course_instance.canvas_course_id}} will have '-deleted' appended.</li>
+                    <li>Canvas course {{course_instance.canvas_course_id}} will be deleted.</li>
+                    <li>The site_map and course_site records linking course instance {{course_instance.course_instance_id}}
+                        to Canvas course {{course_instance.canvas_course_id}} will be deleted from the database.</li>
+                </ol>
 
                 <a href="{% url 'canvas_site_deletion:delete' pk=course_instance.pk %}" class="btn btn-primary">Delete</a>
             </div>

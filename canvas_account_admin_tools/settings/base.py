@@ -187,6 +187,8 @@ CACHES = {
     }
 }
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 # RQ
 # http://python-rq.org/docs/
 
