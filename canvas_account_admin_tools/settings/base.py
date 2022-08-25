@@ -99,8 +99,6 @@ MIDDLEWARE = [
     'allow_cidr.middleware.AllowCIDRMiddleware'
 ]
 
-FORM_RENDERER = 'djng.forms.renderers.DjangoAngularBootstrap3Templates'
-
 AUTHENTICATION_BACKENDS = [
     'django_auth_lti.backends.LTIAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -188,6 +186,8 @@ CACHES = {
         'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
     }
 }
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # RQ
 # http://python-rq.org/docs/

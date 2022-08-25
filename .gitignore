@@ -22,3 +22,7 @@ parameters.*
 secure.*
 .venv/
 .vscode/
+# files generated via `runserver_plus` CLI command
+*.crt
+*.key
+.python-version
