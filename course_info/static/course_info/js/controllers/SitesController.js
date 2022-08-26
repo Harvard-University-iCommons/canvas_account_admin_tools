@@ -121,7 +121,7 @@
             });
         };
 
-        // todo: this should be a service that can be reused 
+        // todo: this should be a service that can be reused
         sc.fetchCourseInstanceDetails = function (id) {
 
             var course_url = djangoUrl.reverse(sc.apiProxy,
@@ -156,7 +156,7 @@
         // todo: move this into a service/app.js?
         sc.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title
-            // If the short title is also [NULL], display 'Untitled Course' 
+            // If the short title is also [NULL], display 'Untitled Course'
             if(typeof course.title != "undefined" && course.title.trim().length > 0){
                 return course.title;
             }
@@ -244,9 +244,12 @@
             sc.courseInstance['members'] = response.data.count;
         };
 
+        sc.isCrosslisted= function() {
+            return sc.courseInstance.xlist_status !== 'N/A'
+        };
+
         sc.isPrimaryCourse = function() {
-            return (sc.courseInstance.xlist_status &&
-                sc.courseInstance.xlist_status === 'Primary')
+            return sc.courseInstance.xlist_status === 'Primary';
         }
 
         sc.isCourseInstanceEditable = function(courseRegistrarCode) {
