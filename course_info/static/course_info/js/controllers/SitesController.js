@@ -244,9 +244,12 @@
             sc.courseInstance['members'] = response.data.count;
         };
 
+        sc.isCrosslisted= function() {
+            return sc.courseInstance.xlist_status !== 'N/A'
+        };
+
         sc.isPrimaryCourse = function() {
-            return (sc.courseInstance.xlist_status &&
-                sc.courseInstance.xlist_status === 'Primary')
+            return sc.courseInstance.xlist_status === 'Primary';
         }
 
         sc.isCourseInstanceEditable = function(courseRegistrarCode) {

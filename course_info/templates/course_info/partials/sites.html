@@ -95,7 +95,7 @@
             </div>
             <hr>
         </div>
-        <div class="form-group" ng-if="sc.isPrimaryCourse()">
+        <div class="form-group" ng-if="!sc.isCrosslisted() || (sc.isCrosslisted() && sc.isPrimaryCourse())">
           <div class="col-sm-8 col-sm-offset-1">
             <label class="sr-only" for="newAssociatedCourseURL">
               New associated course URL
@@ -125,7 +125,7 @@
             </button>
           </div>
         </div>
-        <div ng-if="!sc.isPrimaryCourse()">
+        <div ng-if="sc.isCrosslisted() && !sc.isPrimaryCourse()">
           <span>
             <strong>Sites cannot be associated with secondarily-crosslisted courses.</strong>
           </span>
