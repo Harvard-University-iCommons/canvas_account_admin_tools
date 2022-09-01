@@ -121,7 +121,7 @@
             });
         };
 
-        // todo: this should be a service that can be reused 
+        // todo: this should be a service that can be reused
         sc.fetchCourseInstanceDetails = function (id) {
 
             var course_url = djangoUrl.reverse(sc.apiProxy,
@@ -156,7 +156,7 @@
         // todo: move this into a service/app.js?
         sc.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title
-            // If the short title is also [NULL], display 'Untitled Course' 
+            // If the short title is also [NULL], display 'Untitled Course'
             if(typeof course.title != "undefined" && course.title.trim().length > 0){
                 return course.title;
             }
@@ -175,8 +175,8 @@
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
                 courseInstance['year'] = ci.term.academic_year;
-                courseInstance['departments'] = ci.course.departments;
-                courseInstance['course_groups'] = ci.course.course_groups;
+                courseInstance['department'] = ci.course.department ? ci.course.department : null;
+                courseInstance['course_group'] = ci.course.course_group ? ci.course.course_group : null;
 
                 var registrarCode = ci.course.registrar_code_display
                     ? ci.course.registrar_code_display
