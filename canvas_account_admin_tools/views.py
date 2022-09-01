@@ -184,4 +184,29 @@ def icommons_rest_api_proxy(request, path):
     url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
     if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
         request_args['verify'] = False
-    return proxy_view(request, url, request_args)
+
+    response = proxy_view(request, url, request_args)
+    try:
+        patch_params = {}
+        if request.method == 'PATCH':
+            patch_params = json.loads(request.body)
+
+        extra = {
+            'user': request.user.username,
+            'path': request.path,
+            'method': request.method,
+            'query_string': request.META.get('QUERY_STRING'),
+            'user_agent': request.META.get('HTTP_USER_AGENT'),
+            'remote_addr': request.META.get('REMOTE_ADDR'),
+            'referrer': request.META.get('HTTP_REFERER'),
+            'status_code': response.status_code,
+            'get_params': request.GET,
+            'post_params': request.POST,
+            'patch_params': patch_params,
+        }
+
+        logger.info(f'User {request.user.username} requesting {request.method} {url}', extra=extra)
+    except Exception:
+        logger.error(f'Error logging request by {request.user.username} to {url}')
+
+    return response
