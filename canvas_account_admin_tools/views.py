@@ -187,9 +187,11 @@ def icommons_rest_api_proxy(request, path):
 
     response = proxy_view(request, url, request_args)
     try:
-        patch_params = {}
+        params = request.GET
         if request.method == 'PATCH':
-            patch_params = json.loads(request.body)
+            params = json.loads(request.body)
+        elif request.method == 'POST':
+            params = json.loads(request.body)
 
         extra = {
             'user': request.user.username,
@@ -200,9 +202,7 @@ def icommons_rest_api_proxy(request, path):
             'remote_addr': request.META.get('REMOTE_ADDR'),
             'referrer': request.META.get('HTTP_REFERER'),
             'status_code': response.status_code,
-            'get_params': request.GET,
-            'post_params': request.POST,
-            'patch_params': patch_params,
+            'params': params,
         }
 
         logger.info(f'User {request.user.username} requesting {request.method} {url}', extra=extra)
