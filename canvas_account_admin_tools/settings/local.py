@@ -1,3 +1,12 @@
+import sys
+import oracledb
+oracledb.version = "8.3.0"
+sys.modules["cx_Oracle"] = oracledb
+import cx_Oracle
+
+import urllib3
+urllib3.disable_warnings()
+
 from .base import *
 from logging.config import dictConfig
 
@@ -14,8 +23,9 @@ CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE
 CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
 
 ALLOWED_HOSTS = ['*']
-INSTALLED_APPS += ['debug_toolbar', 'django_extensions']
-MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
+INSTALLED_APPS += ['django_extensions']
+# INSTALLED_APPS += ['debug_toolbar']
+# MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 
 # For Django Debug Toolbar:
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
@@ -125,10 +135,10 @@ SELENIUM_CONFIG = {
 # Logging
 
 # Log to console instead of a file when running locally
-LOGGING['handlers']['default'] = {
-    'level': logging.DEBUG,
-    'class': 'logging.StreamHandler',
-    'formatter': 'simple',
-}
+# LOGGING['handlers']['default'] = {
+#     'level': logging.DEBUG,
+#     'class': 'logging.StreamHandler',
+#     'formatter': 'simple',
+# }
 
 dictConfig(LOGGING)
