@@ -79,7 +79,7 @@
                 {{site.course_site_url}}
               </a>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-3" ng-if="!sc.isCanvasSite($index)">
               <button type="button" class="btn btn-default pull-right"
                       ng-click="sc.dissociateSite($index)">
                 <span
@@ -92,6 +92,9 @@
                   Dissociate
                 </span>
               </button>
+            </div>
+            <div class="col-sm-3" ng-if="sc.isCanvasSite($index)">
+              Cannot dissociate a Canvas site - delete it instead.
             </div>
             <hr>
         </div>

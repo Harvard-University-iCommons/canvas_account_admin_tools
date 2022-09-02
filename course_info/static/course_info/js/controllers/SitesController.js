@@ -76,6 +76,17 @@
             }
         };
 
+        sc.isCanvasSite = function(siteListIndex) {
+            var rv = false;
+            var s_url = sc.courseInstance.sites[siteListIndex].course_site_url;
+            if (s_url.toLowerCase().includes('canvas.harvard.edu')) {
+                rv = true;
+            } else if (s_url.toLowerCase().includes('harvard.instructure.com')) {
+                rv = true;
+            }
+            return rv;
+        };
+
         sc.dissociateSite = function(siteListIndex) {
             sc.confirmDissociateSiteModalInstance = $uibModal.open({
                 animation: true,
