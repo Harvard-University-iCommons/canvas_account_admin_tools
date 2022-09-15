@@ -24,14 +24,16 @@ CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
 
 ALLOWED_HOSTS = ['*']
 INSTALLED_APPS += ['django_extensions']
-# INSTALLED_APPS += ['debug_toolbar']
-# MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 
-# For Django Debug Toolbar:
+# If you want to use the Django Debug Toolbar, uncomment the following block:
+'''
+INSTALLED_APPS += ['debug_toolbar']
+MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
 INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+'''
 
 # Allows the REST API passthrough to successfully negotiate an SSL session
 # with an unverified certificate, e.g. the one that ships with django-sslserver
