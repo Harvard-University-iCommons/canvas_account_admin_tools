@@ -22,8 +22,8 @@
                 $scope.courseInstanceFilterModel.filters.department = '';
                 $scope.courseInstanceFilterModel.filters.course_group = '';
                 $scope.courseInstanceFilterModel.terms = [];
-                $scope.courseInstanceFilterModel.departments = [];
-                $scope.courseInstanceFilterModel.course_groups = [];
+                $scope.courseInstanceFilterModel.department = '';
+                $scope.courseInstanceFilterModel.course_group = '';
             }
         };
 

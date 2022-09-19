@@ -19,13 +19,10 @@
         self.initSummaryData = function(){
             self.totalCourses= 0;
             self.totalCoursesWithCanvasSite= 0;
-            self.totalCoursesWithCanvasSiteWithISite = 0;
             self.totalCoursesWithCanvasSiteWithExternal = 0;
             self.totalCoursesWithoutCanvasSite= 0;
-            self.totalCoursesWithoutCanvasSiteWithISite = 0;
             self.totalCoursesWithoutCanvasSiteWithExternal = 0;
             self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse = 0
-            self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite = 0
             self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal = 0
         };
         self.initSummaryData();
@@ -89,13 +86,10 @@
                 self.dataLoaded = true;
                 self.totalCourses = data.recordsTotal;
                 self.totalCoursesWithCanvasSite = data.recordsTotalWithCanvasSite;
-                self.totalCoursesWithCanvasSiteWithISite = data.recordsTotalWithCanvasSiteWithISite;
                 self.totalCoursesWithCanvasSiteWithExternal = data.recordsTotalWithCanvasSiteWithExternal;
                 self.totalCoursesWithoutCanvasSite = data.recordsTotalWithoutCanvasSite;
-                self.totalCoursesWithoutCanvasSiteWithISite = data.recordsTotalWithoutCanvasSiteWithISite;
                 self.totalCoursesWithoutCanvasSiteWithExternal = data.recordsTotalWithoutCanvasSiteWithExternal;
                 self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse;
-                self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithISite;
                 self.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal = data.recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithExternal;
             }).error(function (data, status, headers, config) {
                 // status == 0 indicates that the request was cancelled,

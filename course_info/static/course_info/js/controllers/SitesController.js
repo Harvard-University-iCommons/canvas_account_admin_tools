@@ -76,6 +76,17 @@
             }
         };
 
+        sc.isCanvasSite = function(siteListIndex) {
+            var rv = false;
+            var s_url = sc.courseInstance.sites[siteListIndex].course_site_url;
+            if (s_url.toLowerCase().includes('canvas.harvard.edu')) {
+                rv = true;
+            } else if (s_url.toLowerCase().includes('harvard.instructure.com')) {
+                rv = true;
+            }
+            return rv;
+        };
+
         sc.dissociateSite = function(siteListIndex) {
             sc.confirmDissociateSiteModalInstance = $uibModal.open({
                 animation: true,
@@ -175,8 +186,8 @@
                 courseInstance['school'] = ci.course.school_id.toUpperCase();
                 courseInstance['term'] = ci.term.display_name;
                 courseInstance['year'] = ci.term.academic_year;
-                courseInstance['departments'] = ci.course.departments;
-                courseInstance['course_groups'] = ci.course.course_groups;
+                courseInstance['department'] = ci.course.department ? ci.course.department : null;
+                courseInstance['course_group'] = ci.course.course_group ? ci.course.course_group : null;
 
                 var registrarCode = ci.course.registrar_code_display
                     ? ci.course.registrar_code_display

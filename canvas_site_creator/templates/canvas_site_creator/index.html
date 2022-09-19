@@ -58,13 +58,8 @@
                                              '1': '1 course with a Canvas site ',
                                              'other': '{} courses with Canvas sites '}">
                             </ng-pluralize>
-                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithCanvasSiteWithISite"
-                                      when="{'0': '0 iSites, ',
-                                             '1': '1 iSites, ',
-                                             'other': '{} iSites, '}">
-                            </ng-pluralize>
                             {% verbatim %}
-                            {{ courseInstanceModel.totalCoursesWithCanvasSiteWithExternal }} external)
+                            ({{ courseInstanceModel.totalCoursesWithCanvasSiteWithExternal }} external)
                             {% endverbatim %}
                         </li>
                         <li>
@@ -73,13 +68,8 @@
                                              '1': '1 course without a Canvas site ',
                                              'other': '{} courses without Canvas sites '}">
                             </ng-pluralize>
-                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteWithISite"
-                                      when="{'0': '0 iSites, ',
-                                             '1': '1 iSites, ',
-                                             'other': '{} iSites, '}">
-                            </ng-pluralize>
                             {% verbatim %}
-                            {{ courseInstanceModel.totalCoursesWithoutCanvasSiteWithExternal }} external)
+                            ({{ courseInstanceModel.totalCoursesWithoutCanvasSiteWithExternal }} external)
                             {% endverbatim %}
                         </li>
                         <li>
@@ -88,13 +78,8 @@
                                              '1': '1 course eligible for site creation via Canvas Site Creator ',
                                              'other': '{} courses eligible for site creation via Canvas Site Creator '}">
                             </ng-pluralize>
-                            (<ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithIsite"
-                                      when="{'0': '0 iSites, ',
-                                             '1': '1 iSites, ',
-                                             'other': '{} iSites, '}">
-                            </ng-pluralize>
                             {% verbatim %}
-                            {{ courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal }} external)
+                            ({{ courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal }} external)
                             {% endverbatim %}
                             <br>
                             <button type="button" class="btn btn-link pull-right" id="createSitesButton" ng-disabled="createDisabled()" ng-click="handleCreate($event)" data-href="{% url 'canvas_site_creator:course_selection' %}">Continue</button>
