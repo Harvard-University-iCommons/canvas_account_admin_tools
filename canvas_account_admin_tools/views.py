@@ -188,10 +188,11 @@ def icommons_rest_api_proxy(request, path):
     response = proxy_view(request, url, request_args)
     try:
         params = request.GET
-        if request.method == 'PATCH':
-            params = json.loads(request.body)
-        elif request.method == 'POST':
-            params = json.loads(request.body)
+        if request.method in ['PATCH', 'POST']:
+            try:
+                params = json.loads(request.body)
+            except json.decoder.JSONDecodeError:
+                logger.exception(f'failed to decode json in body {request.body} ({request.content_type})')
 
         extra = {
             'user': request.user.username,
@@ -201,6 +202,7 @@ def icommons_rest_api_proxy(request, path):
             'user_agent': request.META.get('HTTP_USER_AGENT'),
             'remote_addr': request.META.get('REMOTE_ADDR'),
             'referrer': request.META.get('HTTP_REFERER'),
+            'content_type': request.content_type,
             'status_code': response.status_code,
             'params': params,
         }
