@@ -209,6 +209,6 @@ def icommons_rest_api_proxy(request, path):
 
         logger.info(f'User {request.user.username} requesting {request.method} {url}', extra=extra)
     except Exception:
-        logger.exception(f'Error logging request by {request.user.username} to {url}')
+        logger.exception(f'Error logging {request.method} request by {request.user.username} to {url} ({request.content_type})')
 
     return response
