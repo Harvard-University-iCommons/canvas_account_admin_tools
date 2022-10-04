@@ -35,6 +35,9 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 '''
 
+# Sessions
+SESSION_COOKIE_SAMESITE = 'None'
+
 # Allows the REST API passthrough to successfully negotiate an SSL session
 # with an unverified certificate, e.g. the one that ships with django-sslserver
 ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = True
