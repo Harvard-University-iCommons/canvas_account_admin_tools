@@ -221,4 +221,31 @@
         </div>
     {% endif %}
 
+    {% if self_enrollment_tool_is_allowed%}
+        <div class="card card_color">
+            <a href="{% url 'self_enrollment_tool:index' %}" id="canvas_site_deletion">
+              <div class="card-body">
+              <div class="card-header card-header_color5">
+              </div>
+              <div class="card-content card-content_normal">
+                <div class="card-content-width">
+                  <div class="card-content-icon">
+                    <i class="fa fa-user-plus icon-size"></i>
+                  </div>
+                  <div class="card-content-data">
+                    <h2 class="card-content-title ellipsis" title="Self Enrollment Tool">
+                      <span class="content-link">
+                        Self Enrollment Tool
+                      </span>
+                    </h2>
+                    <p title="Self Enrolmnet Tool"> Enable Self Enrollment for ILE courses</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+    {% endif %}
+
+
 {% endblock content %}
