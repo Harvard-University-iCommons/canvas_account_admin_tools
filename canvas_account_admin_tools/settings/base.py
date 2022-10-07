@@ -444,7 +444,7 @@ PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
-PERMISSION_SELF_ENROLLMENT_TOOL = 'canvas_site_deletion' # ToDo: fix this by PR to 'self_enrollment_tool'
+PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 
 # in search courses, when you add a person to a course. This list
@@ -505,6 +505,11 @@ MASQUERADE_TOOL_SETTINGS = {
     'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
     'temporary_masquerade_function_arn': SECURE_SETTINGS.get('temporary_masquerade_function_arn'),
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
+}
+
+SELF_ENROLLMENT_TOOL_RSETTINGS = {
+    'self_enrolment_tool_url' :  SECURE_SETTINGS.get('self_enrolment_tool_url', 'https://canvas.instructure.com')
+
 }
 
 REST_FRAMEWORK = {
