@@ -192,10 +192,18 @@ def icommons_rest_api_proxy(request, path):
             try:
                 params = json.loads(request.body)
             except json.decoder.JSONDecodeError:
-                logger.exception(f'failed to decode json in body {request.body} ({request.content_type})')
+                extra = {
+                    'method': request.method,
+                    'POST': request.POST.dict(),
+                    'GET': request.GET.dict(),
+                    'META': request.META,
+                    'user': f'{request.user.username} ({request.user.first_name} {request.user.last_name})',
+                }
+                logger.exception(f'failed to decode json in body {request.body} content-type:{request.content_type}', extra=extra)
 
         extra = {
             'user': request.user.username,
+            'user_name': f'{request.user.first_name} {request.user.last_name}',
             'path': request.path,
             'method': request.method,
             'query_string': request.META.get('QUERY_STRING'),
