@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance
+from icommons_common.models import CourseInstance, SimplePerson
 from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
@@ -25,7 +25,25 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def index(request):
-    self_enroll_course_list = SelfEnrollmentCourse.objects.all()
+    # The school that this tool is being launched in
+    tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+
+    self_enroll_course_list = SelfEnrollmentCourse.objects.all()    
+
+    updater_ids = set()
+    course_instance_ids = set()
+    for course in self_enroll_course_list:
+        updater_ids.add(course.updated_by)
+        course_instance_ids.add(course.course_instance_id)
+
+    course_info = CourseInstance.objects.get_list_as_dict(course_instance_id=course_instance_ids)
+
+    # Update ids to full name
+    updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
+    for course in self_enroll_course_list:
+        updater = updaters.get(course.updated_by)
+        if updater:
+            course.last_modified_by_full_name = f'{updater.name_first} {updater.name_last}'
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
@@ -60,13 +78,16 @@ def lookup(request):
                     messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}')
                     context['abort'] = True
 
-                if ci.course_instance_id != int(cc['sis_course_id']):
-                    logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
-                                 f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
-                    messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
-                                            f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
-                                            f'{ci.canvas_course_id}. Aborting.')
-                    context['abort'] = True
+                n = int(cc['sis_course_id'])
+                print(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> course_instance_id: {ci.course_instance_id} '
+                      f'------------ sis_course_id: {n}')
+                # if ci.course_instance_id != int(cc['sis_course_id']):
+                #     logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
+                #                  f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                #     messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
+                #                             f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
+                #                             f'{ci.canvas_course_id}. Aborting.')
+                #     context['abort'] = True
 
                 # Check if it is an ILE or SB course. (source != xmlfeed)
                 if ci.source == 'xmlfeed':

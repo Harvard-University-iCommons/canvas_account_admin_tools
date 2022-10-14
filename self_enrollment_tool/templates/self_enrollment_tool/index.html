@@ -51,7 +51,7 @@
         <table class="datatable table display no-footer">
             <thead>
                 <th>Course</th>
-                <th>Course Instance ID</th>
+                <th>Role&nbsp;ID</th>
                 <th>Modified&nbsp;By</th>
                 <th>Delete</th>
             </thead>
@@ -60,20 +60,47 @@
                 <tr>
                     {% comment %} Course column {% endcomment %}
                     <td>
-                        {% comment %} WIP (TODO: Add course title, description, etc...) {% endcomment %}
-                    </td>
-                    {% comment %} Course Instance ID column {% endcomment %}
-                    <td>
-                        {{ course.secondary_course_instance.course.school_id | upper }}
+                        {{ course.school_id | upper }}
                         <b>
-                        {% if course.course_instance_id %}
-                            {{ course.course_instance_id }}
+                        {% if course.school_id == 'hls' or course.school_id == 'ext'%}
+                            {{ course.registrar_code }}
+                        {% elif course.short_title %}
+                            {{ course.short_title }}
+                        {% elif course.registrar_code_display %}
+                            {{ course.registrar_code_display }}
+                        {% elif course.registrar_code %}
+                            {{ course.registrar_code }}
                         {% else %}
-                            No course code; course ID {{ course.secondary_course_instance.course.course_id }}
+                            No course code; course ID {{ course.course.course_id }}
                         {% endif %}
+                        </b>
+                        {% if course.section %}
+                                {{ course.section }}
+                        {% endif %}
+                        <br>
+                        {{ course.term.display_name}}
+                        (course instance ID {{ course.course_instance_id }})
+                        <br>
+                        <i>
+                        {% if course.course.school_id == 'hls' or course.course.school_id == 'ext'%}
+                            {{ course.title }}
+                        {% else %}
+                            {{ course.sub_title }}
+                        {% endif %}
+                        </i>
+                    </td>
+                    {% comment %} Role ID column {% endcomment %}
+                    <td>
+                        <b>
+                        {% if course.role_id %}
+                            {{ course.role_id }}
+                        {% else %}
+                            No course role ID; course ID {{ course.course_instance_id }}
+                        {% endif %}
+                        </b>
                     </td>
                     {% comment %} Updated by column {% endcomment %}
-                    <td>{{ course.updated_by }}</td>
+                    <td>{{ course.last_modified_by_full_name }}</td>
                     {% comment %} Delete column {% endcomment %}
                     <td>
                         <a href="{% url 'self_enrollment_tool:remove_self_enroll' pk=course.pk %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
