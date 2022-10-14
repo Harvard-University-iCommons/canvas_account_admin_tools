@@ -26,10 +26,8 @@
             {% endif %}
         {% endfor %}
     <br><br>
-       <div class="row">
-        <div class="col-sm-6">
-            <b>Enter an SIS Course Id to lookup the ILE course:</b>
-        </div>
+    <div class="row">
+        <b>Enter an SIS Course Id to lookup the ILE course:</b>
     </div>
     <br>
     <div class="row">
@@ -44,6 +42,61 @@
             </div>
         </form>
     </div>
+    <br>
+    {% comment %} Start of Self Enrollment Course List section {% endcomment %}
+    <div class="row" style="margin-top: .25em;">
+        <div style="margin-bottom: -20px; padding-top: 50px;">
+            <h4 class="modal-title bottom-spacing">Self Enrollment Course List:</h4>
+        </div>
+        <table class="datatable table display no-footer">
+            <thead>
+                <th>Course</th>
+                <th>Course Instance ID</th>
+                <th>Modified&nbsp;By</th>
+                <th>Delete</th>
+            </thead>
+            <tbody>
+            {% for course in self_enroll_course_list %}
+                <tr>
+                    {% comment %} Course column {% endcomment %}
+                    <td>
+                        {% comment %} WIP (TODO: Add course title, description, etc...) {% endcomment %}
+                    </td>
+                    {% comment %} Course Instance ID column {% endcomment %}
+                    <td>
+                        {{ course.secondary_course_instance.course.school_id | upper }}
+                        <b>
+                        {% if course.course_instance_id %}
+                            {{ course.course_instance_id }}
+                        {% else %}
+                            No course code; course ID {{ course.secondary_course_instance.course.course_id }}
+                        {% endif %}
+                    </td>
+                    {% comment %} Updated by column {% endcomment %}
+                    <td>{{ course.updated_by }}</td>
+                    {% comment %} Delete column {% endcomment %}
+                    <td>
+                        <a href="{% url 'self_enrollment_tool:remove_self_enroll' pk=course.pk %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.datatable').dataTable( {
+                paging: false,
+                "bInfo" : false,
+                "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+                "oLanguage": {
+                  "sSearch": "Filter the list below"
+                }
+            });
+        });
+    </script>
+    {% comment %} End of Self Enrollment Course List section {% endcomment %}
     <br>
     <div>
     {% if course_instance and abort is False %}

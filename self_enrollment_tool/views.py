@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 import logging
 
 from canvas_sdk.exceptions import CanvasAPIError
@@ -7,13 +5,14 @@ from canvas_sdk.methods import courses
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance
 from lti_permissions.decorators import lti_permission_required
+
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
 
@@ -26,8 +25,12 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def index(request):
-    context = {}
-    return render(request, 'self_enrollment_tool/index.html', context)
+    self_enroll_course_list = SelfEnrollmentCourse.objects.all()
+
+    context = {
+        'self_enroll_course_list': self_enroll_course_list
+    }
+    return render(request, 'self_enrollment_tool/index.html', context=context)
 
 
 @login_required
@@ -108,7 +111,7 @@ def enable (request, course_instance_id):
     logger.debug(request)
     role_id = request.POST.get('role_id')
 
-    # todo: retrive role name
+    # TODO: retrieve role name
     role_name = request.POST.get('role_id')
     logger.debug(f'Selected Role_id {role_id} for Self Enrollment in  course {course_instance_id}')
 
@@ -160,3 +163,20 @@ def enroll (request, course_instance_id):
         'abort': False,
     }
     return render(request, 'self_enrollment_tool/lookup.html', context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
+@require_http_methods(['GET'])
+def remove_self_enroll(request, pk):
+    try:
+        # WIP
+        pass
+    except Exception as e:
+        msg = f'Unable to remove self enrollment course {pk}.'
+        logger.exception(msg)
+        logger.exception(e)
+        messages.error(request, msg)
+
+    return redirect('self_enrollment_tool:index')
