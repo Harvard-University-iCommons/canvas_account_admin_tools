@@ -37,7 +37,7 @@ def index(request):
         course_instance_ids.add(course.course_instance_id)
 
     # Update "updated_by" ids to full name and add other 
-    # relevant data from course_info_updater (CourseInstance object)
+    # relevant data from course_info_updater (CourseInstance objects), etc..
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
     course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
 
@@ -122,7 +122,7 @@ def lookup(request):
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
 
     if roles:
-        # todo : Get role names from role table and display role names in dropdown (currently role_ids are being shown)
+        # TODO: Get role names from role table and display role names in dropdown (currently role_ids are being shown)
 
         context['roles'] = roles
 
@@ -166,7 +166,7 @@ def enable (request, course_instance_id):
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
-                # todo : add the Distributable Self reg link On eoption, for example:
+                # TODO: add the Distributable Self reg link on option, for example:
                 # https://icommons-tools.tlt.harvard.edu/shopping/course_selfreg/103686
                 enrollment_url = 'canvas_account_admin_tools/self_enrollment_tool/enroll/' + course_instance_id;
                 context['enrollment_url'] = enrollment_url

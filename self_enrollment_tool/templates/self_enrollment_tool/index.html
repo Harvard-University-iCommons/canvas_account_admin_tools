@@ -52,6 +52,7 @@
             <thead>
                 <th>Course</th>
                 <th>Role&nbsp;ID</th>
+                <th>Self&nbsp;Enroll&nbsp;URL</th>
                 <th>Modified&nbsp;By</th>
                 <th>Delete</th>
             </thead>
@@ -98,6 +99,13 @@
                             No course role ID; course ID {{ crs.course_instance_id }}
                         {% endif %}
                         </b>
+                    </td>
+                    {% comment %} Self Enroll URL column {% endcomment %}
+                    <td>
+                        {% comment %} <a href=" ">https://{{ canvas_url }}/self_enrollment_tool/enable/{{ crs.course_instance_id }}</a> {% endcomment %}
+                        <a href=" ">
+                            {% url 'self_enrollment_tool:enable'  course_instance_id=crs.course_instance_id %}
+                        </a>
                     </td>
                     {% comment %} Updated by column {% endcomment %}
                     <td>{{ crs.last_modified_by_full_name }}</td>
