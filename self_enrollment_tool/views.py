@@ -36,14 +36,24 @@ def index(request):
         updater_ids.add(course.updated_by)
         course_instance_ids.add(course.course_instance_id)
 
-    course_info = CourseInstance.objects.get_list_as_dict(course_instance_id=course_instance_ids)
-
-    # Update ids to full name
+    # Update "updated_by" ids to full name and add other 
+    # relevant data from course_info_updater (CourseInstance object)
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
+    course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
+
     for course in self_enroll_course_list:
         updater = updaters.get(course.updated_by)
         if updater:
             course.last_modified_by_full_name = f'{updater.name_first} {updater.name_last}'
+
+        course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
+        if course_info_updater:
+            course.course = course_info_updater.course
+            course.section = course_info_updater.section
+            course.term = course_info_updater.term
+            course.title = course_info_updater.title
+            course.short_title = course_info_updater.short_title
+            course.sub_title = course_info_updater.sub_title
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
@@ -78,16 +88,13 @@ def lookup(request):
                     messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}')
                     context['abort'] = True
 
-                n = int(cc['sis_course_id'])
-                print(f'>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> course_instance_id: {ci.course_instance_id} '
-                      f'------------ sis_course_id: {n}')
-                # if ci.course_instance_id != int(cc['sis_course_id']):
-                #     logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
-                #                  f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
-                #     messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
-                #                             f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
-                #                             f'{ci.canvas_course_id}. Aborting.')
-                #     context['abort'] = True
+                if ci.course_instance_id != int(cc['sis_course_id']):
+                    logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
+                                 f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                    messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
+                                            f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
+                                            f'{ci.canvas_course_id}. Aborting.')
+                    context['abort'] = True
 
                 # Check if it is an ILE or SB course. (source != xmlfeed)
                 if ci.source == 'xmlfeed':
