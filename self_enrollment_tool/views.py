@@ -199,8 +199,8 @@ def enroll (request, course_instance_id):
 @require_http_methods(['GET'])
 def remove_self_enroll(request, pk):
     try:
-        # WIP
-        pass
+        self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
+        self_enrollment_course.delete()
     except Exception as e:
         msg = f'Unable to remove self enrollment course {pk}.'
         logger.exception(msg)
