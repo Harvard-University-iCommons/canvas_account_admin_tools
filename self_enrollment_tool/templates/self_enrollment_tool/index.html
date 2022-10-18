@@ -133,8 +133,8 @@
                         {% comment %} Role ID column {% endcomment %}
                         <td>
                             <b>
-                            {% if crs.role_id %}
-                                {{ crs.role_id }}
+                            {% if crs.role_name %}
+                                {{ crs.role_name }}
                             {% else %}
                                 No course role ID; course ID {{ crs.course_instance_id }}
                             {% endif %}
@@ -142,7 +142,7 @@
                         </td>
                         {% comment %} Self Enroll URL column {% endcomment %}
                         <td>
-                            <a href="{% url 'self_enrollment_tool:enable' course_instance_id=crs.course_instance_id %}">
+                            <a href="{{ crs.self_enroll_url }}">
                                 {{ crs.self_enroll_url }}
                             </a>
                         </td>

@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance, SimplePerson
+from icommons_common.models import CourseInstance, SimplePerson, UserRole
 from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
@@ -41,6 +41,7 @@ def index(request):
     # relevant data from course_info_updater (CourseInstance objects), etc..
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
     course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
+    user_roles = UserRole.objects.all()
 
     for course in self_enroll_course_list:
         updater = updaters.get(course.updated_by)
@@ -57,9 +58,11 @@ def index(request):
                 course.short_title = course_info_updater.short_title
                 course.sub_title = course_info_updater.sub_title
         except CourseInstance.DoesNotExist:
-            # logger.exception(f'This course instance ID {course.course_instance_id} '
-            #                  f'does no exist in course instance database table')
-            print(f'This course instance ID {course.course_instance_id} does no exist in course instance database table')
+            logger.exception(f'This course instance ID {course.course_instance_id} '
+                             f'does no exist in course instance database table')
+
+        if course.role_id:
+            course.role_name = user_roles.get(role_id=course.role_id).role_name
 
         url_template_tag = reverse('self_enrollment_tool:enable', args=[
                                    course.course_instance_id])
@@ -154,9 +157,13 @@ def lookup(request):
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
 
     if roles:
-        # TODO: Get role names from role table and display role names in dropdown (currently role_ids are being shown)
+        role_names = set()
+        # Role ID to role name
+        user_roles = UserRole.objects.all()
+        for role in roles:
+            role_names.add(user_roles.get(role_id=role).role_name)
 
-        context['roles'] = roles
+        context['roles'] = role_names
 
     return render(request, 'self_enrollment_tool/index.html', context)
 
@@ -171,9 +178,8 @@ def enable (request, course_instance_id):
     logger.debug(request)
     role_id = request.POST.get('role_id')
 
-    # TODO: retrieve role name
-    role_name = request.POST.get('role_id')
-    logger.debug(f'Selected Role_id {role_id} for Self Enrollment in  course {course_instance_id}')
+    role_name = request.POST.get('role_name')
+    logger.debug(f'Selected Role_id {role_id} (role_name {role_name}) for Self Enrollment in course {course_instance_id}')
 
     context = {
         'canvas_url': settings.CANVAS_URL,
