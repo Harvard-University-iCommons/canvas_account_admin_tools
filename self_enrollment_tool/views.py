@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
@@ -25,16 +26,16 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def index(request):
-    # The school that this tool is being launched in
-    tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
-
-    self_enroll_course_list = SelfEnrollmentCourse.objects.all()    
+    self_enroll_course_list = SelfEnrollmentCourse.objects.all()
 
     updater_ids = set()
     course_instance_ids = set()
     for course in self_enroll_course_list:
         updater_ids.add(course.updated_by)
         course_instance_ids.add(course.course_instance_id)
+
+    self_enroll_course_list = _filter_launch_school_courses(
+        request, self_enroll_course_list, course_instance_ids)
 
     # Update "updated_by" ids to full name and add other 
     # relevant data from course_info_updater (CourseInstance objects), etc..
@@ -46,19 +47,50 @@ def index(request):
         if updater:
             course.last_modified_by_full_name = f'{updater.name_first} {updater.name_last}'
 
-        course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
-        if course_info_updater:
-            course.course = course_info_updater.course
-            course.section = course_info_updater.section
-            course.term = course_info_updater.term
-            course.title = course_info_updater.title
-            course.short_title = course_info_updater.short_title
-            course.sub_title = course_info_updater.sub_title
+        try:
+            course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
+            if course_info_updater:
+                course.course = course_info_updater.course
+                course.section = course_info_updater.section
+                course.term = course_info_updater.term
+                course.title = course_info_updater.title
+                course.short_title = course_info_updater.short_title
+                course.sub_title = course_info_updater.sub_title
+        except CourseInstance.DoesNotExist:
+            # logger.exception(f'This course instance ID {course.course_instance_id} '
+            #                  f'does no exist in course instance database table')
+            print(f'This course instance ID {course.course_instance_id} does no exist in course instance database table')
+
+        url_template_tag = reverse('self_enrollment_tool:enable', args=[
+                                   course.course_instance_id])
+        url = f'{request.scheme}://{request.get_host()}{url_template_tag}'
+        course.self_enroll_url = url
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
     }
     return render(request, 'self_enrollment_tool/index.html', context=context)
+
+
+def _filter_launch_school_courses(request, courses, course_instance_ids):
+    """
+    Create a subset of courses only containing courses from tool launch shool
+    """
+    # The school that this tool is being launched in
+    tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+    launch_school_crs_instance_ids = set()
+    course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
+    
+    for course in courses:
+        try:
+            course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
+            if course_info_updater and course_info_updater.course.school_id == tool_launch_school:
+                    launch_school_crs_instance_ids.add(course.course_instance_id)
+        except CourseInstance.DoesNotExist:
+            continue
+
+    # Return subset of launch school self enroll courses
+    return courses.filter(course_instance_id__in=launch_school_crs_instance_ids)
 
 
 @login_required
@@ -168,8 +200,8 @@ def enable (request, course_instance_id):
                                           f" {course_instance_id} for role {role_name}")
                 # TODO: add the Distributable Self reg link on option, for example:
                 # https://icommons-tools.tlt.harvard.edu/shopping/course_selfreg/103686
-                enrollment_url = 'canvas_account_admin_tools/self_enrollment_tool/enroll/' + course_instance_id;
-                context['enrollment_url'] = enrollment_url
+                url_template_tag = reverse('self_enrollment_tool:enable', args=[course_instance_id])
+                context['enrollment_url'] = f'{request.scheme}://{request.get_host()}{url_template_tag}'
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
