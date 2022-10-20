@@ -99,7 +99,7 @@ def lookup(request):
 
     if roles:
         # todo : Get role names from role table and display role names in dropdown (currently role_ids are being shown)
-
+        # This seems to have been done in 4279 by. Validate after merge and remove this todo
         context['roles'] = roles
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
@@ -137,7 +137,7 @@ def enable (request, course_instance_id):
     try:
         if role_id and course_instance_id:
 
-            # todo: add validation to check if self enrollment is already enabled for this course
+            # check if self enrollment is already enabled for this course
             exists  = SelfEnrollmentCourse.objects.filter(course_instance_id=course_instance_id).exists()
             if exists :
                 logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
