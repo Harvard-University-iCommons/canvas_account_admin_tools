@@ -99,14 +99,14 @@ def _self_enroll_url(request, course_instance_id):
     if `?resource_link_id` is at the end of the url, then removes it 
     if exists.
     """
-    url_template_tag = reverse(
-        'self_enrollment_tool:enable', args=[course_instance_id])
+    self_enroll_url = request.build_absolute_uri(reverse(
+        'self_enrollment_tool:enable', args=[course_instance_id]))
 
-    if '?resource_link_id' in url_template_tag:
-        url_template_tag = url_template_tag[:url_template_tag.rfind(
+    if '?resource_link_id' in self_enroll_url:
+        self_enroll_url = self_enroll_url[:self_enroll_url.rfind(
             '?resource_link_id')]
 
-    return f'{request.scheme}://{request.get_host()}{url_template_tag}'
+    return self_enroll_url
 
 
 @login_required
