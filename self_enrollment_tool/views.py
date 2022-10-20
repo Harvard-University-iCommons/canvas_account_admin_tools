@@ -70,6 +70,13 @@ def lookup(request):
                     logger.error(f'Course instance ID ({course_search_term}) is not an ILE course. Aborting.')
                     messages.error(request, f'Course instance ID ({course_search_term}) is not an ILE/SB course.')
                     context['abort'] = True
+
+                # Check if Self Enrollment record already exists for this course
+                exists = SelfEnrollmentCourse.objects.filter(course_instance_id=ci.course_instance_id).exists()
+                if exists:
+                    logger.error(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
+                    messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
+                    context['abort'] = True
             else:
                 logger.error(f'Course instance {ci.course_instance_id} does not have a Canvas course ID set.')
                 messages.error(request, f'Course instance {ci.course_instance_id} does not have a Canvas course ID set. Cannot continue.')
@@ -95,7 +102,15 @@ def lookup(request):
 
         context['roles'] = roles
 
-    return render(request, 'self_enrollment_tool/index.html', context)
+    return render(request, 'self_enrollment_tool/add_new.html', context)
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['GET'])
+def add_new(request):
+    context = {}
+    return render(request, 'self_enrollment_tool/add_new.html', context)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -122,21 +137,21 @@ def enable (request, course_instance_id):
     try:
         if role_id and course_instance_id:
 
-            # todo: add validation to check if self enrollment si already enabled for this course
+            # todo: add validation to check if self enrollment is already enabled for this course
             exists  = SelfEnrollmentCourse.objects.filter(course_instance_id=course_instance_id).exists()
             if exists :
                 logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
                 messages.error(request, f'Self Enrollment is already enabled for this course {course_instance_id} ')
                 context['abort'] = True
             else:
-                new_selfE_enrollment_course = SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
+                new_self_enrollment_course = SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
                                               role_id=role_id,
                                               updated_by=str(request.user))
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
-                # todo : add the Distributable Self reg link On eoption, for example:
-                # https://icommons-tools.tlt.harvard.edu/shopping/course_selfreg/103686
+
+                # todo : format the Distributable Self reg link (this is related to tlt-4278) .
                 enrollment_url = 'canvas_account_admin_tools/self_enrollment_tool/enroll/' + course_instance_id;
                 context['enrollment_url'] = enrollment_url
     except Exception as e:
