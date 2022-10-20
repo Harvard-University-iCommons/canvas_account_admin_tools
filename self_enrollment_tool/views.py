@@ -64,10 +64,7 @@ def index(request):
         if course.role_id:
             course.role_name = user_roles.get(role_id=course.role_id).role_name
 
-        url_template_tag = reverse('self_enrollment_tool:enable', args=[
-                                   course.course_instance_id])
-        url = f'{request.scheme}://{request.get_host()}{url_template_tag}'
-        course.self_enroll_url = url
+        course.self_enroll_url = _self_enroll_url(request, course.course_instance_id)
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
@@ -94,6 +91,22 @@ def _filter_launch_school_courses(request, courses, course_instance_ids):
 
     # Return subset of launch school self enroll courses
     return courses.filter(course_instance_id__in=launch_school_crs_instance_ids)
+
+
+def _self_enroll_url(request, course_instance_id):
+    """
+    This function creates the self enroll course URL, then checks 
+    if `?resource_link_id` is at the end of the url, then removes it 
+    if exists.
+    """
+    url_template_tag = reverse(
+        'self_enrollment_tool:enable', args=[course_instance_id])
+
+    if '?resource_link_id' in url_template_tag:
+        url_template_tag = url_template_tag[:url_template_tag.rfind(
+            '?resource_link_id')]
+
+    return f'{request.scheme}://{request.get_host()}{url_template_tag}'
 
 
 @login_required
@@ -206,8 +219,7 @@ def enable (request, course_instance_id):
                                           f" {course_instance_id} for role {role_name}")
                 # TODO: add the Distributable Self reg link on option, for example:
                 # https://icommons-tools.tlt.harvard.edu/shopping/course_selfreg/103686
-                url_template_tag = reverse('self_enrollment_tool:enable', args=[course_instance_id])
-                context['enrollment_url'] = f'{request.scheme}://{request.get_host()}{url_template_tag}'
+                context['enrollment_url'] = _self_enroll_url(request, course_instance_id)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
