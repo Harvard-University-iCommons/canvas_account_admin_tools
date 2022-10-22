@@ -214,6 +214,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # being stored in the cache.  The session keys will expire according to the value of
 # SESSION_COOKIE_AGE, which defaults to 2 weeks when no value is given.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_SECURE = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -451,7 +452,9 @@ PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 # controls which roles show up in the drop down. The list contains
 # user role id's from the course manager database
 ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 18, 19,
-                                           20, 22, 23, 24, 25, 26, 27, 28]
+                                           20, 22, 23, 24, 25, 26, 27, 28, 400, 401]
+
+SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
 
 SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
 
