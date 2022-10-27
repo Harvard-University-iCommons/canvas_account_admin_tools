@@ -173,7 +173,6 @@ def lookup(request):
 
     # fetch the roles for the dropdown
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
-
     if roles:
         context['roles'] = _get_canvas_roles()
 
@@ -198,7 +197,6 @@ def enable (request, course_instance_id):
     Enable Self enrollment for the Course with the chosen role
     """
     logger.debug(request)
-    role_id = request.POST.get('role_id')
 
     roles = literal_eval(request.POST.get('roles'))
     role_id = roles.get('roleId', '')
