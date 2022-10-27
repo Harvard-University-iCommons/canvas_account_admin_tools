@@ -199,8 +199,11 @@ def enable (request, course_instance_id):
     """
     logger.debug(request)
     role_id = request.POST.get('role_id')
-    role_name = request.POST.get('role_name')
-    logger.debug(f'Selected Role_id {role_id} (role_name {role_name}) for Self Enrollment in course {course_instance_id}')
+
+    roles = literal_eval(request.POST.get('roles'))
+    role_id = roles.get('roleId', '')
+    role_name = roles.get('roleName', '')
+    logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
 
     context = {
         'canvas_url': settings.CANVAS_URL,
@@ -212,27 +215,30 @@ def enable (request, course_instance_id):
 
     try:
         if role_id and course_instance_id:
-            # TODO: add validation to check if self enrollment si already enabled for this course
-            # check if self enrollment is already enabled for this course
-            exists  = SelfEnrollmentCourse.objects.filter(course_instance_id=course_instance_id).exists()
-            if exists :
+            try:
+                course_instance = SelfEnrollmentCourse.objects.get(course_instance_id=course_instance_id, role_id=role_id)
                 logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
-                messages.error(request, f'Self Enrollment is already enabled for this course {course_instance_id} ')
+                messages.error(request, f'Self Enrollment is already enabled for this course {course_instance_id}')
+                path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
                 context['abort'] = True
-            else:
-                new_self_enrollment_course = SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
+            except SelfEnrollmentCourse.DoesNotExist:
+                uuid = str(uuid4())
+                SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
                                               role_id=role_id,
-                                              updated_by=str(request.user))
-                logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}')
+                                              updated_by=str(request.user),
+                                              uuid=uuid)
+                path = reverse('self_enrollment_tool:enroll', args=[uuid])
+                logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
-                context['enrollment_url'] = _self_enroll_url(request, course_instance_id)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
         logger.exception(message)
         context['abort'] = True
+        return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
+    context['enrollment_url'] = f'{request.scheme}://{request.get_host()}{path}'
     return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
 
