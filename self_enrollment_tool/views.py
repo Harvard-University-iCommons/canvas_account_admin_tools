@@ -1,4 +1,6 @@
 import logging
+from ast import literal_eval
+from uuid import uuid4
 
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses
@@ -11,13 +13,18 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
+                                          add_canvas_course_enrollee,
+                                          add_canvas_section_enrollee,
+                                          get_canvas_course_by_canvas_id,
+                                          get_canvas_course_section,
+                                          get_canvas_enrollment_by_user,
+                                          get_canvas_user)
 from icommons_common.models import (CourseEnrollee, CourseInstance,
                                     DeletedEnrollee, SimplePerson, UserRole)
 from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
-
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +55,7 @@ def index(request):
     self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
         course_instance_id__in=course_instance_ids)
 
-    # Update "updated_by" ids to first and last name and add other 
+    # Update "updated_by" ids to first and last name and add other
     # relevant data from course_info_updater (CourseInstance objects), etc..
     updater_ids = {course.updated_by for course in  self_enroll_course_list}
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
@@ -88,7 +95,7 @@ def index(request):
 
 def _self_enroll_url(self_enroll_url):
     """
-    This function checks if `?resource_link_id` is at 
+    This function checks if `?resource_link_id` is at
     the end of the url, then removes it if exists.
     """
     if '?resource_link_id' in self_enroll_url:
@@ -96,7 +103,7 @@ def _self_enroll_url(self_enroll_url):
             '?resource_link_id')]
 
     return self_enroll_url
-    
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -200,7 +207,7 @@ def enable (request, course_instance_id):
         'role_name': role_name,
         'abort': False,
     }
-    
+
     try:
         if role_id and course_instance_id:
             # TODO: add validation to check if self enrollment si already enabled for this course
@@ -228,16 +235,65 @@ def enable (request, course_instance_id):
 
 
 @login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
-@require_http_methods(['GET'])
-def enroll (request, course_instance_id):
-    context = {
-        'canvas_url': settings.CANVAS_URL,
-        'course_instance_id' : course_instance_id,
-        'abort': False,
-    }
-    return render(request, 'self_enrollment_tool/lookup.html', context)
+def enroll (request, uuid):
+    # verify that the specified uuid corresponds to an existing self-reg course
+    try:
+        self_reg_course = SelfEnrollmentCourse.objects.get(uuid=uuid)
+    except SelfEnrollmentCourse.DoesNotExist:
+        logger.warn(
+            f"A user is trying to self-reg for course with uuid={uuid}, but no such "
+            f"record exists with this uuid."
+        )
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, this course has not been setup for self-registration.'})
+
+    # store various pieces of data for subsequent reference
+    course_instance_id = self_reg_course.course_instance_id
+    course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
+    canvas_course_id = course_instance.canvas_course_id
+    course_url = '%s/courses/%s' % (settings.CANVAS_URL, canvas_course_id)
+    canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
+
+    # is the user already in the course?
+    user_id = request.user.username
+    is_enrolled = False
+    enrollments = get_canvas_enrollment_by_user('sis_user_id:%s' % user_id)
+    if enrollments:
+        for e in enrollments:
+            logger.debug(
+                'user %s is enrolled in %d - checking against %s' % (user_id, e['course_id'], canvas_course_id))
+            if e['course_id'] == int(canvas_course_id):
+                is_enrolled = True
+                break
+
+    if is_enrolled is True:
+        # redirect the user to the actual canvas course site
+        logger.info('User %s is already enrolled in course %s - redirecting to site.' % (user_id, canvas_course_id))
+        return redirect(course_url)
+
+    # make sure the user has a Canvas account
+    canvas_user = get_canvas_user(user_id)
+    if not canvas_user:
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
+
+    # Enroll this user with the mapped role
+    # if there is a section matching the course's sis_course_id,
+    # enroll the user in that; otherwise use the default section
+    role_id = self_reg_course.role_id
+    self_reg_role = UserRole.objects.get(role_id=role_id).role_name
+    if canvas_course.get('sis_course_id'):
+        canvas_section = get_canvas_course_section(canvas_course['sis_course_id'])
+        if canvas_section:
+            new_enrollee = add_canvas_section_enrollee(canvas_section['id'], self_reg_role, user_id)
+        else:
+            new_enrollee = add_canvas_course_enrollee(canvas_course_id, self_reg_role, user_id)
+    else:
+        new_enrollee = add_canvas_course_enrollee(canvas_course_id, self_reg_role, user_id)
+
+    if new_enrollee:
+        # success
+        return redirect(course_url)
+    else:
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
 
 
 @login_required
@@ -275,7 +331,7 @@ def disable(request, pk):
 @require_http_methods(['DELETE'])
 def unenroll_user_from_course(request, course_instance_id, user_id):
     """
-    This functions deletes a user from a self-enroll course. 
+    This functions deletes a user from a self-enroll course.
     """
     logger.info(
         f'Deleting user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
