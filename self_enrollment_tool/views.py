@@ -134,13 +134,13 @@ def lookup(request):
                     messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}')
                     context['abort'] = True
 
-                if ci.course_instance_id != int(cc['sis_course_id']):
-                    logger.warning(f'Course instance ID ({course_search_term}) does not match Canvas course '
-                                 f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
-                    messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
-                                            f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
-                                            f'{ci.canvas_course_id}. Aborting.')
-                    context['abort'] = True
+                # if ci.course_instance_id != int(cc['sis_course_id']):
+                #     logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
+                #                  f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                #     messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
+                #                             f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
+                #                             f'{ci.canvas_course_id}. Aborting.')
+                #     context['abort'] = True
 
                 # Check if it is an ILE or SB course. (source != xmlfeed)
                 if ci.source == 'xmlfeed':
