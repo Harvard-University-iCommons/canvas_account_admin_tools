@@ -508,10 +508,6 @@ MASQUERADE_TOOL_SETTINGS = {
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
 
-SELF_ENROLLMENT_TOOL_RSETTINGS = {
-    'self_enrolment_tool_url' :  SECURE_SETTINGS.get('self_enrolment_tool_url', 'https://canvas.instructure.com')
-
-}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

@@ -32,7 +32,7 @@ def index(request):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def lookup(request):
     course_search_term = request.POST.get('course_search_term')
@@ -114,7 +114,7 @@ def add_new(request):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def enable (request, course_instance_id):
     """
@@ -166,7 +166,7 @@ def enable (request, course_instance_id):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def enroll (request, course_instance_id):
     context = {
