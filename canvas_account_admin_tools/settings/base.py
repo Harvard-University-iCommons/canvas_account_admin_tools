@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'canvas_course_site_wizard',
     'canvas_site_creator',
     'course_info',
+    'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
     'django_cas_ng',
