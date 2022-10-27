@@ -30,13 +30,10 @@
         {% endfor %}
     <br><br>
     <div>
-        <h4> Distributable link :</h4>
-        {{ enrollment_url }}:enrollment_url
-        {{ request.path }}"/self_enrollment_tool/enable"
-
-        <a href="{{ enrollment_url }}">
+        URL:
+        <a href="{{ enrollment_url }}" target="_blank" rel="noopener noreferrer">
             {{ enrollment_url }}
-         </a>
+        </a>
     </div>
 
 </div>
