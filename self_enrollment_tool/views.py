@@ -26,6 +26,8 @@ from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
+from .utils import _get_canvas_roles
+
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
@@ -173,7 +175,7 @@ def lookup(request):
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
 
     if roles:
-        context['user_roles'] = UserRole.objects.filter(role_id__in=roles)
+        context['roles'] = _get_canvas_roles()
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
 
