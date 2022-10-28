@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'bulk_course_settings',
     'canvas_site_deletion',
     'masquerade_tool',
+    'self_enrollment_tool',
     'rest_framework',
     'watchman'
 ]
@@ -354,6 +355,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'self_enrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -439,6 +445,7 @@ PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
+PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 
 # in search courses, when you add a person to a course. This list
@@ -446,6 +453,8 @@ PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 # user role id's from the course manager database
 ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 18, 19,
                                            20, 22, 23, 24, 25, 26, 27, 28, 400, 401]
+
+SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
 
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
@@ -498,6 +507,7 @@ MASQUERADE_TOOL_SETTINGS = {
     'temporary_masquerade_function_arn': SECURE_SETTINGS.get('temporary_masquerade_function_arn'),
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
