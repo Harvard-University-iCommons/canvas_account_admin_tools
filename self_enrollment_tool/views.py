@@ -111,7 +111,7 @@ def _self_enroll_url(request, course_instance_id):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def lookup(request):
     course_search_term = request.POST.get('course_search_term')
@@ -137,7 +137,7 @@ def lookup(request):
                     context['abort'] = True
 
                 if ci.course_instance_id != int(cc['sis_course_id']):
-                    logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
+                    logger.warning(f'Course instance ID ({course_search_term}) does not match Canvas course '
                                  f'SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
                     messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas '
                                             f'course SIS ID ({cc["sis_course_id"]}) for Canvas course '
@@ -146,14 +146,14 @@ def lookup(request):
 
                 # Check if it is an ILE or SB course. (source != xmlfeed)
                 if ci.source == 'xmlfeed':
-                    logger.error(f'Course instance ID ({course_search_term}) is not an ILE course. Aborting.')
+                    logger.warning(f'Course instance ID ({course_search_term}) is not an ILE course. Aborting.')
                     messages.error(request, f'Course instance ID ({course_search_term}) is not an ILE/SB course.')
                     context['abort'] = True
 
                 # Check if Self Enrollment record already exists for this course
                 exists = SelfEnrollmentCourse.objects.filter(course_instance_id=ci.course_instance_id).exists()
                 if exists:
-                    logger.error(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
+                    logger.warning(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
                     messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
                     context['abort'] = True
             else:
@@ -199,7 +199,7 @@ def add_new(request):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def enable (request, course_instance_id):
     """
@@ -247,8 +247,8 @@ def enable (request, course_instance_id):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
-@require_http_methods(['GET', 'POST'])
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['GET'])
 def enroll (request, course_instance_id):
     context = {
         'canvas_url': settings.CANVAS_URL,

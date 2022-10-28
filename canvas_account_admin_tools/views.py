@@ -142,8 +142,8 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-           verify that user has permissions to view the Canvas Site deletion tool
-           """
+       verify that user has permissions to view the Canvas Site deletion tool
+    """
     self_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_SELF_ENROLLMENT_TOOL,
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
