@@ -456,8 +456,6 @@ ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 
 
 SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
 
-SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
-
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
     'long_running_age_in_minutes': 30,
