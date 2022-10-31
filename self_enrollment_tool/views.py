@@ -284,16 +284,17 @@ def enroll (request, uuid):
     # Enroll this user with the mapped role
     # if there is a section matching the course's sis_course_id,
     # enroll the user in that; otherwise use the default section
-    role_id = self_reg_course.role_id
-    self_reg_role = UserRole.objects.get(role_id=role_id).role_name
+    user_role = UserRole.objects.get(role_id=self_reg_course.role_id)
+    canvas_role = user_role.canvas_role
+    canvas_role_id = user_role.canvas_role_id
     if canvas_course.get('sis_course_id'):
         canvas_section = get_canvas_course_section(canvas_course['sis_course_id'])
         if canvas_section:
-            new_enrollee = add_canvas_section_enrollee(canvas_section['id'], self_reg_role, user_id)
+            new_enrollee = add_canvas_section_enrollee(canvas_section['id'], canvas_role, user_id, enrollment_role_id=canvas_role_id)
         else:
-            new_enrollee = add_canvas_course_enrollee(canvas_course_id, self_reg_role, user_id)
+            new_enrollee = add_canvas_course_enrollee(canvas_course_id, canvas_role, user_id, enrollment_role_id=canvas_role_id)
     else:
-        new_enrollee = add_canvas_course_enrollee(canvas_course_id, self_reg_role, user_id)
+        new_enrollee = add_canvas_course_enrollee(canvas_course_id, canvas_role, user_id, enrollment_role_id=canvas_role_id)
 
     if new_enrollee:
         # success
