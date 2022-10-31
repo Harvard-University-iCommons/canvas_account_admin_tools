@@ -26,7 +26,7 @@ from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
-from .utils import _get_canvas_roles
+from .utils import get_canvas_roles
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +174,7 @@ def lookup(request):
     # fetch the roles for the dropdown
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
     if roles:
-        context['roles'] = _get_canvas_roles()
+        context['roles'] = get_canvas_roles()
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
 

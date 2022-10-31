@@ -8,7 +8,7 @@ from canvas_sdk.exceptions import CanvasAPIError
 
 logger = logging.getLogger(__name__)
 
-def _get_canvas_roles():
+def get_canvas_roles():
     logger.debug(f"called _get_canvas_roles()")
     roles = []
     try:
