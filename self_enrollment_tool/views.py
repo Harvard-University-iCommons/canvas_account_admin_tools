@@ -260,9 +260,13 @@ def enroll (request, course_instance_id):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_XLIST_TOOL)
-@require_http_methods(['GET'])
-def remove_self_enroll(request, pk):
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['DELETE'])
+def delete_self_enroll_course(request, pk):
+    """
+    Removes course from self enrollment table.
+    Users will no longer be able to self enroll in course.
+    """
     try:
         self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
         self_enrollment_course.delete()

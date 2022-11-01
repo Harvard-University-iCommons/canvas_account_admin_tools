@@ -8,5 +8,5 @@ urlpatterns = [
     path('lookup/', views.lookup, name='lookup'),
     path('enable/<int:course_instance_id>/', views.enable,  name='enable'),
     path('enroll/<int:course_instance_id>/', views.enroll, name='enroll'),
-    path('remove_self_enroll/<int:pk>/', views.remove_self_enroll, name='remove_self_enroll'),
+    path('delete_self_enroll_course/<int:pk>/', views.delete_self_enroll_course, name='delete_self_enroll_course'),
 ]
