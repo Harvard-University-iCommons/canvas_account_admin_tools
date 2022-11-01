@@ -267,13 +267,21 @@ def delete_self_enroll_course(request, pk):
     Removes course from self enrollment table.
     Users will no longer be able to self enroll in course.
     """
+    logger.info(f'Deleting self-enroll course pk:{pk}.')
+
     try:
-        self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
+        try:
+            self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
+        except SelfEnrollmentCourse.DoesNotExist:
+            msg = f'Course (pk:{pk}) does not exists therefore cannot be deleted.'
+            logger.warning(msg)
+            messages.warning(request, msg)
+
         self_enrollment_course.delete()
-    except Exception as e:
-        msg = f'Unable to remove self enrollment course {pk}.'
+    except Exception:
+        msg = f'Unable to delete self-enroll course pk:{pk}.'
         logger.exception(msg)
-        logger.exception(e)
         messages.error(request, msg)
 
+    logger.info(f'Deleted self-enroll course pk:{pk}.')
     return redirect('self_enrollment_tool:index')
