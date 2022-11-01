@@ -34,8 +34,14 @@ def index(request):
         updater_ids.add(course.updated_by)
         course_instance_ids.add(course.course_instance_id)
 
+    try:
+        # The school that this tool is being launched in
+        tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+    except Exception:
+        logger.exception('Error getting launch school')
+
     self_enroll_course_list = _filter_launch_school_courses(
-        request, self_enroll_course_list, course_instance_ids)
+        tool_launch_school, self_enroll_course_list, course_instance_ids)
 
     # Update "updated_by" ids to full name and add other 
     # relevant data from course_info_updater (CourseInstance objects), etc..
@@ -64,7 +70,10 @@ def index(request):
         if course.role_id:
             course.role_name = user_roles.get(role_id=course.role_id).role_name
 
-        course.self_enroll_url = _self_enroll_url(request, course.course_instance_id)
+        self_enroll_url = request.build_absolute_uri(
+            reverse('self_enrollment_tool:enable', args=[course.course_instance_id]))
+
+        course.self_enroll_url = _self_enroll_url(self_enroll_url)
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
@@ -72,12 +81,10 @@ def index(request):
     return render(request, 'self_enrollment_tool/index.html', context=context)
 
 
-def _filter_launch_school_courses(request, courses, course_instance_ids):
+def _filter_launch_school_courses(tool_launch_school, courses, course_instance_ids):
     """
     Create a subset of courses only containing courses from tool launch shool
     """
-    # The school that this tool is being launched in
-    tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
     launch_school_crs_instance_ids = set()
     course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
     
@@ -93,15 +100,11 @@ def _filter_launch_school_courses(request, courses, course_instance_ids):
     return courses.filter(course_instance_id__in=launch_school_crs_instance_ids)
 
 
-def _self_enroll_url(request, course_instance_id):
+def _self_enroll_url(self_enroll_url):
     """
-    This function creates the self enroll course URL, then checks 
-    if `?resource_link_id` is at the end of the url, then removes it 
-    if exists.
+    This function checks if `?resource_link_id` is at 
+    the end of the url, then removes it if exists.
     """
-    self_enroll_url = request.build_absolute_uri(reverse(
-        'self_enrollment_tool:enable', args=[course_instance_id]))
-
     if '?resource_link_id' in self_enroll_url:
         self_enroll_url = self_enroll_url[:self_enroll_url.rfind(
             '?resource_link_id')]
