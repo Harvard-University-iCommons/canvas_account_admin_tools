@@ -307,7 +307,7 @@ def enroll (request, uuid):
         logger.warning(f'IntegrityError adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table')
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
     except Exception as e:
-        logger.error(f'Unexpected error adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} as to {table} table', exc_info=True)
+        logger.error(f'Unexpected error adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table', exc_info=True)
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
 
     # Enroll this user with the mapped role
