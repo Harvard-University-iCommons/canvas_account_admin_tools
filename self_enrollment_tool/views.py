@@ -226,6 +226,11 @@ def enable (request, course_instance_id):
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
+        else:
+            message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
+            logger.exception(message)
+            context['abort'] = True
+            return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
