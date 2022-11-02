@@ -250,7 +250,7 @@ def enroll (request, uuid):
     except SelfEnrollmentCourse.DoesNotExist:
         logger.warn(
             f"A user is trying to self-reg for course with uuid={uuid}, but no such "
-            f"record exists with this uuid."
+            f"record exists"
         )
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, this course has not been setup for self-registration.'})
 
