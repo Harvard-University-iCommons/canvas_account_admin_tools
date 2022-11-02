@@ -11,7 +11,8 @@ from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance, SimplePerson, UserRole
+from icommons_common.models import (CourseEnrollee, CourseInstance,
+                                    DeletedEnrollee, SimplePerson, UserRole)
 from lti_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
@@ -276,7 +277,7 @@ def delete_self_enroll_course(request, pk):
         try:
             self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
         except SelfEnrollmentCourse.DoesNotExist:
-            msg = f'Course (pk:{pk}) does not exists therefore cannot be deleted.'
+            msg = f'Course (pk:{pk}) does not exists and therefore cannot be deleted.'
             logger.warning(msg)
             messages.warning(request, msg)
 
@@ -288,3 +289,37 @@ def delete_self_enroll_course(request, pk):
 
     logger.info(f'Deleted self-enroll course pk:{pk}.')
     return redirect('self_enrollment_tool:index')
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['DELETE'])
+def delete_user_from_course(request, course_instance_id, user_id):
+    """
+    This functions deletes a user from a self-enroll course. 
+    """
+    logger.info(
+        f'Deleting user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
+
+    try:
+        try:
+            course_enrollee = CourseEnrollee(
+                user_id=user_id, course_instance_id=course_instance_id)
+        except CourseEnrollee.DoesNotExist:
+            msg = f'user_id:{user_id} enrolled in course_instance_id:{course_instance_id} '
+            f'does not exists and therefore cannot be deleted.'
+            logger.warning(msg)
+            messages.warning(request, msg)
+
+        # TODO: Add code to delete or archive course enrollee record.
+        # course_enrollee.DeletedEnrollee()
+    except Exception:
+        msg = f'Unable to delete user_id:{user_id} from course_instance_id:{course_instance_id}.'
+        logger.exception(msg)
+        messages.error(request, msg)
+
+    logger.info(
+        f'Deleted user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
+
+    return redirect('self_enrollment_tool:index')  # TODO: Change this, we don't want to redirect to this page
