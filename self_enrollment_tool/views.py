@@ -20,9 +20,11 @@ from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
                                           get_canvas_course_section,
                                           get_canvas_enrollment_by_user,
                                           get_canvas_user)
-from icommons_common.models import (CourseEnrollee, CourseInstance,
-                                    DeletedEnrollee, SimplePerson, UserRole)
+from icommons_common.models import (CourseEnrollee, CourseGuest,
+                                    CourseInstance, DeletedEnrollee,
+                                    SimplePerson, UserRole)
 from lti_permissions.decorators import lti_permission_required
+from psycopg2 import IntegrityError
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
@@ -251,6 +253,7 @@ def enroll (request, uuid):
     course_instance_id = self_reg_course.course_instance_id
     course_instance = CourseInstance.objects.get(course_instance_id=course_instance_id)
     canvas_course_id = course_instance.canvas_course_id
+    canvas_user_id = request.user.username
     course_url = '%s/courses/%s' % (settings.CANVAS_URL, canvas_course_id)
     canvas_course = get_canvas_course_by_canvas_id(canvas_course_id)
 
@@ -276,6 +279,32 @@ def enroll (request, uuid):
     if not canvas_user:
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
 
+    # validate role type against allowed roles
+    user_role = UserRole.objects.get(role_id=self_reg_course.role_id)
+    role_id = user_role.role_id
+    if role_id not in settings.SELF_ENROLLMENT_TOOL_ROLES_LIST:
+        logger.warning(f'Input role_id {role_id} not one of the predefined allowed roles ({settings.SELF_ENROLLMENT_TOOL_ROLES_LIST}). Aborting.')
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
+
+    # assign and insert into appropriate table based on role
+    if user_role.student == '1':
+        table = CourseEnrollee
+    elif user_role.guest == '1':
+        table = CourseGuest
+    else:
+        logger.warning(f'role_id {role_id} not designated as one of Student or Guest. Aborting.')
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
+
+    try:
+        enrollment = table(course_instance_id=course_instance_id, user_id=canvas_user_id, role_id=role_id, source='selfenroll')
+        enrollment.save()
+    except IntegrityError as e:
+        logger.warning(f'IntegrityError adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table')
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
+    except Exception as e:
+        logger.error(f'Unexpected error adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} as to {table} table', exc_info=True)
+        return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
+
     # Enroll this user with the mapped role
     # if there is a section matching the course's sis_course_id,
     # enroll the user in that; otherwise use the default section
@@ -295,6 +324,10 @@ def enroll (request, uuid):
         # success
         return redirect(course_url)
     else:
+        # rollback enrollment entry from earlier
+        logger.warning('Enrolling self-reg user via Canvas API returned a non-200 HTTP reseponse. Rolling back database entry.')
+        result = enrollment.delete()
+        logger.info(f'Database response from DELETE operation: {result}')
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
 
 
