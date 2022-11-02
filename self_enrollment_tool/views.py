@@ -208,7 +208,7 @@ def enable (request, course_instance_id):
     }
 
     try:
-        if role_id and course_instance_id:
+        if str(role_id) and course_instance_id:
             try:
                 course_instance = SelfEnrollmentCourse.objects.get(course_instance_id=course_instance_id, role_id=role_id)
                 logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
