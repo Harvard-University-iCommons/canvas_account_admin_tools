@@ -5,6 +5,7 @@ from canvas_sdk.methods import courses
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -27,27 +28,33 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def index(request):
-    self_enroll_course_list = SelfEnrollmentCourse.objects.all()
-
-    updater_ids = set()
-    course_instance_ids = set()
-    for course in self_enroll_course_list:
-        updater_ids.add(course.updated_by)
-        course_instance_ids.add(course.course_instance_id)
-
     try:
         # The school that this tool is being launched in
         tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
     except Exception:
         logger.exception('Error getting launch school')
 
-    self_enroll_course_list = _filter_launch_school_courses(
-        tool_launch_school, self_enroll_course_list, course_instance_ids)
+    # Self-enroll course instance IDs
+    course_instance_ids = {
+        elem[0] for elem in SelfEnrollmentCourse.objects.values_list('course_instance_id')}
+
+    # Additional course info for the tool launch school courses
+    course_info = CourseInstance.objects.filter(
+        course_instance_id__in=course_instance_ids, course__school=tool_launch_school)
+
+    # Tool launch school course instance IDs
+    course_instance_ids = {elem[0] for elem in course_info.values_list('course_instance_id')}
+
+    self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
+        course_instance_id__in=course_instance_ids)
 
     # Update "updated_by" ids to full name and add other 
     # relevant data from course_info_updater (CourseInstance objects), etc..
+    updater_ids = set()
+    for course in self_enroll_course_list:
+        updater_ids.add(course.updated_by)
+
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
-    course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
     user_roles = UserRole.objects.all()
 
     for course in self_enroll_course_list:
@@ -80,25 +87,6 @@ def index(request):
         'self_enroll_course_list': self_enroll_course_list
     }
     return render(request, 'self_enrollment_tool/index.html', context=context)
-
-
-def _filter_launch_school_courses(tool_launch_school, courses, course_instance_ids):
-    """
-    Create a subset of courses only containing courses from tool launch shool
-    """
-    launch_school_crs_instance_ids = set()
-    course_info = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
-    
-    for course in courses:
-        try:
-            course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
-            if course_info_updater and course_info_updater.course.school_id == tool_launch_school:
-                    launch_school_crs_instance_ids.add(course.course_instance_id)
-        except CourseInstance.DoesNotExist:
-            continue
-
-    # Return subset of launch school self enroll courses
-    return courses.filter(course_instance_id__in=launch_school_crs_instance_ids)
 
 
 def _self_enroll_url(self_enroll_url):
@@ -220,6 +208,7 @@ def enable (request, course_instance_id):
         'course_instance_id' : course_instance_id,
         'role_id':role_id,
         'role_name': role_name,
+        'role_map': {'role_id': role_id, 'role_name': role_name},
         'abort': False,
     }
     
@@ -266,7 +255,7 @@ def enroll (request, course_instance_id):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['DELETE'])
-def delete_self_enroll_course(request, pk):
+def disable(request, pk):
     """
     Removes course from self enrollment table.
     Users will no longer be able to self enroll in course.
