@@ -135,6 +135,7 @@ def lookup(request):
                     logger.error(f'Could not retrieve Canvas course {ci.canvas_course_id}')
                     messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}')
                     context['abort'] = True
+                    return render(request, 'self_enrollment_tool/add_new.html', context)
 
                 if ci.course_instance_id != int(cc['sis_course_id']):
                     logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course '
@@ -161,16 +162,22 @@ def lookup(request):
             messages.error(request, 'Could not find a Course Instance from search term')
             context['abort'] = True
         except CanvasAPIError:
-            logger.exception(f'Could not find Canvas course {ci.canvas_course_id} via Canvas API')
-            messages.error(request, f'Could not find Canvas course {ci.canvas_course_id}. Aborting.')
+            logger.exception(f'Could not find Canvas course {course_search_term} via Canvas API')
+            messages.error(request, f'Could not find Canvas course {course_search_term}. Aborting.')
             context['abort'] = True
     else:
+        logger.warning(f'course search term {course_search_term} not numeric.')
         messages.error(request, 'Search term must be populated and may only be numbers')
+        context['abort'] = True
 
     # fetch the roles for the dropdown
-    roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
+    roles = get_canvas_roles()
     if roles:
-        context['roles'] = get_canvas_roles()
+        context['roles'] = roles
+    else:
+        logger.error(f'Unable to retrieve roles for Canvas course {course_search_term}. Response from get_canvas_roles={roles}')
+        messages.error(request, f'Error fetching roles for SIS ID {course_search_term}. Aborting.')
+        context['abort'] = True
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
 
@@ -304,7 +311,8 @@ def enroll (request, uuid):
         enrollment = table(course_instance_id=course_instance_id, user_id=canvas_user_id, role_id=role_id, source='selfenroll')
         enrollment.save()
     except IntegrityError as e:
-        logger.warning(f'IntegrityError adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table')
+        logger.warning(f'IntegrityError adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table. '
+                      'User may already be enrolled in the course.')
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
     except Exception as e:
         logger.error(f'Unexpected error adding Canvas user {canvas_user_id} with role_id {user_role} to course instance {course_instance_id} to {table} table', exc_info=True)
