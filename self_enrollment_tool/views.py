@@ -141,10 +141,10 @@ def lookup(request):
 
                 # Check if Self Enrollment record already exists for this course
                 exists = SelfEnrollmentCourse.objects.filter(course_instance_id=ci.course_instance_id).exists()
-                # if exists:
-                #     logger.warning(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
-                #     messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
-                #     context['abort'] = True
+                if exists:
+                    logger.warning(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
+                    messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
+                    context['abort'] = True
             else:
                 logger.error(f'Course instance {ci.course_instance_id} does not have a Canvas course ID set.')
                 messages.error(request, f'Course instance {ci.course_instance_id} does not have a Canvas course ID set. Cannot continue.')
