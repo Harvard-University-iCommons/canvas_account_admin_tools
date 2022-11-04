@@ -10,6 +10,6 @@ urlpatterns = [
     path('enroll/<int:course_instance_id>/', views.enroll, name='enroll'),
     path('disable/<int:pk>/',
          views.disable, name='disable'),
-    path('delete_user_from_course/<int:course_instance_id>/<int:user_id>',
-         views.delete_user_from_course, name='delete_user_from_course')
+    path('unenroll_user_from_course/<int:course_instance_id>/<int:user_id>',
+         views.unenroll_user_from_course, name='unenroll_user_from_course')
 ]

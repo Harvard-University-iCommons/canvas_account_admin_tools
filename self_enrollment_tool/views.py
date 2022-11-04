@@ -36,24 +36,21 @@ def index(request):
 
     # Self-enroll course instance IDs
     course_instance_ids = {
-        elem[0] for elem in SelfEnrollmentCourse.objects.values_list('course_instance_id')}
+        crs_id[0] for crs_id in SelfEnrollmentCourse.objects.values_list('course_instance_id')}
 
     # Additional course info for the tool launch school courses
     course_info = CourseInstance.objects.filter(
         course_instance_id__in=course_instance_ids, course__school=tool_launch_school)
 
     # Tool launch school course instance IDs
-    course_instance_ids = {elem[0] for elem in course_info.values_list('course_instance_id')}
+    course_instance_ids = {crs_id[0] for crs_id in course_info.values_list('course_instance_id')}
 
     self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
         course_instance_id__in=course_instance_ids)
 
-    # Update "updated_by" ids to full name and add other 
+    # Update "updated_by" ids to first and last name and add other 
     # relevant data from course_info_updater (CourseInstance objects), etc..
-    updater_ids = set()
-    for course in self_enroll_course_list:
-        updater_ids.add(course.updated_by)
-
+    updater_ids = {course.updated_by for course in  self_enroll_course_list}
     updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
     user_roles = UserRole.objects.all()
 
@@ -144,10 +141,10 @@ def lookup(request):
 
                 # Check if Self Enrollment record already exists for this course
                 exists = SelfEnrollmentCourse.objects.filter(course_instance_id=ci.course_instance_id).exists()
-                if exists:
-                    logger.warning(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
-                    messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
-                    context['abort'] = True
+                # if exists:
+                #     logger.warning(f'Self Enrollment is already enabled for this course  {ci.course_instance_id} ')
+                #     messages.error(request, f'Self Enrollment is already enabled for this course {ci.course_instance_id} ')
+                #     context['abort'] = True
             else:
                 logger.error(f'Course instance {ci.course_instance_id} does not have a Canvas course ID set.')
                 messages.error(request, f'Course instance {ci.course_instance_id} does not have a Canvas course ID set. Cannot continue.')
@@ -169,13 +166,7 @@ def lookup(request):
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
 
     if roles:
-        role_names = set()
-        # Role ID to role name
-        user_roles = UserRole.objects.all()
-        for role in roles:
-            role_names.add(user_roles.get(role_id=role).role_name)
-
-        context['roles'] = role_names
+        context['user_roles'] = UserRole.objects.filter(role_id__in=roles)
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
 
@@ -192,14 +183,13 @@ def add_new(request):
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 def enable (request, course_instance_id):
     """
     Enable Self enrollment for the Course with the chosen role
     """
     logger.debug(request)
     role_id = request.POST.get('role_id')
-
     role_name = request.POST.get('role_name')
     logger.debug(f'Selected Role_id {role_id} (role_name {role_name}) for Self Enrollment in course {course_instance_id}')
 
@@ -208,7 +198,6 @@ def enable (request, course_instance_id):
         'course_instance_id' : course_instance_id,
         'role_id':role_id,
         'role_name': role_name,
-        'role_map': {'role_id': role_id, 'role_name': role_name},
         'abort': False,
     }
     
@@ -284,7 +273,7 @@ def disable(request, pk):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['DELETE'])
-def delete_user_from_course(request, course_instance_id, user_id):
+def unenroll_user_from_course(request, course_instance_id, user_id):
     """
     This functions deletes a user from a self-enroll course. 
     """
