@@ -1,10 +1,10 @@
 import logging
 
-from django.conf import settings
-from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
-from icommons_common.models import UserRole
 from canvas_sdk.exceptions import CanvasAPIError
-
+from django.conf import settings
+from icommons_common.canvas_api.helpers import \
+    roles as canvas_api_helpers_roles
+from icommons_common.models import UserRole
 
 logger = logging.getLogger(__name__)
 
