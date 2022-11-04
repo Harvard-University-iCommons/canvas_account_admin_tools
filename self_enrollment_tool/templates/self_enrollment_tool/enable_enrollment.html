@@ -34,8 +34,8 @@
         {{ enrollment_url }}:enrollment_url
         {{ request.path }}"/self_enrollment_tool/enable"
 
-        <a href=" ">
-             {% url 'self_enrollment_tool:enable'  course_instance_id=course_instance_id  %}
+        <a href="{{ enrollment_url }}">
+            {{ enrollment_url }}
          </a>
     </div>
 

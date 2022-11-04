@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 import logging
 
 from canvas_sdk.exceptions import CanvasAPIError
@@ -7,13 +5,17 @@ from canvas_sdk.methods import courses
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.db.models import Q
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance
+from icommons_common.models import (CourseEnrollee, CourseInstance,
+                                    DeletedEnrollee, SimplePerson, UserRole)
 from lti_permissions.decorators import lti_permission_required
+
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
 
@@ -26,9 +28,75 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def index(request):
-    context = {}
-    return render(request, 'self_enrollment_tool/index.html', context)
+    try:
+        # The school that this tool is being launched in
+        tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+    except Exception:
+        logger.exception('Error getting launch school')
 
+    # Self-enroll course instance IDs
+    course_instance_ids = {
+        crs_id[0] for crs_id in SelfEnrollmentCourse.objects.values_list('course_instance_id')}
+
+    # Additional course info for the tool launch school courses
+    course_info = CourseInstance.objects.filter(
+        course_instance_id__in=course_instance_ids, course__school=tool_launch_school)
+
+    # Tool launch school course instance IDs
+    course_instance_ids = {crs_id[0] for crs_id in course_info.values_list('course_instance_id')}
+
+    self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
+        course_instance_id__in=course_instance_ids)
+
+    # Update "updated_by" ids to first and last name and add other 
+    # relevant data from course_info_updater (CourseInstance objects), etc..
+    updater_ids = {course.updated_by for course in  self_enroll_course_list}
+    updaters = SimplePerson.objects.get_list_as_dict(user_ids=updater_ids)
+    user_roles = UserRole.objects.all()
+
+    for course in self_enroll_course_list:
+        updater = updaters.get(course.updated_by)
+        if updater:
+            course.last_modified_by_full_name = f'{updater.name_first} {updater.name_last}'
+
+        try:
+            course_info_updater = course_info.get(course_instance_id=course.course_instance_id)
+            if course_info_updater:
+                course.course = course_info_updater.course
+                course.section = course_info_updater.section
+                course.term = course_info_updater.term
+                course.title = course_info_updater.title
+                course.short_title = course_info_updater.short_title
+                course.sub_title = course_info_updater.sub_title
+        except CourseInstance.DoesNotExist:
+            logger.exception(f'This course instance ID {course.course_instance_id} '
+                             f'does no exist in course instance database table')
+
+        if course.role_id:
+            course.role_name = user_roles.get(role_id=course.role_id).role_name
+
+        self_enroll_url = request.build_absolute_uri(
+            reverse('self_enrollment_tool:enable', args=[course.course_instance_id]))
+
+        course.self_enroll_url = _self_enroll_url(self_enroll_url)
+
+    context = {
+        'self_enroll_course_list': self_enroll_course_list
+    }
+    return render(request, 'self_enrollment_tool/index.html', context=context)
+
+
+def _self_enroll_url(self_enroll_url):
+    """
+    This function checks if `?resource_link_id` is at 
+    the end of the url, then removes it if exists.
+    """
+    if '?resource_link_id' in self_enroll_url:
+        self_enroll_url = self_enroll_url[:self_enroll_url.rfind(
+            '?resource_link_id')]
+
+    return self_enroll_url
+    
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -98,11 +166,10 @@ def lookup(request):
     roles = settings.SELF_ENROLLMENT_TOOL_ROLES_LIST
 
     if roles:
-        # todo : Get role names from role table and display role names in dropdown (currently role_ids are being shown)
-        # This seems to have been done in 4279 by. Validate after merge and remove this todo
-        context['roles'] = roles
+        context['user_roles'] = UserRole.objects.filter(role_id__in=roles)
 
     return render(request, 'self_enrollment_tool/add_new.html', context)
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -112,21 +179,19 @@ def add_new(request):
     context = {}
     return render(request, 'self_enrollment_tool/add_new.html', context)
 
+
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 def enable (request, course_instance_id):
     """
     Enable Self enrollment for the Course with the chosen role
     """
     logger.debug(request)
     role_id = request.POST.get('role_id')
-
-    # todo: retrive role name. Note: Thsi is implemented in teh other story for thsi tool but will remove this comment
-    #  after verifying on merging upstream
-    role_name = request.POST.get('role_id')
-    logger.debug(f'Selected Role_id {role_id} for Self Enrollment in  course {course_instance_id}')
+    role_name = request.POST.get('role_name')
+    logger.debug(f'Selected Role_id {role_id} (role_name {role_name}) for Self Enrollment in course {course_instance_id}')
 
     context = {
         'canvas_url': settings.CANVAS_URL,
@@ -135,9 +200,10 @@ def enable (request, course_instance_id):
         'role_name': role_name,
         'abort': False,
     }
+    
     try:
         if role_id and course_instance_id:
-
+            # TODO: add validation to check if self enrollment si already enabled for this course
             # check if self enrollment is already enabled for this course
             exists  = SelfEnrollmentCourse.objects.filter(course_instance_id=course_instance_id).exists()
             if exists :
@@ -151,16 +217,12 @@ def enable (request, course_instance_id):
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
-
-                # todo : format the Distributable Self reg link (this is related to tlt-4278) .
-                enrollment_url = 'canvas_account_admin_tools/self_enrollment_tool/enroll/' + course_instance_id;
-                context['enrollment_url'] = enrollment_url
+                context['enrollment_url'] = _self_enroll_url(request, course_instance_id)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
         logger.exception(message)
         context['abort'] = True
-
 
     return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
@@ -176,3 +238,66 @@ def enroll (request, course_instance_id):
         'abort': False,
     }
     return render(request, 'self_enrollment_tool/lookup.html', context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['DELETE'])
+def disable(request, pk):
+    """
+    Removes course from self enrollment table.
+    Users will no longer be able to self enroll in course.
+    """
+    logger.info(f'Deleting self-enroll course pk:{pk}.')
+
+    try:
+        try:
+            self_enrollment_course = SelfEnrollmentCourse.objects.get(pk=pk)
+        except SelfEnrollmentCourse.DoesNotExist:
+            msg = f'Course (pk:{pk}) does not exists and therefore cannot be deleted.'
+            logger.warning(msg)
+            messages.warning(request, msg)
+
+        self_enrollment_course.delete()
+    except Exception:
+        msg = f'Unable to delete self-enroll course pk:{pk}.'
+        logger.exception(msg)
+        messages.error(request, msg)
+
+    logger.info(f'Deleted self-enroll course pk:{pk}.')
+    return redirect('self_enrollment_tool:index')
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
+@require_http_methods(['DELETE'])
+def unenroll_user_from_course(request, course_instance_id, user_id):
+    """
+    This functions deletes a user from a self-enroll course. 
+    """
+    logger.info(
+        f'Deleting user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
+
+    try:
+        try:
+            course_enrollee = CourseEnrollee(
+                user_id=user_id, course_instance_id=course_instance_id)
+        except CourseEnrollee.DoesNotExist:
+            msg = f'user_id:{user_id} enrolled in course_instance_id:{course_instance_id} '
+            f'does not exists and therefore cannot be deleted.'
+            logger.warning(msg)
+            messages.warning(request, msg)
+
+        # TODO: Add code to delete or archive course enrollee record.
+        # course_enrollee.DeletedEnrollee()
+    except Exception:
+        msg = f'Unable to delete user_id:{user_id} from course_instance_id:{course_instance_id}.'
+        logger.exception(msg)
+        messages.error(request, msg)
+
+    logger.info(
+        f'Deleted user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
+
+    return redirect('self_enrollment_tool:index')  # TODO: Change this, we don't want to redirect to this page

@@ -27,11 +27,99 @@
         {% endfor %}
     <br><br>
     <div class="row" style="margin-top: 1em;">
-            <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary pull-right">Add New</a>
+        <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary pull-right">Add New</a>
     </div>
-    <p><i>This is the placeholder for the list view</i></p>
-</div>
+    <br>
+        {% comment %} Start of Self Enrollment Course List section {% endcomment %}
+        <div class="row" style="margin-top: .25em;">
+            <div style="margin-bottom: -20px; padding-top: 25px;">
+                <h4 class="modal-title bottom-spacing">Self Enrollment Course List:</h4>
+            </div>
+            <table class="datatable table display no-footer">
+                <thead>
+                    <th>Course</th>
+                    <th>Role&nbsp;ID</th>
+                    <th>Self&nbsp;Enroll&nbsp;URL</th>
+                    <th>Modified&nbsp;By</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody>
+                {% for crs in self_enroll_course_list %}
+                    <tr>
+                        {% comment %} Course column {% endcomment %}
+                        <td>
+                            {{ crs.course.school_id | upper }}
+                            <b>
+                            {% if crs.course.school_id == 'hls' or crs.course.school_id == 'ext'%}
+                                {{ crs.course.registrar_code }}
+                            {% elif crs.short_title %}
+                                {{ crs.short_title }}
+                            {% elif crs.course.registrar_code_display %}
+                                {{ crs.course.registrar_code_display }}
+                            {% elif crs.course.registrar_code %}
+                                {{ crs.course.registrar_code }}
+                            {% else %}
+                                No course code; course ID {{ crs.course.course_id }}
+                            {% endif %}
+                            </b>
+                            {% if crs.section %}
+                                {{ crs.section }}
+                            {% endif %}
+                            <br>
+                            {{ crs.term.display_name }}
+                            (course instance ID {{ crs.course_instance_id }})
+                            <br>
+                            <i>
+                            {% if crs.course.school_id == 'hls' or crs.course.school_id == 'ext'%}
+                                {{ crs.title }}
+                            {% else %}
+                                {{ crs.sub_title }}
+                            {% endif %}
+                            </i>
+                        </td>
+                        {% comment %} Role ID column {% endcomment %}
+                        <td>
+                            <b>
+                            {% if crs.role_name %}
+                                {{ crs.role_name }}
+                            {% else %}
+                                No course role ID; course ID {{ crs.course_instance_id }}
+                            {% endif %}
+                            </b>
+                        </td>
+                        {% comment %} Self Enroll URL column {% endcomment %}
+                        <td>
+                            <a href="{{ crs.self_enroll_url }}">
+                                {{ crs.self_enroll_url }}
+                            </a>
+                        </td>
+                        {% comment %} Updated by column {% endcomment %}
+                        <td>{{ crs.last_modified_by_full_name }}</td>
+                        {% comment %} Delete column {% endcomment %}
+                        <td>
+                            <a href="{% url 'self_enrollment_tool:disable' pk=crs.pk %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    
+        <script>
+            $(document).ready(function() {
+                $('.datatable').dataTable( {
+                    paging: false,
+                    "bInfo" : false,
+                    "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+                    "oLanguage": {
+                      "sSearch": "Filter the list below"
+                    }
+                });
+            });
+        </script>
+        {% comment %} End of Self Enrollment Course List section {% endcomment %}
+        <br>
+    </div>
 </body>
-
 
 {% endblock %}
