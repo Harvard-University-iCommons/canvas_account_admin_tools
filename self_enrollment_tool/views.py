@@ -7,7 +7,6 @@ from canvas_sdk.methods import courses
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
@@ -21,8 +20,8 @@ from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
                                           get_canvas_enrollment_by_user,
                                           get_canvas_user)
 from icommons_common.models import (CourseEnrollee, CourseGuest,
-                                    CourseInstance, CourseStaff,
-                                    DeletedEnrollee, SimplePerson, UserRole)
+                                    CourseInstance, CourseStaff, SimplePerson,
+                                    UserRole)
 from lti_permissions.decorators import lti_permission_required
 from psycopg2 import IntegrityError
 
