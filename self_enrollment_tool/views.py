@@ -21,8 +21,8 @@ from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
                                           get_canvas_enrollment_by_user,
                                           get_canvas_user)
 from icommons_common.models import (CourseEnrollee, CourseGuest,
-                                    CourseInstance, DeletedEnrollee,
-                                    SimplePerson, UserRole)
+                                    CourseInstance, CourseStaff,
+                                    DeletedEnrollee, SimplePerson, UserRole)
 from lti_permissions.decorators import lti_permission_required
 from psycopg2 import IntegrityError
 
@@ -303,8 +303,10 @@ def enroll (request, uuid):
         table = CourseEnrollee
     elif user_role.guest == '1':
         table = CourseGuest
+    elif user_role.staff == '1':
+        table = CourseStaff
     else:
-        logger.warning(f'role_id {role_id} not designated as one of Student or Guest. Aborting.')
+        logger.warning(f'role_id {role_id} not designated as one of Student, Guest, or Staff. Aborting.')
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
 
     try:
