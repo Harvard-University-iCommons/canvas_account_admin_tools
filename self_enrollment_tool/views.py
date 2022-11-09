@@ -86,7 +86,7 @@ def index(request):
             course.role_name = user_roles.get(role_id=course.role_id).role_name
 
         self_enroll_url = request.build_absolute_uri(
-            reverse('self_enrollment_tool:enable', args=[course.course_instance_id]))
+            reverse('self_enrollment_tool:enroll', args=[course.uuid]))
 
         course.self_enroll_url = _self_enroll_url(self_enroll_url)
 
