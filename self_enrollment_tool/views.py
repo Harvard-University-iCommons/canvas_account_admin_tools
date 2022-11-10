@@ -88,7 +88,7 @@ def index(request):
         self_enroll_url = request.build_absolute_uri(
             reverse('self_enrollment_tool:enroll', args=[course.uuid]))
 
-        course.self_enroll_url = _self_enroll_url(self_enroll_url)
+        course.self_enroll_url = _remove_resource_link_id(self_enroll_url)
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
@@ -96,7 +96,7 @@ def index(request):
     return render(request, 'self_enrollment_tool/index.html', context=context)
 
 
-def _self_enroll_url(self_enroll_url):
+def _remove_resource_link_id(self_enroll_url):
     """
     This function checks if `?resource_link_id` is at
     the end of the url, then removes it if exists.
@@ -244,7 +244,8 @@ def enable (request, course_instance_id):
         context['abort'] = True
         return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
-    context['enrollment_url'] = f'{request.scheme}://{request.get_host()}{path}'
+    context['enrollment_url'] = _remove_resource_link_id(
+        f'{request.scheme}://{request.get_host()}{path}')
     return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
 
