@@ -14,9 +14,9 @@ def get_course_instance_query_set(sis_term_id, sis_account_id):
     if account_type == 'school':
         filters['course__school'] = account_id
     elif account_type == 'dept':
-        filters['course__departments'] = account_id
+        filters['course__department'] = account_id
     elif account_type == 'coursegroup':
-        filters['course__course_groups'] = account_id
+        filters['course__course_group'] = account_id
 
     return CourseInstance.objects.filter(**filters)
 
@@ -24,33 +24,24 @@ def get_course_instance_query_set(sis_term_id, sis_account_id):
 def get_course_instance_summary_data(query_set):
     total_count = query_set.count()
 
-    # get total count, isites count, and external count for CIs without a Canvas site
+    # get total count and external count for CIs without a Canvas site
     query_set_without_canvas_site = query_set.filter(canvas_course_id__isnull=True)
     total_without_canvas_site_count = query_set_without_canvas_site.count()
-    total_without_canvas_site_with_isites_count = query_set_without_canvas_site.filter(
-        sitemap__course_site__site_type_id='isite'
-    ).count()
     total_without_canvas_site_with_external_count = query_set_without_canvas_site.filter(
         sitemap__course_site__site_type_id='external'
     ).exclude(sitemap__course_site__external_id__icontains=settings.CANVAS_URL).count()
 
-    # get total count, iSites count, and external count for CIs without a Canvas site AND
+    # get total count and external count for CIs without a Canvas site AND
     # with the sync_to_canvas flag set to 0
     query_set_without_canvas_site_and_sync_to_canvas_false = query_set_without_canvas_site.filter(sync_to_canvas=0)
     total_without_canvas_site_and_sync_to_canvas_false_count = query_set_without_canvas_site_and_sync_to_canvas_false.count()
-    total_without_canvas_site_and_sync_to_canvas_false_with_isites_count = query_set_without_canvas_site_and_sync_to_canvas_false.filter(
-    sitemap__course_site__site_type_id='isite'
-    ).count()
     total_without_canvas_site_and_sync_to_canvas_false_with_external_count = query_set_without_canvas_site_and_sync_to_canvas_false.filter(
         sitemap__course_site__site_type_id='external'
     ).exclude(sitemap__course_site__external_id__icontains=settings.CANVAS_URL).count()
 
-    # get total count, isites count, and external count for CIs with a Canvas site
+    # get total count and external count for CIs with a Canvas site
     query_set_with_canvas_site = query_set.filter(canvas_course_id__isnull=False)
     total_with_canvas_site_count = query_set_with_canvas_site.count()
-    total_with_canvas_site_with_isites_count = query_set_with_canvas_site.filter(
-        sitemap__course_site__site_type_id='isite'
-    ).count()
     total_with_canvas_site_with_external_count = query_set_with_canvas_site.filter(
         sitemap__course_site__site_type_id='external'
     ).exclude(sitemap__course_site__external_id__icontains=settings.CANVAS_URL).count()
@@ -59,13 +50,10 @@ def get_course_instance_summary_data(query_set):
         'recordsTotal': total_count,
         'recordsFiltered': total_count,
         'recordsTotalWithoutCanvasSite': total_without_canvas_site_count,
-        'recordsTotalWithoutCanvasSiteWithISite': total_without_canvas_site_with_isites_count,
         'recordsTotalWithoutCanvasSiteWithExternal': total_without_canvas_site_with_external_count,
         'recordsTotalWithoutCanvasSiteAndSyncToCanvasFalse': total_without_canvas_site_and_sync_to_canvas_false_count,
-        'recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithISite': total_without_canvas_site_and_sync_to_canvas_false_with_isites_count,
         'recordsTotalWithoutCanvasSiteAndSyncToCanvasFalseWithExternal': total_without_canvas_site_and_sync_to_canvas_false_with_external_count,
         'recordsTotalWithCanvasSite': total_with_canvas_site_count,
-        'recordsTotalWithCanvasSiteWithISite': total_with_canvas_site_with_isites_count,
         'recordsTotalWithCanvasSiteWithExternal': total_with_canvas_site_with_external_count,
     }
 

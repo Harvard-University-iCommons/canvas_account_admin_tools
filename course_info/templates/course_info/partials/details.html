@@ -232,20 +232,20 @@
           label="Meeting time"></hu-editable-input>
 
       <hu-field-label-wrapper
-          is-loading="dc.isUndefined(dc.courseInstance.departments)"
-          field="departments"
-          label="Departments">
-        <div class="row" ng-repeat="dept in dc.courseInstance.departments">
-          <div class="col-sm-12"> {{dept.name}} </div>
+          is-loading="dc.isUndefined(dc.courseInstance.department)"
+          field="department"
+          label="Department">
+        <div class="row">
+          <div class="col-sm-12"> {{dc.courseInstance.department}} </div>
         </div>
       </hu-field-label-wrapper>
 
       <hu-field-label-wrapper
-          is-loading="dc.isUndefined(dc.courseInstance.course_groups)"
-          field="course_groups"
-          label="Course Groups">
-        <div class="row" ng-repeat="group in dc.courseInstance.course_groups">
-          <div class="col-sm-12"> {{group.name}} </div>
+          is-loading="dc.isUndefined(dc.courseInstance.course_group)"
+          field="course_group"
+          label="Course Group">
+        <div class="row">
+          <div class="col-sm-12"> {{dc.courseInstance.course_group}} </div>
         </div>
       </hu-field-label-wrapper>
 

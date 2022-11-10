@@ -73,8 +73,6 @@
                         $scope.courseInstanceModel.totalCourses = json.recordsTotal;
                         $scope.courseInstanceModel.totalCoursesWithCanvasSite = json.recordsTotalWithCanvasSite;
                         $scope.courseInstanceModel.totalCoursesWithoutCanvasSite = json.recordsTotalWithoutCanvasSite;
-                        $scope.courseInstanceModel.totalCoursesWithISite = json.recordsTotalWithISite;
-                        $scope.courseInstanceModel.totalCoursesWithISiteOfficial = json.recordsTotalWithISiteOfficial;
                         $scope.courseInstanceModel.totalCoursesWithExternalSite = json.recordsTotalExternalSite;
                         $scope.courseInstanceModel.totalCoursesWithExternalSiteOfficial = json.recordsTotalExternalSiteOfficial;
                         $scope.$apply();

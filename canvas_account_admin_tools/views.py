@@ -184,4 +184,39 @@ def icommons_rest_api_proxy(request, path):
     url = "{}/{}".format(settings.ICOMMONS_REST_API_HOST, os.path.join(path, ''))
     if settings.ICOMMONS_REST_API_SKIP_CERT_VERIFICATION:
         request_args['verify'] = False
-    return proxy_view(request, url, request_args)
+
+    response = proxy_view(request, url, request_args)
+    try:
+        params = request.GET
+        if request.method in ['PATCH', 'POST']:
+            try:
+                params = json.loads(request.body)
+            except json.decoder.JSONDecodeError:
+                extra = {
+                    'method': request.method,
+                    'POST': request.POST.dict(),
+                    'GET': request.GET.dict(),
+                    'META': request.META,
+                    'user': f'{request.user.username} ({request.user.first_name} {request.user.last_name})',
+                }
+                logger.exception(f'failed to decode json in body {request.body} content-type:{request.content_type}', extra=extra)
+
+        extra = {
+            'user': request.user.username,
+            'user_name': f'{request.user.first_name} {request.user.last_name}',
+            'path': request.path,
+            'method': request.method,
+            'query_string': request.META.get('QUERY_STRING'),
+            'user_agent': request.META.get('HTTP_USER_AGENT'),
+            'remote_addr': request.META.get('REMOTE_ADDR'),
+            'referrer': request.META.get('HTTP_REFERER'),
+            'content_type': request.content_type,
+            'status_code': response.status_code,
+            'params': params,
+        }
+
+        logger.info(f'User {request.user.username} requesting {request.method} {url}', extra=extra)
+    except Exception:
+        logger.exception(f'Error logging {request.method} request by {request.user.username} to {url} ({request.content_type})')
+
+    return response

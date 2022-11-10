@@ -79,7 +79,7 @@
                 {{site.course_site_url}}
               </a>
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-3" ng-if="!sc.isCanvasSite($index)">
               <button type="button" class="btn btn-default pull-right"
                       ng-click="sc.dissociateSite($index)">
                 <span
@@ -93,9 +93,12 @@
                 </span>
               </button>
             </div>
+            <div class="col-sm-3" ng-if="sc.isCanvasSite($index)">
+              Cannot dissociate a Canvas site - delete it instead.
+            </div>
             <hr>
         </div>
-        <div class="form-group" ng-if="sc.isPrimaryCourse()">
+        <div class="form-group" ng-if="!sc.isCrosslisted() || (sc.isCrosslisted() && sc.isPrimaryCourse())">
           <div class="col-sm-8 col-sm-offset-1">
             <label class="sr-only" for="newAssociatedCourseURL">
               New associated course URL
@@ -125,7 +128,7 @@
             </button>
           </div>
         </div>
-        <div ng-if="!sc.isPrimaryCourse()">
+        <div ng-if="sc.isCrosslisted() && !sc.isPrimaryCourse()">
           <span>
             <strong>Sites cannot be associated with secondarily-crosslisted courses.</strong>
           </span>

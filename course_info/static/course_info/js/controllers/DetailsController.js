@@ -102,8 +102,8 @@
                 courseInstance['term_id'] = ci.term.term_id.toString();
                 courseInstance['term_conclude_date'] = $filter('date')(ci.term.conclude_date, 'MM/dd/yyyy', 'Z');
                 courseInstance['year'] = ci.term.academic_year;
-                courseInstance['departments'] = ci.course.departments;
-                courseInstance['course_groups'] = ci.course.course_groups;
+                courseInstance['department'] = ci.course.department ? ci.course.department.name : null;
+                courseInstance['course_group'] = ci.course.course_group ? ci.course.course_group.name : null;
 
                 var registrarCode = ci.course.registrar_code_display
                     ? ci.course.registrar_code_display
