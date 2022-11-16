@@ -328,7 +328,7 @@ LOGGING = {
     'loggers': {
         'gunicorn': {
             'handlers': ['gunicorn', 'console'],
-            'level': 'INFO',
+            'level': logging.WARNING,
             'propagate': False,
         },
         'bulk_utilities': {
@@ -366,6 +366,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'self_unenrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -397,7 +402,7 @@ LOGGING = {
             'propagate': False,
         },
         'django_auth_lti': {
-            'level': logging.ERROR,
+            'level': logging.DEBUG,
             'handlers': ['console', 'default'],
             'propagate': False,
         },
