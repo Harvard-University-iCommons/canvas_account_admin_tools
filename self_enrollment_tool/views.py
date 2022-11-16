@@ -341,7 +341,7 @@ def enroll (request, uuid):
         return redirect(course_url)
     else:
         # rollback enrollment entry from earlier
-        logger.warning('Enrolling self-reg user via Canvas API returned a non-200 HTTP reseponse. Rolling back database entry.')
+        logger.warning('Enrolling self-reg user via Canvas API returned a non-200 HTTP response. Rolling back database entry.')
         result = enrollment.delete()
         logger.info(f'Database response from DELETE operation: {result}')
         return render(request, 'self_enrollment_tool/error.html', {'message': 'Sorry, there was a problem enrolling you in this course.'})
