@@ -1,0 +1,50 @@
+{% extends 'self_unenrollment_tool/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-med-9">
+        <h1>Un-enroll from this course</h1>
+        {% if self_enroll_course %}
+            {% if self_enrolled %}
+                {% if self_enrollment_count > 1 %}
+                    <p>Present a list of checkboxes</p>
+                {% else %}
+                    <p>[ Leave this course ]</p>
+                {% endif %}
+
+            {% else %}
+                <p>You are not self-enrolled in this course, so you cannot un-enroll here. Please contact your teaching staff for help.</p>
+            {% endif %}
+        {% else %}
+            <p>Self-enrollment is not enabled for this course, so you cannot un-enroll here. Additional instructions TBD.</p>
+        {% endif %}
+
+        <p>Check:</p>
+        <ul>
+            <li>Do we have a real user/is the user logged in?</li>
+            <li>Is self-enrollment enabled for this course?</li>
+            <li>Is this user self-enrolled?</li>
+        </ul>
+        <p>If yes to the above, display a "remove me" button:</p>
+        <ul>
+            <li>Remove the user's self-enrolled record from CM db</li>
+            <li>Remove the user's enrollments via Canvas API</li>
+        </ul>
+        <p>Questions:</p>
+        <ul>
+            <li>What is the user experience after all of their enrollments have been removed? Do they get a permissions error page?</li>
+            <li>What if the user has multiple self-enrollments - let them choose which to remove?</li>
+            <li>What if the user has both self-enrollment(s) and regular enrollment(s)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block javascript %}
+{% endblock javascript %}

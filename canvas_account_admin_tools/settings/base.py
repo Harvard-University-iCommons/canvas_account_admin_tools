@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'canvas_site_deletion',
     'masquerade_tool',
     'self_enrollment_tool',
+    'pylti1p3.contrib.django.lti1p3_tool_config',
+    'self_unenrollment_tool',
     'rest_framework',
     'watchman'
 ]
