@@ -118,6 +118,7 @@ def lookup(request):
     context = {
         'canvas_url': settings.CANVAS_URL,
         'abort': False,
+        'course_instance': None,
     }
 
     if course_search_term.isnumeric():
