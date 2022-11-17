@@ -29,6 +29,26 @@
     <div class="row" style="margin-top: 1em;">
         <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary pull-right">Add New</a>
     </div>
+
+    <!-- Modal Delete Confirmation START -->
+    <div class="modal fade" id="DelConfirmModalCenter" tabindex="-1" role="dialog" aria-labelledby="DelConfirmModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="DelConfirmModalLongTitle">Are you sure you want to delete this self-enrollment link?</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Delete Confirmation END -->
+
     <br>
         {% comment %} Start of Self Enrollment Course List section {% endcomment %}
         <div class="row" style="margin-top: .25em;">
@@ -97,7 +117,10 @@
                         <td>{{ crs.last_modified_by_full_name }}</td>
                         {% comment %} Delete column {% endcomment %}
                         <td>
-                            <a href="{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}"><i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
+                            <a href="{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}" 
+                            data-toggle="modal" 
+                            data-target="#DelConfirmModalCenter">
+                            <i class="fa fa-lg fa-trash" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -115,6 +138,10 @@
                       "sSearch": "Filter the list below"
                     }
                 });
+            });
+
+            $(document).on('click', '#delete-item', () => {
+                document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
             });
         </script>
         {% comment %} End of Self Enrollment Course List section {% endcomment %}
