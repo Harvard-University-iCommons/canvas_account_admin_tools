@@ -402,7 +402,7 @@ LOGGING = {
             'propagate': False,
         },
         'django_auth_lti': {
-            'level': logging.DEBUG,
+            'level': logging.ERROR,
             'handlers': ['console', 'default'],
             'propagate': False,
         },
