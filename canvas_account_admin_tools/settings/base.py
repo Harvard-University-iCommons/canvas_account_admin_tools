@@ -160,6 +160,8 @@ DATABASES = {
     }
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
 # Note as well: RQ_QUEUES cache settings below should match the LOCATION of
@@ -406,7 +408,6 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
-
     }
 }
 

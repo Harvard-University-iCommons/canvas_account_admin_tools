@@ -1,21 +1,20 @@
 
 from logging import getLogger
 
+from canvas_sdk import RequestContext
+from canvas_sdk.methods.enrollments import (conclude_enrollment,
+                                            list_enrollments_courses)
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from icommons_common.models import (CourseEnrollee, CourseGuest,CourseStaff)
+from icommons_common.models import CourseEnrollee, CourseGuest, CourseStaff
 from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
                                      DjangoMessageLaunch, DjangoOIDCLogin)
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
-from django.http import HttpRequest
-from canvas_sdk.methods.enrollments import list_enrollments_courses, conclude_enrollment
-from canvas_sdk import RequestContext
 
 logger = getLogger(__name__)
 
@@ -50,37 +49,39 @@ def get_launch_url(request):
 
 @csrf_exempt
 def login(request):
-    logger.debug('login')
     tool_conf = get_tool_conf()
     launch_data_storage = get_launch_data_storage()
 
-
     oidc_login = DjangoOIDCLogin(request, tool_conf, launch_data_storage=launch_data_storage)
     target_link_uri = get_launch_url(request)
-    logger.debug(f'Target link URI: {target_link_uri}')
     return oidc_login.enable_check_cookies().redirect(target_link_uri)
 
 
 @require_POST
 @csrf_exempt
 def launch(request):
-    logger.debug('Launch request')
     tool_conf = get_tool_conf()
     launch_data_storage = get_launch_data_storage()
     message_launch = CustomDjangoMessageLaunch(request, tool_conf, launch_data_storage=launch_data_storage)
+    # this next line is necessary even though the variable is not used; if get_launch_data() is not called, launch data will not be saved to the session!
+    launch_data = message_launch.get_launch_data()
     return redirect(reverse('self_unenrollment_tool:index', kwargs={'launch_id': message_launch.get_launch_id()}))
 
 
-@login_required
 def index(request: HttpRequest, launch_id):
-    tool_conf = get_tool_conf()
-    launch_data_storage = get_launch_data_storage()
-    message_launch = CustomDjangoMessageLaunch.from_cache(launch_id, request, tool_conf,
-                                                        launch_data_storage=launch_data_storage)
-    message_launch_data = message_launch.get_launch_data()
-    lis = message_launch_data.get('https://purl.imsglobal.org/spec/lti/claim/lis')
-    course_sis_id = lis.get('course_offering_sourcedid')
-    user_sis_id = lis.get('person_sourcedid')
+    try:
+        tool_conf = get_tool_conf()
+        launch_data_storage = get_launch_data_storage()
+        message_launch = CustomDjangoMessageLaunch.from_cache(launch_id, request, tool_conf,
+                                                            launch_data_storage=launch_data_storage)
+        message_launch_data = message_launch.get_launch_data()
+        lis = message_launch_data.get('https://purl.imsglobal.org/spec/lti/claim/lis')
+        course_sis_id = lis.get('course_offering_sourcedid')
+        user_sis_id = lis.get('person_sourcedid')
+    except Exception as e:
+        logger.error('Failed to launch self-unenroll tool: {e}')
+        return render(request, 'self_unenrollment_tool/error.html', {'message': 'There was a problem launching the tool.'})
+
 
     if request.method == 'GET':
 
@@ -203,10 +204,10 @@ def config(request):
                 'privacy_level': 'public',
                 'settings': {
                     'text': 'Self-unenrollment Tool',
-                    'icon_url': 'https://www.ltiadvantage.com/wp-content/uploads/2019/01/lti-advantage-logo-white.png',
                     'placements': [
                         {
                             'placement': 'course_home_sub_navigation',
+                            'text': 'Un-enroll from this course'
                         },
                     ],
                 },

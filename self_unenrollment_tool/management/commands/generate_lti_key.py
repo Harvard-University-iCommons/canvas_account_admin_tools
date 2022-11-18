@@ -9,7 +9,7 @@ from pylti1p3.contrib.django.lti1p3_tool_config.models import LtiToolKey
 
 
 class Command(BaseCommand):
-    help = "Generate a new LTI tool key pair"
+    help = "Generate a new LTI tool key pair and store in the database"
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument('name', type=str)

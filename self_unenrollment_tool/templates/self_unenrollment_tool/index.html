@@ -8,22 +8,21 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-med-9">
-        <h1>Un-enroll from this course</h1>
+        <h2>Un-enroll from this course</h2>
         {% if is_self_enroll_course %}
-            <p>This course does have self-enrollment enabled.</p>
             {% if is_self_enrolled %}
-                <p>This user is self-enrolled in this course.</p>
+                <p class="lead">Use the button below to remove yourself from this course.
                 <form method="post">
                     {% csrf_token %}
                     <input type="submit" value="Leave this course" class="button primary"/>
                 </form>
+                </p>
             {% else %}
-                <p>You are not self-enrolled in this course, so you cannot un-enroll here. Please contact your teaching staff for help.</p>
+                <p class="lead">You are not self-enrolled in this course, so you cannot un-enroll here. Please contact your teaching staff for help.</p>
             {% endif %}
         {% else %}
-            <p>Self-enrollment is not enabled for this course, so you cannot un-enroll here. Additional instructions TBD.</p>
+            <p class="lead">Self-enrollment is not enabled for this course, so you cannot un-enroll here. Additional instructions TBD.</p>
         {% endif %}
-
       </div>
     </div>
   </div>
