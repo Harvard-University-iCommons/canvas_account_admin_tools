@@ -63,8 +63,9 @@ def launch(request):
     tool_conf = get_tool_conf()
     launch_data_storage = get_launch_data_storage()
     message_launch = CustomDjangoMessageLaunch(request, tool_conf, launch_data_storage=launch_data_storage)
-    # this next line is necessary even though the variable is not used; if get_launch_data() is not called, launch data will not be saved to the session!
+    # this next line is necessary even if the variable is not used; if get_launch_data() is not called, launch data will not be saved to the session!
     launch_data = message_launch.get_launch_data()
+    logger.info('self_unenrollment_tool launch', extra={'launch_data': launch_data})
     return redirect(reverse('self_unenrollment_tool:index', kwargs={'launch_id': message_launch.get_launch_id()}))
 
 
@@ -74,12 +75,12 @@ def index(request: HttpRequest, launch_id):
         launch_data_storage = get_launch_data_storage()
         message_launch = CustomDjangoMessageLaunch.from_cache(launch_id, request, tool_conf,
                                                             launch_data_storage=launch_data_storage)
-        message_launch_data = message_launch.get_launch_data()
-        lis = message_launch_data.get('https://purl.imsglobal.org/spec/lti/claim/lis')
-        course_sis_id = lis.get('course_offering_sourcedid')
-        user_sis_id = lis.get('person_sourcedid')
+        launch_data = message_launch.get_launch_data()
+        lis = launch_data['https://purl.imsglobal.org/spec/lti/claim/lis']
+        course_sis_id = lis['course_offering_sourcedid']
+        user_sis_id = lis['person_sourcedid']
     except Exception as e:
-        logger.error('Failed to launch self-unenroll tool: {e}')
+        logger.exception(f'Failed to launch self-unenroll tool: {e}', extra={'launch_data': launch_data})
         return render(request, 'self_unenrollment_tool/error.html', {'message': 'There was a problem launching the tool.'})
 
 
@@ -95,7 +96,7 @@ def index(request: HttpRequest, launch_id):
         if course_sis_id:
             se_configs = SelfEnrollmentCourse.objects.filter(course_instance_id=course_sis_id)
             for c in se_configs:
-                logger.debug(f'Self-enrollment activated for role {c.role_id} ({c.uuid})')
+                logger.debug(f'Self-enrollment is active for role {c.role_id} (link UUID: {c.uuid})')
                 is_self_enroll_course = True
 
             if is_self_enroll_course:
@@ -142,7 +143,7 @@ def index(request: HttpRequest, launch_id):
                     conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
                     logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}')
 
-        return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': message_launch.get_launch_id()}))
+        return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
 
 
 def _get_self_enrollments(course_sis_id, user_sis_id):
@@ -216,8 +217,9 @@ def config(request):
         'public_jwk': get_tool_conf().get_jwks()['keys'][0],
         'custom_fields': {
             'canvas_user_sisintegrationid': '$Canvas.user.sisIntegrationId',
+            'canvas_course_id': '$Canvas.course.id',
             'canvas_course_sectionids': '$Canvas.course.sectionIds',
-            'canvas_group_contextids': '$Canvas.group.contextIds',
+            'canvas_course_section_sis_sourceids': '$Canvas.course.sectionSisSourceIds',
             'canvas_xapi_url': '$Canvas.xapi.url',
             'caliper_url': '$Caliper.url',
         },
