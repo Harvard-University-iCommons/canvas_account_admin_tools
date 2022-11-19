@@ -79,8 +79,13 @@ def index(request: HttpRequest, launch_id):
         lis = launch_data['https://purl.imsglobal.org/spec/lti/claim/lis']
         course_sis_id = lis['course_offering_sourcedid']
         user_sis_id = lis['person_sourcedid']
+        extra = {
+            'course_sis_id': course_sis_id,
+            'user_sis_id': user_sis_id,
+            'launch_data': launch_data,
+        }
     except Exception as e:
-        logger.exception(f'Failed to launch self-unenroll tool: {e}', extra={'launch_data': launch_data})
+        logger.exception(f'Failed to launch self-unenroll tool: {e}', extra=extra)
         return render(request, 'self_unenrollment_tool/error.html', {'message': 'There was a problem launching the tool.'})
 
 
@@ -123,7 +128,7 @@ def index(request: HttpRequest, launch_id):
             for ce in canvas_enrollments:
                 logger.debug(ce)
         else:
-            logger.error(f'bad response from Canvas API: {api_response.text}', extra={'course_sis_id': course_sis_id, 'user_sis_id': user_sis_id})
+            logger.error(f'bad response from Canvas API: {api_response.text}', extra=extra)
 
         # get the user's self-enrollments from our database
         self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
@@ -133,15 +138,16 @@ def index(request: HttpRequest, launch_id):
             se_user_id = se.user_id
             se_course_instance_id = se.course_instance_id
             se_role_id = se.role_id
+            extra['se_role_id'] = se_role_id
             canvas_role_id = se.role.canvas_role_id
             se.delete()
-            logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}')
+            logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}', extra=extra)
 
             for ce in canvas_enrollments:
                 if ce['role_id'] == canvas_role_id:
                     # we need to delete this one
                     conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
-                    logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}')
+                    logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}', extra=extra)
 
         return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
 
