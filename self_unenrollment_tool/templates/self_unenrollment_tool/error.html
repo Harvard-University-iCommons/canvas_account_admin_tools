@@ -9,7 +9,16 @@
     <div class="row">
         <div class="col-med-9">
             <h2>Error</h2>
-            <p class="lead">{{ message }}</p>
+            {% if message %}
+                <p class="lead">{{ message }}</p>
+            {% endif %}
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
         </div>
     </div>
 </div>

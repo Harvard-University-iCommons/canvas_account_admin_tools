@@ -5,6 +5,7 @@ from canvas_sdk import RequestContext
 from canvas_sdk.methods.enrollments import (conclude_enrollment,
                                             list_enrollments_courses)
 from django.conf import settings
+from django.contrib import messages
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -16,7 +17,8 @@ from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
-from .lti1p3_utils import get_message_launch, require_lti_launch, get_launch_url
+from .lti1p3_utils import (get_launch_url, get_message_launch,
+                           require_lti_launch)
 
 logger = getLogger(__name__)
 
@@ -108,6 +110,9 @@ def index(request: HttpRequest, launch_id):
         # get the user's self-enrollments from our database
         self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
 
+        errors = []
+        successes = []
+
         for se in self_enrollments:
             logger.debug(se)
             se_user_id = se.user_id
@@ -115,14 +120,41 @@ def index(request: HttpRequest, launch_id):
             se_role_id = se.role_id
             extra['se_role_id'] = se_role_id
             canvas_role_id = se.role.canvas_role_id
-            se.delete()
-            logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}', extra=extra)
+            try:
+                se.delete()
+                logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}', extra=extra)
+                successes.append('Successfully deleted self-enrollment')
+            except Exception as e:
+                logger.error(f'Failed to delete self-enrollment for user {user_sis_id} with role {se_role_id} in course {course_sis_id}', extra=extra)
+                errors.append('Failed to delete self-enrollment')
 
             for ce in canvas_enrollments:
                 if ce['role_id'] == canvas_role_id:
                     # we need to delete this one
-                    conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
-                    logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}', extra=extra)
+                    try:
+                        result = conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
+                        if result.status_code == 200:
+                            logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}', extra=extra)
+                            successes.append('Successfully deleted Canvas self-enrollment')
+                        else:
+                            logger.error(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=extra)
+                            errors.append('Failed to delete Canvas self-enrollment')
+                    except Exception as e:
+                        logger.exception(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=extra)
+                        errors.append('Feled to delete Canvas self-enrollment')
+
+
+        message = ''
+        if errors:
+            if successes:
+                # partially successful
+                message = 'Removing your self-enrollment(s) for this course was partially successful. If you remain enrolled after 24 hours, check with your teaching staff.'
+            else:
+                # not successful
+                message = 'Removing your self-enrollments(s) for this course was not successful. Please check with your teaching staff.'
+
+            messages.add_message(request, messages.ERROR, message)
+            return redirect(reverse('self_unenrollment_tool:error'))
 
         return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
 
