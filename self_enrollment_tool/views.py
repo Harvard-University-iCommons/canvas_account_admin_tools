@@ -355,21 +355,24 @@ def disable(request, uuid):
     Removes course from self enrollment table.
     Users will no longer be able to self enroll in course.
     """
-    logger.info(f'Deleting self-enroll course uuid:{uuid}.')
+    logger.info(f'Deleting self-enroll URL for course uuid:{uuid}.')
 
     try:
         try:
             self_enrollment_course = SelfEnrollmentCourse.objects.get(uuid=uuid)
         except SelfEnrollmentCourse.DoesNotExist:
-            msg = f'Course (uuid:{uuid}) does not exists and therefore cannot be deleted.'
+            msg = f'Self-enroll URL for course (uuid: {uuid}) does not exists and therefore cannot be deleted.'
             logger.warning(msg)
             messages.warning(request, msg)
 
         self_enrollment_course.delete()
     except Exception:
-        msg = f'Unable to delete self-enroll course uuid:{uuid}.'
+        msg = f'Unable to delete self-enroll URL for course uuid: {uuid}.'
         logger.exception(msg)
         messages.error(request, msg)
 
-    logger.info(f'Deleted self-enroll course uuid:{uuid}.')
+    msg = f'Successfully deleted self-enroll URL for course (uuid: {uuid}).'
+    logger.info(msg)
+    messages.success(request, msg)
+
     return redirect('self_enrollment_tool:index')
