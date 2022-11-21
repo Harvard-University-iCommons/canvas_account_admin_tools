@@ -218,7 +218,7 @@ def enable (request, course_instance_id):
             try:
                 course_instance = SelfEnrollmentCourse.objects.get(course_instance_id=course_instance_id, role_id=role_id)
                 logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
-                messages.warning(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
+                messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
                               f'See below for the previously-generated link.')
                 path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
             except SelfEnrollmentCourse.DoesNotExist:
