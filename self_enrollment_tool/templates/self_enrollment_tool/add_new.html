@@ -28,26 +28,28 @@
             {% endif %}
         {% endfor %}
     <br><br>
-    <div>
-        <div class="row">
-            <div class="col-sm-6">
-                <b>Enter an SIS Course Id to lookup the ILE course:</b>
+    {% if not course_instance or abort is True %}
+        <div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <b>Enter an SIS Course Id to lookup the ILE course:</b>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:lookup' %}">{% csrf_token %}
+                    <div class="form-group col-sm-3">
+                        <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
+                        <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID" style="width: 100%"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+                        <i class="fa fa-search"></i> Find Course</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <br>
-        <div class="row">
-            <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:lookup' %}">{% csrf_token %}
-                <div class="form-group col-sm-3">
-                    <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
-                    <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID" style="width: 100%"/>
-                </div>
-                <div class="col-sm-3">
-                    <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
-                    <i class="fa fa-search"></i> Find Course</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    {% endif %}
     <br>
     <div>
     {% if course_instance and abort is False %}
