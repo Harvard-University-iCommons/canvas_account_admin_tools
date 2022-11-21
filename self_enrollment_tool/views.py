@@ -27,7 +27,7 @@ from psycopg2 import IntegrityError
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
-from .utils import get_canvas_roles
+from .utils import get_canvas_roles, install_unenrollment_tool
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +194,7 @@ def add_new(request):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['POST'])
-def enable (request, course_instance_id):
+def enable(request, course_instance_id):
     """
     Enable Self enrollment for the Course with the chosen role
     """
@@ -232,6 +232,14 @@ def enable (request, course_instance_id):
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
                 messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
                                           f" {course_instance_id} for role {role_name}")
+
+            # install the self-unenroll tool
+            self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
+            try:
+                install_unenrollment_tool(course_instance_id=course_instance_id, client_id=self_unenroll_client_id)
+            except Exception as e:
+                messages.warning(e)
+
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
             logger.exception(message)
