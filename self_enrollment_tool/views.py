@@ -244,9 +244,12 @@ def enable (request, course_instance_id):
         context['abort'] = True
         return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
 
-    context['enrollment_url'] = _remove_resource_link_id(
-        f'{request.scheme}://{request.get_host()}{path}')
-    return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+    enrollment_url = _remove_resource_link_id(
+    f'{request.scheme}://{request.get_host()}{path}')
+
+    messages.success(request, f"Generated self-registration link for SIS ID={course_instance_id}, role={role_name}. "
+              f"URL: {enrollment_url}")
+    return redirect('self_enrollment_tool:index')
 
 
 @login_required

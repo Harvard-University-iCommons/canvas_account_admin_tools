@@ -89,9 +89,11 @@
                         </td>
                         {% comment %} Self Enroll URL column {% endcomment %}
                         <td>
-                            <a href="{{ crs.self_enroll_url }}">
-                                {{ crs.self_enroll_url }}
-                            </a>
+                            <div>
+                                <span id="url">{{ crs.self_enroll_url }}</span>
+                                <br>
+                                <input id="copy" type="button" value="Copy URL" onclick="copy(event)" />
+                            </div>
                         </td>
                         {% comment %} Updated by column {% endcomment %}
                         <td>{{ crs.last_modified_by_full_name }}</td>
@@ -104,22 +106,38 @@
                 </tbody>
             </table>
         </div>
-    
-        <script>
-            $(document).ready(function() {
-                $('.datatable').dataTable( {
-                    paging: false,
-                    "bInfo" : false,
-                    "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
-                    "oLanguage": {
-                      "sSearch": "Filter the list below"
-                    }
-                });
-            });
-        </script>
         {% comment %} End of Self Enrollment Course List section {% endcomment %}
         <br>
     </div>
 </body>
-
 {% endblock %}
+
+{% block javascript %}
+<script>
+    $(document).ready(function() {
+        $('.datatable').dataTable( {
+            paging: false,
+            "bInfo" : false,
+            "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+            "oLanguage": {
+              "sSearch": "Filter the list below"
+            }
+        });
+    });
+    const copy = async (e) => {
+        let url = e.srcElement.previousElementSibling.previousElementSibling.outerText
+        if (navigator.clipboard) {
+            try {
+                await navigator.clipboard.writeText(url);
+            } catch (err) {
+                console.log(err)
+            }
+        } else {
+            text = e.clipboardData.setData('text/plain', url);
+        }
+    }
+
+    const button = document.getElementById("copy");
+    button.addEventListener("click", copy(e));
+</script>
+{% endblock javascript %}
