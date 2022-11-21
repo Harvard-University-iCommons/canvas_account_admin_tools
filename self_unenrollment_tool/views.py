@@ -16,6 +16,8 @@ from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
+from .lti1p3_utils import get_message_launch, require_lti_launch, get_launch_url
+
 logger = getLogger(__name__)
 
 SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
@@ -24,33 +26,10 @@ SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
 SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 
-class CustomDjangoMessageLaunch(DjangoMessageLaunch):
-    # Override the default validate_deployment() method from DjangoMessageLaunch since we don't want
-    # to have to reconfigure the tool every time someone deploys it in a new course or sub-account.
-    def validate_deployment(self):
-        return self
-
-
-def get_tool_conf():
-    tool_conf = DjangoDbToolConf()
-    return tool_conf
-
-
-def get_launch_data_storage():
-    return DjangoCacheDataStorage()
-
-
-def get_launch_url(request):
-    target_link_uri = request.POST.get('target_link_uri', request.GET.get('target_link_uri'))
-    if not target_link_uri:
-        raise Exception('Missing "target_link_uri" param')
-    return target_link_uri
-
-
 @csrf_exempt
-def login(request):
-    tool_conf = get_tool_conf()
-    launch_data_storage = get_launch_data_storage()
+def login(request: HttpRequest):
+    tool_conf = DjangoDbToolConf()
+    launch_data_storage = DjangoCacheDataStorage()
 
     oidc_login = DjangoOIDCLogin(request, tool_conf, launch_data_storage=launch_data_storage)
     target_link_uri = get_launch_url(request)
@@ -59,22 +38,18 @@ def login(request):
 
 @require_POST
 @csrf_exempt
-def launch(request):
-    tool_conf = get_tool_conf()
-    launch_data_storage = get_launch_data_storage()
-    message_launch = CustomDjangoMessageLaunch(request, tool_conf, launch_data_storage=launch_data_storage)
+def launch(request: HttpRequest):
+    message_launch = get_message_launch(request)
     # this next line is necessary even if the variable is not used; if get_launch_data() is not called, launch data will not be saved to the session!
     launch_data = message_launch.get_launch_data()
     logger.info('self_unenrollment_tool launch', extra={'launch_data': launch_data})
     return redirect(reverse('self_unenrollment_tool:index', kwargs={'launch_id': message_launch.get_launch_id()}))
 
 
+@require_lti_launch
 def index(request: HttpRequest, launch_id):
     try:
-        tool_conf = get_tool_conf()
-        launch_data_storage = get_launch_data_storage()
-        message_launch = CustomDjangoMessageLaunch.from_cache(launch_id, request, tool_conf,
-                                                            launch_data_storage=launch_data_storage)
+        message_launch = get_message_launch(request, launch_id)
         launch_data = message_launch.get_launch_data()
         lis = launch_data['https://purl.imsglobal.org/spec/lti/claim/lis']
         course_sis_id = lis['course_offering_sourcedid']
@@ -179,8 +154,8 @@ def success(request: HttpRequest, launch_id):
     return render(request, 'self_unenrollment_tool/success.html', template_context)
 
 
-def get_jwks(request):
-    tool_conf = get_tool_conf()
+def get_jwks(request: HttpRequest):
+    tool_conf = DjangoDbToolConf()
     return JsonResponse(tool_conf.get_jwks(), safe=False)
 
 
@@ -193,18 +168,30 @@ LTI_NRPS_V2_SCOPE = "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembe
 LTI_UPDATE_PUBLIC_JWK_SCOPE = "https://canvas.instructure.com/lti/public_jwk/scope/update"
 LTI_ACCOUNT_LOOKUP_SCOPE = "https://canvas.instructure.com/lti/account_lookup/scope/show"
 
-def config(request):
+def config(request: HttpRequest):
     oidc_initiation_url = request.build_absolute_uri(reverse('self_unenrollment_tool:login'))
     target_link_uri = request.build_absolute_uri(reverse('self_unenrollment_tool:launch'))
-
-    # TODO: don't use tool_conf to get the JWKs since it might not exist yet; generate the JWK on the fly from a key in the db
+    # if the tool needs LTI Advantage scopes, add them here:
+    scopes = []
+    # get the JWK (we're just using the first key we find)
+    # todo: generate a new key if one doesn't exist yet?
+    public_jwk = DjangoDbToolConf().get_jwks()['keys'][0]
+    # if the tool needs custom Canvas fields, add them here:
+    custom_fields = {
+        'canvas_user_sisintegrationid': '$Canvas.user.sisIntegrationId',
+        'canvas_course_id': '$Canvas.course.id',
+        'canvas_course_sectionids': '$Canvas.course.sectionIds',
+        'canvas_course_section_sis_sourceids': '$Canvas.course.sectionSisSourceIds',
+        'canvas_xapi_url': '$Canvas.xapi.url',
+        'caliper_url': '$Caliper.url',
+    }
 
     lms_config = {
         'title': 'Self-unenrollment Tool',
         'description': 'A tool to help users leave courses that they have self-enrolled in',
         'oidc_initiation_url': oidc_initiation_url,
         'target_link_uri': target_link_uri,
-        'scopes': [],
+        'scopes': scopes,
         'extensions': [
             {
                 'platform': 'canvas.instructure.com',
@@ -220,14 +207,7 @@ def config(request):
                 },
             }
         ],
-        'public_jwk': get_tool_conf().get_jwks()['keys'][0],
-        'custom_fields': {
-            'canvas_user_sisintegrationid': '$Canvas.user.sisIntegrationId',
-            'canvas_course_id': '$Canvas.course.id',
-            'canvas_course_sectionids': '$Canvas.course.sectionIds',
-            'canvas_course_section_sis_sourceids': '$Canvas.course.sectionSisSourceIds',
-            'canvas_xapi_url': '$Canvas.xapi.url',
-            'caliper_url': '$Caliper.url',
-        },
+        'public_jwk': public_jwk,
+        'custom_fields': custom_fields,
     }
     return JsonResponse(lms_config, safe=False)
