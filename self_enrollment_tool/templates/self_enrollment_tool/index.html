@@ -117,29 +117,25 @@
                     }
                 });
             });
+
+            const copy = async (e) => {
+                let url = e.srcElement.previousElementSibling.previousElementSibling.outerText
+                if (navigator.clipboard) {
+                    try {
+                        await navigator.clipboard.writeText(url);
+                    } catch (err) {
+                        console.log(err)
+                    }
+                } else {
+                    text = e.clipboardData.setData('text/plain', url);
+                }
+            }
+
+            const button = document.getElementById("copy");
+            button.addEventListener("click", copy(e));
         </script>
         {% comment %} End of Self Enrollment Course List section {% endcomment %}
         <br>
     </div>
 </body>
 {% endblock %}
-
-{% block javascript %}
-<script>
-    const copy = async (e) => {
-        let url = e.srcElement.previousElementSibling.previousElementSibling.outerText
-        if (navigator.clipboard) {
-            try {
-                await navigator.clipboard.writeText(url);
-            } catch (err) {
-                console.log(err)
-            }
-        } else {
-            text = e.clipboardData.setData('text/plain', url);
-        }
-    }
-
-    const button = document.getElementById("copy");
-    button.addEventListener("click", copy(e));
-</script>
-{% endblock javascript %}
