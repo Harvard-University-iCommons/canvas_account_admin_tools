@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
+
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
@@ -56,7 +57,7 @@ def index(request):
     course_instance_ids = {crs_id[0] for crs_id in course_info.values_list('course_instance_id')}
 
     self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
-        course_instance_id__in=course_instance_ids)
+        course_instance_id__in=course_instance_ids).order_by('-last_updated')
 
     # Update "updated_by" ids to first and last name and add other
     # relevant data from course_info_updater (CourseInstance objects), etc..
