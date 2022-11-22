@@ -205,14 +205,6 @@ def enable (request, course_instance_id):
     role_name = roles.get('roleName', '')
     logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
 
-    context = {
-        'canvas_url': settings.CANVAS_URL,
-        'course_instance_id' : course_instance_id,
-        'role_id':role_id,
-        'role_name': role_name,
-        'abort': False,
-    }
-
     try:
         if str(role_id) and course_instance_id:
             try:
@@ -230,7 +222,7 @@ def enable (request, course_instance_id):
                 path = reverse('self_enrollment_tool:enroll', args=[uuid])
                 enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Generated self-registration link for SIS ID={course_instance_id}, role={role_name}. "
+                messages.success(request, f"Generated self-registration link for course={course_instance_id}, role={role_name}. "
                                 f"URL: {enrollment_url}")
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
