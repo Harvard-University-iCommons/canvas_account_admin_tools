@@ -351,29 +351,32 @@ def enroll (request, uuid):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
-def disable(request, uuid):
+def disable(request, uuid, course_instance_id, role_name):
     """
     Removes course from self enrollment table.
     Users will no longer be able to self enroll in course.
     """
-    logger.info(f'Deleting self-enroll URL for course uuid:{uuid}.')
+    context = {'course_instance_id': course_instance_id,
+               'uuid': uuid, 'role_name': role_name}
+    logger.info(f'Deleting self-enroll URL for course instance ID: {course_instance_id}', extra=context)
 
     try:
         try:
             self_enrollment_course = SelfEnrollmentCourse.objects.get(uuid=uuid)
         except SelfEnrollmentCourse.DoesNotExist:
-            msg = f'Self-enroll URL for course (uuid: {uuid}) does not exists and therefore cannot be deleted.'
-            logger.warning(msg)
+            msg = f'Self-enroll URL for course instance ID: {course_instance_id} (role ID: {role_name}) '
+            f'does not exists and therefore cannot be deleted'
+            logger.warning(msg, extra=context)
             messages.warning(request, msg)
 
         self_enrollment_course.delete()
     except Exception:
-        msg = f'Unable to delete self-enroll URL for course uuid: {uuid}.'
-        logger.exception(msg)
+        msg = f'Unable to delete self-enroll URL for course instance ID: {course_instance_id} (role ID: {role_name})'
+        logger.exception(msg, extra=context)
         messages.error(request, msg)
-
-    msg = f'Successfully deleted self-enroll URL for course (uuid: {uuid}).'
-    logger.info(msg)
+    
+    msg = f'Successfully deleted self-enroll URL for course instance ID: {course_instance_id} (role ID: {role_name})'
+    logger.info(msg, extra=context)
     messages.success(request, msg)
 
     return redirect('self_enrollment_tool:index')
