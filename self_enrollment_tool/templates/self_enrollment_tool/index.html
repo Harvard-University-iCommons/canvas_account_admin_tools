@@ -120,14 +120,10 @@
 
             const copy = async (e) => {
                 let url = e.srcElement.previousElementSibling.previousElementSibling.outerText
-                if (navigator.clipboard) {
-                    try {
-                        await navigator.clipboard.writeText(url);
-                    } catch (err) {
-                        console.log(err)
-                    }
-                } else {
-                    text = e.clipboardData.setData('text/plain', url);
+                try {
+                    await navigator.clipboard.writeText(url);
+                } catch (err) {
+                    console.log(err)
                 }
             }
 
