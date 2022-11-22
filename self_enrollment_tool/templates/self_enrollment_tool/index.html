@@ -61,7 +61,6 @@
                     <th>Role&nbsp;ID</th>
                     <th>Self&nbsp;Enroll&nbsp;URL</th>
                     <th>Modified&nbsp;By</th>
-                    <th>Last&nbsp;Updated</th>
                     <th>Delete</th>
                 </thead>
                 <tbody>
@@ -116,8 +115,6 @@
                         </td>
                         {% comment %} Updated by column {% endcomment %}
                         <td>{{ crs.last_modified_by_full_name }}</td>
-                        {% comment %} Last updated column {% endcomment %}
-                        <td>{{ crs.last_updated }}</td>
                         {% comment %} Delete column {% endcomment %}
                         <td>
                             <a>
@@ -137,9 +134,8 @@
                     paging: false,
                     "info" : false,
                     "order": [],
-                    "columnDefs": [ 
-                        { "targets": 4, visible: false },
-                        { "orderable": false, "targets": [2, 5] }
+                    "columnDefs": [
+                        { "orderable": false, "targets": [2, 4] }
                     ],
                     "language": {
                       "search": "Filter the list below"
