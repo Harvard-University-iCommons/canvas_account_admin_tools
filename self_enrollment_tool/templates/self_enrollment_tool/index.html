@@ -122,8 +122,7 @@
                         <td>
                             <a>
                                 <i class="fa fa-lg fa-trash" aria-hidden="true" data-toggle="modal" data-target="#delConfirmModalCenter" 
-                                onclick="delItem('{% url 'self_enrollment_tool:disable' uuid=crs.uuid course_instance_id=crs.course_instance_id role_name=crs.role_name %}')">
-                                </i>
+                                onclick="delItem('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')"></i>
                             </a>
                         </td>
                     </tr>

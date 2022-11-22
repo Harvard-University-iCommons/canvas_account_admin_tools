@@ -8,6 +8,5 @@ urlpatterns = [
     path('lookup/', views.lookup, name='lookup'),
     path('enable/<int:course_instance_id>/', views.enable,  name='enable'),
     path('enroll/<uuid:uuid>', views.enroll, name='enroll'),
-    path('disable/<uuid:uuid>/<int:course_instance_id>/<str:role_name>',
-         views.disable, name='disable'),
+    path('disable/<uuid:uuid>/', views.disable, name='disable'),
 ]
