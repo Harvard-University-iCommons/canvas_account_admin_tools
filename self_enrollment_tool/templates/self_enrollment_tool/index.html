@@ -142,7 +142,6 @@
                 try {
                     await navigator.clipboard.writeText(url);
                 } catch (err) {
-                    console.log(err);
                     showCopyError($this);
                     return
                 }
