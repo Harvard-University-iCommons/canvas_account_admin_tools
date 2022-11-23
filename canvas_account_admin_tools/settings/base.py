@@ -10,13 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
+import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import logging
-
-from django.urls import reverse_lazy
 import time
+
 from dj_secure_settings.loader import load_secure_settings
+from django.urls import reverse_lazy
 from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
 
 SECURE_SETTINGS = load_secure_settings()
@@ -216,6 +216,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 # SESSION_COOKIE_AGE, which defaults to 2 weeks when no value is given.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

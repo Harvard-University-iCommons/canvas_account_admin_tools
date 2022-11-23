@@ -119,6 +119,7 @@ def lookup(request):
     context = {
         'canvas_url': settings.CANVAS_URL,
         'abort': False,
+        'course_instance': None,
     }
 
     if course_search_term.isnumeric():
@@ -206,14 +207,6 @@ def enable (request, course_instance_id):
     role_name = roles.get('roleName', '')
     logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
 
-    context = {
-        'canvas_url': settings.CANVAS_URL,
-        'course_instance_id' : course_instance_id,
-        'role_id':role_id,
-        'role_name': role_name,
-        'abort': False,
-    }
-
     try:
         if str(role_id) and course_instance_id:
             try:
@@ -222,7 +215,6 @@ def enable (request, course_instance_id):
                 messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
                               f'See below for the previously-generated link.')
                 path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
-                context['abort'] = True
             except SelfEnrollmentCourse.DoesNotExist:
                 uuid = str(uuid4())
                 SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
@@ -230,24 +222,21 @@ def enable (request, course_instance_id):
                                               updated_by=str(request.user),
                                               uuid=uuid)
                 path = reverse('self_enrollment_tool:enroll', args=[uuid])
+                enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
-                                          f" {course_instance_id} for role {role_name}")
+                messages.success(request, f"Generated self-registration link for course={course_instance_id}, role={role_name}. "
+                                f"URL: {enrollment_url}")
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
             logger.exception(message)
-            context['abort'] = True
-            return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+            messages.error(request, message=message)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
         logger.exception(message)
-        context['abort'] = True
-        return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+        messages.error(request, message=message)
 
-    context['enrollment_url'] = _remove_resource_link_id(
-        f'{request.scheme}://{request.get_host()}{path}')
-    return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+    return redirect('self_enrollment_tool:index')
 
 
 @login_required
