@@ -89,9 +89,13 @@
                         </td>
                         {% comment %} Self Enroll URL column {% endcomment %}
                         <td>
-                            <a href="{{ crs.self_enroll_url }}">
-                                {{ crs.self_enroll_url }}
-                            </a>
+                            <div>
+                                <span class="url">{{ crs.self_enroll_url }}</span>
+                                <br>
+                                <div class="copy-container">
+                                    <i style="cursor: pointer;" class="copy-button fa fa-clone" data-toggle="tooltip" data-placement="bottom" data-original-title="Copied!"></i>
+                                </div>
+                            </div>
                         </td>
                         {% comment %} Updated by column {% endcomment %}
                         <td>{{ crs.last_modified_by_full_name }}</td>
@@ -104,7 +108,6 @@
                 </tbody>
             </table>
         </div>
-    
         <script>
             $(document).ready(function() {
                 $('.datatable').dataTable( {
@@ -116,10 +119,40 @@
                     }
                 });
             });
+
+            const showCopyError = function(el) {
+                el.attr("data-original-title", "Error");
+                el.tooltip("show");
+                el.attr("data-original-title", "Copied!");
+                setTimeout(() => {
+                    el.tooltip("hide");
+                }, 1000);
+            }
+
+            const showCopySuccess = function(el) {
+                el.tooltip("show");
+                setTimeout(() => {
+                    el.tooltip("hide");
+                }, 1000);
+            }
+
+            const copy = async function() {
+                const $this = $(this);
+                const url = $this.parent().siblings('.url')[0].outerText;
+                try {
+                    await navigator.clipboard.writeText(url);
+                } catch (err) {
+                    showCopyError($this);
+                    return
+                }
+                showCopySuccess($this)
+            }
+
+            $('.copy-button').tooltip({trigger: 'manual'});
+            $('.copy-button').on("click", copy);
         </script>
         {% comment %} End of Self Enrollment Course List section {% endcomment %}
         <br>
     </div>
 </body>
-
 {% endblock %}
