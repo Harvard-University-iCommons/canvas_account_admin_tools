@@ -37,14 +37,14 @@ The process for installing an LTI 1.3 tool is a bit different from an LTI 1.1 to
 
     Copy the client ID that Canvas generates (a long number starting with 1875)
 
-3. Create a new tool configuration for the tool using this Django management command:
+3. Create/update an SSM param with the key `/<env>/canvas_account_admin_tools/self_unenroll_client_id` and the client ID from step 2 as the value.
+
+4. Create a new tool configuration for the tool using this Django management command:
 
     ```./manage.py create_tool_config --key-name <key name> --host <e.g. canvas.instructure.com> --client-id <1875*******>```
 
     `<key name>` is the name of the key that was generated in step 1. The hostname is based on the Canvas instance: it should typically be one of: `canvas.instructure.com`, `canvas.test.instructure.com` or `canvas.beta.instructure.com`.
 
 Now the tool is installed in the Canvas instance and is ready to be installed into individual courses.
-
-TBD: update CAAT config SSM params with the client_id created in step 2 above.
 
 The self-enrollment management tool will use the client ID to install the LTI tool into a course when self-enrollment is enabled.
