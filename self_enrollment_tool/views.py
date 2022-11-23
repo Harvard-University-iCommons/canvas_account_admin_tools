@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
+
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
@@ -56,7 +57,7 @@ def index(request):
     course_instance_ids = {crs_id[0] for crs_id in course_info.values_list('course_instance_id')}
 
     self_enroll_course_list = SelfEnrollmentCourse.objects.filter(
-        course_instance_id__in=course_instance_ids)
+        course_instance_id__in=course_instance_ids).order_by('-last_updated')
 
     # Update "updated_by" ids to first and last name and add other
     # relevant data from course_info_updater (CourseInstance objects), etc..
@@ -206,14 +207,6 @@ def enable(request, course_instance_id):
     role_name = roles.get('roleName', '')
     logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
 
-    context = {
-        'canvas_url': settings.CANVAS_URL,
-        'course_instance_id' : course_instance_id,
-        'role_id':role_id,
-        'role_name': role_name,
-        'abort': False,
-    }
-
     try:
         if str(role_id) and course_instance_id:
             try:
@@ -222,7 +215,6 @@ def enable(request, course_instance_id):
                 messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
                               f'See below for the previously-generated link.')
                 path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
-                context['abort'] = True
             except SelfEnrollmentCourse.DoesNotExist:
                 uuid = str(uuid4())
                 SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
@@ -230,9 +222,10 @@ def enable(request, course_instance_id):
                                               updated_by=str(request.user),
                                               uuid=uuid)
                 path = reverse('self_enrollment_tool:enroll', args=[uuid])
+                enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Successfully enabled Self Enrollment for SIS Course Id"
-                                          f" {course_instance_id} for role {role_name}")
+                messages.success(request, f"Generated self-registration link for course={course_instance_id}, role={role_name}. "
+                                f"URL: {enrollment_url}")
 
             # install the self-unenroll tool
             self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
@@ -244,18 +237,14 @@ def enable(request, course_instance_id):
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
             logger.exception(message)
-            context['abort'] = True
-            return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+            messages.error(request, message=message)
     except Exception as e:
         message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
             .format(course_instance_id, role_id, e)
         logger.exception(message)
-        context['abort'] = True
-        return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+        messages.error(request, message=message)
 
-    context['enrollment_url'] = _remove_resource_link_id(
-        f'{request.scheme}://{request.get_host()}{path}')
-    return render(request, 'self_enrollment_tool/enable_enrollment.html', context)
+    return redirect('self_enrollment_tool:index')
 
 
 @login_required
@@ -364,55 +353,25 @@ def disable(request, uuid):
     Removes course from self enrollment table.
     Users will no longer be able to self enroll in course.
     """
-    logger.info(f'Deleting self-enroll course uuid:{uuid}.')
+    context = {'uuid': uuid}
+    logger.info(f'Deleting self-enroll URL for course uuid:{uuid}.', extra=context)
 
     try:
         try:
             self_enrollment_course = SelfEnrollmentCourse.objects.get(uuid=uuid)
         except SelfEnrollmentCourse.DoesNotExist:
-            msg = f'Course (uuid:{uuid}) does not exists and therefore cannot be deleted.'
-            logger.warning(msg)
+            msg = f'Self-enroll URL for course does not exists and therefore cannot be deleted.'
+            logger.warning(msg, extra=context)
             messages.warning(request, msg)
 
         self_enrollment_course.delete()
     except Exception:
-        msg = f'Unable to delete self-enroll course uuid:{uuid}.'
-        logger.exception(msg)
+        msg = f'Unable to delete self-enroll URL for course.'
+        logger.exception(msg, extra=context)
         messages.error(request, msg)
 
-    logger.info(f'Deleted self-enroll course uuid:{uuid}.')
+    msg = f'Successfully deleted self-enroll URL for course.'
+    logger.info(msg, extra=context)
+    messages.success(request, msg)
+
     return redirect('self_enrollment_tool:index')
-
-
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
-@require_http_methods(['DELETE'])
-def unenroll_user_from_course(request, course_instance_id, user_id):
-    """
-    This functions deletes a user from a self-enroll course.
-    """
-    logger.info(
-        f'Deleting user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
-
-    try:
-        try:
-            course_enrollee = CourseEnrollee(
-                user_id=user_id, course_instance_id=course_instance_id)
-        except CourseEnrollee.DoesNotExist:
-            msg = f'user_id:{user_id} enrolled in course_instance_id:{course_instance_id} '
-            f'does not exists and therefore cannot be deleted.'
-            logger.warning(msg)
-            messages.warning(request, msg)
-
-        # TODO: Add code to delete or archive course enrollee record.
-        # course_enrollee.DeletedEnrollee()
-    except Exception:
-        msg = f'Unable to delete user_id:{user_id} from course_instance_id:{course_instance_id}.'
-        logger.exception(msg)
-        messages.error(request, msg)
-
-    logger.info(
-        f'Deleted user_id:{user_id} from self-enroll course_instance_id:{course_instance_id}.')
-
-    return redirect('self_enrollment_tool:index')  # TODO: Change this, we don't want to redirect to this page
