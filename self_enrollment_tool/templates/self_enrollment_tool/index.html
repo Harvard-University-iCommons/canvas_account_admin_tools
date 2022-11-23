@@ -90,9 +90,11 @@
                         {% comment %} Self Enroll URL column {% endcomment %}
                         <td>
                             <div>
-                                <span id="url">{{ crs.self_enroll_url }}</span>
+                                <span class="url">{{ crs.self_enroll_url }}</span>
                                 <br>
-                                <button id="copy" class="btn btn-primary" onclick="copy(event)">Copy URL</button>
+                                <div class="copy-container">
+                                    <i style="cursor: pointer;" class="copy-button fa fa-clone" data-toggle="tooltip" data-placement="bottom" data-original-title="Copied!"></i>
+                                </div>
                             </div>
                         </td>
                         {% comment %} Updated by column {% endcomment %}
@@ -118,17 +120,37 @@
                 });
             });
 
-            const copy = async (e) => {
-                let url = e.srcElement.previousElementSibling.previousElementSibling.outerText
+            const showCopyError = function(el) {
+                el.attr("data-original-title", "Error copying URL");
+                el.tooltip("show");
+                el.attr("data-original-title", "Copied!");
+                setTimeout(() => {
+                    el.tooltip("hide");
+                }, 1000);
+            }
+
+            const showCopySuccess = function(el) {
+                el.tooltip("show");
+                setTimeout(() => {
+                    el.tooltip("hide");
+                }, 1000);
+            }
+
+            const copy = async function() {
+                const $this = $(this);
+                const url = $this.parent().siblings('.url')[0].outerText;
                 try {
                     await navigator.clipboard.writeText(url);
                 } catch (err) {
-                    console.log(err)
+                    console.log(err);
+                    showCopyError($this);
+                    return
                 }
+                showCopySuccess($this)
             }
 
-            const button = document.getElementById("copy");
-            button.addEventListener("click", copy(e));
+            $('.copy-button').tooltip({trigger: 'manual'});
+            $('.copy-button').on("click", copy);
         </script>
         {% comment %} End of Self Enrollment Course List section {% endcomment %}
         <br>
