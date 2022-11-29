@@ -230,9 +230,13 @@ def enable(request, course_instance_id):
             # install the self-unenroll tool
             self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
             try:
-                install_unenrollment_tool(course_instance_id=course_instance_id, client_id=self_unenroll_client_id)
+                result = install_unenrollment_tool(course_instance_id=course_instance_id, client_id=self_unenroll_client_id)
+                if result == 'installed':
+                    messages.success(request, f'Successfully installed self-unenrollment tool into the Canvas course.')
+                elif result == 'already_installed':
+                    messages.success(request, f'Self-Unenrollment tool already installed into the Canvas course.')
             except Exception as e:
-                messages.warning(e)
+                messages.warning(request, f'There was a problem installing the self-unenrollment tool into the Canvas course: {e}')
 
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'

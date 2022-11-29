@@ -42,6 +42,7 @@ def get_canvas_roles():
 def install_unenrollment_tool(course_instance_id, client_id):
     # make sure that the unenrollment tool is installed
 
+
     if not client_id:
         raise Exception('Could not install the self-unenrollment tool into the Canvas course site: the tool client_id is missing.')
 
@@ -62,13 +63,14 @@ def install_unenrollment_tool(course_instance_id, client_id):
                 # the tool is already installed
                 logger.info(f'external tool ({client_id}/{developer_key_id}) was already installed in course {course_instance_id}')
                 is_installed = True
-                break
+                return 'already_installed'
 
     if not is_installed:
         logger.debug(f'local client id {local_client_id} (from {client_id}) was not found in installed tools - installing it now')
         result = create_external_tool_courses(SDK_CONTEXT, course_id=f'sis_course_id:{course_instance_id}', client_id=client_id)
         if result.status_code == 200:
             logger.info(f'successfully installed external tool {client_id} into course {course_instance_id}')
+            return 'installed'
         else:
             logger.error(f'failed to install external tool {client_id} into course {course_instance_id}: {result.text}')
             raise Exception(f'Could not install the self-unenrollment tool into the Canvas site for course {course_instance_id}')
