@@ -123,8 +123,9 @@ def lookup(request):
     }
 
     if course_search_term.isnumeric():
+        tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
         try:
-            ci = CourseInstance.objects.get(course_instance_id=course_search_term)
+            ci = CourseInstance.objects.get(course_instance_id=course_search_term, course__school=tool_launch_school)
             context['course_instance'] = ci
 
             if ci.canvas_course_id:
