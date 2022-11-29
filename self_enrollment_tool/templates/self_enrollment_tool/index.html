@@ -29,7 +29,7 @@
     <div class="row" style="margin-top: 1em;">
         <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary pull-right">Add New</a>
     </div>
-    
+
     <!-- Modal Delete Confirmation START -->
     <div class="modal fade" id="delConfirmModalCenter" tabindex="-1" role="dialog" aria-labelledby="delConfirmModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -125,7 +125,7 @@
                         {% comment %} Delete column {% endcomment %}
                         <td>
                             <a>
-                                <i class="fa fa-lg fa-trash" aria-hidden="true" data-toggle="modal" data-target="#delConfirmModalCenter" 
+                                <i style="cursor: pointer;" class="fa fa-lg fa-trash" aria-hidden="true" data-toggle="modal" data-target="#delConfirmModalCenter"
                                 onclick="delItem('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')"></i>
                             </a>
                         </td>
@@ -150,7 +150,7 @@
             });
 
             function delItem(item) {
-                document.getElementById("modalDeleteButton").href=item; 
+                document.getElementById("modalDeleteButton").href=item;
             };
 
             const showCopyError = function(el) {
