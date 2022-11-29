@@ -23,6 +23,16 @@
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
+            {% elif message.level_tag == "warning" %}
+                <div class="alert alert-warning" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
             {% endif %}
         {% endfor %}
     <br><br>
