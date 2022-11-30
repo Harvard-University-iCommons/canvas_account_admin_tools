@@ -49,7 +49,7 @@ def launch(request: HttpRequest):
 
 
 @require_lti_launch
-def index(request: HttpRequest, launch_id):
+def index(request: HttpRequest, launch_id: str):
     try:
         message_launch = get_message_launch(request, launch_id)
         launch_data = message_launch.get_launch_data()
@@ -159,7 +159,7 @@ def index(request: HttpRequest, launch_id):
         return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
 
 
-def _get_self_enrollments(course_sis_id, user_sis_id):
+def _get_self_enrollments(course_sis_id: str, user_sis_id: str):
     # this function fetches all three types of enrollment and returns them in one list
     enrollments = []
     staff_enrollments = CourseStaff.objects.filter(course_instance_id=course_sis_id, user_id=user_sis_id, source='selfenroll').all()
@@ -181,7 +181,7 @@ def error(request: HttpRequest, message=None):
     return render(request, 'self_unenrollment_tool/error.html', template_context)
 
 
-def success(request: HttpRequest, launch_id):
+def success(request: HttpRequest, launch_id: str):
     template_context = {}
     return render(request, 'self_unenrollment_tool/success.html', template_context)
 

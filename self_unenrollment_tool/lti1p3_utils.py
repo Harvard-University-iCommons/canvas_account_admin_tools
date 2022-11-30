@@ -1,9 +1,9 @@
 from functools import wraps
-from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
-                                     DjangoMessageLaunch, DjangoOIDCLogin)
-
 from logging import getLogger
-from django.http import HttpResponseBadRequest
+
+from django.http import HttpRequest, HttpResponseBadRequest
+from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
+                                     DjangoMessageLaunch)
 
 logger = getLogger(__name__)
 
@@ -20,7 +20,7 @@ class CustomDjangoMessageLaunch(DjangoMessageLaunch):
         return self
 
 
-def get_message_launch(request, launch_id=None):
+def get_message_launch(request: HttpRequest, launch_id: str=None):
     tool_conf = DjangoDbToolConf()
     launch_data_storage = DjangoCacheDataStorage()
     if launch_id:
@@ -31,7 +31,7 @@ def get_message_launch(request, launch_id=None):
     return message_launch
 
 
-def get_launch_url(request):
+def get_launch_url(request: HttpRequest):
     target_link_uri = request.POST.get('target_link_uri', request.GET.get('target_link_uri'))
     if not target_link_uri:
         raise Exception('Missing "target_link_uri" param')
