@@ -225,8 +225,7 @@ def enable(request, course_instance_id):
                 path = reverse('self_enrollment_tool:enroll', args=[uuid])
                 enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Generated self-registration link for course={course_instance_id}, role={role_name}. "
-                                f"URL: {enrollment_url}")
+                messages.success(request, f"Generated self-registration link. See details below.")
 
             # install the self-unenroll tool
             self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
