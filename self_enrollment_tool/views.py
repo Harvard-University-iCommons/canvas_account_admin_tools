@@ -27,7 +27,7 @@ from psycopg2 import IntegrityError
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
-from .utils import get_canvas_roles
+from .utils import get_canvas_roles, install_unenrollment_tool
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +197,7 @@ def add_new(request):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_SELF_ENROLLMENT_TOOL)
 @require_http_methods(['POST'])
-def enable (request, course_instance_id):
+def enable(request, course_instance_id):
     """
     Enable Self enrollment for the Course with the chosen role
     """
@@ -225,8 +225,19 @@ def enable (request, course_instance_id):
                 path = reverse('self_enrollment_tool:enroll', args=[uuid])
                 enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Generated self-registration link for course={course_instance_id}, role={role_name}. "
-                                f"URL: {enrollment_url}")
+                messages.success(request, f"Generated self-registration link. See details below.")
+
+            # install the self-unenroll tool
+            self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
+            try:
+                result = install_unenrollment_tool(course_instance_id=course_instance_id, client_id=self_unenroll_client_id)
+                if result == 'installed':
+                    messages.success(request, f'Successfully installed self-unenrollment tool into the Canvas course.')
+                elif result == 'already_installed':
+                    messages.success(request, f'Self-Unenrollment tool already installed into the Canvas course.')
+            except Exception as e:
+                messages.warning(request, f'There was a problem installing the self-unenrollment tool into the Canvas course: {e}')
+
         else:
             message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
             logger.exception(message)
