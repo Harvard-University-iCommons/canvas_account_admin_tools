@@ -1,10 +1,8 @@
-import json
-
-from Crypto.PublicKey import RSA
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from django.core.management.base import (BaseCommand, CommandError,
                                          CommandParser)
 from django.db.utils import IntegrityError
-from jwcrypto.jwk import JWK
 from pylti1p3.contrib.django.lti1p3_tool_config.models import LtiToolKey
 
 
@@ -16,14 +14,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        key = RSA.generate(4096)
-        private_key = key.exportKey().decode('utf-8')
-        public_key = key.publickey().exportKey().decode('utf-8')
+        key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=4096,
+        )
+        private_key = key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+        public_key = key.public_key().public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
         name = options['name']
         tool_key = LtiToolKey(
             name=name,
-            private_key=private_key,
-            public_key=public_key
+            private_key=private_key.decode('utf-8'),
+            public_key=public_key.decode('utf-8')
         )
         try:
             tool_key.save()
