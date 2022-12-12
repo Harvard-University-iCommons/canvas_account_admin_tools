@@ -86,27 +86,12 @@ def index(request):
         if course.role_id:
             course.role_name = user_roles.get(role_id=course.role_id).role_name
 
-        self_enroll_url = request.build_absolute_uri(
-            reverse('self_enrollment_tool:enroll', args=[course.uuid]))
-
-        course.self_enroll_url = _remove_resource_link_id(self_enroll_url)
+        course.self_enroll_url = f'https://{settings.SELF_ENROLL_HOSTNAME}/{course.uuid}'
 
     context = {
         'self_enroll_course_list': self_enroll_course_list
     }
     return render(request, 'self_enrollment_tool/index.html', context=context)
-
-
-def _remove_resource_link_id(self_enroll_url):
-    """
-    This function checks if `?resource_link_id` is at
-    the end of the url, then removes it if exists.
-    """
-    if '?resource_link_id' in self_enroll_url:
-        self_enroll_url = self_enroll_url[:self_enroll_url.rfind(
-            '?resource_link_id')]
-
-    return self_enroll_url
 
 
 @login_required

@@ -473,6 +473,8 @@ SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [
 # into the Canvas course site when a course is enabled for self-enrollment.
 SELF_UNENROLL_CLIENT_ID = SECURE_SETTINGS.get('self_unenroll_client_id', None)
 
+SELF_ENROLL_HOSTNAME = SECURE_SETTINGS.get('self_enroll_hostname', 'self_enroll_hostname_setting_missing')
+
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
     'long_running_age_in_minutes': 30,
