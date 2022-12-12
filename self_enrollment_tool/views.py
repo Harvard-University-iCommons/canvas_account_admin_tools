@@ -207,8 +207,6 @@ def enable(request, course_instance_id):
                                               role_id=role_id,
                                               updated_by=str(request.user),
                                               uuid=uuid)
-                path = reverse('self_enrollment_tool:enroll', args=[uuid])
-                enrollment_url = _remove_resource_link_id(f'{request.scheme}://{request.get_host()}{path}')
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
                 messages.success(request, f"Generated self-registration link. See details below.")
 
