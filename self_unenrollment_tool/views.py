@@ -65,98 +65,105 @@ def index(request: HttpRequest, launch_id: str):
         logger.exception(f'Failed to launch self-unenroll tool: {e}', extra=extra)
         return render(request, 'self_unenrollment_tool/error.html', {'message': 'There was a problem launching the tool.'})
 
-
     if request.method == 'GET':
-
-        template_context = {}
-
-        # make sure this is a self-enroll course
-        self_enrollments = []
-        is_self_enroll_course = False
-        is_self_enrolled = False
-
-        if course_sis_id:
-            se_configs = SelfEnrollmentCourse.objects.filter(course_instance_id=course_sis_id)
-            for c in se_configs:
-                logger.debug(f'Self-enrollment is active for role {c.role_id} (link UUID: {c.uuid})')
-                is_self_enroll_course = True
-
-            if is_self_enroll_course:
-                if user_sis_id:
-                    self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
-                    if self_enrollments:
-                        is_self_enrolled = True
-                        for se in self_enrollments:
-                            logger.debug(se)
-
-        template_context['is_self_enroll_course'] = is_self_enroll_course
-        template_context['is_self_enrolled'] = is_self_enrolled
-        template_context['self_enrollments'] = self_enrollments
-        template_context['self_enrollment_count'] = len(self_enrollments)
-
-        return render(request, 'self_unenrollment_tool/index.html', template_context)
+        return _get_index_view(request, course_sis_id=course_sis_id, user_sis_id=user_sis_id)
 
     elif request.method == 'POST':
+        return _handle_unenrollment_post(request, course_sis_id=course_sis_id, user_sis_id=user_sis_id, launch_id=launch_id)
 
-        # first, get all of the user's Canvas enrollments
-        api_response = list_enrollments_courses(request_ctx=SDK_CONTEXT, course_id=f'sis_course_id:{course_sis_id}', user_id=f'sis_user_id:{user_sis_id}')
-        if api_response.status_code == 200:
-            canvas_enrollments = api_response.json()
-            for ce in canvas_enrollments:
-                logger.debug(ce)
+
+def _get_index_view(request, course_sis_id, user_sis_id):
+    template_context = {}
+
+    # make sure this is a self-enroll course
+    self_enrollments = []
+    is_self_enroll_course = False
+    is_self_enrolled = False
+
+    if course_sis_id:
+        se_configs = SelfEnrollmentCourse.objects.filter(course_instance_id=course_sis_id)
+        for c in se_configs:
+            logger.debug(f'Self-enrollment is active for role {c.role_id} (link UUID: {c.uuid})')
+            is_self_enroll_course = True
+
+        if is_self_enroll_course:
+            if user_sis_id:
+                self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
+                if self_enrollments:
+                    is_self_enrolled = True
+
+    template_context['is_self_enroll_course'] = is_self_enroll_course
+    template_context['is_self_enrolled'] = is_self_enrolled
+    template_context['self_enrollments'] = self_enrollments
+    template_context['self_enrollment_count'] = len(self_enrollments)
+
+    return render(request, 'self_unenrollment_tool/index.html', template_context)
+
+
+def _handle_unenrollment_post(request: HttpRequest, course_sis_id, user_sis_id, launch_id):
+    log_extra = {
+        'course_sis_id': course_sis_id,
+        'user_sis_id': user_sis_id,
+        'launch_id': launch_id,
+    }
+    # first, get all of the user's Canvas enrollments
+    api_response = list_enrollments_courses(request_ctx=SDK_CONTEXT, course_id=f'sis_course_id:{course_sis_id}', user_id=f'sis_user_id:{user_sis_id}')
+    if api_response.status_code == 200:
+        canvas_enrollments = api_response.json()
+        for ce in canvas_enrollments:
+            logger.debug(ce)
+    else:
+        logger.error(f'bad response from Canvas API: {api_response.text}', extra=log_extra)
+
+    # get the user's self-enrollments from our database
+    self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
+
+    errors = []
+    successes = []
+
+    for se in self_enrollments:
+        logger.debug(se)
+        se_user_id = se.user_id
+        se_course_instance_id = se.course_instance_id
+        se_role_id = se.role_id
+        log_extra['se_role_id'] = se_role_id
+        canvas_role_id = se.role.canvas_role_id
+        try:
+            se.delete()
+            logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}', extra=log_extra)
+            successes.append('Successfully deleted self-enrollment')
+        except Exception as e:
+            logger.error(f'Failed to delete self-enrollment for user {user_sis_id} with role {se_role_id} in course {course_sis_id}', extra=log_extra)
+            errors.append('Failed to delete self-enrollment')
+
+        for ce in canvas_enrollments:
+            if ce['role_id'] == canvas_role_id:
+                # we need to delete this one
+                try:
+                    result = conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
+                    if result.status_code == 200:
+                        logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}', extra=log_extra)
+                        successes.append('Successfully deleted Canvas self-enrollment')
+                    else:
+                        logger.error(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=log_extra)
+                        errors.append('Failed to delete Canvas self-enrollment')
+                except Exception as e:
+                    logger.exception(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=log_extra)
+                    errors.append('Feled to delete Canvas self-enrollment')
+
+    message = ''
+    if errors:
+        if successes:
+            # partially successful
+            message = 'Removing your self-enrollment(s) for this course was partially successful. If you remain enrolled after 24 hours, check with your teaching staff.'
         else:
-            logger.error(f'bad response from Canvas API: {api_response.text}', extra=extra)
+            # not successful
+            message = 'Removing your self-enrollments(s) for this course was not successful. Please check with your teaching staff.'
 
-        # get the user's self-enrollments from our database
-        self_enrollments = _get_self_enrollments(course_sis_id=course_sis_id, user_sis_id=user_sis_id)
+        messages.add_message(request, messages.ERROR, message)
+        return redirect(reverse('self_unenrollment_tool:error'))
 
-        errors = []
-        successes = []
-
-        for se in self_enrollments:
-            logger.debug(se)
-            se_user_id = se.user_id
-            se_course_instance_id = se.course_instance_id
-            se_role_id = se.role_id
-            extra['se_role_id'] = se_role_id
-            canvas_role_id = se.role.canvas_role_id
-            try:
-                se.delete()
-                logger.info(f'deleted self enrollment for user {se_user_id}, course_instance {se_course_instance_id}, role {se_role_id}', extra=extra)
-                successes.append('Successfully deleted self-enrollment')
-            except Exception as e:
-                logger.error(f'Failed to delete self-enrollment for user {user_sis_id} with role {se_role_id} in course {course_sis_id}', extra=extra)
-                errors.append('Failed to delete self-enrollment')
-
-            for ce in canvas_enrollments:
-                if ce['role_id'] == canvas_role_id:
-                    # we need to delete this one
-                    try:
-                        result = conclude_enrollment(request_ctx=SDK_CONTEXT, course_id=ce['course_id'], id=ce['id'], task='delete')
-                        if result.status_code == 200:
-                            logger.info(f'deleted Canvas enrollment id {ce["id"]} in course {ce["course_id"]}', extra=extra)
-                            successes.append('Successfully deleted Canvas self-enrollment')
-                        else:
-                            logger.error(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=extra)
-                            errors.append('Failed to delete Canvas self-enrollment')
-                    except Exception as e:
-                        logger.exception(f'Failed to delete Canvas self-enrollment for user {user_sis_id} with role {canvas_role_id} in course {course_sis_id}', extra=extra)
-                        errors.append('Feled to delete Canvas self-enrollment')
-
-
-        message = ''
-        if errors:
-            if successes:
-                # partially successful
-                message = 'Removing your self-enrollment(s) for this course was partially successful. If you remain enrolled after 24 hours, check with your teaching staff.'
-            else:
-                # not successful
-                message = 'Removing your self-enrollments(s) for this course was not successful. Please check with your teaching staff.'
-
-            messages.add_message(request, messages.ERROR, message)
-            return redirect(reverse('self_unenrollment_tool:error'))
-
-        return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
+    return redirect(reverse('self_unenrollment_tool:success', kwargs={'launch_id': launch_id}))
 
 
 def _get_self_enrollments(course_sis_id: str, user_sis_id: str):
