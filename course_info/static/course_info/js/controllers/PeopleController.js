@@ -35,7 +35,7 @@
             var filteredResults = $scope.filterSearchResults(personRecords);
             if (filteredResults.length == 1) {
                 var memberRecordsInCourse = members[filteredResults[0].univ_id];
-                if (angular.isUndefined(memberRecordsInCourse)) {
+                if (angular.isUndefined(memberRecordsInCourse) || $scope.allowDualEnrollment(memberRecordsInCourse, $scope.selectedRole.roleId)) {
                     var name = $scope.getProfileFullName(filteredResults[0]);
                     var postParams = {
                         user_id: filteredResults[0].univ_id,
@@ -71,6 +71,26 @@
             $scope.tracking.failures++;
             return null;
         };
+
+        $scope.getSchool = function() {
+            return $scope.courseInstance.school
+        }
+
+        $scope.allowDualEnrollment = function(member, roleId) {
+            // Check if enrollment request is for TA/Student roles in GSD.
+            // For this school only, we allow a given HUID to be enrolled
+            // twice if (and only if) they are enrolled as one of the
+            // two eligble roles.
+
+            var eligibleSchool = 'GSD'
+            var eligbleRolesIds = [0, 5]
+            var memberRole = member[0].role.role_id
+
+            return ($scope.getSchool() === eligibleSchool
+                && eligbleRolesIds.includes(roleId)
+                && memberRole !== roleId
+            )
+        }
 
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
@@ -193,7 +213,7 @@
              * we want to sort roles by a combination of two fields.
              * - active = (0 | 1)
              * - prime_role_indicator = ('Y' | 'N' | '')
-             * 
+             *
              * we're sorting descending by active, then descending by
              * prime_role_indicator, where 'Y' > 'N' > ''.
              */
@@ -865,7 +885,7 @@
             ordering: ([1, 'asc']),
             info : false
         };
-        
+
         // configure the datatable
         $scope.dtInstance = null;
         $scope.dtOptions = {
