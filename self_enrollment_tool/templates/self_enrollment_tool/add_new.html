@@ -1,0 +1,96 @@
+{% extends 'self_enrollment_tool/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+      <a href="{% url 'self_enrollment_tool:index' %}">Self Enrollment</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      Add New
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    <br><br>
+    {% if not course_instance or abort is True %}
+        <div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <b>Enter an SIS Course Id to lookup the ILE course:</b>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:lookup' %}">{% csrf_token %}
+                    <div class="form-group col-sm-3">
+                        <label class="sr-only" for="course_search_term"> Enter Course Instance ID</label>
+                        <input type="search" name="course_search_term" class="form-control" id="course_search_term" placeholder="Enter Course Instance ID" style="width: 100%"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="submit" name="Search" id="course_search_button" class="btn btn-primary" data-loading-text="<i class='fa fa-spinner fa-spin'></i> Searching...">
+                        <i class="fa fa-search"></i> Find Course</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+    <br>
+    <div>
+    {% if course_instance and abort is False %}
+        <h4>Course Details:</h4>
+            <table class="table table-striped table-hover">
+                <tr> <th>Canvas course ID</th><td><a href="{{ canvas_url }}/courses/{{ course_instance.canvas_course_id}}" target="_new">{{course_instance.canvas_course_id}}</a></td></tr>
+                <tr> <th>School</th><td>{{course_instance.term.school.school_id|upper }}</td></tr>
+                <tr> <th>Title</th><td>{{course_instance.title}}</td></tr>
+                {% if course_instance.short_title %}
+                    <tr> <th>Short title</th><td>{{course_instance.short_title}}</td></tr>
+                {% endif %}
+                {% if course_instance.sub_title %}
+                    <tr><th>Subtitle</th><td>{{ course_instance.sub_title }}</td></tr>
+                {% endif %}
+                <tr> <th>Course instance ID</th><td>{{course_instance.course_instance_id}}</td></tr>
+                <tr> <th>Term</th><td>{{course_instance.term.display_name}}</td></tr>
+            </table>
+        <br>
+        <div class="row">
+        <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:enable' course_instance_id=course_instance.course_instance_id %}">{% csrf_token %}
+            <h4>Please Choose the role the enrollees should have in the  course:</h4>
+
+            <div class="form-group col-sm-3" >
+                <label for="course_enroll"> Role</label>
+                    <select name="roles" id="roles" class="form-control">
+                        {% for role in roles %}
+                            <option value="{{ role }}">{{ role.roleName }}</option>1
+                        {% endfor %}
+                    </select>
+            </div>
+            <div class="col-sm-3">
+                <button type="submit" name="Enable " id="course_enroll_button" class="btn btn-primary"
+                        data-loading-text=" Processing...">Enable Self Enrollment</button>
+            </div>
+        </form>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+
+
+{% endblock %}

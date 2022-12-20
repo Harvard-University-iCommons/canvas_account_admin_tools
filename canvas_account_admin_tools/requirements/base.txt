@@ -1,6 +1,6 @@
-Django==3.2.15
+Django==3.2.16
 cx-Oracle==8.3.0
-boto3==1.24.66
+boto3==1.26.12
 
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
@@ -10,10 +10,11 @@ django-cached-authentication-middleware==0.2.2
 
 django-proxy==1.2.1
 django-redis-cache==3.0.1
-djangorestframework==3.13.1
+djangorestframework==3.14.0
 django-storages==1.13.1
 django-allow-cidr==0.5.0
 django-watchman==1.3.0
+django-crispy-forms==1.14.0
 
 rq==1.10.0
 django-rq==2.5.1
@@ -26,7 +27,7 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0#
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.1#egg=django-icommons-ui==2.1
 
-git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.2.0#egg=canvas-python-sdk==1.2.0
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.2.1#egg=canvas-python-sdk==1.2.1
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0#egg=django-harvardkey-cas==3.0
 
@@ -41,3 +42,5 @@ git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.
 
 splunk_handler==3.0.0
 python-json-logger==2.0.4
+
+PyLTI1p3==1.12.2
