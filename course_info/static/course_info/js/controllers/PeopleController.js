@@ -80,14 +80,14 @@
             // Check if enrollment request is for TA/Student roles in GSD.
             // For this school only, we allow a given HUID to be enrolled
             // twice if (and only if) they are enrolled as one of the
-            // two eligble roles.
+            // two eligble roles (TA/Student).
 
             var eligibleSchool = 'GSD'
-            var eligbleRolesIds = [0, 5]
+            var eligbleRoleIds = [0, 5]
             var memberRole = member[0].role.role_id
 
             return ($scope.getSchool() === eligibleSchool
-                && eligbleRolesIds.includes(roleId)
+                && eligbleRoleIds.includes(roleId)
                 && memberRole !== roleId
             )
         }
