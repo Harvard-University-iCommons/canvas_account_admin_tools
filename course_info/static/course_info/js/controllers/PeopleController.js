@@ -35,7 +35,7 @@
             var filteredResults = $scope.filterSearchResults(personRecords);
             if (filteredResults.length == 1) {
                 var memberRecordsInCourse = members[filteredResults[0].univ_id];
-                if (angular.isUndefined(memberRecordsInCourse)) {
+                if (angular.isUndefined(memberRecordsInCourse) || $scope.allowDualEnrollment(memberRecordsInCourse, $scope.selectedRole.roleId)) {
                     var name = $scope.getProfileFullName(filteredResults[0]);
                     var postParams = {
                         user_id: filteredResults[0].univ_id,
@@ -71,6 +71,32 @@
             $scope.tracking.failures++;
             return null;
         };
+
+        $scope.getSchool = function() {
+            return $scope.courseInstance.school.toLowerCase();
+        }
+
+        $scope.allowDualEnrollment = function(member, roleId) {
+            // Allow a given member to be enrolled twice if:
+            // - course is in GSD sub-account AND
+            // - result is Guest/TA or Student/TA dual-enrollment
+
+            var eligibleSchool = 'gsd';
+            var maxAllowedRoles = 2;
+            var memberRoleId = member[0].role.role_id;
+            var allowedMapping = {
+                0: [5],
+                10: [5],
+                5: [0, 10]
+            };
+            var allowedRoles = allowedMapping[roleId] ?? null;
+            return (
+                $scope.getSchool() === eligibleSchool
+                && member.length < maxAllowedRoles
+                && allowedRoles !== null
+                && allowedRoles.indexOf(memberRoleId) !== -1
+            );
+        }
 
         $scope.addNewMemberToCourse = function(userPostParams, userName,
                                                searchTerm) {
@@ -193,7 +219,7 @@
              * we want to sort roles by a combination of two fields.
              * - active = (0 | 1)
              * - prime_role_indicator = ('Y' | 'N' | '')
-             * 
+             *
              * we're sorting descending by active, then descending by
              * prime_role_indicator, where 'Y' > 'N' > ''.
              */
@@ -865,7 +891,7 @@
             ordering: ([1, 'asc']),
             info : false
         };
-        
+
         // configure the datatable
         $scope.dtInstance = null;
         $scope.dtOptions = {
