@@ -205,10 +205,7 @@
                             $scope.searchInProgress = true;
                         }, 0);
                         $scope.enableColumnSorting(false);
-                        //filter the sites flagged to be excluded(get only ones
-                        // with exclude_from_isites set to 0)
-                        var queryParameters = {
-                            exclude_from_isites: 0};
+                        var queryParameters = {};
                         if ($scope.queryString.trim() != '') {
                             queryParameters.search = $scope.queryString.trim();
                         }
