@@ -73,24 +73,29 @@
         };
 
         $scope.getSchool = function() {
-            return $scope.courseInstance.school
+            return $scope.courseInstance.school.toLowerCase();
         }
 
         $scope.allowDualEnrollment = function(member, roleId) {
-            // Check if enrollment request is for TA/Student roles in GSD.
-            // For this school only, we allow a given HUID to be enrolled
-            // twice if (and only if) they are enrolled as one of the
-            // two eligible roles (TA/Student).
+            // Allow a given member to be enrolled twice if:
+            // - course is in GSD sub-account AND
+            // - result is Guest/TA or Student/TA dual-enrollment
 
-            var eligibleSchool = 'GSD'
-            var eligibleRoleIds = [0, 5]
-            var memberRole = member[0].role.role_id
-
-            return ($scope.getSchool() === eligibleSchool // ensure course is in GSD
-                && eligibleRoleIds.includes(roleId) // desired role needs to be eligible for dual-enrollment
-                && eligibleRoleIds.includes(memberRole) // if already enrolled, current role needs to be eligible
-                && memberRole !== roleId // do not allow dual TA/TA or Student/Student enrollments
-            )
+            var eligibleSchool = 'gsd';
+            var maxAllowedRoles = 2;
+            var memberRoleId = member[0].role.role_id;
+            var allowedMapping = {
+                0: [5],
+                10: [5],
+                5: [0, 10]
+            };
+            var allowedRoles = allowedMapping[roleId] ?? null;
+            return (
+                $scope.getSchool() === eligibleSchool
+                && member.length < maxAllowedRoles
+                && allowedRoles !== null
+                && allowedRoles.indexOf(memberRoleId) !== -1
+            );
         }
 
         $scope.addNewMemberToCourse = function(userPostParams, userName,
