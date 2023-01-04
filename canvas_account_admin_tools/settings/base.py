@@ -10,13 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
+import logging
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import logging
-
-from django.urls import reverse_lazy
 import time
+
 from dj_secure_settings.loader import load_secure_settings
+from django.urls import reverse_lazy
 from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
 
 SECURE_SETTINGS = load_secure_settings()
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'canvas_course_site_wizard',
     'canvas_site_creator',
     'course_info',
+    'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
     'django_cas_ng',
@@ -79,6 +80,9 @@ INSTALLED_APPS = [
     'bulk_course_settings',
     'canvas_site_deletion',
     'masquerade_tool',
+    'self_enrollment_tool',
+    'pylti1p3.contrib.django.lti1p3_tool_config',
+    'self_unenrollment_tool',
     'rest_framework',
     'watchman'
 ]
@@ -155,6 +159,8 @@ DATABASES = {
         'CONN_MAX_AGE': 0,
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
@@ -324,7 +330,7 @@ LOGGING = {
     'loggers': {
         'gunicorn': {
             'handlers': ['gunicorn', 'console'],
-            'level': 'INFO',
+            'level': logging.WARNING,
             'propagate': False,
         },
         'bulk_utilities': {
@@ -353,6 +359,16 @@ LOGGING = {
             'propagate': False,
         },
         'masquerade_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'self_enrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'self_unenrollment_tool': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,
@@ -392,7 +408,6 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
-
     }
 }
 
@@ -442,6 +457,7 @@ PERMISSION_SITE_CREATOR = 'manage_courses'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
+PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 
 # in search courses, when you add a person to a course. This list
@@ -449,6 +465,15 @@ PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 # user role id's from the course manager database
 ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16, 18, 19,
                                            20, 22, 23, 24, 25, 26, 27, 28, 400, 401]
+
+# These are the roles available when configuring self-enrollment for a course
+SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
+
+# This is the LTI 1.3 client_id for the self-unenrollment tool; this tool will be installed
+# into the Canvas course site when a course is enabled for self-enrollment.
+SELF_UNENROLL_CLIENT_ID = SECURE_SETTINGS.get('self_unenroll_client_id', None)
+
+SELF_ENROLL_HOSTNAME = SECURE_SETTINGS.get('self_enroll_hostname', 'self_enroll_hostname_setting_missing')
 
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
@@ -501,6 +526,7 @@ MASQUERADE_TOOL_SETTINGS = {
     'temporary_masquerade_function_arn': SECURE_SETTINGS.get('temporary_masquerade_function_arn'),
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
