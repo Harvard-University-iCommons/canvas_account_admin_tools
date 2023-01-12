@@ -5,11 +5,11 @@
 
 # below are requirements specific to the local environment
 
-django-debug-toolbar==3.5.0
-ddt==1.5.0
-django-extensions==3.1.5 # provides `runserver_plus` local dev server
-pyOpenSSL==22.0.0 # dependency for django-extensions
-Werkzeug==2.0.3 # dependency for django-extensions
+django-debug-toolbar==3.7.0
+ddt==1.6.0
+django-extensions==3.2.1 # provides `runserver_plus` local dev server
+pyOpenSSL==22.1.0 # dependency for django-extensions
+Werkzeug==2.2.2 # dependency for django-extensions
 
 mock==2.0.0
 pyvirtualdisplay==3.0
@@ -20,4 +20,4 @@ git+ssh://git@github.com/Harvard-University-iCommons/selenium_common.git@v1.8#eg
 
 #-e ../selenium_common
 
-oracledb==1.1.0
+oracledb==1.2.0
