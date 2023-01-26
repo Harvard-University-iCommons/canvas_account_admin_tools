@@ -41,6 +41,7 @@
                 });
                 $scope.tracking.failures++;
                 return Promise.resolve([memberRecords, searchTerm, peopleData])
+                    .finally($scope.showAddNewMemberResults);
             }
 
             if (peopleData.length > 1) {
@@ -53,6 +54,7 @@
                 });
                 $scope.tracking.failures++;
                 return Promise.resolve([memberRecords, searchTerm, peopleData])
+                    .finally($scope.showAddNewMemberResults);
             }
 
             if (memberRecords.length === 0 || $scope.allowDualEnrollment(memberRecords, $scope.selectedRole.roleId)) {
@@ -61,7 +63,8 @@
                     user_id: peopleData[0].univ_id,
                     role_id: $scope.selectedRole.roleId};
                 return $scope.addNewMemberToCourse(postParams, name,
-                        searchTerm);
+                        searchTerm)
+                        .finally($scope.showAddNewMemberResults);
             } else {
                 // the user already has an enrollment in the course
                 $scope.messages.warnings.push({
@@ -73,6 +76,7 @@
                 });
                 $scope.tracking.failures++;
                 return Promise.resolve([memberRecords, searchTerm, peopleData])
+                    .finally($scope.showAddNewMemberResults);
             }
         }
 
@@ -187,8 +191,7 @@
                         }).finally($scope.updateProgressBar)
                     );
             });
-            $q.all(addNewMemberPromises)
-            .finally($scope.showAddNewMemberResults);
+            $q.all(addNewMemberPromises);
         };
 
         $scope.clearMessages = function() {
