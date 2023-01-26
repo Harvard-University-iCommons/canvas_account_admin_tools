@@ -17,7 +17,7 @@
         $scope.peopleData = {};
 
         // Tracks the divID of any currently displayed popovers
-        $scope.popOverID = null;1
+        $scope.popOverID = null;
 
         // set up functions we'll be calling later
         $scope.addNewMember = function(personResult) {
