@@ -400,10 +400,10 @@
             searchTerm, returns a promise representing a call
             to identify the person's enrollment in the course
             */
-            var personData = person[0]
+            var personData = person[0];
             var searchTerm = person[1];
             if (personData.length === 0) {
-                return null
+                return [[], searchTerm, personData]
             }
             var univId = personData[0].univ_id;
             var courseMemberUrl = djangoUrl.reverse(
