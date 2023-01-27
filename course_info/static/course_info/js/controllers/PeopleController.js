@@ -175,7 +175,7 @@
                     $q.all([personPromise])
                         .then((results) => {
                             var courseMemberPromises = results.map(person => $scope.lookupCourseMember(person));
-                            return Promise.all(courseMemberPromises);
+                            return $q.all(courseMemberPromises);
                         })
                         .then((results) => {
                             var addNewMemberPromises = results.map(member => $scope.addNewMember(member));
@@ -403,7 +403,7 @@
             var personData = person[0]
             var searchTerm = person[1];
             if (personData.length === 0) {
-                return Promise.resolve([[], searchTerm, []])
+                return null
             }
             var univId = personData[0].univ_id;
             var courseMemberUrl = djangoUrl.reverse(
