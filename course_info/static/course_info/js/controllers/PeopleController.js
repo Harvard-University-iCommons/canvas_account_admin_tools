@@ -299,36 +299,6 @@
             return ($scope.operationInProgress || ($scope.searchTerms.length == 0));
         };
 
-        $scope.filterSearchResults = function(searchResults){
-            var filteredResults = Array();
-            var resultsDict = {};
-
-            // short circuit if there's no results, which happens on timeout
-            if (!searchResults) {
-                return resultsDict;
-            }
-
-            // create a dict of the id's as keys and the
-            // role records as values
-            for (i = 0; i < searchResults.length; i++) {
-                var role = searchResults[i];
-                if (resultsDict[role.univ_id] != undefined) {
-                    resultsDict[role.univ_id].push(role);
-                } else {
-                    resultsDict[role.univ_id] = [role];
-                }
-            }
-            // for each id sort the role list
-            // and fetch the top record
-            for (id in resultsDict) {
-                var roleList = resultsDict[id];
-                roleList.sort($scope.compareRoles);
-                filteredResults.push(roleList[0]);
-            }
-            // return the filtered list
-            return filteredResults;
-        };
-
         // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
@@ -381,22 +351,6 @@
                 courseInstance['site_list']= siteIds.length>0 ? siteIds.join(', ') : 'N/A';
             }
             return courseInstance;
-        };
-
-        $scope.getMembersByUserId = function(memberList) {
-            /* generates a lookup table/dict/object to find a member's profile
-             by univ_id; used e.g. for checking whether the univ_id found for
-             each person in the search term lookup results is already in the
-             course or not
-             */
-            var membersByUserId = {};
-            memberList.forEach(function(member) {
-                var memberCopy = angular.copy(member);
-
-                membersByUserId[memberCopy.user_id] =
-                    (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
-            });
-            return membersByUserId;
         };
 
         $scope.getProfileFullName = function(profile) {
