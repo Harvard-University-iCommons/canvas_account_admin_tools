@@ -22,13 +22,13 @@
         // set up functions we'll be calling later
         $scope.addNewMember = function(personResult) {
             /* Make a call to add the person to the course as a new member
-             if person is:
-             - not already in `members`
-             - not found in people lookup
+             if the person is:
+             - successfully returned by a person lookup (lookupPeople)
+             - not already enrolled in the course (unless dual-enrollment is allowed)
              - not represented by more than one profile
              Returns a promise representing the call made to add the new member
-             to the course, or null if the add was not attempted for one of the
-             reasons listed above.
+             to the course, or a resolved promise with no further action if one
+             or more of the above criteria fail
              */
             var memberRecords = personResult[0];
             var searchTerm = personResult[1];
@@ -444,6 +444,11 @@
         };
 
         $scope.lookupCourseMember = function(person) {
+            /* Given an array containing person data obtained
+            via a people lookup (lookupPeople) and the original
+            searchTerm, returns a promise representing a call
+            to identify the person's enrollment in the course
+            */
             var personData = person[0]
             var searchTerm = person[1];
             if (personData.length === 0) {
@@ -467,7 +472,7 @@
                     function courseMemberLookupFailure(error) {
                         $scope.tracking.failures++;
                         $scope.messages.warnings.push({
-                            type: 'courseMemberLookupFailed', // check this
+                            type: 'courseMemberLookupFailed',
                             searchTerm: searchTerm
                         });
                         return $q.reject(error);
