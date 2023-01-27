@@ -27,8 +27,7 @@
              - not already enrolled in the course (unless dual-enrollment is allowed)
              - not represented by more than one profile
              Returns a promise representing the call made to add the new member
-             to the course, or a resolved promise with no further action if one
-             or more of the above criteria fail
+             to the course, or returns null if one or more of the above criteria fail
              */
             var memberRecords = personResult[0];
             var searchTerm = personResult[1];
@@ -40,8 +39,7 @@
                     searchTerm: searchTerm
                 });
                 $scope.tracking.failures++;
-                return Promise.resolve([memberRecords, searchTerm, peopleData])
-                    .finally($scope.showAddNewMemberResults);
+                return null
             }
 
             if (peopleData.length > 1) {
@@ -53,8 +51,7 @@
                     profiles: peopleData
                 });
                 $scope.tracking.failures++;
-                return Promise.resolve([memberRecords, searchTerm, peopleData])
-                    .finally($scope.showAddNewMemberResults);
+                return null
             }
 
             if (memberRecords.length === 0 || $scope.allowDualEnrollment(memberRecords, $scope.selectedRole.roleId)) {
@@ -64,7 +61,7 @@
                     role_id: $scope.selectedRole.roleId};
                 return $scope.addNewMemberToCourse(postParams, name,
                         searchTerm)
-                        .finally($scope.showAddNewMemberResults);
+
             } else {
                 // the user already has an enrollment in the course
                 $scope.messages.warnings.push({
@@ -75,8 +72,7 @@
                     searchTerm: searchTerm
                 });
                 $scope.tracking.failures++;
-                return Promise.resolve([memberRecords, searchTerm, peopleData])
-                    .finally($scope.showAddNewMemberResults);
+                return null
             }
         }
 
