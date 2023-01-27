@@ -153,7 +153,7 @@
 
             return $http.post(url, userPostParams)
                 .then(handlePostSuccess, handlePostError)
-                .then($scope.updateProgressBar)
+                .finally($scope.updateProgressBar)
         };
 
         $scope.addPeopleToCourse = function(searchTermList) {
@@ -187,7 +187,8 @@
                         }).finally($scope.updateProgressBar)
                     );
             });
-            $q.all(addNewMemberPromises);
+            $q.all(addNewMemberPromises)
+            .finally($scope.showAddNewMemberResults);;
         };
 
         $scope.clearMessages = function() {
