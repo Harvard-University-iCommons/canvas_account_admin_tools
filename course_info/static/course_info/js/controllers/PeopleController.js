@@ -188,7 +188,7 @@
                     );
             });
             $q.all(addNewMemberPromises)
-            .finally($scope.showAddNewMemberResults);;
+            .finally($scope.showAddNewMemberResults);
         };
 
         $scope.clearMessages = function() {
