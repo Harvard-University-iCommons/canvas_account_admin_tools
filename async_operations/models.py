@@ -7,7 +7,7 @@ from django.core import serializers
 from django.db import models
 
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 import django_rq
 
 from async_operations import introspection
