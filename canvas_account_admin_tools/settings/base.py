@@ -84,7 +84,8 @@ INSTALLED_APPS = [
     'pylti1p3.contrib.django.lti1p3_tool_config',
     'self_unenrollment_tool',
     'rest_framework',
-    'watchman'
+    'watchman',
+    'bulk_site_creator'
 ]
 
 
@@ -408,6 +409,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'bulk_site_creator': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
     }
 }
 
@@ -459,6 +465,7 @@ PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
+PERMISSION_BULK_SITE_CREATOR = 'bulk_site_creator'
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains

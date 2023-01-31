@@ -1,0 +1,40 @@
+{% extends 'bulk_site_creator/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Bulk Site Creation
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "warning" %}
+                <div class="alert alert-warning" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</body>
+{% endblock %}
