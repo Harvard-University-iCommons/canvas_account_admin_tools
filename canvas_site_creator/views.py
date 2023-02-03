@@ -1,38 +1,28 @@
-import logging
 import json
+import logging
 import time
 
-
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
+from canvas_course_site_wizard.models import (BulkCanvasCourseCreationJob,
+                                              CanvasCourseGenerationJob)
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.utils import timezone
 from django.http import HttpResponse
-
-
-from canvas_course_site_wizard.models import BulkCanvasCourseCreationJob, \
-    CanvasCourseGenerationJob
-from icommons_common.models import School, Term, Department, CourseGroup, Person
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.views.decorators.http import require_http_methods
 from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
+from icommons_common.models import (CourseGroup, Department, Person, School,
+                                    Term)
+from lti_school_permissions.decorators import lti_permission_required
 
-from lti_permissions.decorators import lti_permission_required
-
-from .models import (
-    get_course_instance_query_set,
-    get_course_instance_summary_data,
-    get_course_job_summary_data
-)
-from .utils import (
-    get_term_data_for_school,
-    get_department_data_for_school,
-    get_course_group_data_for_school,
-    get_term_data,
-    get_canvas_site_templates_for_school,
-    get_canvas_site_template
-)
-
+from .models import (get_course_instance_query_set,
+                     get_course_instance_summary_data,
+                     get_course_job_summary_data)
+from .utils import (get_canvas_site_template,
+                    get_canvas_site_templates_for_school,
+                    get_course_group_data_for_school,
+                    get_department_data_for_school, get_term_data,
+                    get_term_data_for_school)
 
 logger = logging.getLogger(__name__)
 

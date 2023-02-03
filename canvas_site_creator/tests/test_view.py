@@ -1,14 +1,14 @@
 
-from canvas_site_creator.views import index
 import json
-from mock import ANY, DEFAULT, call, Mock, patch
 from os import path
 
-
+from canvas_site_creator.views import index
 from django.test import Client, RequestFactory, TestCase
+from mock import ANY, DEFAULT, Mock, call, patch
+
 
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
-@patch('lti_permissions.decorators.is_allowed', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.is_allowed', new=Mock(return_value=True))
 class BulkSiteViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
