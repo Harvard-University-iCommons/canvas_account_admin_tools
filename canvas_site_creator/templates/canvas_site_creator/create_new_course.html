@@ -23,9 +23,7 @@
     <h3 class="breadcrumbs">
       <a href="{% url 'dashboard_account' %}">Admin Console</a>
       <small><i class="fa fa-chevron-right"></i></small>
-      <a href="{% url 'canvas_site_creator:index' %}">Canvas Site Creator</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      Create a New Course
+      Create a New ILE/SB Course
     </h3>
   </header>
 
@@ -235,7 +233,7 @@
             <a type="link" class="btn btn-default"
                ng-disabled="courseCreationInProgress"
   {% endverbatim %}
-               href="{% url 'canvas_site_creator:index' %}">
+               href="{% url 'canvas_site_creator:create_new_course' %}">
   {% verbatim %}
               Cancel
             </a>
