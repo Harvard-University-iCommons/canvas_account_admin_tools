@@ -8,7 +8,7 @@ from .views import icommons_rest_api_proxy
 
 
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
-@patch('lti_permissions.decorators.is_allowed', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.is_allowed', new=Mock(return_value=True))
 class CanvasAccountAdminToolsAPIProxyTests(TestCase):
     longMessage = True
 

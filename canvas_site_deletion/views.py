@@ -13,7 +13,7 @@ from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance, CourseSite, SiteMap
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 

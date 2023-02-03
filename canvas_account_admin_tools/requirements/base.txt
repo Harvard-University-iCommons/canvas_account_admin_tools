@@ -31,6 +31,8 @@ git+ssh://git@github.com/penzance/canvas_python_sdk.git@v1.2.1#egg=canvas-python
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0#egg=django-harvardkey-cas==3.0
 
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@patricktonne/add-mixin
+
 hiredis==2.0.0
 kitchen==1.2.6
 psycopg2==2.9.3

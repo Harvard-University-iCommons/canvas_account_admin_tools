@@ -17,7 +17,7 @@ from icommons_common.canvas_utils import SessionInactivityExpirationRC
 from icommons_common.models import CourseInstance, Person
 from icommons_common.view_utils import create_json_200_response, \
     create_json_500_response
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
 from .models import (
     get_course_instance_query_set,

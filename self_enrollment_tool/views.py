@@ -12,18 +12,9 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
-                                          add_canvas_course_enrollee,
-                                          add_canvas_section_enrollee,
-                                          get_canvas_course_by_canvas_id,
-                                          get_canvas_course_section,
-                                          get_canvas_enrollment_by_user,
-                                          get_canvas_user)
-from icommons_common.models import (CourseEnrollee, CourseGuest,
-                                    CourseInstance, CourseStaff, SimplePerson,
-                                    UserRole)
-from lti_permissions.decorators import lti_permission_required
-from psycopg2 import IntegrityError
+from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from icommons_common.models import CourseInstance, SimplePerson, UserRole
+from lti_school_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
