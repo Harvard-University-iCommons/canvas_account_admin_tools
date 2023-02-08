@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'djng',
     'icommons_common',
     'icommons_ui',
+    'lti_permissions',
     'lti_school_permissions',
     'people_tool',
     'proxy',
