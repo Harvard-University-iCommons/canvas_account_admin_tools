@@ -62,7 +62,7 @@ class BulkSiteViewTest(TestCase):
 
     @patch('canvas_site_creator.views.render')
     @patch('icommons_common.canvas_api.helpers.accounts.parse_canvas_account_id')
-    @patch('canvas_site_creator.utils.get_term_data_for_school')
+    @patch('common.utils.get_term_data_for_school')
     @patch('canvas_site_creator.views.get_school_sub_account_from_account_id')
     @patch('canvas_site_creator.views.get_department_data_for_school')
     @patch('canvas_site_creator.views.get_course_group_data_for_school')
