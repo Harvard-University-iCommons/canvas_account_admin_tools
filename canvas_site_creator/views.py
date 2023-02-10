@@ -11,7 +11,7 @@ from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 from icommons_common.models import School
 from lti_permissions.decorators import lti_permission_required
 
-from .utils import (
+from common.utils import (
     get_canvas_site_templates_for_school,
 )
 

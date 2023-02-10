@@ -8,7 +8,7 @@ from mock import patch, Mock
 
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
 
-from canvas_site_creator.utils import (
+from common.utils import (
     get_school_data_for_user,
     get_department_data_for_school,
     get_course_group_data_for_school,

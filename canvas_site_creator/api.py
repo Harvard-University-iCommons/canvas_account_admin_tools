@@ -24,7 +24,7 @@ from .models import (
     get_course_instance_summary_data,
     get_course_job_summary_data
 )
-from .utils import (
+from common.utils import (
     get_school_data_for_sis_account_id,
     get_term_data_for_school,
     get_department_data_for_school,
