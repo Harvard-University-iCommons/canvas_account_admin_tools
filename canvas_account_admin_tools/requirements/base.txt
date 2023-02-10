@@ -21,7 +21,7 @@ django-rq==2.5.1
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v3.0#egg=django-icommons-common==3.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v3.0#egg=django-canvas-course-site-wizard==3.0
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v3.1.1#egg=django-canvas-course-site-wizard==3.1.1
 
 git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0#egg=django-auth-lti==2.1.0
 
