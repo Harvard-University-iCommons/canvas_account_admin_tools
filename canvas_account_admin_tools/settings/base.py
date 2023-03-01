@@ -275,7 +275,7 @@ LOGGING = {
     },
     'filters': {
         'context': {
-            '()': 'icommons_common.logging.ContextFilter',
+            '()': 'harvard_django_utils.logging.ContextFilter',
             'env': SECURE_SETTINGS.get('env_name'),
             'project': 'canvas_account_admin_tools',
             'department': 'uw',
