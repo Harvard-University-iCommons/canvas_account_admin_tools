@@ -6,16 +6,19 @@ from canvas_sdk.methods.courses import \
 from canvas_sdk.methods.courses import update_course as canvas_update_course
 from canvas_sdk.methods.sections import (cross_list_section,
                                          de_cross_list_section)
+from coursemanager.models import CourseInstance, CourseSite, SiteMap, XlistMap
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from coursemanager.models import (CourseInstance, CourseSite, SiteMap,
-                                    XlistMap)
 
 logger = logging.getLogger(__name__)
 
 _xlist_name_modifier = ' [CROSS-LISTED - NOT ACTIVE]'
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 _messages = {
         'ci_does_not_exist': '{id} does not exist.',

@@ -5,6 +5,7 @@ from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
 from canvas_sdk.utils import get_all_list_data
+from coursemanager.models import CourseInstance, CourseSite, SiteMap
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,12 +13,14 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from coursemanager.models import CourseInstance, CourseSite, SiteMap
 from lti_school_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)

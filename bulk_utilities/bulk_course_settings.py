@@ -14,6 +14,10 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+
 # The name of the course attribute differs from the argument that we need to
 # pass to the update call, so we have this lookup table
 ARG_ATTR_PAIRS = {
@@ -29,7 +33,7 @@ class BulkCourseSettingsOperation(object):
     course_id_pattern = re.compile("^(sis_course_id:){0,1}\d+$")
 
     def __init__(self, options=None):
-        self.SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+        self.SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
         # todo: document options dict, or pull them out into individual params
         self.options = options if options else {}

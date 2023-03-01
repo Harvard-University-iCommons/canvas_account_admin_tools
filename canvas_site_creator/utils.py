@@ -2,20 +2,23 @@ import json
 import logging
 from datetime import datetime
 
+from canvas_api.helpers import accounts as canvas_api_accounts_helper
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
+from coursemanager.models import Term
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
-from canvas_api.helpers import \
-    accounts as canvas_api_accounts_helper
-from coursemanager.models import Term
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
+
 CACHE_KEY_CANVAS_SITE_TEMPLATES_BY_SCHOOL_ID = "canvas-site-templates-by-school-id_%s"
 
 

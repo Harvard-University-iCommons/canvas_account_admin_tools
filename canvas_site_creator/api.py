@@ -1,6 +1,16 @@
 import json
 import logging
 
+from canvas_api.helpers import accounts as canvas_api_accounts
+from canvas_course_site_wizard.models import CanvasCourseGenerationJob
+from canvas_sdk import RequestContext
+from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods.content_migrations import \
+    create_content_migration_courses
+from canvas_sdk.methods.courses import create_new_course, update_course
+from canvas_sdk.methods.sections import create_course_section
+from coursemanager.models import CourseInstance
+from coursemanager.people_models import Person
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -19,17 +29,13 @@ from icommons_common.view_utils import create_json_200_response, \
     create_json_500_response
 from lti_school_permissions.decorators import lti_permission_required
 
-from .models import (
-    get_course_instance_query_set,
+from .models import (get_course_instance_query_set,
     get_course_instance_summary_data,
-    get_course_job_summary_data
-)
-from .utils import (
+                     get_course_job_summary_data)
+from .utils import (get_course_group_data_for_school,
+                    get_department_data_for_school,
     get_school_data_for_sis_account_id,
-    get_term_data_for_school,
-    get_department_data_for_school,
-    get_course_group_data_for_school,
-)
+                    get_term_data_for_school)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +45,10 @@ COURSE_INSTANCE_DATA_FIELDS = ('course_instance_id', 'course_instance_id',
 BULK_JOB_DATA_FIELDS = ('created_at', 'status')
 COURSE_JOB_DATA_FIELDS = ('created_at', 'workflow_state')
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 def _unpack_datatables_params(request):
     return (

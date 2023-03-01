@@ -23,7 +23,10 @@ from .utils import get_canvas_roles, install_unenrollment_tool
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 
 @login_required

@@ -4,7 +4,11 @@ from canvas_sdk import RequestContext
 from canvas_sdk.methods.courses import update_course as canvas_update_course
 from django.conf import settings
 
-SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
+
 logger = logging.getLogger(__name__)
 
 
