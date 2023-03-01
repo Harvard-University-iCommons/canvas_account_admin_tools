@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django_rq',
     'djng',
     'icommons_common',
+    'coursemanager',
     'icommons_ui',
     'lti_permissions',
     'lti_school_permissions',
