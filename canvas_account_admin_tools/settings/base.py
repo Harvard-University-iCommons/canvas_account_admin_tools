@@ -433,6 +433,12 @@ CANVAS_SDK_SETTINGS = {
     'base_api_url': CANVAS_URL + '/api',
     'max_retries': 3,
     'per_page': 40,
+    # 'session_inactivity_expiration_time_secs' is an argument that gets passed
+    # to SessionInactivityExpirationRC objects. This project uses the newer
+    # RequestContext (which doesn't accept this argument), but some dependencies
+    # (e.g. certain entries in INSTALLED_APPS) may still use the old object and
+    # access this key. Leaving here until all references to SessionInactivityExpirationRC
+    # have been removed.
     'session_inactivity_expiration_time_secs': 50,
 }
 
