@@ -1,25 +1,21 @@
-import logging
 import json
-
+import logging
 from datetime import datetime
 
+from canvas_course_site_wizard.models import CanvasSchoolTemplate
+from canvas_sdk import RequestContext
+from canvas_sdk.methods import courses as canvas_api_courses
+from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
-
-from canvas_sdk.utils import get_all_list_data
-from canvas_sdk.methods import courses as canvas_api_courses
-
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts_helper
-from icommons_common.models import Term
-
-from canvas_course_site_wizard.models import CanvasSchoolTemplate
-
+from canvas_api.helpers import \
+    accounts as canvas_api_accounts_helper
+from coursemanager.models import Term
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 CACHE_KEY_CANVAS_SITE_TEMPLATES_BY_SCHOOL_ID = "canvas-site-templates-by-school-id_%s"
 
 

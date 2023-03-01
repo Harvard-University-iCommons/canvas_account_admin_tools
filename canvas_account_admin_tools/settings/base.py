@@ -17,7 +17,7 @@ import time
 
 from dj_secure_settings.loader import load_secure_settings
 from django.urls import reverse_lazy
-from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
+from harvard_django_utils.logging import JSON_LOG_FORMAT
 
 SECURE_SETTINGS = load_secure_settings()
 

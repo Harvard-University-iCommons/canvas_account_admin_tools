@@ -1,21 +1,16 @@
-import copy
 import logging
 
-from django.core.cache import cache
-from django.conf import settings
-
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from canvas_sdk.methods.admins import list_account_admins
-from canvas_sdk.methods.accounts import (
-    get_sub_accounts_of_account,
-    list_accounts,
-)
-from canvas_sdk.utils import get_all_list_data
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
-
+from canvas_sdk.methods.accounts import (get_sub_accounts_of_account,
+                                         list_accounts)
+from canvas_sdk.methods.admins import list_account_admins
+from canvas_sdk.utils import get_all_list_data
+from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 CACHE_KEY_ACCOUNTS_BY_USER = 'course_info:canvas:accounts_by_user:{}'
 ADMINISTRATOR_ROLES = {'School Liaison', 'SchoolLiaison', 'Account Admin', 'AccountAdmin'}
 

@@ -10,8 +10,8 @@ from lti_school_permissions.decorators import lti_permission_required
 from course_info.canvas import get_administered_school_accounts
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_api.helpers import roles as canvas_api_helpers_roles
-from icommons_common.models import UserRole
+from canvas_api.helpers import roles as canvas_api_helpers_roles
+from coursemanager.models import UserRole
 from canvas_sdk.exceptions import CanvasAPIError
 from .utils import clear_course_sis_id
 from django.http import HttpResponse

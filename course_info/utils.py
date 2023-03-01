@@ -1,11 +1,10 @@
 import logging
 
+from canvas_sdk import RequestContext
+from canvas_sdk.methods.courses import update_course as canvas_update_course
 from django.conf import settings
 
-from canvas_sdk.methods.courses import update_course as canvas_update_course
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 logger = logging.getLogger(__name__)
 
 

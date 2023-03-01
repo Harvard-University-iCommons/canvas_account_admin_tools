@@ -2,17 +2,17 @@ import json
 import logging
 import time
 
+from canvas_api.helpers import accounts as canvas_api_accounts
 from canvas_course_site_wizard.models import (BulkCanvasCourseCreationJob,
                                               CanvasCourseGenerationJob)
+from coursemanager.models import CourseGroup, Department, School, Term
+from coursemanager.people_models import Person
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
-from icommons_common.models import (CourseGroup, Department, Person, School,
-                                    Term)
 from lti_school_permissions.decorators import lti_permission_required
 
 from .models import (get_course_instance_query_set,

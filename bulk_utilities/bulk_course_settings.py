@@ -5,15 +5,12 @@ import re
 import sys
 import time
 
-from django.conf import settings
-
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
-from canvas_sdk.methods.courses import (
-    get_single_course_courses,
-    update_course)
+from canvas_sdk.methods.courses import get_single_course_courses, update_course
 from canvas_sdk.utils import get_all_list_data
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +29,7 @@ class BulkCourseSettingsOperation(object):
     course_id_pattern = re.compile("^(sis_course_id:){0,1}\d+$")
 
     def __init__(self, options=None):
-        self.SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+        self.SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
         # todo: document options dict, or pull them out into individual params
         self.options = options if options else {}

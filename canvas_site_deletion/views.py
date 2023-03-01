@@ -1,6 +1,7 @@
 import logging
 import time
 
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
 from canvas_sdk.utils import get_all_list_data
@@ -11,13 +12,12 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance, CourseSite, SiteMap
+from coursemanager.models import CourseInstance, CourseSite, SiteMap
 from lti_school_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)

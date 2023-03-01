@@ -2,8 +2,11 @@ import logging
 from ast import literal_eval
 from uuid import uuid4
 
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses
+from coursemanager.models import CourseInstance, UserRole
+from coursemanager.people_models import SimplePerson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,8 +15,6 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance, SimplePerson, UserRole
 from lti_school_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
@@ -22,7 +23,7 @@ from .utils import get_canvas_roles, install_unenrollment_tool
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
 
 @login_required

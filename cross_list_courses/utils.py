@@ -1,5 +1,6 @@
 import logging
 
+from canvas_sdk import RequestContext
 from canvas_sdk.methods.courses import \
     get_single_course_courses as canvas_get_course
 from canvas_sdk.methods.courses import update_course as canvas_update_course
@@ -8,14 +9,13 @@ from canvas_sdk.methods.sections import (cross_list_section,
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import (CourseInstance, CourseSite, SiteMap,
+from coursemanager.models import (CourseInstance, CourseSite, SiteMap,
                                     XlistMap)
 
 logger = logging.getLogger(__name__)
 
 _xlist_name_modifier = ' [CROSS-LISTED - NOT ACTIVE]'
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_CONTEXT = RequestContext(**settings.CANVAS_SDK_SETTINGS)
 
 _messages = {
         'ci_does_not_exist': '{id} does not exist.',
