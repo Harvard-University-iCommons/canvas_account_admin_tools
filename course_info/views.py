@@ -1,20 +1,22 @@
-import simplejson as json
 import logging
 
-from operator import itemgetter
+import simplejson as json
+from canvas_api.helpers import roles as canvas_api_helpers_roles
+from canvas_sdk.exceptions import CanvasAPIError
+from coursemanager.models import UserRole
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from lti_school_permissions.decorators import lti_permission_required
-from course_info.canvas import get_administered_school_accounts
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from canvas_api.helpers import roles as canvas_api_helpers_roles
-from coursemanager.models import UserRole
-from canvas_sdk.exceptions import CanvasAPIError
+from lti_school_permissions.decorators import lti_permission_required
+
+from course_info.canvas import get_administered_school_accounts
+
 from .utils import clear_course_sis_id
-from django.http import HttpResponse
+
 logger = logging.getLogger(__name__)
 
 
