@@ -14,7 +14,7 @@ from coursemanager.people_models import Person
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
@@ -117,9 +117,9 @@ def course_jobs(request, bulk_job_id):
             json.dumps(request.GET)
         )
         result['error'] = 'There was a problem searching for course jobs. Please try again.'
-        return _create_json_500_response(result)
+        return JsonResponse(result, status=500)
 
-    return _create_json_200_response(result)
+    return JsonResponse(result)
 
 
 @login_required
@@ -136,13 +136,12 @@ def schools(request):
     try:
         data = get_school_data_for_sis_account_id(
             request.LTI['custom_canvas_account_sis_id'])
-        return _create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get schools with Canvas account_sis_id %s"\
                   % request.LTI['custom_canvas_account_sis_id']
         logger.exception(message)
-        return _create_json_500_response(message)
-
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -158,11 +157,11 @@ def terms(request, sis_account_id):
     """
     try:
         data, _ = get_term_data_for_school(sis_account_id)
-        return _create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get terms with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return _create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -178,11 +177,11 @@ def departments(request, sis_account_id):
     """
     try:
         data = get_department_data_for_school(sis_account_id)
-        return _create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get departments with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return _create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -198,11 +197,11 @@ def course_groups(request, sis_account_id):
     """
     try:
         data = get_course_group_data_for_school(request.LTI['custom_canvas_user_id'], sis_account_id)
-        return _create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get course groups with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return _create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -375,9 +374,9 @@ def course_instances(request, sis_term_id, sis_account_id):
             json.dumps(request.GET)
         )
         result['error'] = 'There was a problem searching for courses. Please try again.'
-        return _create_json_500_response(result)
+        return JsonResponse({'error': result}, status=500)
 
-    return JsonResponse(result, status=200, content_type='application/json')
+    return JsonResponse(result, status=200)
 
 
 @login_required
@@ -403,21 +402,6 @@ def course_instance_summary(request, sis_term_id, sis_account_id):
             json.dumps(request.GET)
         )
         result['error'] = 'There was a problem counting courses. Please try again.'
-        return _create_json_500_response(result)
+        return JsonResponse({'error': result}, status=500)
 
-    return _create_json_200_response(result)
-
-def _create_json_200_response(data={'message': 'success'}):
-    return HttpResponse(
-        json.dumps(data),
-        status=200,
-        content_type='application/json'
-    )
-
-
-def _create_json_500_response(message):
-    return HttpResponse(
-        json.dumps({'error': message}),
-        status=500,
-        content_type='application/json'
-    )
+    return JsonResponse(result)
