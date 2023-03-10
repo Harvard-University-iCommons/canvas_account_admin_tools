@@ -51,7 +51,7 @@ class UtilsTest(TestCase):
             "canvas_course_url": "https://canvas.dev.tlt.harvard.edu/courses/6066"
         }]
 
-    @patch('icommons_common.canvas_api.helpers.accounts.get_school_accounts')
+    @patch('canvas_api.helpers.accounts.get_school_accounts')
     def test_get_school_data_for_user(self, mock_get_accounts):
         mock_get_accounts.return_value = self.school_accounts
         result = get_school_data_for_user(self.canvas_user_id)
@@ -59,7 +59,7 @@ class UtilsTest(TestCase):
         for account in result:
             self.assertIn(account['id'], self.school_sis_account_ids)
 
-    @patch('icommons_common.canvas_api.helpers.accounts.get_school_accounts')
+    @patch('canvas_api.helpers.accounts.get_school_accounts')
     def test_get_school_data_for_user_single(self, mock_get_accounts):
         mock_get_accounts.return_value = self.school_accounts
         result = get_school_data_for_user(self.canvas_user_id, self.school_sis_account_id)

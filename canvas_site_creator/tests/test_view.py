@@ -1,14 +1,14 @@
 
-from canvas_site_creator.views import index
 import json
-from mock import ANY, DEFAULT, call, Mock, patch
 from os import path
 
-
+from canvas_site_creator.views import index
 from django.test import Client, RequestFactory, TestCase
+from mock import ANY, DEFAULT, Mock, call, patch
+
 
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
-@patch('lti_permissions.decorators.is_allowed', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.is_allowed', new=Mock(return_value=True))
 class BulkSiteViewTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -30,7 +30,7 @@ class BulkSiteViewTest(TestCase):
         return index(self.request)
 
     @patch('canvas_site_creator.views.render')
-    @patch('icommons_common.canvas_api.helpers.accounts.parse_canvas_account_id')
+    @patch('canvas_api.helpers.accounts.parse_canvas_account_id')
     def test_restricted_message_for_dept_subacct(self,
                                                  mock_parse_canvas_account_id,
                                                  render_view):
@@ -46,7 +46,7 @@ class BulkSiteViewTest(TestCase):
 
 
     @patch('canvas_site_creator.views.render')
-    @patch('icommons_common.canvas_api.helpers.accounts.parse_canvas_account_id')
+    @patch('canvas_api.helpers.accounts.parse_canvas_account_id')
     def test_restricted_message_for_coursegroup_subacct(self,
                                                  mock_parse_canvas_account_id,
                                                  render_view):
@@ -61,7 +61,7 @@ class BulkSiteViewTest(TestCase):
                 status=403))
 
     @patch('canvas_site_creator.views.render')
-    @patch('icommons_common.canvas_api.helpers.accounts.parse_canvas_account_id')
+    @patch('canvas_api.helpers.accounts.parse_canvas_account_id')
     @patch('canvas_site_creator.utils.get_term_data_for_school')
     @patch('canvas_site_creator.views.get_school_sub_account_from_account_id')
     @patch('canvas_site_creator.views.get_department_data_for_school')

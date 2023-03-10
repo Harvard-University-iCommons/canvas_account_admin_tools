@@ -2,7 +2,7 @@ import logging
 from django.db import models
 from django.urls import reverse
 
-from icommons_common.models import Term
+from coursemanager.models import Term
 
 from bulk_course_settings import constants
 

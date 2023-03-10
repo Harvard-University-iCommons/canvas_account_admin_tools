@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from icommons_common.models import CourseInstance
+from coursemanager.models import CourseInstance
 
 from canvas_course_site_wizard.models import CanvasCourseGenerationJob
 

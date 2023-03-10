@@ -1,15 +1,11 @@
-import logging
 import csv
-
+import logging
 from optparse import make_option
 
+from canvas_course_site_wizard.models import (BulkCanvasCourseCreationJob,
+                                              CanvasSchoolTemplate)
+from coursemanager.models import CourseInstance
 from django.core.management.base import BaseCommand, CommandError
-
-from icommons_common.utils import grouper
-from icommons_common.models import CourseInstance
-
-from canvas_course_site_wizard.models import BulkCanvasCourseCreationJob, CanvasSchoolTemplate
-
 
 logger = logging.getLogger(__name__)
 

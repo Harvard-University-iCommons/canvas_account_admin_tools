@@ -12,7 +12,7 @@ from django.views.decorators.http import require_http_methods
 
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 AWS_REGION_NAME = settings.MASQUERADE_TOOL_SETTINGS['aws_region_name']

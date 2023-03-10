@@ -2,6 +2,8 @@ import json
 import logging
 from datetime import datetime, timedelta
 
+from coursemanager.models import CourseInstance, CsXlistMapOverview, XlistMap
+from coursemanager.people_models import SimplePerson
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -11,9 +13,7 @@ from django.utils.text import Truncator
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.models import (CourseInstance, CsXlistMapOverview,
-                                    SimplePerson, XlistMap)
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
 from .utils import create_crosslisting_pair, remove_cross_listing
 
