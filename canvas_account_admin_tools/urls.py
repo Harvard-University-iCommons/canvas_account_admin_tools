@@ -9,6 +9,7 @@ urlpatterns = [
     path('account_dashboard', views.dashboard_account, name='dashboard_account'),
     path('canvas_site_creator/', include(('canvas_site_creator.urls', 'canvas_site_creator'), namespace='canvas_site_creator')),
     path('course_info/', include(('course_info.urls', 'course_info'), namespace='course_info')),
+    path('course_info_v2/', include(('course_info_v2.urls', 'course_info_v2'), namespace='course_info_v2')),
     path('cross_list_courses/', include(('cross_list_courses.urls', 'cross_list_courses'), namespace='cross_list_courses')),
     re_path(r'^icommons_rest_api/(?P<path>.*)/', views.icommons_rest_api_proxy, name='icommons_rest_api_proxy'),
     path('lti_auth_error', icommons_ui_views.not_authorized, name='lti_auth_error'),
