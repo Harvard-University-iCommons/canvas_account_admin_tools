@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'async_operations',
     'bulk_utilities',
+    'bulk_enrollment_tool',
     'canvas_account_admin_tools',
     'canvas_course_site_wizard',
     'canvas_site_creator',
