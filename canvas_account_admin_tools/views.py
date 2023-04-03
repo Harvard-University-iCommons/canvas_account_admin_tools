@@ -149,6 +149,13 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
+       verify that user has permissions to view the bulk enrollment tool
+    """
+    bulk_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                                 settings.PERMISSION_BULK_ENROLLMENT_TOOL,
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
         verify that user has permissions to view the masquerade tool
         """
     masquerade_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
@@ -165,6 +172,7 @@ def dashboard_account(request):
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
+        'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
 
         'build_info': build_info
     })
