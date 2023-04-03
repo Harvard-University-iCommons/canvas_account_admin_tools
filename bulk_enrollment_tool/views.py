@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
-@require_http_methods(['GET'])
+# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@require_http_methods(['GET', 'POST'])
 def index(request):
     context = {
         'message': 'Hello!!!'
@@ -23,10 +23,6 @@ def index(request):
     return render(request, 'bulk_enrollment_tool/index.html', context=context)
 
 
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
-@require_http_methods(['GET'])
 def create_dynamodb_record() -> None:
     """
     Creates bulk enrollment record in DynamoDB table.
@@ -34,10 +30,6 @@ def create_dynamodb_record() -> None:
     return None
 
 
-@login_required
-@lti_role_required(const.ADMINISTRATOR)
-@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
-@require_http_methods(['GET'])
 def store_file_in_s3() -> None:
     """
     Stores user bulk enrollment uploaded file in S3 bucket.
