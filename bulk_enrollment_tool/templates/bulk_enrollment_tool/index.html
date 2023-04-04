@@ -1,4 +1,4 @@
-{% extends 'self_enrollment_tool/base.html' %}
+{% extends 'bulk_enrollment_tool/base.html' %}
 
 {% block body %}
 
@@ -10,8 +10,10 @@
   </h3>
 </nav>
 
-<body role="application">
+<div class="body">
     <div class="container-fluid">
+
+        {% comment %} Message/alert section {% endcomment %}
         {% for message in messages %}
             {% if message.level_tag == "success" %}
                 <div class="alert alert-success" role="alert">
@@ -35,7 +37,18 @@
                 </div>
             {% endif %}
         {% endfor %}
-    <br><br>
-    </div>
-</body>
+        <br><br>
+        
+        {% comment %} Input/form section {% endcomment %}
+        <form method="POST" action="{% url 'bulk_enrollment_tool:index' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="formControlFile1">Choose CSV enrollment file</label>
+                <input type="file" class="form-control-file" id="bulkEnrollmentFile" style="min-width: 1000px" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Upload</button>          
+        </form>
+
+    </div><!-- container-fluid -->
+</div><!-- body -->
 {% endblock %}
