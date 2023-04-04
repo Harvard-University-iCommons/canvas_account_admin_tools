@@ -48,7 +48,55 @@
             </div>
             <button class="btn btn-primary" type="submit">Upload</button>          
         </form>
+        <br><br>
 
-    </div><!-- container-fluid -->
-</div><!-- body -->
+        {% comment %} DataTables (most recent uploaded files) section {% endcomment %}
+        <div class="container-fluid">
+            <div class="row" style="margin-top: .25em;">
+                <div style="margin-bottom: -20px; padding-top: 25px;">
+                    <h4 class="modal-title bottom-spacing">Most recently uploaded enrollment files:</h4>
+                </div>
+                <table class="datatable table display no-footer">
+                    <thead>
+                        <th>File Name</th>
+                        <th>Uploaded&nbsp;By</th>
+                        <th>Date&nbsp;Uploaded</th>
+                    </thead>
+                    <tbody>
+                    {% for item in most_recently_uploaded_list %}
+                        <tr>
+                            {% comment %} File name column {% endcomment %}
+                            <td>
+                                {{ item.file_name }}
+                                {{ item.download_url }}
+                            </td>
+                            {% comment %} Uploaded By column {% endcomment %}
+                            <td>
+                                {{ item.uploaded_by }}
+                            </td>
+                            {% comment %} Date Uploaded column {% endcomment %}
+                            <td>
+                                {{ item.date_uploaded }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                $('.datatable').dataTable( {
+                    paging: false,
+                    "info" : false,
+                    "language": {
+                      "search": "Filter the list"
+                    }
+                });
+            });
+        </script>
+
+    </div> {% comment %} container-fluid {% endcomment %}
+</div> {% comment %} body {% endcomment %}
 {% endblock %}
