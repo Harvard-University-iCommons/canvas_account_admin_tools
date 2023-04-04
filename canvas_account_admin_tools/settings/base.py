@@ -61,7 +61,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'async_operations',
     'bulk_utilities',
-    'bulk_enrollment_tool',
     'canvas_account_admin_tools',
     'canvas_course_site_wizard',
     'canvas_site_creator',
@@ -84,6 +83,7 @@ INSTALLED_APPS = [
     'canvas_site_deletion',
     'masquerade_tool',
     'self_enrollment_tool',
+    'bulk_enrollment_tool',
     'pylti1p3.contrib.django.lti1p3_tool_config',
     'self_unenrollment_tool',
     'rest_framework',
@@ -372,6 +372,11 @@ LOGGING = {
             'propagate': False,
         },
         'self_unenrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
+        'bulk_enrollment_tool': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,
