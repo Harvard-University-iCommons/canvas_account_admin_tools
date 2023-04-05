@@ -557,6 +557,11 @@ MASQUERADE_TOOL_SETTINGS = {
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
 
+BULK_ENROLLMENT_TOOL_SETTINGS = {
+    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
+    'bulk_enrollment_s3_bucket': SECURE_SETTINGS.get('bulk_enrollment_s3_bucket'),
+    'bulk_enrollment_dynamodb_table': SECURE_SETTINGS.get('bulk_enrollment_dynamodb_table'),
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
