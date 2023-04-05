@@ -43,7 +43,7 @@
         <form method="POST" action="{% url 'bulk_enrollment_tool:index' %}">
             {% csrf_token %}
             <div class="form-group">
-                <label for="formControlFile1">Choose CSV enrollment file</label>
+                <label for="formControlFile1">Choose CSV enrollment file to upload</label>
                 <input type="file" class="form-control-file" id="bulkEnrollmentFile" style="min-width: 1000px" required>
             </div>
             <button class="btn btn-primary" type="submit">Upload</button>          
@@ -90,6 +90,7 @@
                 $('.datatable').dataTable( {
                     paging: false,
                     "info" : false,
+                    "order": [],
                     "language": {
                       "search": "Filter the list"
                     }
