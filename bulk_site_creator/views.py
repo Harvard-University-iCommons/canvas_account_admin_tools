@@ -16,7 +16,6 @@ from icommons_common.canvas_utils import (
 )  # TODO replace this
 from icommons_common.models import CourseInstance, School
 from lti_permissions.decorators import lti_permission_required
-from ulid import ULID
 
 from common.utils import get_canvas_site_templates_for_school, get_term_data_for_school
 
@@ -69,9 +68,14 @@ def index(request):
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     canvas_user_id = request.LTI["custom_canvas_user_id"]
     logged_in_user_id = request.LTI["lis_person_sourcedid"]
-    data = json.loads(request.POST["data"])
+    user_email = request.LTI["lis_person_contact_email_primary"]
+    user_full_name = request.LTI["list_person_name_full"]
 
-    template_canvas_course_id = data.get("template")
+    data = json.loads(request.POST["data"])
+    template_id = data.get("template")
+    template_name = data.get("template_name")
+    term_id = data.get("term_id")
+    term_name = data.get("term_name")
     filters = data["filters"]
     term = filters.get("term")
 
@@ -98,11 +102,11 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     if data.get("create_all", False):
         # Get the account data to be used in the course instance query.
         if filters["course_group"]:
-            account = filters["course_group"]
+            account = course_group
         elif filters["department"]:
-            account = filters["department"]
+            account = department
         else:
-            account = filters["school"]
+            account = school_account_id
 
         # Retrieve all course instances for the given term and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
@@ -124,10 +128,13 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             term,
             department,
             course_group,
-            template_canvas_course_id,
             created_by_user_id,
             course_instance_ids,
             "pending",
+            user_email,
+            user_full_name,
+            template_name,
+            template_id,
         )
     except (TypeError, ValueError) as e:
         logger.error(f"Unexpected input during JobRecord creation: {e}")
@@ -150,12 +157,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     # Write the TaskRecords to DynamoDB
     batch_write_item(table, tasks)
 
-    # Wait for all write operations to complete before adding the JobRecord.
-    # The addition of the JobRecord triggers a DynamoDB stream event
-    # that kicks off downstream processing, so all TaskRecords should be
-    # present at that time.
-    table.meta.client.get_waiter("table_exists").wait(TableName=table_name)
-
+    # Now write the JobRecord to DynamoDB
     response = table.put_item(job.to_dict())
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         logger.error(f"Error adding JobRecord to DynamoDB: {response}")
