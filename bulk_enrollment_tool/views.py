@@ -1,7 +1,9 @@
 import logging
+from datetime import datetime
 
 import boto3
 from boto3.dynamodb.conditions import Attr, Key
+from dateutil import tz
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -33,12 +35,17 @@ def index(request):
 
     # Read data from DynamoDB table.
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
+    table = dynamodb.Table(
+        settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
     response = table.query(
         KeyConditionExpression=Key('pk').eq('SCHOOL#ACTS'),
         Limit=10,
     )
     items = response['Items']
+
+    # Update timestamp to local datetime.
+    [item.update(created_at=_convert_time_to_local_datetime(
+        item['created_at'])) for item in items]
 
     context = {
         'most_recently_uploaded_files': items
@@ -97,3 +104,17 @@ def store_file_in_s3() -> None:
     return None
 
 
+def _convert_time_to_local_datetime(date_time: str) -> datetime:
+    # Auto-detect zones:
+    from_zone = tz.tzutc()
+    to_zone = tz.tzlocal()
+
+    # utc = datetime.utcnow()
+    utc = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S.%f')
+
+    # Tell the datetime object that it's in UTC time zone since
+    # datetime objects are 'naive' by default.
+    utc = utc.replace(tzinfo=from_zone)
+
+    # Return converted time zone.
+    return utc.astimezone(to_zone)
