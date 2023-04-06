@@ -50,3 +50,5 @@ splunk_handler==3.0.0
 python-json-logger==2.0.4
 
 PyLTI1p3==1.12.2
+python-ulid==1.1.0
+smart-open==6.3.0

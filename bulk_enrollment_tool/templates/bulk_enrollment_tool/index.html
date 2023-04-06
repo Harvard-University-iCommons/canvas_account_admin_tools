@@ -40,11 +40,12 @@
         <br><br>
         
         {% comment %} Input/form section {% endcomment %}
-        <form method="POST" action="{% url 'bulk_enrollment_tool:index' %}">
+        <form method="POST" action="{% url 'bulk_enrollment_tool:index' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-group">
                 <label for="formControlFile1">Choose CSV enrollment file to upload</label>
-                <input type="file" class="form-control-file" id="bulkEnrollmentFile" style="min-width: 1000px" required>
+                <input type="file" class="form-control-file" id="beFile" name="bulkEnrollmentFile" 
+                style="min-width: 1000px" required>
             </div>
             <button class="btn btn-primary" type="submit">Upload</button>          
         </form>
