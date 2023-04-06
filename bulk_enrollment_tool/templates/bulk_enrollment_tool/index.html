@@ -63,12 +63,12 @@
                         <th>Date&nbsp;Uploaded</th>
                     </thead>
                     <tbody>
-                    {% for item in most_recently_uploaded_list %}
+                    {% for item in most_recently_uploaded_files %}
                         <tr>
                             {% comment %} File name column {% endcomment %}
                             <td>
-                                {{ item.file_name }}
-                                {{ item.download_url }}
+                                {{ item.original_filename }}
+                                {{ download_url }}
                             </td>
                             {% comment %} Uploaded By column {% endcomment %}
                             <td>
@@ -76,7 +76,7 @@
                             </td>
                             {% comment %} Date Uploaded column {% endcomment %}
                             <td>
-                                {{ item.date_uploaded }}
+                                {{ item.created_at }}
                             </td>
                         </tr>
                     {% endfor %}
