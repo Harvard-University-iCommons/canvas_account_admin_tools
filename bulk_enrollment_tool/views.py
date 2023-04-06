@@ -33,12 +33,19 @@ def index(request):
         messages.success(request, f'File uploaded and is being processed.'
                          f'You will get a notification email once complete.')
 
-    # Read data from DynamoDB table.
+    # Get the school that this tool is being launched in.
+    try:
+        tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+    except Exception:
+        logger.exception('Error getting launch school')
+
+    # Read data from DynamoDB table (get n most recent records).
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(
         settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
     response = table.query(
-        KeyConditionExpression=Key('pk').eq('SCHOOL#ACTS'),
+        KeyConditionExpression=Key('pk').eq(f'SCHOOL#{tool_launch_school.upper()}'),
+        ScanIndexForward=False,  # Records in reverse order (DESC).
         Limit=10,
     )
     items = response['Items']
@@ -80,13 +87,7 @@ def create_dynamodb_record() -> None:
     """
     Creates bulk enrollment record in DynamoDB table.
     """
-    # TODO: Update/Add logic.
-    # logger.debug('Create bulk enrollment DynamoDB record', extra={})
 
-    # See docs here on how to use Boto3 to read, create records, etc... in DynamoDB:
-    # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/dynamodb.html
-
-    # Docs for DynamoDB request syntax :https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
     return None
 
 
