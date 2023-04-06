@@ -39,11 +39,34 @@ def index(request):
         Limit=10,
     )
     items = response['Items']
-    
+
     context = {
         'most_recently_uploaded_files': items
     }
     return render(request, 'bulk_enrollment_tool/index.html', context=context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@require_http_methods(['GET'])
+def download(request, s3_key, filename):
+    # generate an S3 URL and redirect to it.
+    logger.debug(f'generating an S3 url for {s3_key}')
+    bucket_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_s3_bucket']
+
+    s3 = boto3.client('s3')
+    s3_url = s3.generate_presigned_url(
+        'get_object',
+        {
+            'Bucket': bucket_name,
+            'Key': s3_key,
+            'ResponseContentDisposition': f'attachment;filename={filename}',
+        },
+        ExpiresIn=60
+    )
+    logger.debug(s3_url)
+    return redirect(s3_url)
 
 
 def create_dynamodb_record() -> None:
@@ -72,3 +95,5 @@ def store_file_in_s3() -> None:
 
     # Docs for DynamoDB request syntax :https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_Query.html
     return None
+
+

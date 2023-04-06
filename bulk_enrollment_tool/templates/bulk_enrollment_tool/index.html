@@ -67,8 +67,10 @@
                         <tr>
                             {% comment %} File name column {% endcomment %}
                             <td>
-                                {{ item.original_filename }}
-                                {{ download_url }}
+                                <a href={% url 'bulk_enrollment_tool:download' item.s3_key item.original_filename %}>
+                                    {{ item.original_filename }}
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                </a>
                             </td>
                             {% comment %} Uploaded By column {% endcomment %}
                             <td>
