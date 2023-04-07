@@ -491,7 +491,7 @@ BULK_COURSE_CREATION = {
                                'course sites were created successfully.\n',
     'notification_email_body_failed_count': ' - {} course sites were not '
                                             'created.',
-    'dynamo_table_name': SECURE_SETTINGS.get('dynamo_table_name', None),
+    'site_creator_dynamo_table_name': SECURE_SETTINGS.get('site_creator_dynamo_table_name', None),
 }
 
 
