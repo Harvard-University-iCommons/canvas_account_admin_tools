@@ -15,17 +15,18 @@ from django_auth_lti.decorators import lti_role_required
 from icommons_common.canvas_utils import \
     SessionInactivityExpirationRC  # TODO replace this
 from icommons_common.models import (  # TODO: update to coursemanager.models
-    CourseGroup, Department)
+    CourseGroup, Department, Term)
 from lti_permissions.decorators import lti_permission_required
 
 from common.utils import (get_canvas_site_template,
-                          get_canvas_site_templates_for_school, get_term_data,
+                          get_canvas_site_templates_for_school,
                           get_term_data_for_school)
 
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
                     get_course_instance_query_set,
-                    get_course_instances_without_canvas_sites)
+                    get_course_instances_without_canvas_sites,
+                    get_department_name_by_id, get_term_name_by_id)
 
 logger = logging.getLogger(__name__)
 
@@ -70,14 +71,21 @@ def index(request):
 @require_http_methods(["POST"])
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     user_id = request.LTI["lis_person_sourcedid"]
-    user_full_name = request.LTI["list_person_name_full"]
+    user_full_name = request.LTI["lis_person_name_full"]
     user_email = request.LTI["lis_person_contact_email_primary"]
 
-    data = json.loads(request.POST["data"])
+    data = json.loads(request.body)
     filters = data["filters"]
 
-    term_id = filters.get("term_id")
-    term_name = get_term_data(term_id).get("name")
+    term_id = filters.get("term")
+    if term_id:
+        try:
+            term_name = get_term_name_by_id(term_id)
+        except Term.DoesNotExist as e:
+            logger.error(f"Term {term_id} does not exist: {e}")
+            return JsonResponse({"error": "Term does not exist"}, status=400)
+    else:
+        term_name = None
 
     school_account_id = filters["school"]
     (_, school_id) = canvas_api_accounts.parse_canvas_account_id(school_account_id)
@@ -87,29 +95,30 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     if department_account_id:
         (_, department_id) = department_account_id.split(":")
 
-    try:
-        department_name = Department.objects.get(department_id=department_id).name
-    except Department.DoesNotExist as e:
-        logger.error(f"Department {department_id} does not exist: {e}")
-        return JsonResponse({"error": "Department does not exist"}, status=400)
+    if department_id:
+        try:
+            department_name = get_department_name_by_id(department_id)
+        except Department.DoesNotExist as e:
+            logger.error(f"Department {department_id} does not exist: {e}")
+            return JsonResponse({"error": "Department does not exist"}, status=400)
+    else:
+        department_name = None
 
     course_group_id = None
     course_group_account_id = filters.get("course_group")
     if course_group_account_id:
         (_, course_group_id) = course_group_account_id.split(":")
 
-    try:
-        course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
-    except CourseGroup.DoesNotExist as e:
-        logger.error(f"Course Group {course_group_id} does not exist: {e}")
-        return JsonResponse({"error": "Course Group does not exist"}, status=400)
+    if course_group_id:
+        try:
+            course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
+        except CourseGroup.DoesNotExist as e:
+            logger.error(f"Course Group {course_group_id} does not exist: {e}")
+            return JsonResponse({"error": "Course Group does not exist"}, status=400)
+    else:
+        course_group_name = None
 
     template_id = data.get("template")
-    try:
-        template_name = get_canvas_site_template(school_id, template_id).name
-    except CanvasSchoolTemplate.DoesNotExist as e:
-        logger.error(f"Template {template_id} does not exist: {e}")
-        return JsonResponse({"error": "Template does not exist"}, status=400)
 
     # If the create_all flag has been set and passed with the form,
     # then create a query to get the all course instances with the applied filters that are to be created.
@@ -140,7 +149,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             course_group_id=course_group_id,
             course_group_name=course_group_name,
             template_id=template_id,
-            template_name=template_name,
             workflow_state="PENDING",
         )
     except (TypeError, ValueError) as e:
@@ -154,7 +162,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         return JsonResponse({"status": 400})
 
     dynamodb = boto3.resource("dynamodb")
-    table_name = settings.BULK_COURSE_CREATION.get("dynamo_table_name")
+    table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
     table = dynamodb.Table(table_name)
 
     # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
@@ -162,7 +170,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     batch_write_item(table, tasks)
 
     # Now write the JobRecord to DynamoDB
-    response = table.put_item(job.to_dict())
+    response = table.put_item(Item=job.to_dict())
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         logger.error(f"Error adding JobRecord to DynamoDB: {response}")
         return JsonResponse({"status": 500})
