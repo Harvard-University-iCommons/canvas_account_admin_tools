@@ -12,6 +12,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
+from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 from icommons_common.canvas_utils import \
     SessionInactivityExpirationRC  # TODO replace this
 from icommons_common.models import (  # TODO: update to coursemanager.models
