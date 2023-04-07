@@ -1,8 +1,10 @@
 import logging
 
 from botocore.exceptions import ClientError
-from icommons_common.models import \
-    CourseInstance  # TODO: update to coursemanager.models
+from icommons_common.models import (  # TODO: update to coursemanager.models
+    CourseInstance, Department)
+
+from common.utils import get_canvas_site_template, get_term_data
 
 from .schema import JobRecord, TaskRecord
 
@@ -67,3 +69,9 @@ def get_course_instance_query_set(sis_term_id_id, sis_account_id):
         filters["course__course_group"] = account_id
 
     return CourseInstance.objects.filter(**filters)
+
+def get_term_name_by_id(term_id: str):
+    return get_term_data(term_id).get("name")
+
+def get_department_name_by_id(department_id: str):
+    return Department.objects.get(department_id=department_id).name
