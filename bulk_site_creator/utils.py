@@ -18,7 +18,8 @@ def batch_write_item(table, items: list[dict]):
                 response = batch.put_item(Item=item)
                 logging.info(response)
     except ClientError as e:
-        logging.error(e.response["Error"]["Message"])
+        logging.error(f"Error writing to DynamoDB: {e}")
+        raise
 
 
 def generate_task_objects(course_instance_ids: list[str], job: JobRecord):

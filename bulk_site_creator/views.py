@@ -3,7 +3,9 @@ import logging
 from typing import Optional
 
 import boto3
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
+
+from botocore.exceptions import ClientError
+
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -12,6 +14,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
+from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 from icommons_common.canvas_utils import \
     SessionInactivityExpirationRC  # TODO replace this
 from icommons_common.models import (  # TODO: update to coursemanager.models
@@ -155,7 +158,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         try:
             term_name = get_term_name_by_id(term_id)
         except Term.DoesNotExist as e:
-            logger.error(f"Term {term_id} does not exist: {e}")
+            logger.info(f"Term {term_id} does not exist: {e}")
             return JsonResponse({"error": "Term does not exist"}, status=400)
     else:
         term_name = None
@@ -172,7 +175,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         try:
             department_name = get_department_name_by_id(department_id)
         except Department.DoesNotExist as e:
-            logger.error(f"Department {department_id} does not exist: {e}")
+            logger.info(f"Department {department_id} does not exist: {e}")
             return JsonResponse({"error": "Department does not exist"}, status=400)
     else:
         department_name = None
@@ -186,7 +189,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         try:
             course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
         except CourseGroup.DoesNotExist as e:
-            logger.error(f"Course Group {course_group_id} does not exist: {e}")
+            logger.info(f"Course Group {course_group_id} does not exist: {e}")
             return JsonResponse({"error": "Course Group does not exist"}, status=400)
     else:
         course_group_name = None
@@ -236,7 +239,10 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
 
     # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
     # kicks off the downstream bulk workflow via a DynamoDB stream.
-    batch_write_item(table, tasks)
+    try:
+        batch_write_item(table, tasks)
+    except ClientError as e:
+        return JsonResponse({"status": 500})
 
     # Now write the JobRecord to DynamoDB
     response = table.put_item(Item=job.to_dict())
