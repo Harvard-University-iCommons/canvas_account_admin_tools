@@ -20,6 +20,7 @@ def batch_write_item(table, items: list[dict]):
     except ClientError as e:
         logging.error(e.response["Error"]["Message"])
 
+
 def generate_task_objects(course_instance_ids: list[str], job: JobRecord):
     tasks = []
     for ci_id in course_instance_ids:
@@ -30,6 +31,7 @@ def generate_task_objects(course_instance_ids: list[str], job: JobRecord):
             logging.error(f"Error creating TaskRecord for job {job['job_id']}: {e}")
             raise
     return tasks
+
 
 def get_course_instances_without_canvas_sites(account, term_id):
     # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
@@ -46,18 +48,19 @@ def get_course_instances_without_canvas_sites(account, term_id):
 
     return course_instance_ids
 
+
 #  TODO Currently a method in canvas_site_creator models, using for temp testing
-def get_course_instance_query_set(sis_term_id_id, sis_account_id):
+def get_course_instance_query_set(sis_term_id, sis_account_id):
     # Exclude records that have parent_course_instance_id  set(TLT-3558) as we don't want to create sites for the
     # children; they will be associated with the parent site
     filters = {
         "exclude_from_isites": 0,
-        "term_id_id": sis_term_id_id,
+        "term_id": sis_term_id,
         "parent_course_instance_id__isnull": True,
     }
 
     logger.debug(
-        f"Getting CI objects for term_id: {sis_term_id_id} and school: {sis_account_id}"
+        f"Getting CI objects for term_id: {sis_term_id} and school: {sis_account_id}"
     )
 
     (account_type, account_id) = sis_account_id.split(":")
