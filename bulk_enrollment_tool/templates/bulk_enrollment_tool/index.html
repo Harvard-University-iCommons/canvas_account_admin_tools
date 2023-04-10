@@ -54,7 +54,7 @@
         {% comment %} DataTables (most recent uploaded files) section {% endcomment %}
         <div class="container-fluid">
             <div class="row" style="margin-top: .25em;">
-                <div style="margin-bottom: -20px; padding-top: 25px;">
+                <div style="padding-top: 25px;">
                     <h4 class="modal-title bottom-spacing">Most recently uploaded enrollment files:</h4>
                 </div>
                 <table class="datatable table display no-footer">
@@ -91,12 +91,10 @@
         <script>
             $(document).ready(function() {
                 $('.datatable').dataTable( {
-                    paging: false,
+                    "paging": false,
                     "info" : false,
-                    "order": [],
-                    "language": {
-                      "search": "Filter the list"
-                    }
+                    "searching": false,
+                    "ordering": false
                 });
             });
         </script>
