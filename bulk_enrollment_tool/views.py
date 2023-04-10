@@ -1,14 +1,13 @@
 import logging
-from datetime import datetime
 
 import boto3
-from boto3.dynamodb.conditions import Attr, Key
-from dateutil import tz
+from boto3.dynamodb.conditions import Key
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
@@ -47,9 +46,9 @@ def index(request):
     )
     items = response['Items']
 
-    # Update timestamp to local datetime.
-    [item.update(created_at=convert_time_to_local_datetime(
-        item['created_at'])) for item in items]
+    # Update string timestamp to datetime.
+    [item.update(created_at=parse_datetime(item['created_at']))
+     for item in items]
 
     context = {
         'most_recently_uploaded_files': items
@@ -108,9 +107,9 @@ def _create_dynamodb_record(request) -> None:
             'pk': pk,
             'sk': sk,
             'status': 'new',
-            'created_at': str(datetime.utcnow()),
-            'updated_at': str(datetime.utcnow()),
-            # the front-end tool will likely want to store additional attributes here, such as:
+            'created_at': str(timezone.now()),  # UTC time-zone-aware datetime.
+            'updated_at': str(timezone.now()),
+            # Additional attributes:
             'original_filename': filename,
             's3_key': s3_key,
             'uploaded_by': uploaded_by,
@@ -137,22 +136,6 @@ def _store_file_in_s3(request, filename: str) -> None:
         f'Store bulk enrollment file in S3. File ID: {filename}', extra=response)
 
     return None
-
-
-def convert_time_to_local_datetime(date_time: str) -> datetime:
-    # Auto-detect zones:
-    from_zone = tz.tzutc()
-    to_zone = tz.tzlocal()
-
-    # utc = datetime.utcnow()
-    utc = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S.%f')
-
-    # Tell the datetime object that it's in UTC time zone since
-    # datetime objects are 'naive' by default.
-    utc = utc.replace(tzinfo=from_zone)
-
-    # Return converted time zone.
-    return utc.astimezone(to_zone)
 
 
 def get_tool_launch_school(request) -> str:
