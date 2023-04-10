@@ -2,12 +2,13 @@
 
 {% block body %}
 <nav>
-  <h3>
+  <h3 class="breadcrumbs">
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    <small><i class="fa fa-chevron-right"></i></small>
+    <i class="fa-solid fa-chevron-right"></i>
     Bulk Site Creator
   </h3>
 </nav>
+
 
 <body role="application">
     <div class="container-fluid">
@@ -39,9 +40,9 @@
     <div class="row container-fluid">
         <h3>
             Bulk Creation Jobs:
-            <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary pull-right">New Job</a>
+            <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
         </h3>
-        <table class="datatable table display no-footer">
+        <table class="datatable table table-striped table-bordered dataTable no-footer">
             <thead>
                 <tr>
                     <th>Job ID</th>

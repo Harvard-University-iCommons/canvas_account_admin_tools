@@ -2,11 +2,11 @@
 
 {% block body %}
 <nav>
-  <h3>
+  <h3 class="breadcrumbs">
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
-    <small><i class="fa fa-chevron-right"></i></small>
+    <i class="fa-solid fa-chevron-right"></i>
     <a href="{% url 'bulk_site_creator:index' %}">Bulk Site Creator</a>
-    <small><i class="fa fa-chevron-right"></i></small>
+    <i class="fa-solid fa-chevron-right"></i>
       New Job
   </h3>
 </nav>
@@ -54,61 +54,60 @@
                     </div>
 
                     <div class="col-md-12">
-                        <button id="find-courses-in-term" type="submit" class="btn btn-primary pull-right">
+                        <button id="find-courses-in-term" type="submit" class="btn btn-primary" style="margin-top: 25px; margin-bottom: 25px;">
                             Find Courses
                         </button>
                     </div>
                 </div>
             </form>
         {% else %}
-            Placeholder text for no terms for the current school
+            No terms exist for this account
         {% endif %}
 
         {% if potential_course_sites %}
-            <div class="row container-fluid">
-                <div class="row">
-                    <h4>{{ potential_site_count }} courses ready for Canvas course site creation</h4>
-                    <div class="col-sm-6 margin-bottom-md">
-                        <select id="template-select" class="form-control">
-                            <option value="no-template">
-                                No Template
+            <hr>
+            <div class="row">
+                <h4>{{ potential_site_count }} courses ready for Canvas course site creation</h4>
+                <div class="col-sm-6 margin-bottom-md">
+                    <select id="template-select" class="form-control">
+                        <option value="no-template">
+                            No Template
+                        </option>
+                        {% for site_template in canvas_site_templates %}
+                            <option value="{{ site_template.canvas_course_id }}">
+                                {{ site_template.canvas_course_name }}
                             </option>
-                            {% for site_template in canvas_site_templates %}
-                                <option value="{{ site_template.canvas_course_id }}">
-                                    {{ site_template.canvas_course_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <br>
-                        <button type="button" ng-cloak class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
-                        <button type="button" ng-cloak class="btn btn-primary" data-toggle="modal" data-target="#confirmCreate">Create Selected</button>
-                        <br>
-                        <br>
-                        <p>You may select individual courses from the list below to customize your Canvas course site creation job.</p>
-                    </div>
-                    <table class="datatable table display no-footer">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>SIS ID</th>
-                                <th>Course Code</th>
-                                <th>Course Title</th>
-                                <th>Course Section</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for potential_course_site in potential_course_sites %}
-                            <tr>
-                                <td></td>
-                                <td>{{ potential_course_site.course_instance_id }}</td>
-                                <td>{{ potential_course_site.short_title }}</td>
-                                <td>{{ potential_course_site.title }}</td>
-                                <td>{{ potential_course_site.section }}</td>
-                            </tr>
                         {% endfor %}
-                        </tbody>
-                    </table>
+                    </select>
+                    <br>
+                    <button type="button" ng-cloak class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
+                    <button type="button" ng-cloak class="btn btn-primary" data-toggle="modal" data-target="#confirmCreate">Create Selected</button>
+                    <br>
+                    <br>
+                    <p>You may select individual courses from the list below to customize your Canvas course site creation job.</p>
                 </div>
+                <table class="datatable table table-striped table-bordered dataTable no-footer">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>SIS ID</th>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Course Section</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for potential_course_site in potential_course_sites %}
+                        <tr>
+                            <td></td>
+                            <td>{{ potential_course_site.course_instance_id }}</td>
+                            <td>{{ potential_course_site.short_title }}</td>
+                            <td>{{ potential_course_site.title }}</td>
+                            <td>{{ potential_course_site.section }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
             <!-- Confirmation Modal -->
