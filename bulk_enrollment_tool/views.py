@@ -8,12 +8,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
-# from smart_open import open
 from ulid import ULID
 
 logger = logging.getLogger(__name__)
@@ -29,10 +28,11 @@ def index(request):
                     f'{request.FILES["bulkEnrollmentFile"]}')
 
         _create_dynamodb_record(request)
-        # _store_file_in_s3()
 
-        messages.success(request, f'File uploaded and is being processed.'
+        messages.success(request, f'File uploaded and is being processed. '
                          f'You will get a notification email once complete.')
+
+        return redirect('bulk_enrollment_tool:index')
 
     tool_launch_school = get_tool_launch_school(request)
 
@@ -117,24 +117,24 @@ def _create_dynamodb_record(request) -> None:
         }
     )
 
-    _store_file_in_s3(request, file_id)
+    _store_file_in_s3(request, s3_key)
 
     return None
 
 
-def _store_file_in_s3(request, file_id: str) -> None:
+def _store_file_in_s3(request, filename: str) -> None:
     """
     Stores user bulk enrollment uploaded file in S3 bucket.
     """
-    file_path = request.FILES['bulkEnrollmentFile'].file.getvalue()
     be_s3_bucket_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_s3_bucket']
-    print(f'----------------------------------------> {file_path}')
 
-    logger.debug(f'Store bulk enrollment file in S3. File ID: {file_id}')
-
-    # Stream content *into* S3.
+    # Stream content into S3 bucket.
     s3 = boto3.resource('s3')
-    s3.Object(be_s3_bucket_name, file_id).put(Body=request.FILES['bulkEnrollmentFile'].file.getvalue())
+    response = s3.Object(be_s3_bucket_name, filename).put(
+        Body=request.FILES['bulkEnrollmentFile'].file.getvalue())
+
+    logger.debug(
+        f'Store bulk enrollment file in S3. File ID: {filename}', extra=response)
 
     return None
 
