@@ -27,27 +27,30 @@
                             {% endfor %}
                         </select>
                         <br>
-                        <label for="course-term">Department
-                            <span class="required-field-marker">*</span>
-                        </label>
-                        <br>
-                        <select id="course-department" name="course-department" class="form-control">
-                            <option value="0" selected>Department</option>
-                            {% for department in departments %}
-                                <option value="{{ department.id }}">{{ department.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <br>
-                        <label for="course-term">Course Group
-                            <span class="required-field-marker">*</span>
-                        </label>
-                        <br>
-                        <select id="course-course-group" name="course-course-group" class="form-control">
-                            <option value="0" selected>Course Group</option>
-                            {% for course_group in course_groups %}
-                                <option value="{{ course_group.id }}">{{ course_group.name }}</option>
-                            {% endfor %}
-                        </select>
+                        {% if departments %}
+                            <label for="course-term">Department
+                                <span class="required-field-marker">*</span>
+                            </label>
+                            <br>
+                            <select id="course-department" name="course-department" class="form-control">
+                                <option value="0" selected>Department</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                        {% elif course_groups %}
+                            <label for="course-term">Course Group
+                                <span class="required-field-marker">*</span>
+                            </label>
+                            <br>
+                            <select id="course-course-group" name="course-course-group" class="form-control">
+                                <option value="0" selected>Course Group</option>
+                                {% for course_group in course_groups %}
+                                    <option value="{{ course_group.id }}">{{ course_group.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
                     </div>
 
                     <div class="col-md-12">
