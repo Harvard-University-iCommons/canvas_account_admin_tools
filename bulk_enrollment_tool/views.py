@@ -13,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
-from smart_open import open
+# from smart_open import open
 from ulid import ULID
 
 logger = logging.getLogger(__name__)
@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['GET', 'POST'])
 def index(request):
     if request.method == "POST":
-    #     logger.info(f'Bulk enrollment file uploaded. File: '
-    #                 f'{request.FILES["bulkEnrollmentFile"]}')
+        logger.info(f'Bulk enrollment file uploaded. File: '
+                    f'{request.FILES["bulkEnrollmentFile"]}')
 
         _create_dynamodb_record(request)
         # _store_file_in_s3()
@@ -84,16 +84,11 @@ def _create_dynamodb_record(request) -> None:
     """
     Creates bulk enrollment record in DynamoDB table.
     """
-    print('------------------------------------>', request.FILES['bulkEnrollmentFile'].name)
-
     be_table_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table']
 
     filename = request.FILES['bulkEnrollmentFile'].name
     school_id = get_tool_launch_school(request)
     uploaded_by = request.LTI['lis_person_name_full']
-
-    logger.debug('Create bulk enrollment DynamoDB record',
-                 extra={'File name': filename})
 
     ddb_resource = boto3.resource('dynamodb')
     be_table = ddb_resource.Table(be_table_name)
@@ -101,6 +96,8 @@ def _create_dynamodb_record(request) -> None:
     # generate a ulid for the file id
     file_id = str(ULID())
     s3_key = f'{school_id}/{file_id}.csv'
+
+    logger.debug(f'Create bulk enrollment DynamoDB record. File ID: {file_id}')
 
     # put a record in the dynamodb table
     pk = f'SCHOOL#{school_id.upper()}'
@@ -119,15 +116,25 @@ def _create_dynamodb_record(request) -> None:
             'uploaded_by': uploaded_by,
         }
     )
+
+    _store_file_in_s3(request, file_id)
+
     return None
 
 
-def _store_file_in_s3() -> None:
+def _store_file_in_s3(request, file_id: str) -> None:
     """
     Stores user bulk enrollment uploaded file in S3 bucket.
     """
-    # TODO: Update/Add logic.
-    # logger.debug('Store bulk enrollment file in S3', extra={})
+    file_path = request.FILES['bulkEnrollmentFile'].file.getvalue()
+    be_s3_bucket_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_s3_bucket']
+    print(f'----------------------------------------> {file_path}')
+
+    logger.debug(f'Store bulk enrollment file in S3. File ID: {file_id}')
+
+    # Stream content *into* S3.
+    s3 = boto3.resource('s3')
+    s3.Object(be_s3_bucket_name, file_id).put(Body=request.FILES['bulkEnrollmentFile'].file.getvalue())
 
     return None
 
