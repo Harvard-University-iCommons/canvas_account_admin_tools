@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
@@ -32,8 +33,6 @@ def index(request):
 
         messages.success(request, f'File uploaded and is being processed.'
                          f'You will get a notification email once complete.')
-        
-        return redirect('bulk_enrollment_tool/index/')
 
     tool_launch_school = get_tool_launch_school(request)
 
@@ -86,39 +85,40 @@ def _create_dynamodb_record(request) -> None:
     Creates bulk enrollment record in DynamoDB table.
     """
     print('------------------------------------>', request.FILES['bulkEnrollmentFile'].name)
-    # logger.debug('Create bulk enrollment DynamoDB record',
-    #              extra={'File name': filename})
 
-    # be_table_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table']
+    be_table_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table']
 
-    # filename = request.FILES['bulkEnrollmentFile'].name
-    # school_id = get_tool_launch_school(request)
-    # uploaded_by = request.LTI['lis_person_name_full']
+    filename = request.FILES['bulkEnrollmentFile'].name
+    school_id = get_tool_launch_school(request)
+    uploaded_by = request.LTI['lis_person_name_full']
 
-    # ddb_resource = boto3.resource('dynamodb')
-    # be_table = ddb_resource.Table(be_table_name)
+    logger.debug('Create bulk enrollment DynamoDB record',
+                 extra={'File name': filename})
 
-    # # generate a ulid for the file id
-    # file_id = str(ULID())
-    # s3_key = f'{school_id}/{file_id}.csv'
+    ddb_resource = boto3.resource('dynamodb')
+    be_table = ddb_resource.Table(be_table_name)
 
-    # # put a record in the dynamodb table
-    # pk = f'SCHOOL#{school_id.upper()}'
-    # sk = f'FILE#{file_id}'
+    # generate a ulid for the file id
+    file_id = str(ULID())
+    s3_key = f'{school_id}/{file_id}.csv'
 
-    # be_table.put_item(
-    #     Item={
-    #         'pk': pk,
-    #         'sk': sk,
-    #         'status': 'new',
-    #         'created_at': str(datetime.datetime.now()),
-    #         'updated_at': str(datetime.datetime.now()),
-    #         # the front-end tool will likely want to store additional attributes here, such as:
-    #         'original_filename': filename,
-    #         's3_key': s3_key,
-    #         'uploaded_by': uploaded_by,
-    #     }
-    # )
+    # put a record in the dynamodb table
+    pk = f'SCHOOL#{school_id.upper()}'
+    sk = f'FILE#{file_id}'
+
+    be_table.put_item(
+        Item={
+            'pk': pk,
+            'sk': sk,
+            'status': 'new',
+            'created_at': str(datetime.utcnow()),
+            'updated_at': str(datetime.utcnow()),
+            # the front-end tool will likely want to store additional attributes here, such as:
+            'original_filename': filename,
+            's3_key': s3_key,
+            'uploaded_by': uploaded_by,
+        }
+    )
     return None
 
 
