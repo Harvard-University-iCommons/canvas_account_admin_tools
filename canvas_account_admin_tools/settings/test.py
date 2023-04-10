@@ -6,17 +6,21 @@ SECRET_KEY = 'zd_*c@fm5@inktc5jo1y+t=6m&fx0$81f=vjv*^nk894cfgyg@'
 
 ENV_NAME = 'test'
 
+MIGRATION_MODULES = {
+    "icommons_common": None,
+    "canvas_course_site_wizard": None,
+}
+
 # no router necessary in a test environment
 DATABASE_ROUTERS = []
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': SECURE_SETTINGS.get('db_default_name', 'canvas_account_admin_tools_test'),
-        'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
-        'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
-        'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
-        'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
+        'NAME': 'canvas_account_admin_tools',
+        'USER': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': 5432,  # Default postgres port
     },
 }
 
