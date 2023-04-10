@@ -3,7 +3,9 @@ import logging
 from typing import Optional
 
 import boto3
+
 from botocore.exceptions import ClientError
+
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -20,18 +22,27 @@ from icommons_common.models import (  # TODO: update to coursemanager.models
 from lti_permissions.decorators import lti_permission_required
 
 from common.utils import (get_canvas_site_template,
+                          get_school_data_for_sis_account_id,
                           get_canvas_site_templates_for_school,
-                          get_term_data_for_school)
-
+                          get_term_data_for_school,
+                          get_department_data_for_school,
+                          get_course_group_data_for_school)
 from .schema import JobRecord
-from .utils import (batch_write_item, generate_task_objects,
+from .utils import (batch_write_item,
+                    generate_task_objects,
                     get_course_instance_query_set,
                     get_course_instances_without_canvas_sites,
                     get_department_name_by_id, get_term_name_by_id)
+from boto3.dynamodb.conditions import Key
+from ulid import ULID
 
 logger = logging.getLogger(__name__)
 
 SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+
+dynamodb = boto3.resource("dynamodb")
+table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
+table = dynamodb.Table(table_name)
 
 
 @login_required
@@ -40,13 +51,75 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 @require_http_methods(["GET", "POST"])
 def index(request):
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
-    term_ids, _current_term_id_id = get_term_data_for_school(sis_account_id)
+    school_id = sis_account_id.split(":")[1]
+    school_key = f'SCHOOL#{school_id.upper()}'
+    query_params = {
+        'KeyConditionExpression': Key('pk').eq(school_key),
+        'ScanIndexForward': False,
+    }
+    jobs_for_school = table.query(**query_params)['Items']
+
+    context = {
+        'jobs_for_school': jobs_for_school
+    }
+    return render(request, "bulk_site_creator/index.html", context=context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
+@require_http_methods(["GET"])
+def job_detail(request, job_id):
+    sis_account_id = request.LTI["custom_canvas_account_sis_id"]
+    school_id = sis_account_id.split(":")[1]
+    school_key = f'SCHOOL#{school_id.upper()}'
+    job_query_params = {
+        'KeyConditionExpression': Key('pk').eq(school_key) & Key('sk').eq(job_id),
+        'ScanIndexForward': False,
+    }
+    job = table.query(**job_query_params)['Items'][0]
+
+    tasks_query_params = {
+        'KeyConditionExpression': Key('pk').eq(job_id),
+        'ScanIndexForward': False,
+    }
+    tasks = table.query(**tasks_query_params)['Items']
+
+    context = {
+        'job': job,
+        'tasks': tasks
+    }
+    return render(request, "bulk_site_creator/job_detail.html", context=context)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
+@require_http_methods(["GET", "POST"])
+def new_job(request):
+    sis_account_id = request.LTI["custom_canvas_account_sis_id"]
+    terms, _current_term_id = get_term_data_for_school(sis_account_id)
     school_id = sis_account_id.split(":")[1]
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
     potential_course_sites_query = None
+    departments = []
+    course_groups = []
+
+    # Only display the Course Groups dropdown if the tool is launched in the COLGSAS sub-account
+    if school_id == 'colgsas':
+        try:
+            course_groups = get_course_group_data_for_school(sis_account_id)
+        except Exception:
+            logger.exception(f"Failed to get course groups with sis_account_id {sis_account_id}")
+    # For all other schools, display just the Departments dropdown
+    else:
+        try:
+            departments = get_department_data_for_school(sis_account_id)
+        except Exception:
+            logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
 
     if request.method == "POST":
-        selected_term_id = request.POST["course-term_id"]
+        selected_term_id = request.POST["course-term"]
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         potential_course_sites_query = get_course_instance_query_set(
@@ -59,12 +132,15 @@ def index(request):
     )
 
     context = {
-        "term_ids": term_ids,
+        "terms": terms,
         "potential_course_sites": potential_course_sites_query,
         "potential_site_count": potential_course_site_count,
         "canvas_site_templates": canvas_site_templates,
+        "departments": departments,
+        "course_groups": course_groups
     }
-    return render(request, "bulk_site_creator/index.html", context=context)
+
+    return render(request, "bulk_site_creator/new_job.html", context=context)
 
 
 @login_required
@@ -161,10 +237,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         tasks = generate_task_objects(course_instance_ids, job)
     except (TypeError, ValueError) as e:
         return JsonResponse({"status": 400})
-
-    dynamodb = boto3.resource("dynamodb")
-    table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
-    table = dynamodb.Table(table_name)
 
     # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
     # kicks off the downstream bulk workflow via a DynamoDB stream.

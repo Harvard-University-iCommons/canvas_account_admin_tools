@@ -1,0 +1,155 @@
+{% extends 'bulk_site_creator/base.html' %}
+
+{% block body %}
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_site_creator:index' %}">Bulk Site Creator</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+      New Job
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% if terms %}
+            <form class="form-inline" method="POST" action="{% url 'bulk_site_creator:new_job' %}">{% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-6 margin-bottom-md">
+                        <label for="course-term">Term
+                            <span class="required-field-marker">*</span>
+                        </label>
+                        <br>
+                        <select id="course-term" name="course-term" class="form-control">
+                            {% for term in terms %}
+                                <option value="{{ term.id }}">{{ term.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        {% if departments %}
+                            <label for="course-term">Department
+                                <span class="required-field-marker">*</span>
+                            </label>
+                            <br>
+                            <select id="course-department" name="course-department" class="form-control">
+                                <option value="0" selected>Department</option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}">{{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                        {% elif course_groups %}
+                            <label for="course-term">Course Group
+                                <span class="required-field-marker">*</span>
+                            </label>
+                            <br>
+                            <select id="course-course-group" name="course-course-group" class="form-control">
+                                <option value="0" selected>Course Group</option>
+                                {% for course_group in course_groups %}
+                                    <option value="{{ course_group.id }}">{{ course_group.name }}</option>
+                                {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-12">
+                        <button id="find-courses-in-term" type="submit" class="btn btn-primary pull-right">
+                            Find Courses
+                        </button>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            Placeholder text for no terms for the current school
+        {% endif %}
+
+        {% if potential_course_sites %}
+            <div class="row container-fluid">
+                <div class="row">
+                    <h4>{{ potential_site_count }} courses ready for Canvas course site creation</h4>
+                    <div class="col-sm-6 margin-bottom-md">
+                        <select id="template-select" class="form-control">
+                            <option value="no-template">
+                                No Template
+                            </option>
+                            {% for site_template in canvas_site_templates %}
+                                <option value="{{ site_template.canvas_course_id }}">
+                                    {{ site_template.canvas_course_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <br>
+                        <button type="button" ng-cloak class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
+                        <button type="button" ng-cloak class="btn btn-primary" data-toggle="modal" data-target="#confirmCreate">Create Selected</button>
+                        <br>
+                        <br>
+                        <p>You may select individual courses from the list below to customize your Canvas course site creation job.</p>
+                    </div>
+                    <table class="datatable table display no-footer">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>SIS ID</th>
+                                <th>Course Code</th>
+                                <th>Course Title</th>
+                                <th>Course Section</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for potential_course_site in potential_course_sites %}
+                            <tr>
+                                <td></td>
+                                <td>{{ potential_course_site.course_instance_id }}</td>
+                                <td>{{ potential_course_site.short_title }}</td>
+                                <td>{{ potential_course_site.title }}</td>
+                                <td>{{ potential_course_site.section }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="confirmCreate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Confirm Creation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    Are you sure you would like to proceed?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Yes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        {% endif %}
+    </div>
+</body>
+{% endblock %}
+
+{% block js %}
+    <script>
+		$(document).ready(function() {
+			$('.datatable').DataTable( {
+                columnDefs: [ {
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets:   0
+                } ],
+                select: {
+                    style: 'multi',
+                    selector: 'td:first-child'
+                },
+                order: [[ 1, 'asc' ]]
+            } );
+		});
+	</script>
+{% endblock js %}
+
