@@ -68,7 +68,7 @@ def index(request):
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["GET"])
 def job_detail(request, job_id):
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
