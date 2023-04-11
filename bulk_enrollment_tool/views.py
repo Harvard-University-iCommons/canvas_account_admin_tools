@@ -60,8 +60,10 @@ def index(request):
 @lti_role_required(const.ADMINISTRATOR)
 # @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
-def download(request, s3_key, filename):
-    # generate an S3 URL and redirect to it.
+def download(request, s3_key: str, filename: str):
+    """
+    Generates an S3 URL and redirect to it.
+    """
     logger.debug(f'generating an S3 url for {s3_key}')
     bucket_name = settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_s3_bucket']
 
@@ -75,8 +77,38 @@ def download(request, s3_key, filename):
         },
         ExpiresIn=60
     )
-    logger.debug(s3_url)
+    logger.debug(f'S3 URL: {s3_url}')
     return redirect(s3_url)
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@require_http_methods(['GET'])
+def errors(request, pk: str, sk: str):
+    """
+    This function renders the error page for a specified DynamoDB record.
+    """
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(
+        settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
+    response = table.get_item(
+        Key={
+            'pk': pk,
+            'sk': sk
+        }
+    )
+
+    # Slice errors string to remove `["` and `"]` at the beginning and end.
+    # Then update errors string to be a list of errors.   
+    response['Item'].update(errors=response['Item']
+                            ['errors'][2:-2].split('", "'))
+    # Update string timestamp to datetime.
+    response['Item'].update(created_at=parse_datetime(
+        response['Item']['created_at']))
+
+    return render(request, 'bulk_enrollment_tool/errors_page.html',
+                  context={'item': response['Item']})
 
 
 def _create_dynamodb_record(request) -> None:
@@ -117,7 +149,6 @@ def _create_dynamodb_record(request) -> None:
     )
 
     _store_file_in_s3(request, s3_key)
-
     return None
 
 

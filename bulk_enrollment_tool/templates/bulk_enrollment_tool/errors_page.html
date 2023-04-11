@@ -1,0 +1,32 @@
+{% extends 'bulk_enrollment_tool/base.html' %}
+
+{% block body %}
+
+<nav>
+    <h3>
+      <a href="{% url 'dashboard_account' %}">Admin Console</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
+      <small><i class="fa fa-chevron-right"></i></small>
+      Errors
+    </h3>
+</nav>
+
+<div class="body">
+    <div class="container-fluid">
+        <br>
+        <div class="col"><strong>File&nbsp;Name:</strong> {{ item.original_filename }}</div>
+        <div class="col"><strong>Status:</strong> {{ item.status }}</div>
+        <div class="col"><strong>Uploaded&nbsp;By:</strong> {{ item.uploaded_by }}</div>
+        <div class="col"><strong>Date&nbsp;Uploaded:</strong> {% load tz %}{{ item.created_at|localtime|date:'F d, Y, g:i a' }}</div>
+        <div class="col"><strong>Errors:</strong></div>
+
+        <ul class="list-group">
+            {% for error in item.errors %}
+                <li class="list-group-item">{{ error }}</li>
+            {% endfor %}
+        </ul>
+
+    </div> {% comment %} container-fluid {% endcomment %}
+</div> {% comment %} body {% endcomment %}
+{% endblock %}

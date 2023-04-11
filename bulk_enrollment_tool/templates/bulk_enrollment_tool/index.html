@@ -59,7 +59,9 @@
                 </div>
                 <table class="datatable table display no-footer">
                     <thead>
-                        <th>File Name</th>
+                        <th>File&nbsp;Name</th>
+                        <th>Status</th>
+                        <th>Error</th>
                         <th>Uploaded&nbsp;By</th>
                         <th>Date&nbsp;Uploaded</th>
                     </thead>
@@ -72,6 +74,18 @@
                                     {{ item.original_filename }}
                                     <i class="fa fa-download" aria-hidden="true"></i>
                                 </a>
+                            </td>
+                            {% comment %} Status column {% endcomment %}
+                            <td>
+                                {{ item.status }}
+                            </td>
+                            {% comment %} Error column {% endcomment %}
+                            <td>
+                                {% if item.errors %}
+                                    <a href="{% url 'bulk_enrollment_tool:errors' item.pk item.sk %}">View errors</a>
+                                {% else %}
+                                    None
+                                {% endif %}
                             </td>
                             {% comment %} Uploaded By column {% endcomment %}
                             <td>
