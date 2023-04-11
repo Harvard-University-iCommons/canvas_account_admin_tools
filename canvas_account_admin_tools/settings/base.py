@@ -17,7 +17,7 @@ import time
 
 from dj_secure_settings.loader import load_secure_settings
 from django.urls import reverse_lazy
-from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
+from harvard_django_utils.logging import JSON_LOG_FORMAT
 
 SECURE_SETTINGS = load_secure_settings()
 
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'canvas_course_site_wizard',
     'canvas_site_creator',
     'course_info',
+    'coursemanager',
     'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
@@ -136,7 +137,7 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_MIGRATION_WHITELIST = ['default']
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
+DATABASE_ROUTERS = ['coursemanager.routers.CourseSchemaDatabaseRouter', ]
 
 DATABASES = {
     'default': {
@@ -274,7 +275,7 @@ LOGGING = {
     },
     'filters': {
         'context': {
-            '()': 'icommons_common.logging.ContextFilter',
+            '()': 'harvard_django_utils.logging.ContextFilter',
             'env': SECURE_SETTINGS.get('env_name'),
             'project': 'canvas_account_admin_tools',
             'department': 'uw',

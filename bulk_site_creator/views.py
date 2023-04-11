@@ -3,10 +3,12 @@ import logging
 from typing import Optional
 
 import boto3
-
+from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
-
+from canvas_api.helpers import accounts as canvas_api_accounts
 from canvas_course_site_wizard.models import CanvasSchoolTemplate
+from canvas_sdk import RequestContext
+from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
