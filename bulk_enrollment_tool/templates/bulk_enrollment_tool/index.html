@@ -61,6 +61,7 @@
                     <thead>
                         <th>File&nbsp;Name</th>
                         <th>Status</th>
+                        <th>Rows&nbsp;Modified</th>
                         <th>Error</th>
                         <th>Uploaded&nbsp;By</th>
                         <th>Date&nbsp;Uploaded</th>
@@ -78,6 +79,10 @@
                             {% comment %} Status column {% endcomment %}
                             <td>
                                 {{ item.status }}
+                            </td>
+                            {% comment %} Rows modified column {% endcomment %}
+                            <td>
+                                {{ item.rows_modified }}
                             </td>
                             {% comment %} Error column {% endcomment %}
                             <td>

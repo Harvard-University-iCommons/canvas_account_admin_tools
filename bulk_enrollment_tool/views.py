@@ -28,8 +28,9 @@ def index(request):
 
         _create_dynamodb_record(request)
 
-        messages.success(request, f'File uploaded and is being processed. '
-                         f'You will get a notification email once complete.')
+        filename = request.FILES['bulkEnrollmentFile'].name
+        messages.success(
+            request, f'File {filename} has been uploaded and is being processed.')
 
         return redirect('bulk_enrollment_tool:index')
 

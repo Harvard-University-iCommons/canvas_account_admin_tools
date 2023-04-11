@@ -17,6 +17,7 @@
         <br>
         <div class="col"><strong>File&nbsp;Name:</strong> {{ item.original_filename }}</div>
         <div class="col"><strong>Status:</strong> {{ item.status }}</div>
+        <div class="col"><strong>Rows&nbsp;Modified:</strong> {{ item.rows_modified }}</div>
         <div class="col"><strong>Uploaded&nbsp;By:</strong> {{ item.uploaded_by }}</div>
         <div class="col"><strong>Date&nbsp;Uploaded:</strong> {% load tz %}{{ item.created_at|localtime|date:'F d, Y, g:i a' }}</div>
         <div class="col"><strong>Errors:</strong></div>
