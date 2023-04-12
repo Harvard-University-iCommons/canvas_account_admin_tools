@@ -6,9 +6,9 @@ from django.test import Client, RequestFactory, TestCase
 from .views import create_bulk_job
 
 
-@patch('lti_permissions.decorators.lti_permission_required_check', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.lti_permission_required_check', new=Mock(return_value=True))
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
-@patch('lti_permissions.decorators.is_allowed', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.is_allowed', new=Mock(return_value=True))
 class CreateBulkJobTestCase(TestCase):
     def setUp(self):
         self.Client = Client()
