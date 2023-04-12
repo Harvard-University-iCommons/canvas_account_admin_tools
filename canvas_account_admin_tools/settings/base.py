@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'icommons_common',
     'icommons_ui',
     'lti_permissions',
+    'lti_school_permissions',
     'people_tool',
     'proxy',
     'publish_courses',
@@ -467,6 +468,20 @@ PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 PERMISSION_BULK_SITE_CREATOR = 'bulk_site_creator'
+
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
+    PERMISSION_ACCOUNT_ADMIN_TOOLS,
+    PERMISSION_SEARCH_COURSES,
+    PERMISSION_PEOPLE_TOOL,
+    PERMISSION_XLIST_TOOL,
+    PERMISSION_SITE_CREATOR,
+    PERMISSION_PUBLISH_COURSES,
+    PERMISSION_BULK_COURSE_SETTING,
+    PERMISSION_CANVAS_SITE_DELETION,
+    PERMISSION_SELF_ENROLLMENT_TOOL,
+    PERMISSION_MASQUERADE_TOOL,
+    PERMISSION_BULK_SITE_CREATOR
+)
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains
