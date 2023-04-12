@@ -558,7 +558,6 @@ MASQUERADE_TOOL_SETTINGS = {
 }
 
 BULK_ENROLLMENT_TOOL_SETTINGS = {
-    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
     'bulk_enrollment_s3_bucket': SECURE_SETTINGS.get('bulk_enrollment_s3_bucket'),
     'bulk_enrollment_dynamodb_table': SECURE_SETTINGS.get('bulk_enrollment_dynamodb_table'),
 }
