@@ -111,20 +111,22 @@
                 </table>
             </div>
         </div>
-
-        <script>
-            $(document).ready(function() {
-                $('.datatable').dataTable( {
-                    "paging": false,
-                    "info" : false,
-                    "searching": false,
-                    "ordering": false
-                });
-
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-        </script>
-
     </div> {% comment %} container-fluid {% endcomment %}
 </div> {% comment %} body {% endcomment %}
-{% endblock %}
+
+{% endblock body %}
+
+{% block js %}
+    <script>
+        $(document).ready(function() {
+            $('.datatable').dataTable( {
+                "paging": false,
+                "info" : false,
+                "searching": false,
+                "ordering": false
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock js %}
