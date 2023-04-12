@@ -54,9 +54,12 @@
         {% comment %} DataTables (most recent uploaded files) section {% endcomment %}
         <div class="container-fluid">
             <div class="row" style="margin-top: .25em;">
+                <a href="{% url 'bulk_enrollment_tool:index' %}" class="btn btn-primary fa fa-refresh pull-right" role="button"
+                    aria-pressed="true" aria-label="refresh page" data-toggle="tooltip" title="Refresh page"></a>
                 <div style="padding-top: 25px;">
                     <h4 class="modal-title bottom-spacing">Most recently uploaded enrollment files:</h4>
                 </div>
+                
                 <table class="datatable table display no-footer">
                     <thead>
                         <tr>
@@ -117,6 +120,8 @@
                     "searching": false,
                     "ordering": false
                 });
+
+                $('[data-toggle="tooltip"]').tooltip();
             });
         </script>
 
