@@ -59,12 +59,14 @@
                 </div>
                 <table class="datatable table display no-footer">
                     <thead>
-                        <th>File&nbsp;Name</th>
-                        <th>Status</th>
-                        <th>Rows&nbsp;Modified</th>
-                        <th>Error</th>
-                        <th>Uploaded&nbsp;By</th>
-                        <th>Date&nbsp;Uploaded</th>
+                        <tr>
+                            <th scope="col">File&nbsp;Name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Records&nbsp;Modified</th>
+                            <th scope="col">Errors</th>
+                            <th scope="col">Uploaded&nbsp;By</th>
+                            <th scope="col">Date&nbsp;Uploaded</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% for item in most_recently_uploaded_files %}
