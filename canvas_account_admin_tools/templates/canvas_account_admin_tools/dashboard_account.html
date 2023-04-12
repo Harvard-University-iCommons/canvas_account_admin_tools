@@ -247,7 +247,7 @@
         </div>
     {% endif %}
 
-    {% comment %} {% if bulk_enrollment_tool_is_allowed %} {% endcomment %}
+    {% if bulk_enrollment_tool_is_allowed %}
         <div class="card card_color">
             <a href="{% url 'bulk_enrollment_tool:index' %}" id="bulk_enrollment_tool">
               <div class="card-body">
@@ -273,6 +273,6 @@
             </div>
           </a>
         </div>
-    {% comment %} {% endif %} {% endcomment %}
+    {% endif %}
 
 {% endblock content %}

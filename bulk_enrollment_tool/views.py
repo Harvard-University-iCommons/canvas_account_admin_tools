@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def index(request):
     if request.method == "POST":
@@ -59,7 +59,7 @@ def index(request):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def download(request, s3_key: str, filename: str):
     """
@@ -84,7 +84,7 @@ def download(request, s3_key: str, filename: str):
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
-# @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
 @require_http_methods(['GET'])
 def errors(request, pk: str, sk: str):
     """
