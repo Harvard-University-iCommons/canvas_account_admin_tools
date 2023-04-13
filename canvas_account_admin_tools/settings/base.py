@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'canvas_course_site_wizard',
     'canvas_site_creator',
     'course_info',
+    'course_info_v2',
     'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
@@ -465,6 +466,7 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_SEARCH_COURSES = 'search_courses'  # aka course_info
+PERMISSION_COURSE_INFO_V2 = 'course_info_v2'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
 PERMISSION_SITE_CREATOR = 'site_creator'
@@ -478,6 +480,7 @@ PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     PERMISSION_ACCOUNT_ADMIN_TOOLS,
     PERMISSION_SEARCH_COURSES,
+    PERMISSION_COURSE_INFO_V2,
     PERMISSION_PEOPLE_TOOL,
     PERMISSION_XLIST_TOOL,
     PERMISSION_SITE_CREATOR,

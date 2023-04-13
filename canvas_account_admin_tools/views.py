@@ -135,8 +135,8 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-       verify that user has permissions to view the Canvas Site deletion tool
-       """
+    verify that user has permissions to view the Canvas Site deletion tool
+    """
     canvas_site_deletion_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_CANVAS_SITE_DELETION,
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
@@ -162,6 +162,15 @@ def dashboard_account(request):
                                             settings.PERMISSION_MASQUERADE_TOOL,
                                             canvas_account_sis_id=custom_canvas_account_sis_id)
 
+    """
+    Verify that the current user has permission to see Course Info V2
+    """
+    course_info_v2_allowed = is_allowed(
+        custom_canvas_membership_roles,
+        settings.PERMISSION_COURSE_INFO_V2,
+        canvas_account_sis_id=custom_canvas_account_sis_id
+    )
+
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'search_courses_allowed': search_courses_allowed,
         'cross_listing_allowed': cross_listing_is_allowed,
@@ -172,8 +181,8 @@ def dashboard_account(request):
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
+        'course_info_v2_allowed': course_info_v2_allowed,
         'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
-
         'build_info': build_info
     })
 
