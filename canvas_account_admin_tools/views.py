@@ -158,9 +158,9 @@ def dashboard_account(request):
     """
     Verify that the current user has permission to see the Search Courses v2 (aka course_info_v2) tool
     """
-    search_courses_v2_allowed = is_allowed(
+    course_info_v2_allowed = is_allowed(
         custom_canvas_membership_roles,
-        settings.PERMISSION_SEARCH_COURSES, # temporarily using the same permissions as the old search courses until project naming solidified
+        settings.PERMISSION_COURSE_INFO_V2,
         canvas_account_sis_id=custom_canvas_account_sis_id
     )
 
@@ -174,7 +174,7 @@ def dashboard_account(request):
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
-        'search_courses_v2_allowed': search_courses_v2_allowed,
+        'course_info_v2_allowed': course_info_v2_allowed,
 
         'build_info': build_info
     })
