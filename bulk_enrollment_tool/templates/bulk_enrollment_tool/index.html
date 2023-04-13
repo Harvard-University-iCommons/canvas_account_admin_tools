@@ -1,0 +1,132 @@
+{% extends 'bulk_enrollment_tool/base.html' %}
+
+{% block body %}
+
+<nav>
+  <h3>
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Bulk Enrollment
+  </h3>
+</nav>
+
+<div class="body">
+    <div class="container-fluid">
+
+        {% comment %} Message/alert section {% endcomment %}
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "warning" %}
+                <div class="alert alert-warning" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert" role="alert">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <br><br>
+        
+        {% comment %} Input/form section {% endcomment %}
+        <form method="POST" action="{% url 'bulk_enrollment_tool:index' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="formControlFile1">Choose CSV enrollment file to upload</label>
+                <input type="file" class="form-control-file" id="beFile" name="bulkEnrollmentFile" 
+                style="min-width: 1000px" required>
+            </div>
+            <button class="btn btn-primary" type="submit">Upload</button>          
+        </form>
+        <br><br>
+
+        {% comment %} DataTables (most recent uploaded files) section {% endcomment %}
+        <div class="container-fluid">
+            <div class="row" style="margin-top: .25em;">
+                <a href="{% url 'bulk_enrollment_tool:index' %}" class="btn btn-primary fa fa-refresh pull-right" role="button"
+                    aria-pressed="true" aria-label="refresh page" data-toggle="tooltip" title="Refresh page"></a>
+                <div style="padding-top: 25px;">
+                    <h4 class="modal-title bottom-spacing">Most recently uploaded enrollment files:</h4>
+                </div>
+                
+                <table class="datatable table display no-footer">
+                    <thead>
+                        <tr>
+                            <th scope="col">File&nbsp;Name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Records&nbsp;Modified</th>
+                            <th scope="col">Errors</th>
+                            <th scope="col">Uploaded&nbsp;By</th>
+                            <th scope="col">Date&nbsp;Uploaded</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in most_recently_uploaded_files %}
+                        <tr>
+                            {% comment %} File name column {% endcomment %}
+                            <td>
+                                <a href={% url 'bulk_enrollment_tool:download' item.s3_key item.original_filename %}>
+                                    {{ item.original_filename }}
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                </a>
+                            </td>
+                            {% comment %} Status column {% endcomment %}
+                            <td>
+                                {{ item.status }}
+                            </td>
+                            {% comment %} Rows modified column {% endcomment %}
+                            <td>
+                                {{ item.rows_modified }}
+                            </td>
+                            {% comment %} Error column {% endcomment %}
+                            <td>
+                                {% if item.errors %}
+                                    <a href="{% url 'bulk_enrollment_tool:errors' item.pk item.sk %}">View errors</a>
+                                {% else %}
+                                    None
+                                {% endif %}
+                            </td>
+                            {% comment %} Uploaded By column {% endcomment %}
+                            <td>
+                                {{ item.uploaded_by }}
+                            </td>
+                            {% comment %} Date Uploaded column {% endcomment %}
+                            <td>
+                                {{ item.created_at }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> {% comment %} container-fluid {% endcomment %}
+</div> {% comment %} body {% endcomment %}
+
+{% endblock body %}
+
+{% block js %}
+    <script>
+        $(document).ready(function() {
+            $('.datatable').dataTable( {
+                "paging": false,
+                "info" : false,
+                "searching": false,
+                "ordering": false
+            });
+
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock js %}

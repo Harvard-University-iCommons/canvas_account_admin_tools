@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'canvas_site_deletion',
     'masquerade_tool',
     'self_enrollment_tool',
+    'bulk_enrollment_tool',
     'pylti1p3.contrib.django.lti1p3_tool_config',
     'self_unenrollment_tool',
     'rest_framework',
@@ -375,6 +376,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'bulk_enrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -466,6 +472,7 @@ PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
+PERMISSION_BULK_ENROLLMENT_TOOL = 'bulk_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 
 LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
@@ -478,6 +485,7 @@ LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     PERMISSION_BULK_COURSE_SETTING,
     PERMISSION_CANVAS_SITE_DELETION,
     PERMISSION_SELF_ENROLLMENT_TOOL,
+    PERMISSION_BULK_ENROLLMENT_TOOL,
     PERMISSION_MASQUERADE_TOOL,
 )
 
@@ -549,6 +557,10 @@ MASQUERADE_TOOL_SETTINGS = {
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
 
+BULK_ENROLLMENT_TOOL_SETTINGS = {
+    'bulk_enrollment_s3_bucket': SECURE_SETTINGS.get('bulk_enrollment_s3_bucket'),
+    'bulk_enrollment_dynamodb_table': SECURE_SETTINGS.get('bulk_enrollment_dynamodb_table'),
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
