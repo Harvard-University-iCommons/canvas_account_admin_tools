@@ -142,10 +142,17 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-       verify that user has permissions to view the Canvas Site deletion tool
+       verify that user has permissions to view the self enrollment tool
     """
     self_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_SELF_ENROLLMENT_TOOL,
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
+       verify that user has permissions to view the bulk enrollment tool
+    """
+    bulk_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                                 settings.PERMISSION_BULK_ENROLLMENT_TOOL,
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
@@ -156,7 +163,7 @@ def dashboard_account(request):
                                             canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-    Verify that the current user has permission to see the Search Courses v2 (aka course_info_v2) tool
+    Verify that the current user has permission to see Course Info V2
     """
     course_info_v2_allowed = is_allowed(
         custom_canvas_membership_roles,
@@ -175,7 +182,7 @@ def dashboard_account(request):
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
         'course_info_v2_allowed': course_info_v2_allowed,
-
+        'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
         'build_info': build_info
     })
 

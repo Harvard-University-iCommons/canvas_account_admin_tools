@@ -7,6 +7,7 @@ from canvas_account_admin_tools import views
 
 urlpatterns = [
     path('account_dashboard', views.dashboard_account, name='dashboard_account'),
+    path('bulk_enrollment_tool/', include(('bulk_enrollment_tool.urls', 'bulk_enrollment_tool'), namespace='bulk_enrollment_tool')),
     path('canvas_site_creator/', include(('canvas_site_creator.urls', 'canvas_site_creator'), namespace='canvas_site_creator')),
     path('course_info/', include(('course_info.urls', 'course_info'), namespace='course_info')),
     path('course_info_v2/', include(('course_info_v2.urls', 'course_info_v2'), namespace='course_info_v2')),
