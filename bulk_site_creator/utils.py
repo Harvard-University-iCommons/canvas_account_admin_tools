@@ -33,7 +33,7 @@ def generate_task_objects(course_instance_ids: list[str], job: JobRecord):
             raise
     return tasks
 
-
+#  TODO delete
 def get_course_instances_without_canvas_sites(account, term_id):
     # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
     # nor are set to be fed into Canvas via the automated feed
@@ -74,8 +74,10 @@ def get_course_instance_query_set(sis_term_id, sis_account_id):
 
     return CourseInstance.objects.filter(**filters)
 
+
 def get_term_name_by_id(term_id: str):
     return get_term_data(term_id).get("name")
+
 
 def get_department_name_by_id(department_id: str):
     return Department.objects.get(department_id=department_id).name
