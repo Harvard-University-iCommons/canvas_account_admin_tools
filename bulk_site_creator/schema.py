@@ -41,7 +41,7 @@ class JobRecord:
 
         if not is_valid_state(workflow_state):
             raise ValueError(f"Invalid workflow state: {workflow_state}")
-        self.workflow_state = workflow_state.upper()
+        self.workflow_state = workflow_state.lower()
 
     def __getitem__(self, key):
         return self.__dict__[key]
@@ -72,16 +72,22 @@ class TaskRecord:
         job_record: JobRecord,
         course_instance_id: str,
         workflow_state: str,
+        canvas_course_id: str,
+        course_code: str,
+        course_title: str
     ):
         self.pk = job_record.sk
         self.sk = f"TASK#{str(ULID())}"
         self.course_instance_id = course_instance_id
+        self.canvas_course_id = canvas_course_id
+        self.course_code = course_code
+        self.course_title = course_title
         self.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
         if not is_valid_state(workflow_state):
             raise ValueError(f"Invalid workflow state: {workflow_state}")
-        self.workflow_state = workflow_state.upper()
+        self.workflow_state = workflow_state.lower()
 
     def to_dict(self):
         return {
@@ -91,13 +97,17 @@ class TaskRecord:
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "course_instance_id": self.course_instance_id,
+            "canvas_course_id": self.canvas_course_id,
+            "course_code": self.course_code,
+            "course_title": self.course_title
         }
 
 
 class States(Enum):
-    PENDING = "PENDING"
-    IN_PROGRESS = "IN_PROGRESS"
-    COMPLETE = "COMPLETE"
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    COMPLETE = "complete"
+
 
 def is_valid_state(workflow_state: str):
-    return workflow_state.upper() in [state.value for state in States]
+    return workflow_state.lower() in [state.value for state in States]
