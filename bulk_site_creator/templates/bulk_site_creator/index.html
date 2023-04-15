@@ -14,23 +14,23 @@
     <div class="container-fluid">
         {% for message in messages %}
             {% if message.level_tag == "success" %}
-                <div class="alert alert-success" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "error" %}
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "warning" %}
-                <div class="alert alert-warning" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% else %}
-                <div class="alert" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <div class="alert alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
             {% endif %}
@@ -40,6 +40,7 @@
     <div class="row container-fluid">
         <h3>
             Bulk Creation Jobs:
+            <!--TODO add refresh button-->
             <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
         </h3>
         <table class="datatable table table-striped table-bordered dataTable no-footer">
@@ -59,7 +60,7 @@
                     <td><a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}">{{ bulk_job.sk }}</a></td>
                     <td>{{ bulk_job.created_at }}</td>
                     <td>{{ bulk_job.term_name }}</td>
-                    <td>{{ bulk_job.CREATOR_NAME }}</td>
+                    <td>{{ bulk_job.creator_name }}</td>
                     <td>{{ bulk_job.workflow_state }}</td>
                     <td>{{ bulk_job.summary }}</td>
                 </tr>
