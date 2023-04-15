@@ -10,6 +10,8 @@ from .schema import JobRecord, TaskRecord
 
 logger = logging.getLogger(__name__)
 
+# TODO add documentation to each method
+
 # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/dynamodb.html#batch-writing
 def batch_write_item(table, items: list[dict]):
     try:
@@ -22,18 +24,23 @@ def batch_write_item(table, items: list[dict]):
         raise
 
 
-def generate_task_objects(course_instance_ids: list[str], job: JobRecord):
+def generate_task_objects(course_instances: list[dict], job: JobRecord):
     tasks = []
-    for ci_id in course_instance_ids:
+    for ci in course_instances:
         try:
-            task = TaskRecord(job_record=job, course_instance_id=ci_id, workflow_state='PENDING').to_dict()
+            task = TaskRecord(job_record=job,
+                              course_instance_id=ci.course_instance_id,
+                              course_code=ci.course_code,
+                              course_title=ci.course_title,
+                              canvas_course_id=ci.canvas_course_id,
+                              workflow_state='pending').to_dict()
             tasks.append(task)
         except (TypeError, ValueError) as e:
-            logging.error(f"Error creating TaskRecord for job {job['job_id']}: {e}")
+            logging.error(f"Error creating TaskRecord for job {job.sk}: {e}")
             raise
     return tasks
 
-#  TODO delete
+#  TODO delete, seems to be a dupe
 def get_course_instances_without_canvas_sites(account, term_id):
     # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
     # nor are set to be fed into Canvas via the automated feed

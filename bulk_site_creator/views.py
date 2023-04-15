@@ -4,9 +4,8 @@ from typing import Optional
 
 import boto3
 
-from botocore.exceptions import ClientError
+from django.contrib import messages
 
-from canvas_course_site_wizard.models import CanvasSchoolTemplate
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
@@ -14,11 +13,10 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
 from icommons_common.canvas_utils import \
     SessionInactivityExpirationRC  # TODO replace this
 from icommons_common.models import (  # TODO: update to coursemanager.models
-    CourseGroup, Department, Term)
+    CourseGroup, Department, Term, CourseInstance)
 from lti_permissions.decorators import lti_permission_required
 
 from common.utils import (get_canvas_site_template,
@@ -34,7 +32,6 @@ from .utils import (batch_write_item,
                     get_course_instances_without_canvas_sites,
                     get_department_name_by_id, get_term_name_by_id)
 from boto3.dynamodb.conditions import Key
-from ulid import ULID
 
 logger = logging.getLogger(__name__)
 
@@ -42,15 +39,16 @@ SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
 
 dynamodb = boto3.resource("dynamodb")
 table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
-table = dynamodb.Table(table_name)
 
+# TODO improve logging for CRUD actions
+# TODO add documentation to each view
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
 def index(request):
-    print(request.LTI)
+    table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
     school_key = f'SCHOOL#{school_id.upper()}'
@@ -71,6 +69,7 @@ def index(request):
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET"])
 def job_detail(request, job_id):
+    table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
     school_key = f'SCHOOL#{school_id.upper()}'
@@ -135,6 +134,7 @@ def new_job(request):
         ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
 
     # TODO maybe better to use template tag unless used elsewhere?
+    # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
     potential_course_site_count = (
         potential_course_sites_query.count() if potential_course_sites_query else 0
     )
@@ -158,12 +158,14 @@ def new_job(request):
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["POST"])
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
+    # TODO - Set 'bulk_processing' flag to true for all course instances processed by this view before inserting into DynamoDB
+    dynamodb_table = dynamodb.Table(table_name)
     user_id = request.LTI["lis_person_sourcedid"]
     user_full_name = request.LTI["lis_person_name_full"]
     user_email = request.LTI["lis_person_contact_email_primary"]
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
-    # school_name =
+    school_name = request.LTI["context_title"] # TODO add this to Job record
 
     table_data = json.loads(request.POST['data'])
 
@@ -180,9 +182,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     if create_all:
         # Get all course instance records that will have Canvas sites created by filtering on the
         # term and (course group or department) values
-
-        # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
-        # nor are set to be fed into Canvas via the automated feed.
         # Also filter on the 'bulk_processing' flag to avoid multiple job submission conflicts
         # TODO Add bulk_processing flag to filter
         potential_course_sites_query = get_course_instance_query_set(
@@ -190,6 +189,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
 
         # Check if a course group or department filter needs to be applied to queryset
+        # The value of 0 is for the default option of no selected Department/Course Group
         if school_id == 'colgsas':
             if course_group_id and course_group_id != '0':
                 course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
@@ -198,8 +198,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             if department_id and department_id != '0':
                 department_name = get_department_name_by_id(department_id)
                 potential_course_sites_query = potential_course_sites_query.filter(course__department=department_id.split(":")[1])
-
-        print(potential_course_sites_query.count())
 
         if potential_course_sites_query.count() > 0:
             job = JobRecord(
@@ -217,116 +215,61 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
                 workflow_state="pending",
             )
 
+            # Create TaskRecord objects for each course instance
+            tasks = generate_task_objects(potential_course_sites_query, job)
+
+            # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
+            # kicks off the downstream bulk workflow via a DynamoDB stream.
+            batch_write_item(dynamodb_table, tasks)
+
+            # Now write the JobRecord to DynamoDB
+            response = dynamodb_table.put_item(Item=job.to_dict())
+            if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
+                # TODO improve this logging statement
+
+            messages.add_message(request, messages.SUCCESS, 'Bulk job created')
         else:
-            # Create tasks for each of the selected course instance IDs
+            messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
 
-            pass
+    else:
+        # TODO Abstraction - This block can potentially be pulled outside of the first condition check or separate method
+        # TODO cont. - Think about error handling and reeverting that fflag on exception
+        # Create tasks for each of the selected course instance IDs
+        if course_instance_ids:
+            job = JobRecord(
+                user_id=user_id,
+                user_full_name=user_full_name,
+                user_email=user_email,
+                school=school_id,
+                term_id=term_id,
+                term_name=term_name,
+                department_id=department_id,
+                department_name=department_name,
+                course_group_id=course_group_id,
+                course_group_name=course_group_name,
+                template_id=template_id,
+                workflow_state="pending",
+            )
 
-    # TODO Add messages to request session before redirecting to index
+            course_instances = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
+
+            # Create TaskRecord objects for each course instance
+            tasks = generate_task_objects(course_instances, job)
+
+            # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
+            # kicks off the downstream bulk workflow via a DynamoDB stream.
+            batch_write_item(dynamodb_table, tasks)
+
+            # Now write the JobRecord to DynamoDB
+            response = dynamodb_table.put_item(Item=job.to_dict())
+            if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
+                # TODO improve this logging statement
+
+            messages.add_message(request, messages.SUCCESS, 'Bulk job created')
+
+        else:
+            messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
+
     return redirect('bulk_site_creator:index')
-
-
-    # user_id = request.LTI["lis_person_sourcedid"]
-    # user_full_name = request.LTI["lis_person_name_full"]
-    # user_email = request.LTI["lis_person_contact_email_primary"]
-    # 
-    # data = json.loads(request.body)
-    # filters = data["filters"]
-    # 
-    # term_id = filters.get("term")
-    # if term_id:
-    #     try:
-    #         term_name = get_term_name_by_id(term_id)
-    #     except Term.DoesNotExist as e:
-    #         logger.info(f"Term {term_id} does not exist: {e}")
-    #         return JsonResponse({"error": "Term does not exist"}, status=400)
-    # else:
-    #     term_name = None
-    # 
-    # school_account_id = filters["school"]
-    # (_, school_id) = canvas_api_accounts.parse_canvas_account_id(school_account_id)
-    # 
-    # department_id = None
-    # department_account_id = filters.get("department")
-    # if department_account_id:
-    #     (_, department_id) = department_account_id.split(":")
-    # 
-    # if department_id:
-    #     try:
-    #         department_name = get_department_name_by_id(department_id)
-    #     except Department.DoesNotExist as e:
-    #         logger.info(f"Department {department_id} does not exist: {e}")
-    #         return JsonResponse({"error": "Department does not exist"}, status=400)
-    # else:
-    #     department_name = None
-    # 
-    # course_group_id = None
-    # course_group_account_id = filters.get("course_group")
-    # if course_group_account_id:
-    #     (_, course_group_id) = course_group_account_id.split(":")
-    # 
-    # if course_group_id:
-    #     try:
-    #         course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
-    #     except CourseGroup.DoesNotExist as e:
-    #         logger.info(f"Course Group {course_group_id} does not exist: {e}")
-    #         return JsonResponse({"error": "Course Group does not exist"}, status=400)
-    # else:
-    #     course_group_name = None
-    # 
-    # template_id = data.get("template")
-    # 
-    # # If the create_all flag has been set and passed with the form,
-    # # then create a query to get the all course instances with the applied filters that are to be created.
-    # if data.get("create_all", False):
-    #     # Get the account data to be used in the course instance query.
-    #     if filters["course_group"]:
-    #         account = course_group_id
-    #     elif filters["department"]:
-    #         account = department_id
-    #     else:
-    #         account = school_account_id
-    # 
-    #     course_instance_ids = get_course_instances_without_canvas_sites(account, term_id)
-    # else:
-    #     course_instance_ids = data["course_instance_ids"]
-    # 
-    # # Create JobRecord object first so we can reference the job_id in the TaskRecord objects
-    # try:
-    #     job = JobRecord(
-    #         user_id=user_id,
-    #         user_full_name=user_full_name,
-    #         user_email=user_email,
-    #         school=school_id,
-    #         term_id=term_id,
-    #         term_name=term_name,
-    #         department_id=department_id,
-    #         department_name=department_name,
-    #         course_group_id=course_group_id,
-    #         course_group_name=course_group_name,
-    #         template_id=template_id,
-    #         workflow_state="PENDING",
-    #     )
-    # except (TypeError, ValueError) as e:
-    #     logger.error(f"Unexpected input during JobRecord creation: {e}")
-    #     return JsonResponse({"status": 400})
-    # 
-    # # Create TaskRecord objects for each course instance
-    # try:
-    #     tasks = generate_task_objects(course_instance_ids, job)
-    # except (TypeError, ValueError) as e:
-    #     return JsonResponse({"status": 400})
-    # 
-    # # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
-    # # kicks off the downstream bulk workflow via a DynamoDB stream.
-    # try:
-    #     batch_write_item(table, tasks)
-    # except ClientError as e:
-    #     return JsonResponse({"status": 500})
-    # 
-    # # Now write the JobRecord to DynamoDB
-    # response = table.put_item(Item=job.to_dict())
-    # if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-    #     logger.error(f"Error adding JobRecord to DynamoDB: {response}")
-    #     return JsonResponse({"status": 500})
-    # return JsonResponse({"status": 200})
