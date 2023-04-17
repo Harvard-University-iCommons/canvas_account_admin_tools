@@ -17,7 +17,7 @@ import time
 
 from dj_secure_settings.loader import load_secure_settings
 from django.urls import reverse_lazy
-from icommons_common.logging import JSON_LOG_FORMAT, ContextFilter
+from harvard_django_utils.logging import JSON_LOG_FORMAT
 
 SECURE_SETTINGS = load_secure_settings()
 
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'canvas_course_site_wizard',
     'canvas_site_creator',
     'course_info',
+    'coursemanager',
     'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
     'icommons_common',
     'icommons_ui',
     'lti_permissions',
+    'lti_school_permissions',
     'people_tool',
     'proxy',
     'publish_courses',
@@ -136,7 +138,7 @@ WSGI_APPLICATION = 'canvas_account_admin_tools.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASE_MIGRATION_WHITELIST = ['default']
-DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter', ]
+DATABASE_ROUTERS = ['coursemanager.routers.CourseSchemaDatabaseRouter', ]
 
 DATABASES = {
     'default': {
@@ -274,7 +276,7 @@ LOGGING = {
     },
     'filters': {
         'context': {
-            '()': 'icommons_common.logging.ContextFilter',
+            '()': 'harvard_django_utils.logging.ContextFilter',
             'env': SECURE_SETTINGS.get('env_name'),
             'project': 'canvas_account_admin_tools',
             'department': 'uw',
@@ -466,6 +468,20 @@ PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 PERMISSION_BULK_SITE_CREATOR = 'bulk_site_creator'
+
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
+    PERMISSION_ACCOUNT_ADMIN_TOOLS,
+    PERMISSION_SEARCH_COURSES,
+    PERMISSION_PEOPLE_TOOL,
+    PERMISSION_XLIST_TOOL,
+    PERMISSION_SITE_CREATOR,
+    PERMISSION_PUBLISH_COURSES,
+    PERMISSION_BULK_COURSE_SETTING,
+    PERMISSION_CANVAS_SITE_DELETION,
+    PERMISSION_SELF_ENROLLMENT_TOOL,
+    PERMISSION_MASQUERADE_TOOL,
+    PERMISSION_BULK_SITE_CREATOR
+)
 
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains

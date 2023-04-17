@@ -3,9 +3,13 @@ import logging
 from typing import Optional
 
 import boto3
-
 from django.contrib import messages
-
+from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
+from canvas_api.helpers import accounts as canvas_api_accounts
+from canvas_course_site_wizard.models import CanvasSchoolTemplate
+from canvas_sdk import RequestContext
+from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
@@ -13,29 +17,29 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import \
-    SessionInactivityExpirationRC  # TODO replace this
-from icommons_common.models import (  # TODO: update to coursemanager.models
-    CourseGroup, Department, Term, CourseInstance)
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
+
 
 from common.utils import (get_canvas_site_template,
-                          get_school_data_for_sis_account_id,
                           get_canvas_site_templates_for_school,
-                          get_term_data_for_school,
+                          get_course_group_data_for_school,
                           get_department_data_for_school,
-                          get_course_group_data_for_school)
+                          get_school_data_for_sis_account_id,
+                          get_term_data_for_school)
+
 from .schema import JobRecord
-from .utils import (batch_write_item,
-                    generate_task_objects,
+from .utils import (batch_write_item, generate_task_objects,
                     get_course_instance_query_set,
                     get_course_instances_without_canvas_sites,
                     get_department_name_by_id, get_term_name_by_id)
-from boto3.dynamodb.conditions import Key
+
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 dynamodb = boto3.resource("dynamodb")
 table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")

@@ -1,8 +1,7 @@
 import logging
 
 from botocore.exceptions import ClientError
-from icommons_common.models import (  # TODO: update to coursemanager.models
-    CourseInstance, Department)
+from coursemanager.models import CourseInstance, Department
 
 from common.utils import get_canvas_site_template, get_term_data
 
