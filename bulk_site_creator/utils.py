@@ -28,10 +28,20 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
     tasks = []
     for ci in course_instances:
         try:
+            # course_code block taken from feed_course_sections_enrollments
+            # management command in the canvas_integration project
+            course_code = None
+            if ci.short_title != '':
+                course_code = ci.short_title
+            elif ci.course.registrar_code_display != '':
+                course_code = ci.course.registrar_code_display
+            else:
+                course_code = ci.course.registrar_code
+
             task = TaskRecord(job_record=job,
                               course_instance_id=ci.course_instance_id,
-                              course_code=ci.course_code,
-                              course_title=ci.course_title,
+                              course_code=course_code,
+                              course_title=ci.title,
                               canvas_course_id=ci.canvas_course_id,
                               workflow_state='pending').to_dict()
             tasks.append(task)
@@ -57,7 +67,6 @@ def get_course_instances_without_canvas_sites(account, term_id):
     return course_instance_ids
 
 
-#  TODO Currently a method in canvas_site_creator models, using for temp testing
 def get_course_instance_query_set(sis_term_id, sis_account_id):
     # Exclude records that have parent_course_instance_id  set(TLT-3558) as we don't want to create sites for the
     # children; they will be associated with the parent site
