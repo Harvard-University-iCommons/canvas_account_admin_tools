@@ -9,6 +9,8 @@ from .schema import JobRecord, TaskRecord
 
 logger = logging.getLogger(__name__)
 
+# TODO add documentation to each method
+
 # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/dynamodb.html#batch-writing
 def batch_write_item(table, items: list[dict]):
     try:
@@ -21,18 +23,33 @@ def batch_write_item(table, items: list[dict]):
         raise
 
 
-def generate_task_objects(course_instance_ids: list[str], job: JobRecord):
+def generate_task_objects(course_instances: list[dict], job: JobRecord):
     tasks = []
-    for ci_id in course_instance_ids:
+    for ci in course_instances:
         try:
-            task = TaskRecord(job_record=job, course_instance_id=ci_id, workflow_state='PENDING').to_dict()
+            # course_code block taken from feed_course_sections_enrollments
+            # management command in the canvas_integration project
+            course_code = None
+            if ci.short_title != '':
+                course_code = ci.short_title
+            elif ci.course.registrar_code_display != '':
+                course_code = ci.course.registrar_code_display
+            else:
+                course_code = ci.course.registrar_code
+
+            task = TaskRecord(job_record=job,
+                              course_instance_id=ci.course_instance_id,
+                              course_code=course_code,
+                              course_title=ci.title,
+                              canvas_course_id=ci.canvas_course_id,
+                              workflow_state='pending').to_dict()
             tasks.append(task)
         except (TypeError, ValueError) as e:
-            logging.error(f"Error creating TaskRecord for job {job['job_id']}: {e}")
+            logging.error(f"Error creating TaskRecord for job {job.sk}: {e}")
             raise
     return tasks
 
-
+#  TODO delete, seems to be a dupe
 def get_course_instances_without_canvas_sites(account, term_id):
     # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
     # nor are set to be fed into Canvas via the automated feed
@@ -49,7 +66,6 @@ def get_course_instances_without_canvas_sites(account, term_id):
     return course_instance_ids
 
 
-#  TODO Currently a method in canvas_site_creator models, using for temp testing
 def get_course_instance_query_set(sis_term_id, sis_account_id):
     # Exclude records that have parent_course_instance_id  set(TLT-3558) as we don't want to create sites for the
     # children; they will be associated with the parent site
@@ -73,8 +89,10 @@ def get_course_instance_query_set(sis_term_id, sis_account_id):
 
     return CourseInstance.objects.filter(**filters)
 
+
 def get_term_name_by_id(term_id: str):
     return get_term_data(term_id).get("name")
+
 
 def get_department_name_by_id(department_id: str):
     return Department.objects.get(department_id=department_id).name
