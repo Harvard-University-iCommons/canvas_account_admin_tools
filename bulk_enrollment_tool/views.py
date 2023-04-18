@@ -101,7 +101,7 @@ def errors(request, pk: str, sk: str):
     )
 
     # Slice errors string to remove `["` and `"]` at the beginning and end.
-    # Then update errors string to be a list of errors.   
+    # Then update errors string to be a list of errors.
     response['Item'].update(errors=response['Item']
                             ['errors'][2:-2].split('", "'))
     # Update string timestamp to datetime.
@@ -110,6 +110,14 @@ def errors(request, pk: str, sk: str):
 
     return render(request, 'bulk_enrollment_tool/errors_page.html',
                   context={'item': response['Item']})
+
+
+@login_required
+@lti_role_required(const.ADMINISTRATOR)
+@lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
+@require_http_methods(['GET'])
+def help(request):
+    return render(request, 'bulk_enrollment_tool/help.html')
 
 
 def _create_dynamodb_record(request) -> None:
