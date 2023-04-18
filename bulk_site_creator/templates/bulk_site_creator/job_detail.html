@@ -40,6 +40,11 @@
         <div class="row">
             <div class="row" style="margin-top: 3em;">
                 <div class="col-sm-12">
+                  <div id="job-detail-refresh-btn">
+                    <a href="{% url 'bulk_site_creator:job_detail'  job %}" class="btn btn-primary float-end me-2" role="button"
+                      aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="left"
+                      data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i></a>
+                  </div>
                     <table class="datatable table table-striped table-bordered dataTable no-footer" id="details_table">
                         <thead>
                             <th>Canvas Course ID</th>
@@ -70,12 +75,16 @@
 
 {% block js %}
     <script>
-		$(document).ready(function() {
-			$('.datatable').DataTable( {
-                order: [[ 1, 'asc' ]]
-            } );
-		});
-	</script>
+      $(document).ready(function () {
+        $('.datatable').DataTable({
+          order: [[1, 'asc']]
+        });
+
+        // Enable tooltips (Bootstrap 5.2.x).
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+      });
+    </script>
 {% endblock js %}
 
 
