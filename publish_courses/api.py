@@ -18,7 +18,7 @@ from rest_framework.serializers import (
 
 from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
-from lti_permissions.decorators import lti_permission_required_check
+from lti_school_permissions.decorators import lti_permission_required_check
 from publish_courses.async_operations import bulk_publish_canvas_sites
 from django.http import JsonResponse
 import simplejson as json

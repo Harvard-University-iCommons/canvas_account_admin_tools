@@ -1,35 +1,30 @@
 import json
 import logging
 
+from canvas_api.helpers import accounts as canvas_api_accounts
+from canvas_sdk import RequestContext
+from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods.content_migrations import \
+    create_content_migration_courses
+from canvas_sdk.methods.courses import create_new_course, update_course
+from canvas_sdk.methods.sections import create_course_section
+from coursemanager.models import CourseInstance
+from coursemanager.people_models import Person
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-from canvas_course_site_wizard.models import CanvasCourseGenerationJob
-from canvas_sdk.exceptions import CanvasAPIError
-from canvas_sdk.methods.content_migrations import create_content_migration_courses
-from canvas_sdk.methods.courses import create_new_course, update_course
-from canvas_sdk.methods.sections import create_course_section
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import CourseInstance, Person
-from icommons_common.view_utils import create_json_200_response, \
-    create_json_500_response
-from lti_permissions.decorators import lti_permission_required
+from lti_school_permissions.decorators import lti_permission_required
 
-from .models import (
-    get_course_instance_query_set,
-    get_course_instance_summary_data,
-    get_course_job_summary_data
-)
-from common.utils import (
-    get_school_data_for_sis_account_id,
-    get_term_data_for_school,
-    get_department_data_for_school,
-    get_course_group_data_for_school,
-)
+from .models import (get_course_instance_query_set,
+                     get_course_instance_summary_data,
+                     get_course_job_summary_data)
+from common.utils import (get_course_group_data_for_school,
+                    get_department_data_for_school,
+                    get_school_data_for_sis_account_id,
+                    get_term_data_for_school)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +34,11 @@ COURSE_INSTANCE_DATA_FIELDS = ('course_instance_id', 'course_instance_id',
 BULK_JOB_DATA_FIELDS = ('created_at', 'status')
 COURSE_JOB_DATA_FIELDS = ('created_at', 'workflow_state')
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
+
 
 def _unpack_datatables_params(request):
     return (
@@ -52,75 +51,6 @@ def _unpack_datatables_params(request):
     )
 
 
-@login_required
-@lti_permission_required(canvas_api_accounts.ACCOUNT_PERMISSION_MANAGE_COURSES)
-@require_http_methods(['GET'])
-def course_jobs(request, bulk_job_id):
-    """
-    Searches for individual course creation jobs using the GET parameters given
-
-    :param request:
-    :return: JSON response containing the list of individual course creation jobs
-    """
-    result = {}
-    try:
-        (draw, start, limit, sort_index, sort_dir, search) = _unpack_datatables_params(request)
-
-        order_by_operator = '-' if sort_dir == 'desc' else ''
-        query_set_all = CanvasCourseGenerationJob.objects.filter(bulk_job_id=bulk_job_id).order_by(
-            order_by_operator + COURSE_JOB_DATA_FIELDS[sort_index]
-        )
-
-        result.update(get_course_job_summary_data(bulk_job_id))
-        result['draw'] = draw
-
-        jobs = []
-        creator_ids = []
-        course_instance_ids = []
-        for course_job in query_set_all[start:(start + limit)]:
-            jobs.append(course_job)
-            creator_ids.append(course_job.created_by_user_id)
-            course_instance_ids.append(course_job.sis_course_id)
-
-        creators = {p.univ_id: p for p in Person.objects.filter(univ_id__in=creator_ids)}
-        course_instances = {
-            str(ci.course_instance_id): ci for ci in CourseInstance.objects.filter(
-                course_instance_id__in=course_instance_ids
-            )
-        }
-
-        data = []
-        for job in jobs:
-            try:
-                creator = creators[job.created_by_user_id]
-                creator_name = "%s, %s" % (creator.name_last, creator.name_first)
-            except KeyError:
-                # Course job creator could not be found
-                logger.warning("Failed to find canvas course site job creator %s", job.created_by_user_id)
-                creator_name = ''
-            course_instance = course_instances[job.sis_course_id]
-
-            data.append({
-                'id': job.id,
-                'created_at': timezone.localtime(job.created_at).strftime('%b %d, %Y %H:%M:%S'),
-                'status': job.status_display_name,
-                'created_by': creator_name,
-                'sis_course_id': job.sis_course_id,
-                'registrar_code': course_instance.course.registrar_code_display,
-                'course_title': course_instance.title,
-                'canvas_course_id': job.canvas_course_id
-            })
-        result['data'] = data
-    except Exception:
-        logger.exception(
-            "Failed to get course jobs with LTI params %s and GET params %s",
-            json.dumps(request.LTI),
-            json.dumps(request.GET)
-        )
-        result['error'] = 'There was a problem searching for course jobs. Please try again.'
-        return create_json_500_response(result)
-
-    return create_json_200_response(result)
 
 
 @login_required
@@ -137,12 +67,12 @@ def schools(request):
     try:
         data = get_school_data_for_sis_account_id(
             request.LTI['custom_canvas_account_sis_id'])
-        return create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get schools with Canvas account_sis_id %s"\
                   % request.LTI['custom_canvas_account_sis_id']
         logger.exception(message)
-        return create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 
@@ -159,11 +89,11 @@ def terms(request, sis_account_id):
     """
     try:
         data, _ = get_term_data_for_school(sis_account_id)
-        return create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get terms with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -179,11 +109,11 @@ def departments(request, sis_account_id):
     """
     try:
         data = get_department_data_for_school(sis_account_id)
-        return create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get departments with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -199,11 +129,11 @@ def course_groups(request, sis_account_id):
     """
     try:
         data = get_course_group_data_for_school(request.LTI['custom_canvas_user_id'], sis_account_id)
-        return create_json_200_response(data)
+        return JsonResponse(data)
     except Exception:
         message = "Failed to get course groups with sis_account_id %s" % sis_account_id
         logger.exception(message)
-        return create_json_500_response(message)
+        return JsonResponse({'error': message}, status=500)
 
 
 @login_required
@@ -376,7 +306,7 @@ def course_instances(request, sis_term_id, sis_account_id):
             json.dumps(request.GET)
         )
         result['error'] = 'There was a problem searching for courses. Please try again.'
-        return create_json_500_response(result)
+        return JsonResponse({'error': result}, status=500)
 
     return JsonResponse(result, status=200, content_type='application/json')
 
@@ -404,6 +334,6 @@ def course_instance_summary(request, sis_term_id, sis_account_id):
             json.dumps(request.GET)
         )
         result['error'] = 'There was a problem counting courses. Please try again.'
-        return create_json_500_response(result)
+        return JsonResponse({'error': result}, status=500)
 
-    return create_json_200_response(result)
+    return JsonResponse(result)

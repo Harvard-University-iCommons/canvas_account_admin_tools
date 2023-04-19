@@ -9,7 +9,7 @@ from canvas_sdk.exceptions import CanvasAPIError
 
 
 @patch('django_auth_lti.decorators.is_allowed', new=Mock(return_value=True))
-@patch('lti_permissions.decorators.is_allowed', new=Mock(return_value=True))
+@patch('lti_school_permissions.decorators.is_allowed', new=Mock(return_value=True))
 @patch('canvas_site_creator.api.logger.exception')
 @patch('canvas_site_creator.api.create_course_section')
 @patch('canvas_site_creator.api.create_new_course')

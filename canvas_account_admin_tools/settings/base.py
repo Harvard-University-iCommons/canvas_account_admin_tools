@@ -62,8 +62,6 @@ INSTALLED_APPS = [
     'async_operations',
     'bulk_utilities',
     'canvas_account_admin_tools',
-    'canvas_course_site_wizard',
-    'canvas_site_creator',
     'course_info',
     'coursemanager',
     'crispy_forms',
@@ -72,9 +70,7 @@ INSTALLED_APPS = [
     'django_cas_ng',
     'django_rq',
     'djng',
-    'icommons_common',
     'icommons_ui',
-    'lti_permissions',
     'lti_school_permissions',
     'people_tool',
     'proxy',
@@ -87,7 +83,8 @@ INSTALLED_APPS = [
     'self_unenrollment_tool',
     'rest_framework',
     'watchman',
-    'bulk_site_creator'
+    'bulk_site_creator',
+    'canvas_site_creator'
 ]
 
 
@@ -342,11 +339,6 @@ LOGGING = {
             'propagate': False,
         },
         'canvas_account_admin_tools': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
-            'propagate': False,
-        },
-        'canvas_course_site_wizard': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
             'propagate': False,

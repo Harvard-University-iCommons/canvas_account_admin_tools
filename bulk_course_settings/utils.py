@@ -1,25 +1,27 @@
-
-
 import json
 import logging
 from datetime import datetime
 
 import boto3
 from botocore.exceptions import ClientError
-from django.conf import settings
-
-from bulk_course_settings import constants
-from bulk_course_settings.models import Details
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
 from canvas_sdk.methods.courses import update_course as sdk_update_course
 from canvas_sdk.utils import get_all_list_data
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import Term
+from coursemanager.models import Term
+from django.conf import settings
+
+from bulk_course_settings import constants
+from bulk_course_settings.models import Details
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
+
 AWS_REGION_NAME = settings.BULK_COURSE_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_COURSE_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_COURSE_SETTINGS['aws_secret_access_key']

@@ -15,8 +15,8 @@ from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti import ToolConfig
-from lti_permissions.decorators import lti_permission_required
-from lti_permissions.verification import is_allowed
+from lti_school_permissions.decorators import lti_permission_required
+from lti_school_permissions.verification import is_allowed
 from proxy.views import proxy_view
 
 logger = logging.getLogger(__name__)

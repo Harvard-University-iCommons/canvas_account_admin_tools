@@ -1,8 +1,6 @@
 from django.conf import settings
 
-from icommons_common.models import CourseInstance
-
-from canvas_course_site_wizard.models import CanvasCourseGenerationJob
+from coursemanager.models import CourseInstance
 
 
 def get_course_instance_query_set(sis_term_id, sis_account_id):
@@ -58,12 +56,13 @@ def get_course_instance_summary_data(query_set):
     }
 
 
+# TODO remove
 def get_course_job_summary_data(bulk_job_id):
     data = {}
-    total_count = CanvasCourseGenerationJob.objects.filter(bulk_job_id=bulk_job_id).count()
+    total_count = 0
     data['recordsTotal'] = total_count
     data['recordsFiltered'] = total_count
-    data['recordsComplete'] = CanvasCourseGenerationJob.objects.filter_complete(bulk_job_id=bulk_job_id).count()
-    data['recordsSuccessful'] = CanvasCourseGenerationJob.objects.filter_successful(bulk_job_id=bulk_job_id).count()
-    data['recordsFailed'] = CanvasCourseGenerationJob.objects.filter_failed(bulk_job_id=bulk_job_id).count()
+    data['recordsComplete'] = 0
+    data['recordsSuccessful'] = 0
+    data['recordsFailed'] = 0
     return data
