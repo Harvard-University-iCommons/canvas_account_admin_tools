@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'watchman',
     'bulk_site_creator',
-    'canvas_site_creator'
+    'canvas_site_creator',
 ]
 
 
