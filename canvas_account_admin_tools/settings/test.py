@@ -8,7 +8,7 @@ ENV_NAME = 'test'
 
 MIGRATION_MODULES = {
     "icommons_common": None,
-    "canvas_course_site_wizard": None,
+    "common": None,
 }
 
 # no router necessary in a test environment

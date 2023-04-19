@@ -11,7 +11,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from icommons_common.models import CourseEnrollee, CourseGuest, CourseStaff
+from coursemanager.models import CourseEnrollee, CourseGuest, CourseStaff
 from pylti1p3.contrib.django import (DjangoCacheDataStorage, DjangoDbToolConf,
                                      DjangoMessageLaunch, DjangoOIDCLogin)
 

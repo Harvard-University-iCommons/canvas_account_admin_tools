@@ -2,8 +2,11 @@ import logging
 from ast import literal_eval
 from uuid import uuid4
 
+from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses
+from coursemanager.models import CourseInstance, UserRole
+from coursemanager.people_models import SimplePerson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,18 +15,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
-from icommons_common.canvas_utils import (SessionInactivityExpirationRC,
-                                          add_canvas_course_enrollee,
-                                          add_canvas_section_enrollee,
-                                          get_canvas_course_by_canvas_id,
-                                          get_canvas_course_section,
-                                          get_canvas_enrollment_by_user,
-                                          get_canvas_user)
-from icommons_common.models import (CourseEnrollee, CourseGuest,
-                                    CourseInstance, CourseStaff, SimplePerson,
-                                    UserRole)
-from lti_permissions.decorators import lti_permission_required
-from psycopg2 import IntegrityError
+from lti_school_permissions.decorators import lti_permission_required
 
 from self_enrollment_tool.models import SelfEnrollmentCourse
 
@@ -31,7 +23,10 @@ from .utils import get_canvas_roles, install_unenrollment_tool
 
 logger = logging.getLogger(__name__)
 
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 
 @login_required

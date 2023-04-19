@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 import bulk_course_settings.utils as utils
 from bulk_course_settings import constants
 from bulk_course_settings.models import Job, Details
-from icommons_common.models import Term
+from coursemanager.models import Term
 
 logger = logging.getLogger(__name__)
 VISIBILITY_TIMEOUT = utils.VISIBILITY_TIMEOUT

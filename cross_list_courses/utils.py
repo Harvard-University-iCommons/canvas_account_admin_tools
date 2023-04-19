@@ -1,26 +1,28 @@
 import logging
 
+from canvas_sdk import RequestContext
+from canvas_sdk.methods.courses import \
+    get_single_course_courses as canvas_get_course
+from canvas_sdk.methods.courses import update_course as canvas_update_course
+from canvas_sdk.methods.sections import (cross_list_section,
+                                         de_cross_list_section)
+from coursemanager.models import CourseInstance, CourseSite, SiteMap, XlistMap
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 
-from canvas_sdk.methods.courses import (
-    get_single_course_courses as canvas_get_course,
-    update_course as canvas_update_course)
-from canvas_sdk.methods.sections import (
-    cross_list_section,
-    de_cross_list_section)
-from icommons_common.canvas_utils import SessionInactivityExpirationRC
-from icommons_common.models import XlistMap, SiteMap, CourseSite, CourseInstance
-
 logger = logging.getLogger(__name__)
 
 _xlist_name_modifier = ' [CROSS-LISTED - NOT ACTIVE]'
-SDK_CONTEXT = SessionInactivityExpirationRC(**settings.CANVAS_SDK_SETTINGS)
+
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# make sure the session_inactivity_expiration_time_secs key isn't in the settings dict
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
 _messages = {
         'ci_does_not_exist': '{id} does not exist.',
-        'multiple_site_maps': "Course instance {id} has multiple course sites associatedwith it, and this tool isn't able to handle that situation. Please contact academictechnology@harvard.edu for assistance.",
+        'multiple_site_maps': "Course instance {id} has multiple course sites associated with it, and this tool isn't able to handle that situation. Please contact academictechnology@harvard.edu for assistance.",
         'primary_same_as_secondary': 'The primary course {p_id} cannot be the same as secondary course {s_id}.',
         'not_synced': "The primary course ({p_id}) doesn't have a Canvas site, but when one is created the secondary course ({s_id}) will be cross-listed with it.",
         'primary_already_xlisted': '{s_id} is currently cross-listed as a '

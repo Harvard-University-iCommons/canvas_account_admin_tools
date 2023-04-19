@@ -4,9 +4,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from lti_permissions.decorators import lti_permission_required
-from django_auth_lti import const
-from django_auth_lti.decorators import lti_role_required
+from lti_school_permissions.decorators import lti_permission_required
 
 logger = logging.getLogger(__name__)
 
