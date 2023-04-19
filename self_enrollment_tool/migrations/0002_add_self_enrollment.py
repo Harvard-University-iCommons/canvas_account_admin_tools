@@ -5,10 +5,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = [
-        ('self_enrollment_tool', '0001_initial'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='SelfEnrollmentCourse',

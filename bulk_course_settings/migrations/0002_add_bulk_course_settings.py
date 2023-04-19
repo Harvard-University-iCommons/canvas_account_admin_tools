@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('bulk_course_settings', '0001_initial'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Details',
