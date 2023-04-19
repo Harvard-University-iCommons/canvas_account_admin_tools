@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from canvas_api.helpers import accounts as canvas_api_accounts_helper
-from .models import CanvasSchoolTemplate
+from canvas_account_admin_tools.models import CanvasSchoolTemplate
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
@@ -147,7 +147,7 @@ def get_course_group_data_for_school(school_sis_account_id, course_group_sis_acc
 def get_canvas_site_templates_for_school(school_id):
     """
     Get the Canvas site templates for the given school. First check the cache, if not found construct
-    the Canvas site template dictionairy list by querying CanvasSchoolTemplate and the courses Canvas API
+    the Canvas site template dictionary list by querying CanvasSchoolTemplate and the courses Canvas API
     to get the Canvas template site name.
 
     :param school_id:

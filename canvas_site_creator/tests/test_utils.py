@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from mock import patch, Mock
 
-from common.models import CanvasSchoolTemplate
+from canvas_account_admin_tools.models import CanvasSchoolTemplate
 
 from common.utils import (
     get_school_data_for_user,

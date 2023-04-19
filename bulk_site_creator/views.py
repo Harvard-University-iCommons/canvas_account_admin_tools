@@ -7,7 +7,7 @@ from django.contrib import messages
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 from canvas_api.helpers import accounts as canvas_api_accounts
-from common.models import CanvasSchoolTemplate
+from canvas_account_admin_tools.models import CanvasSchoolTemplate
 from canvas_sdk import RequestContext
 from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
