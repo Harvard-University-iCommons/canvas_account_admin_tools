@@ -7,13 +7,11 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from icommons_common.canvas_api.helpers import accounts as canvas_api_accounts
-from icommons_common.models import School
-from lti_permissions.decorators import lti_permission_required
+from canvas_api.helpers import accounts as canvas_api_accounts
+from coursemanager.models import School
+from lti_school_permissions.decorators import lti_permission_required
 
-from common.utils import (
-    get_canvas_site_templates_for_school,
-)
+from common.utils import get_canvas_site_templates_for_school
 
 logger = logging.getLogger(__name__)
 

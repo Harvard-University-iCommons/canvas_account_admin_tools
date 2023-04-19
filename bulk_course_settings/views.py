@@ -1,5 +1,4 @@
 import logging
-
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
@@ -8,14 +7,12 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView
+from harvardkey_cas.mixins import LoginRequiredMixin
+from lti_school_permissions.mixins import LTIPermissionRequiredMixin
 
-from bulk_course_settings import constants
-from bulk_course_settings import utils
+from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
-from harvardkey_cas.mixins import LoginRequiredMixin
-from lti_permissions.mixins import LTIPermissionRequiredMixin
-
 
 logger = logging.getLogger(__name__)
 
