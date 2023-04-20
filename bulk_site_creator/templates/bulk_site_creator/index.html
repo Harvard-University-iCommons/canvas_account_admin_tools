@@ -40,13 +40,16 @@
     <div class="row container-fluid">
         <h3>
             Bulk Creation Jobs:
-            <!--TODO add refresh button-->
+            <a href="{% url 'bulk_site_creator:index' %}" class="btn btn-primary float-end ms-2" role="button" 
+                aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" 
+                data-bs-placement="top" data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
+            </a>
             <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
         </h3>
         <table class="datatable table table-striped table-bordered dataTable no-footer">
             <thead>
                 <tr>
-                    <th>Job ID</th>
+                    <th></th>
                     <th>Date</th>
                     <th>Term</th>
                     <th>Started By</th>
@@ -57,7 +60,11 @@
             <tbody>
             {% for bulk_job in jobs_for_school %}
                 <tr>
-                    <td><a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}">{{ bulk_job.sk }}</a></td>
+                    <td>
+                        <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}" 
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail" 
+                        data-job-id="{{ bulk_job.sk }}"><i class="fa-solid fa-eye"></i></a>
+                    </td>
                     <td>{{ bulk_job.created_at }}</td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.creator_name }}</td>
@@ -73,10 +80,17 @@
 
 {% block js %}
     <script>
-		$(document).ready(function() {
-			$('.datatable').DataTable( {
-                order: [[ 1, 'asc' ]]
-            } );
-		});
-	</script>
+        $(document).ready(function () {
+            $('.datatable').DataTable({
+                order: [[1, 'asc']],
+                columnDefs: [
+                    { 'orderable': false, 'targets': [0,] }
+                ],
+            });
+
+            // Enable tooltips (Bootstrap 5.2.x).
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
+    </script>
 {% endblock js %}
