@@ -41,9 +41,10 @@
         <h3>
             Bulk Creation Jobs:
             <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
-            <a href="{% url 'bulk_site_creator:index' %}" class="btn btn-primary float-end me-2" role="button" aria-pressed="true"
-                aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="left"
-                data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i></a>
+            <a href="{% url 'bulk_site_creator:index' %}" class="btn btn-primary float-end me-2" role="button" 
+                aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" 
+                data-bs-placement="left" data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
+            </a>
         </h3>
         <table class="datatable table table-striped table-bordered dataTable no-footer">
             <thead>
@@ -59,7 +60,8 @@
             <tbody>
             {% for bulk_job in jobs_for_school %}
                 <tr>
-                    <td><a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}">{{ bulk_job.sk }}</a></td>
+                    <td><a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}" 
+                        title="{{ bulk_job.sk }}">{{ bulk_job.sk }}</a></td>
                     <td>{{ bulk_job.created_at }}</td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.creator_name }}</td>
