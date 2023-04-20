@@ -61,7 +61,7 @@
             {% for bulk_job in jobs_for_school %}
                 <tr>
                     <td><a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}" 
-                        title="{{ bulk_job.sk }}">{{ bulk_job.sk }}</a></td>
+                        title="{{ bulk_job.sk }}">{{ bulk_job.sk_truncated }}</a></td>
                     <td>{{ bulk_job.created_at }}</td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.creator_name }}</td>

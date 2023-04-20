@@ -62,6 +62,10 @@ def index(request):
     }
     jobs_for_school = table.query(**query_params)['Items']
 
+    # Add truncated version of job ID to job for school object.
+    x = lambda s : s[:s.find('#')+1] + '...' + s[-4:]
+    [item.update(sk_truncated=x(item['sk'])) for item in jobs_for_school]
+
     context = {
         'jobs_for_school': jobs_for_school
     }
