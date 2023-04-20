@@ -39,12 +39,12 @@
         </div>
         <div class="row">
             <div class="row" style="margin-top: 3em;">
+                <div id="job-detail-refresh-btn">
+                  <a href="{% url 'bulk_site_creator:job_detail' job_id=job.sk %}" class="btn btn-primary float-end mb-2" role="button"
+                    aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="left"
+                    data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i></a>
+                </div>
                 <div class="col-sm-12">
-                  <div id="job-detail-refresh-btn">
-                    <a href="{% url 'bulk_site_creator:job_detail'  job %}" class="btn btn-primary float-end me-2" role="button"
-                      aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="left"
-                      data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i></a>
-                  </div>
                     <table class="datatable table table-striped table-bordered dataTable no-footer" id="details_table">
                         <thead>
                             <th>Canvas Course ID</th>
