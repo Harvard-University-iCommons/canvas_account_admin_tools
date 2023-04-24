@@ -113,6 +113,8 @@ def new_job(request):
     selected_department_id = None
 
     # Only display the Course Groups dropdown if the tool is launched in the COLGSAS sub-account
+    print('request ------------------------------>', request.POST)
+    print('school_id ------------------------------>', school_id)
     if school_id == 'colgsas':
         try:
             course_groups = get_course_group_data_for_school(sis_account_id)
@@ -128,14 +130,31 @@ def new_job(request):
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
         selected_course_group_id = request.POST.get("courseCourseGroup", None)
-        selected_department_id = request.POST.get("department", None)
+        selected_department_id = request.POST.get("courseDepartment", None)
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         # TODO Add bulk_processing flag to filter
-        potential_course_sites_query = get_course_instance_query_set(
-            selected_term_id, sis_account_id
-        ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
+        if school_id == 'colgsas':
+            print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_course_group_id.split(":")[1])
+        else:
+            print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_department_id)
+
+        if selected_course_group_id == 0:
+            pass
+        else:
+            # potential_course_sites_query = get_course_instance_query_set(
+            #     selected_term_id, sis_account_id
+            # ).filter(canvas_course_id__isnull=True, sync_to_canvas=0, term__term_id=selected_term_id, course__course_groups=selected_course_group_id.split(":")[1])
+
+            potential_course_sites_query = get_course_instance_query_set(
+                selected_term_id, sis_account_id
+            ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
+
+            print('potential_course_sites_query ------------------------------>', potential_course_sites_query)
+            print('selected_department_id ------------------------------>', selected_department_id)
+            print('selected_course_group_id ------------------------------>', selected_course_group_id)
+
 
     # TODO maybe better to use template tag unless used elsewhere?
     # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
