@@ -135,21 +135,38 @@ def new_job(request):
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         # TODO Add bulk_processing flag to filter
-        if school_id == 'colgsas':
-            print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_course_group_id.split(":")[1])
-        else:
-            print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_department_id)
+        # if school_id == 'colgsas':
+        #     if selected_course_group_id == '0':
+        #         print('selected_term_id ------------------------------>', selected_term_id)
+        #     else:
+        #         print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_course_group_id.split(":")[1])
+        # else:
+        #     print('selected_term_id, selected_department_id------------------------------>', selected_term_id, selected_department_id)
+        if selected_course_group_id or selected_department_id:
+            if selected_course_group_id == '0' or selected_department_id == '0':
+                potential_course_sites_query = get_course_instance_query_set(
+                    selected_term_id, sis_account_id
+                ).filter(canvas_course_id__isnull=True,
+                         sync_to_canvas=0,
+                         term__term_id=selected_term_id)
+            elif selected_course_group_id:
+                potential_course_sites_query = get_course_instance_query_set(
+                    selected_term_id, sis_account_id
+                ).filter(canvas_course_id__isnull=True,
+                         sync_to_canvas=0,
+                         term__term_id=selected_term_id,
+                         course__course_group=selected_course_group_id.split(":")[1])
+            elif selected_department_id:
+                potential_course_sites_query = get_course_instance_query_set(
+                    selected_term_id, sis_account_id
+                ).filter(canvas_course_id__isnull=True,
+                         sync_to_canvas=0,
+                         term__term_id=selected_term_id,
+                         course__departments=selected_department_id.split(":")[1])
 
-        if selected_course_group_id == 0:
-            pass
-        else:
             # potential_course_sites_query = get_course_instance_query_set(
             #     selected_term_id, sis_account_id
-            # ).filter(canvas_course_id__isnull=True, sync_to_canvas=0, term__term_id=selected_term_id, course__course_groups=selected_course_group_id.split(":")[1])
-
-            potential_course_sites_query = get_course_instance_query_set(
-                selected_term_id, sis_account_id
-            ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
+            # ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
 
             print('potential_course_sites_query ------------------------------>', potential_course_sites_query)
             print('selected_department_id ------------------------------>', selected_department_id)
