@@ -133,6 +133,7 @@ def new_job(request):
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         # TODO Add bulk_processing flag to filter
+        # Filter by term only.
         if selected_course_group_id and selected_course_group_id == '0' or \
                 selected_department_id and selected_department_id == '0':
             potential_course_sites_query = get_course_instance_query_set(
@@ -140,6 +141,7 @@ def new_job(request):
             ).filter(canvas_course_id__isnull=True,
                      sync_to_canvas=0,
                      term__term_id=selected_term_id)
+        # Filter also by term and course group.
         elif selected_course_group_id:
             potential_course_sites_query = get_course_instance_query_set(
                 selected_term_id, sis_account_id
@@ -147,6 +149,7 @@ def new_job(request):
                      sync_to_canvas=0,
                      term__term_id=selected_term_id,
                      course__course_group=selected_course_group_id.split(":")[1])
+        # Filter by term and department.
         elif selected_department_id:
             potential_course_sites_query = get_course_instance_query_set(
                 selected_term_id, sis_account_id
