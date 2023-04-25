@@ -152,7 +152,7 @@ def new_job(request):
         # Filter potential_course_sites_query by department.
         elif selected_department_id and selected_department_id != '0':
             potential_course_sites_query = potential_course_sites_query.filter(
-                course__departments=selected_department_id)
+                course__department=selected_department_id)
 
     # TODO maybe better to use template tag unless used elsewhere?
     # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
