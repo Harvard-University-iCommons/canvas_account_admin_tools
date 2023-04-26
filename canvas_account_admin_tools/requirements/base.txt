@@ -5,7 +5,7 @@ boto3==1.26.12
 # NOTE: jasmine testing relies on a checked-in version of the django-angular js.
 # if you bump the version of django-angular, please also download and check in
 # new copies of django-angular[.min].js.
-git+ssh://git@github.com/Harvard-University-iCommons/django-angular.git@v2.3#egg=django-angular==2.3
+django-angular @ git+ssh://git@github.com/Harvard-University-iCommons/django-angular.git@v2.3
 django-cached-authentication-middleware==0.2.2
 
 django-proxy==1.2.1
@@ -19,19 +19,19 @@ django-crispy-forms==1.14.0
 rq==1.10.0
 django-rq==2.5.1
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0#egg=django-auth-lti==2.1.0
+django-auth-lti @ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.1#egg=django-icommons-ui==2.1
+django-icommons-ui @ git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.1
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v3.2#egg=django-canvas-lti-school-permissions==3.2
+django-canvas-lti-school-permissions @ git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v3.2
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0#egg=django-harvardkey-cas==3.0
+django-harvardkey-cas @ git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.4#egg=django-coursemanager==0.4
+django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.4
 
-git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4#egg=canvas_python_sdk==1.4
+canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4
 
-git+ssh://git@github.com/Harvard-University-iCommons/harvard-django-utils.git@v0.1#egg=harvard-django-utils==0.1
+harvard-django-utils @ git+ssh://git@github.com/Harvard-University-iCommons/harvard-django-utils.git@v0.1
 
 hiredis==2.0.0
 kitchen==1.2.6
@@ -40,7 +40,7 @@ redis==3.5.3
 urllib3>=1.26
 requests==2.28.0
 simplejson==3.17.6
-git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.6#egg=django-ssm-parameter-store==0.6
+django-ssm-parameter-store @ git+ssh://git@github.com/Harvard-University-iCommons/django-ssm-parameter-store.git@v0.6
 
 splunk_handler==3.0.0
 python-json-logger==2.0.4
