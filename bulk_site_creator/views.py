@@ -132,8 +132,6 @@ def new_job(request):
         selected_term_id = request.POST.get("courseTerm", None)
         selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
         selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
-        
-        # TODO Add bulk_processing flag to filter
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
@@ -141,6 +139,7 @@ def new_job(request):
             selected_term_id, sis_account_id
         ).filter(canvas_course_id__isnull=True,
                  sync_to_canvas=0,
+                 bulk_processing=0,
                  term__term_id=selected_term_id)
 
         # Filter potential_course_sites_query by course group.
@@ -175,7 +174,6 @@ def new_job(request):
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["POST"])
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
-    # TODO - Set 'bulk_processing' flag to true for all course instances processed by this view before inserting into DynamoDB
     dynamodb_table = dynamodb.Table(table_name)
     user_id = request.LTI["lis_person_sourcedid"]
     user_full_name = request.LTI["lis_person_name_full"]
@@ -200,10 +198,9 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         # Get all course instance records that will have Canvas sites created by filtering on the
         # term and (course group or department) values
         # Also filter on the 'bulk_processing' flag to avoid multiple job submission conflicts
-        # TODO Add bulk_processing flag to filter
         potential_course_sites_query = get_course_instance_query_set(
             term_id, sis_account_id
-        ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
+        ).filter(canvas_course_id__isnull=True, sync_to_canvas=0, bulk_processing=0)
 
         # Check if a course group or department filter needs to be applied to queryset
         # The value of 0 is for the default option of no selected Department/Course Group
@@ -234,6 +231,10 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
 
             # Create TaskRecord objects for each course instance
             tasks = generate_task_objects(potential_course_sites_query, job)
+
+            # Set the bulk_processing field to true for all course instances being processed by this job so they
+            # do not show up in the new job page
+            potential_course_sites_query.update(bulk_processing=True)
 
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
@@ -269,10 +270,21 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
                 workflow_state="pending",
             )
 
-            course_instances = CourseInstance.objects.filter(course_instance_id__in=course_instance_ids)
+            # Get all potential course instances for the selected term in the account
+            # Further filter by the selected course instances from the DataTable
+            course_instances = get_course_instance_query_set(
+                term_id, sis_account_id
+            ).filter(canvas_course_id__isnull=True,
+                     sync_to_canvas=0,
+                     bulk_processing=0,
+                     course_instance_id__in=course_instance_ids)
 
             # Create TaskRecord objects for each course instance
             tasks = generate_task_objects(course_instances, job)
+
+            # Set the bulk_processing field to true for all course instances being processed by this job so they
+            # do not show up in the new job page
+            course_instances.update(bulk_processing=True)
 
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
