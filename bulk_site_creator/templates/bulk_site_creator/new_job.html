@@ -38,9 +38,9 @@
                             <br>
                             <select id="courseDepartment" name="courseDepartment" class="form-control">
                                 {% if not selected_department_id or selected_department_id == '0' %}
-                                    <option value="department:0" selected>Department</option>
+                                    <option value="dept:0" selected>Department</option>
                                 {% else %}
-                                    <option value="department:0">Department</option>
+                                    <option value="dept:0">Department</option>
                                 {% endif %}
                                 {% for department in departments %}
                                     {% if selected_department_id and "dept:"|add:selected_department_id == department.id %}
