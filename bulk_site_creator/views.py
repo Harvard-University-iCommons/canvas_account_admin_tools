@@ -130,8 +130,8 @@ def new_job(request):
     
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
-        selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
-        selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
+        selected_course_group_id = request.POST.get("courseCourseGroup") if request.POST.get("courseCourseGroup", None) else None
+        selected_department_id = request.POST.get("courseDepartment") if request.POST.get("courseDepartment", None) else None
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
