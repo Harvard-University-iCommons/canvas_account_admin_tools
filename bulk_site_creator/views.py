@@ -3,23 +3,23 @@ import logging
 from typing import Optional
 
 import boto3
-from django.contrib import messages
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 from canvas_api.helpers import accounts as canvas_api_accounts
-from canvas_account_admin_tools.models import CanvasSchoolTemplate
 from canvas_sdk import RequestContext
 from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
+from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
 
-
+from canvas_account_admin_tools.models import CanvasSchoolTemplate
 from common.utils import (get_canvas_site_template,
                           get_canvas_site_templates_for_school,
                           get_course_group_data_for_school,
@@ -32,7 +32,6 @@ from .utils import (batch_write_item, generate_task_objects,
                     get_course_instance_query_set,
                     get_course_instances_without_canvas_sites,
                     get_department_name_by_id, get_term_name_by_id)
-
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +60,10 @@ def index(request):
         'ScanIndexForward': False,
     }
     jobs_for_school = table.query(**query_params)['Items']
+
+    # Update string timestamp to datetime.
+    [item.update(created_at=parse_datetime(item['created_at']))
+     for item in jobs_for_school]
 
     context = {
         'jobs_for_school': jobs_for_school
@@ -124,17 +127,27 @@ def new_job(request):
             departments = get_department_data_for_school(sis_account_id)
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
-
+    
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
-        selected_course_group_id = request.POST.get("courseCourseGroup", None)
-        selected_department_id = request.POST.get("department", None)
+        selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
+        selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         potential_course_sites_query = get_course_instance_query_set(
             selected_term_id, sis_account_id
-        ).filter(canvas_course_id__isnull=True, sync_to_canvas=0, bulk_processing=0)
+        ).filter(canvas_course_id__isnull=True,
+                 sync_to_canvas=0,
+                 bulk_processing=0,
+                 term__term_id=selected_term_id)
+
+        # Filter potential_course_sites_query by course group.
+        if selected_course_group_id and selected_course_group_id != '0':
+            potential_course_sites_query = potential_course_sites_query.filter(course__course_group=selected_course_group_id)
+        # Filter potential_course_sites_query by department.
+        elif selected_department_id and selected_department_id != '0':
+            potential_course_sites_query = potential_course_sites_query.filter(course__department=selected_department_id)
 
     # TODO maybe better to use template tag unless used elsewhere?
     # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
