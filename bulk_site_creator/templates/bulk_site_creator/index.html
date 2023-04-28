@@ -69,7 +69,10 @@
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.user_full_name }}</td>
                     <td>{{ bulk_job.workflow_state }}</td>
-                    <td>{{ bulk_job.summary }}</td>
+                    <td>total: {{ bulk_job.task_total }}<br>
+                        success: {{ bulk_job.task_succeeded }}<br>
+                        fail: {{ bulk_job.task_failed }}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

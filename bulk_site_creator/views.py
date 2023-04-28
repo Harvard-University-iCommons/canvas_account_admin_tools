@@ -65,10 +65,34 @@ def index(request):
     [item.update(created_at=parse_datetime(item['created_at']))
      for item in jobs_for_school]
 
+    # Add job tasks summary to job object.
+    for job in jobs_for_school:
+        tasks_query_params = {
+            'KeyConditionExpression': Key('pk').eq(job['sk']),
+            'ScanIndexForward': False,
+        }
+        tasks = table.query(**tasks_query_params)
+        
+        generate_job_summary(job, tasks)
+
     context = {
         'jobs_for_school': jobs_for_school
     }
     return render(request, "bulk_site_creator/index.html", context=context)
+
+
+def generate_job_summary(job, job_tasks):
+    """
+    This function generates job summary data based on job's tasks attributes.
+    Summary then gets added to job object.
+    """
+    task_total = job_tasks['Count']
+    task_succeeded = sum(1 for k in job_tasks['Items'] if k.get('workflow_state') == 'success')
+    task_failed = sum(1 for k in job_tasks['Items'] if k.get('workflow_state') == 'fail')
+
+    job.update(task_total=task_total,
+               task_succeeded=task_succeeded,
+               task_failed=task_failed)
 
 
 @login_required
@@ -84,18 +108,29 @@ def job_detail(request, job_id):
         'KeyConditionExpression': Key('pk').eq(school_key) & Key('sk').eq(job_id),
         'ScanIndexForward': False,
     }
-    job = table.query(**job_query_params)['Items'][0]
+    job = table.query(**job_query_params)['Items']
+
+    # Update string timestamp to datetime.
+    job[0].update(created_at=parse_datetime(job[0]['created_at']))
+    job[0].update(updated_at=parse_datetime(job[0]['updated_at']))
 
     tasks_query_params = {
         'KeyConditionExpression': Key('pk').eq(job_id),
         'ScanIndexForward': False,
     }
-    tasks = table.query(**tasks_query_params)['Items']
+    tasks = table.query(**tasks_query_params)
+
+    # Add Canvas course URL to tasks with a Canvas course ID and workflow_state != 'fail'.
+    [item.update(canvas_course_url=f"{settings.CANVAS_URL}/courses/{item['canvas_course_id']})")
+     for item in tasks['Items'] if item['canvas_course_id'] and item['workflow_state'] != 'fail']
+
+    generate_job_summary(job[0], tasks)
 
     context = {
-        'job': job,
-        'tasks': tasks
+        'job': job[0],
+        'tasks': tasks['Items']
     }
+    print('------------------------------>', context)
     return render(request, "bulk_site_creator/job_detail.html", context=context)
 
 
@@ -128,6 +163,7 @@ def new_job(request):
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
     
+    print('new_jobv ================================>', request.POST)
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
         selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
@@ -167,6 +203,7 @@ def new_job(request):
         'selected_department_id': selected_department_id
     }
 
+    print('new_job ================================>', context)
     return render(request, "bulk_site_creator/new_job.html", context=context)
 
 
