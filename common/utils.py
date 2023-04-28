@@ -108,8 +108,7 @@ def get_department_data_for_school(school_sis_account_id, department_sis_account
         account_id = account['sis_account_id']
         if account_id and account_id.lower().startswith('dept:'):
             department = {
-                'id': int(account_id.split(":")[1]),
-                'custom_canvas_account_sis_id': account_id.lower(),
+                'id': account_id.lower(),
                 'name': account['name']
             }
             if department_sis_account_id and department_sis_account_id == account_id:
@@ -134,8 +133,7 @@ def get_course_group_data_for_school(school_sis_account_id, course_group_sis_acc
         account_id = account['sis_account_id']
         if account_id and account_id.lower().startswith('coursegroup:'):
             course_group = {
-                'id': int(account_id.split(":")[1]),
-                'custom_canvas_account_sis_id': account_id.lower(),
+                'id': account_id.lower(),
                 'name': account['name']
             }
             if course_group_sis_account_id and course_group_sis_account_id == account_id:

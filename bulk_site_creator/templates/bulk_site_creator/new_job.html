@@ -38,12 +38,12 @@
                             <br>
                             <select id="courseDepartment" name="courseDepartment" class="form-control">
                                 {% if not selected_department_id or selected_department_id == '0' %}
-                                    <option value="0" selected>Department</option>
+                                    <option value="dept:0" selected>Department</option>
                                 {% else %}
-                                    <option value="0">Department</option>
+                                    <option value="dept:0">Department</option>
                                 {% endif %}
                                 {% for department in departments %}
-                                    {% if selected_department_id and selected_department_id == department.id %}
+                                    {% if selected_department_id and "dept:"|add:selected_department_id == department.id %}
                                         <option value="{{ department.id }}" selected>{{ department.name }}</option>
                                     {% else %}
                                         <option value="{{ department.id }}">{{ department.name }}</option>
@@ -58,12 +58,12 @@
                             <br>
                             <select id="courseCourseGroup" name="courseCourseGroup" class="form-control">
                                 {% if not selected_course_group_id or selected_course_group_id == '0' %}
-                                    <option value="0" selected>Course Group</option>
+                                    <option value="coursegroup:0" selected>Course Group</option>
                                 {% else %}
-                                    <option value="0">Course Group</option>
+                                    <option value="coursegroup:0">Course Group</option>
                                 {% endif %}
                                 {% for course_group in course_groups %}
-                                    {% if selected_course_group_id and selected_course_group_id == course_group.id %}
+                                    {% if selected_course_group_id and "coursegroup:"|add:selected_course_group_id == course_group.id %}
                                         <option value="{{ course_group.id }}" selected>{{ course_group.name }}</option>
                                     {% else %}
                                         <option value="{{ course_group.id }}">{{ course_group.name }}</option>
