@@ -178,26 +178,25 @@
                 order: [[ 1, 'asc' ]]
             });
             
-            // Select/Deselect all checkbox.
+            // Select/Deselect all (on current page) checkbox.
             $("#select-all-checkbox").on( "click", function(e) {
                 if ($(this).is( ":checked" )) {
-                    table.rows().select();      
+                    table.rows({page: "current"}).select();      
                 } else {
-                    table.rows().deselect();
+                    table.rows({page: "current"}).deselect();
                 }
             });
-
-            $("#course-table").on( "click", function(e) {
+            // Update Select/Deselect all checkbox if some rows are unselected 
+            // or all rows are selected manually.
+            $(".select-checkbox").on( "click", function(e) {
                 const currentPageTotalTableRowItems = table.rows( {page: "current"} ).count();
                 const currentPageSelectedCourseCount = table.rows( { selected: true, page: "current" } ).count();
-                console.log("--------------------------", currentPageTotalTableRowItems, currentPageSelectedCourseCount)
-                // Update checkbox if some rows are unselected or all rows are selected manually.
+                console.log("-------------------------- Total", currentPageTotalTableRowItems, "--- Selected", currentPageSelectedCourseCount)
+
                 if (currentPageTotalTableRowItems == currentPageSelectedCourseCount) {
-                    $(this).prop( "checked", true );
-                    console.log("--------------------------true", )
+                    $("#select-all-checkbox").prop( "checked", true );
                 } else {
-                    $(this).prop( "checked", false );
-                    console.log("--------------------------false")
+                    $("#select-all-checkbox").prop( "checked", false );
                 }
             });
 
@@ -273,4 +272,3 @@
         };
 	</script>
 {% endblock js %}
-
