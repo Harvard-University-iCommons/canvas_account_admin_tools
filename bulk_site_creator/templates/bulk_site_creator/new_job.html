@@ -178,11 +178,26 @@
                 order: [[ 1, 'asc' ]]
             });
             
+            // Select/Deselect all checkbox.
             $("#select-all-checkbox").on( "click", function(e) {
                 if ($(this).is( ":checked" )) {
                     table.rows().select();      
                 } else {
                     table.rows().deselect();
+                }
+            });
+
+            $("#course-table").on( "click", function(e) {
+                const currentPageTotalTableRowItems = table.rows( {page: "current"} ).count();
+                const currentPageSelectedCourseCount = table.rows( { selected: true, page: "current" } ).count();
+                console.log("--------------------------", currentPageTotalTableRowItems, currentPageSelectedCourseCount)
+                // Update checkbox if some rows are unselected or all rows are selected manually.
+                if (currentPageTotalTableRowItems == currentPageSelectedCourseCount) {
+                    $(this).prop( "checked", true );
+                    console.log("--------------------------true", )
+                } else {
+                    $(this).prop( "checked", false );
+                    console.log("--------------------------false")
                 }
             });
 
@@ -197,7 +212,14 @@
                 if (selectedTemplateText.toLowerCase() == "no template") {
                     $("#modal-body-text").text(`${modalBodyTextBeginning} courses for Canvas site creation with no template.`);
                 } else {
-                    $("#modal-body-text").text(`${modalBodyTextBeginning} courses for Canvas site creation with template ${selectedTemplateText}.`);
+                    $("#modal-body-text").text(`${modalBodyTextBeginning} courses for Canvas site creation with template`);
+                    // Template URL
+                    $("<a>", {
+                        class: "template-url",
+                        text: ` ${selectedTemplateText}` + ` (${selectedTemplateVal}).`,
+                        title: "template URL",
+                        href: window.location.origin + "/courses/" + `${selectedTemplateVal}`
+                    }).appendTo("#modal-body-text");
                 }
             });            
 
