@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped table-bordered dataTable no-footer">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th class="form-check-input"><input type="checkbox" id="select-all-checkbox"></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -175,7 +175,15 @@
                     selector: 'td:first-child'
                 },
                 order: [[ 1, 'asc' ]]
-            } );
+            });
+            
+            $("#select-all-checkbox").on( "click", function(e) {
+                if ($(this).is( ":checked" )) {
+                    table.rows().select();      
+                } else {
+                    table.rows().deselect();
+                }
+            });
 
             $('#confirmCreateButton').on('click', function () {
                 var selectedRows = table.rows( { selected: true } ).data();
