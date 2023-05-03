@@ -20,7 +20,7 @@
             courses at a time. The tool accepts a CSV file upload with the following columns:
         </p>
         <p>
-        <pre>course_sis_id, user_id, role_id</pre>
+        <pre>course_sis_id, user_id, role_id, status</pre>
         </p>
         <p>
             The tool will begin processing the file shortly after it is uploaded. The 10 most recently uploaded
@@ -59,6 +59,11 @@
             for
             each role type (staff, student or guest) in a given course. Valid role IDs are listed below.
         </p>
+        <h5>status</h5>
+        <p>
+            The status code for the enrollment record. Must be either "active" or "deleted".
+        </p>
+
         <h4>Valid roles</h4>
 
         <table class="table">
