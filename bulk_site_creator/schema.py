@@ -8,10 +8,12 @@ from ulid import ULID
 Defines the schema of the dynamodb table.
 """
 
+
 class JobRecord:
     def __init__(
         self,
         school: str,
+        sis_account_id: str,
         term_id: str,
         term_name: Optional[str],
         department_id: Optional[str],
@@ -26,6 +28,7 @@ class JobRecord:
     ):
         self.pk = f"SCHOOL#{school.upper()}"
         self.sk = f"JOB#{str(ULID())}"
+        self.sis_account_id = sis_account_id
         self.term_id = term_id
         self.term_name = term_name
         self.department_id = department_id
@@ -36,6 +39,7 @@ class JobRecord:
         self.user_id = user_id
         self.user_full_name = user_full_name
         self.user_email = user_email
+        self.school = school
         self.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -50,6 +54,7 @@ class JobRecord:
         return {
             "pk": self.pk,
             "sk": self.sk,
+            "sis_account_id": self.sis_account_id,
             "term_id": self.term_id,
             "term_name": self.term_name,
             "department_id": self.department_id,
@@ -63,6 +68,7 @@ class JobRecord:
             "user_email": self.user_email,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "school": self.school
         }
 
 
@@ -74,7 +80,9 @@ class TaskRecord:
         workflow_state: str,
         canvas_course_id: str,
         course_code: str,
-        course_title: str
+        course_title: str,
+        section: str,
+        department_id: str
     ):
         self.pk = job_record.sk
         self.sk = f"TASK#{str(ULID())}"
@@ -82,6 +90,8 @@ class TaskRecord:
         self.canvas_course_id = canvas_course_id
         self.course_code = course_code
         self.course_title = course_title
+        self.section = section
+        self.department_id = department_id
         self.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -99,7 +109,9 @@ class TaskRecord:
             "course_instance_id": self.course_instance_id,
             "canvas_course_id": self.canvas_course_id,
             "course_code": self.course_code,
-            "course_title": self.course_title
+            "course_title": self.course_title,
+            "section": self.section,
+            "department_id": self.department_id
         }
 
 
