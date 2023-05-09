@@ -89,6 +89,8 @@ def dashboard_account(request):
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
     build_info = settings.BUILD_INFO
 
+    school_level_sub_account: bool = custom_canvas_account_sis_id.startswith('school:')
+
     """
     Verify that the current user has permission to see the Search Courses (aka course_info) tool
     """
@@ -153,7 +155,8 @@ def dashboard_account(request):
     """
     bulk_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_BULK_ENROLLMENT_TOOL,
-                                                 canvas_account_sis_id=custom_canvas_account_sis_id)
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id) \
+        and school_level_sub_account
 
     """
         verify that user has permissions to view the masquerade tool

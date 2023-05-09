@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 @lti_permission_required(settings.PERMISSION_BULK_ENROLLMENT_TOOL)
 @require_http_methods(['GET', 'POST'])
 def index(request):
+
     if request.method == "POST":
         logger.info(f'Bulk enrollment file uploaded. File: '
                     f'{request.FILES["bulkEnrollmentFile"]}')
@@ -35,6 +36,13 @@ def index(request):
         return redirect('bulk_enrollment_tool:index')
 
     tool_launch_school = get_tool_launch_school(request)
+
+    if not tool_launch_school:
+        template_context = {
+            'error_title': 'Error',
+            'error_message': 'Sorry, this tool can only be used in a school-level sub-account.'
+        }
+        return render(request, 'canvas_account_admin_tools/error.html', context=template_context)
 
     # Read data from DynamoDB table (get n most recent records).
     dynamodb = boto3.resource('dynamodb')
@@ -183,7 +191,10 @@ def get_tool_launch_school(request) -> str:
     Get the school that this tool is being launched in.
     """
     try:
-        tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+        if request.LTI['custom_canvas_account_sis_id'].startswith('school:'):
+            tool_launch_school = request.LTI['custom_canvas_account_sis_id'].split(':')[1]
+        else:
+            tool_launch_school = None
     except Exception:
         logger.exception('Error getting launch school')
 
