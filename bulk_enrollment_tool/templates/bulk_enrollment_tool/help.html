@@ -1,0 +1,218 @@
+{% extends 'bulk_enrollment_tool/base.html' %}
+
+{% block body %}
+
+<nav>
+    <h3>
+        <a href="{% url 'dashboard_account' %}">Admin Console</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        Help
+    </h3>
+</nav>
+
+<div class="body">
+    <div class="container-fluid">
+        <h3>About the Bulk Enrollment Tool</h3>
+        <p>
+            This tool can be used by Canvas admins to add multiple enrollees to multiple
+            courses at a time. The tool accepts a CSV file upload with the following columns:
+        </p>
+        <p>
+        <pre>course_sis_id, user_id, role_id, status</pre>
+        </p>
+        <p>
+            The tool will begin processing the file shortly after it is uploaded. The 10 most recently uploaded
+            CSV files are listed along with the processing status, number of records added, and import errors.
+            You can refresh the list using the button in the upper right corner of the table.
+
+        </p>
+        <p>
+            Each CSV file can contain up to 50 unique course_sis_ids. All of the course_sis_ids in the CSV file
+            must be associated with the school in which the tool was launched. If a file contains more than 50
+            unique course_sis_ids, or if any of the course_sis_ids don't match the school, the entire file will be
+            rejected.
+        </p>
+        <p>
+            Each CSV file can contain up to 1000 enrollment rows. If a file contains more than 1000 rows, the entire
+            file will be rejected.
+        </p>
+        <p>
+            Role IDs must match the list below. Any rows that contain a role ID not in this list will be skipped.
+        </p>
+        <h4>Column details</h4>
+        <h5>course_sis_id</h5>
+        <p>
+            The SIS ID of the course or section to which the enrollee should be added. The course SIS ID can be
+            found on the <code>Settings > Course Details</code> page in the Canvas course site. Section SIS IDs can be found on the
+            <code>Settings > Sections</code> page.
+        </p>
+        <h5>user_id</h5>
+        <p>
+            The unique id of the user to add. For HarvardKey holders this must be the user's 8-digit HUID.
+            For HarvardKey Light holders this must be the user's 8-character NetID.
+        </p>
+        <h5>role_id</h5>
+        <p>
+            The numeric role ID of the role that the user should have in the course. Each user may only have one role
+            for
+            each role type (staff, student or guest) in a given course. Valid role IDs are listed below.
+        </p>
+        <h5>status</h5>
+        <p>
+            The status code for the enrollment record. Must be either "active" or "deleted".
+        </p>
+
+        <h4>Valid roles</h4>
+
+        <table class="table">
+            <tr>
+                <th colspan="2">Staff roles</th>
+            </tr>
+            <tr>
+                <th>Role ID</th>
+                <th>Role name</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Head Instructor</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Faculty</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>TA</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>Teaching Fellow</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>Designer</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td>Teacher</td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>Course Support Staff</td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td>Teaching Staff</td>
+            </tr>
+            <tr>
+                <td>16</td>
+                <td>Course Librarian</td>
+            </tr>
+            <tr>
+                <td>18</td>
+                <td>Instructor</td>
+            </tr>
+            <tr>
+                <td>19</td>
+                <td>Primary Instructor</td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td>Secondary Instructor</td>
+            </tr>
+            <tr>
+                <td>22</td>
+                <td>TF/TA</td>
+            </tr>
+            <tr>
+                <td>23</td>
+                <td>Faculty Assistant</td>
+            </tr>
+            <tr>
+                <td>24</td>
+                <td>Course Assistant</td>
+            </tr>
+            <tr>
+                <td>25</td>
+                <td>Preceptor</td>
+            </tr>
+            <tr>
+                <td>30</td>
+                <td>Enhanced Course Assistant</td>
+            </tr>
+            <tr>
+                <td>400</td>
+                <td>Teaching Faculty</td>
+            </tr>
+            <tr>
+                <td>401</td>
+                <td>Evaluating Instructor</td>
+            </tr>
+            <tr>
+                <th colspan="2">Student roles</th>
+            </tr>
+            <tr>
+                <th>Role ID</th>
+                <th>Role name</th>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td>Student</td>
+            </tr>
+            <tr>
+                <td>14</td>
+                <td>Prospective Enrollee</td>
+            </tr>
+            <tr>
+                <td>26</td>
+                <td>Enrollee</td>
+            </tr>
+            <tr>
+                <td>27</td>
+                <td>Petitioner</td>
+            </tr>
+            <tr>
+                <td>28</td>
+                <td>Waitlisted</td>
+            </tr>
+            <tr>
+                <td>101</td>
+                <td>Enrolled</td>
+            </tr>
+            <tr>
+                <td>201</td>
+                <td>SAT/NCR</td>
+            </tr>
+            <tr>
+                <td>301</td>
+                <td>DCE-Grad</td>
+            </tr>
+            <tr>
+                <td>302</td>
+                <td>DCE-Undergrad</td>
+            </tr>
+            <tr>
+                <td>303</td>
+                <td>DCE-noncredit</td>
+            </tr>
+            <tr>
+                <th colspan="2">Guest roles</th>
+            </tr>
+            <tr>
+                <th>Role ID</th>
+                <th>Role name</th>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td>Guest</td>
+            </tr>
+            <tr>
+                <td>15</td>
+                <td>Observer</td>
+            </tr>
+        </table>
+    </div> {% comment %} container-fluid {% endcomment %}
+</div> {% comment %} body {% endcomment %}
+{% endblock %}
