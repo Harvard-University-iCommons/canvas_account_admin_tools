@@ -22,11 +22,11 @@
           <div class="col-sm-6">
               <table class="table table-condensed">
                   <tr><th>Status: </th><td>{{ job.workflow_state }}</td></tr>
-                  <tr><th>Started at: </th><td>{{ job.started_at }}</td></tr>
-                  <tr><th>Completed at: </th><td>{{ job.completed_at }}</td></tr>
+                  <tr><th>Started at: </th><td>{{ job.created_at }}</td></tr>
+                  <tr><th>Completed at: </th><td>{% if job.workflow_state == 'complete' %}{{ job.updated_at }}{% endif %}</td></tr>
                   <tr><th>Template: </th><td>{{ job.template_name }}</td></tr>
                   <tr><th>Term: </th><td>{{ job.term_name }}</td></tr>
-                  <tr><th>Created by: </th><td>{{ job.CREATOR_NAME }}</td></tr>
+                  <tr><th>Created by: </th><td>{{ job.user_full_name }}</td></tr>
               </table>
           </div>
           <div class="col-sm-6">
@@ -56,7 +56,7 @@
                         <tbody>
                         {% for task in tasks %}
                             <tr>
-                              <td><a href="{{ task.canvas_course_id }}">{{ task.canvas_course_id }}</a></td>
+                                <td>(% if task.canvas_course_id %}<a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}">{{ task.canvas_course_id }}</a>{% endif %}}</td>
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
                                 <td>{{ task.course_title }}</td>
