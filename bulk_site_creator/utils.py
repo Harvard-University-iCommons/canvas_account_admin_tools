@@ -37,12 +37,15 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
             else:
                 course_code = ci.course.registrar_code
 
+
+
             task = TaskRecord(job_record=job,
                               course_instance_id=ci.course_instance_id,
                               course_code=course_code,
                               course_title=ci.title,
                               canvas_course_id=ci.canvas_course_id,
                               department_id=ci.course.department_id,
+                              course_group_id=ci.course.course_group_id,
                               section=ci.section,
                               workflow_state='pending').to_dict()
             tasks.append(task)

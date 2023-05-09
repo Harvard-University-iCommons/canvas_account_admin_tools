@@ -179,7 +179,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     user_email = request.LTI["lis_person_contact_email_primary"]
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
-    school_name = request.LTI["context_title"] # TODO add this to Job record
 
     table_data = json.loads(request.POST['data'])
 
