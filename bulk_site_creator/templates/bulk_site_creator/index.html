@@ -75,6 +75,8 @@
                             Success:&nbsp;{{ bulk_job.task_succeeded }}&nbsp;&nbsp;|&nbsp;&nbsp;
                             Fail:&nbsp;{{ bulk_job.task_failed }}
                         </td>
+                    {% else %}
+                        <td></td>
                     {% endif %}
                 </tr>
             {% endfor %}
