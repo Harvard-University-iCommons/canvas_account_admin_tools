@@ -21,7 +21,7 @@
                             <span class="required-field-marker">*</span>
                         </label>
                         <br>
-                        <select id="courseTerm" name="courseTerm" class="form-control">
+                        <select id="courseTerm" name="courseTerm" class="form-select">
                             {% for term in terms %}
                                 {% if selected_term_id == term.id %}
                                     <option value="{{ term.id }}" selected>{{ term.name }}</option>
@@ -36,7 +36,7 @@
                                 <span class="required-field-marker">*</span>
                             </label>
                             <br>
-                            <select id="courseDepartment" name="courseDepartment" class="form-control">
+                            <select id="courseDepartment" name="courseDepartment" class="form-select">
                                 {% if not selected_department_id or selected_department_id == '0' %}
                                     <option value="0" selected>All Departments</option>
                                 {% else %}
@@ -56,7 +56,7 @@
                                 <span class="required-field-marker">*</span>
                             </label>
                             <br>
-                            <select id="courseCourseGroup" name="courseCourseGroup" class="form-control">
+                            <select id="courseCourseGroup" name="courseCourseGroup" class="form-select">
                                 {% if not selected_course_group_id or selected_course_group_id == '0' %}
                                     <option value="0" selected>All Course Groups</option>
                                 {% else %}
@@ -92,7 +92,7 @@
             <div class="row">
                 <h4>{{ potential_site_count }} courses ready for Canvas course site creation</h4>
                 <div class="col-sm-6 margin-bottom-md">
-                    <select id="templateSelect" class="form-control">
+                    <select id="templateSelect" class="form-select">
                         <option value="0">
                             No Template
                         </option>
