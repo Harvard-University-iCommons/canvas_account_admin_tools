@@ -60,7 +60,7 @@
                               {% if task.workflow_state == 'fail' or not task.canvas_course_id %}
                                 <td>{{ task.canvas_course_id }}</td>
                               {% else %}
-                                <td><a href="{{ task.canvas_course_url }}">{{ task.canvas_course_id }}</a></td>
+                                <td><a href="{{ task.canvas_course_url }}" target="_blank">{{ task.canvas_course_id }} </a></td>
                               {% endif %}
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
