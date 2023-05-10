@@ -4,9 +4,9 @@
   <nav>
     <h3 class="breadcrumbs">
       <a href="{% url 'dashboard_account' %}">Admin Console</a>
-      <i class="fa-solid fa-chevron-right"></i>
+      <small><i class="fa fa-chevron-right"></i></small>
       <a href="{% url 'bulk_site_creator:index' %}">Bulk Site Creator</a>
-      <i class="fa-solid fa-chevron-right"></i>
+      <small><i class="fa fa-chevron-right"></i></small>
       Job Detail
     </h3>
   </nav>
@@ -23,8 +23,8 @@
               <table class="table table-condensed">
                   <tr><th>Status: </th><td>{{ job.workflow_state }}</td></tr>
                   <tr><th>Started at: </th><td>{{ job.created_at }}</td></tr>
-                  <tr><th>Completed at: </th><td>{{ job.updated_at }}</td></tr>
-                  <tr><th>Template: </th><td>{{ job.template_id }}</td></tr>
+                  <tr><th>Completed at: </th><td>{% if job.workflow_state == 'complete' %}{{ job.updated_at }}{% endif %}</td></tr>
+                  <tr><th>Template: </th><td>{{ job.template_name }}</td></tr>
                   <tr><th>Term: </th><td>{{ job.term_name }}</td></tr>
                   <tr><th>Created by: </th><td>{{ job.user_full_name }}</td></tr>
               </table>
@@ -57,11 +57,7 @@
                         <tbody>
                         {% for task in tasks %}
                             <tr>
-                              {% if task.workflow_state != 'complete' or task.workflow_state == 'fail' or not task.canvas_course_id %}
-                                <td>{{ task.canvas_course_id }}</td>
-                              {% else %}
-                                <td><a href="{{ task.canvas_course_url }}" target="_blank">{{ task.canvas_course_id }} </a></td>
-                              {% endif %}
+                                <td>{% if task.canvas_course_id %}<a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>{% endif %}</td>
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
                                 <td>{{ task.course_title }}</td>

@@ -37,33 +37,22 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
             else:
                 course_code = ci.course.registrar_code
 
+
+
             task = TaskRecord(job_record=job,
                               course_instance_id=ci.course_instance_id,
                               course_code=course_code,
                               course_title=ci.title,
                               canvas_course_id=ci.canvas_course_id,
+                              department_id=ci.course.department_id,
+                              course_group_id=ci.course.course_group_id,
+                              section=ci.section,
                               workflow_state='pending').to_dict()
             tasks.append(task)
         except (TypeError, ValueError) as e:
             logging.error(f"Error creating TaskRecord for job {job.sk}: {e}")
             raise
     return tasks
-
-#  TODO delete, seems to be a dupe
-def get_course_instances_without_canvas_sites(account, term_id):
-    # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
-    # nor are set to be fed into Canvas via the automated feed
-    ci_query_set_without_canvas = get_course_instance_query_set(
-        term_id, account
-    ).filter(canvas_course_id__isnull=True, sync_to_canvas=0)
-
-    # Iterate through the query set to build a list of all the course instance id's
-    # for a school/course_group/department, which course sites will be created for.
-    course_instance_ids = []
-    for ci in ci_query_set_without_canvas:
-        course_instance_ids.append(ci.course_instance_id)
-
-    return course_instance_ids
 
 
 def get_course_instance_query_set(sis_term_id, sis_account_id):

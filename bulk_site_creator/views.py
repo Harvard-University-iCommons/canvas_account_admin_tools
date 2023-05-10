@@ -30,7 +30,6 @@ from common.utils import (get_canvas_site_template,
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
                     get_course_instance_query_set,
-                    get_course_instances_without_canvas_sites,
                     get_department_name_by_id, get_term_name_by_id)
 
 logger = logging.getLogger(__name__)
@@ -187,7 +186,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     user_email = request.LTI["lis_person_contact_email_primary"]
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
-    school_name = request.LTI["context_title"] # TODO add this to Job record
 
     table_data = json.loads(request.POST['data'])
 
@@ -222,6 +220,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
 
         if potential_course_sites_query.count() > 0:
             job = JobRecord(
+                sis_account_id=sis_account_id,
                 user_id=user_id,
                 user_full_name=user_full_name,
                 user_email=user_email,
@@ -259,10 +258,11 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
 
     else:
         # TODO Abstraction - This block can potentially be pulled outside of the first condition check or separate method
-        # TODO cont. - Think about error handling and reeverting that fflag on exception
+        # TODO cont. - Think about error handling and reverting that flag on exception
         # Create tasks for each of the selected course instance IDs
         if course_instance_ids:
             job = JobRecord(
+                sis_account_id=sis_account_id,
                 user_id=user_id,
                 user_full_name=user_full_name,
                 user_email=user_email,
@@ -284,7 +284,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             ).filter(canvas_course_id__isnull=True,
                      sync_to_canvas=0,
                      bulk_processing=0,
-                     course_instance_id__in=course_instance_ids)
+                     course_instance_id__in=course_instance_ids).select_related('course')
 
             # Create TaskRecord objects for each course instance
             tasks = generate_task_objects(course_instances, job)
