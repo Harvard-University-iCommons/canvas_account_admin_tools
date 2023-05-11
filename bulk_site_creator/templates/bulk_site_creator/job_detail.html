@@ -57,7 +57,11 @@
                         <tbody>
                         {% for task in tasks %}
                             <tr>
-                                <td>{% if task.canvas_course_id %}<a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>{% endif %}</td>
+                                <td>
+                                  {% if task.canvas_course_id and task.workflow_state != "fail" %}
+                                    <a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>
+                                  {% endif %}
+                                </td>
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
                                 <td>{{ task.course_title }}</td>
