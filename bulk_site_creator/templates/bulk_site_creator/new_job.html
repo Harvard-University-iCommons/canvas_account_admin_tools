@@ -118,7 +118,7 @@
                             <th>Course Section</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
                         <tr>
                             <td></td>
@@ -177,8 +177,8 @@
                 order: [[ 1, 'asc' ]]
             });
 
-            // For updating Create All/Create Selected button text when table checkbox is clicked.
-            $(".select-checkbox").on( "click", function() {
+            // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
+            $("#course-table-body").on( "click", function() {
                 // Update button after n seconds to get accurate if row selected value 
                 // after DataTable has time to process checkbox click.
                 setTimeout(
