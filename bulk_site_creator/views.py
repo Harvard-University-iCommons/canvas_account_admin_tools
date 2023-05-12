@@ -83,25 +83,21 @@ def job_detail(request, job_id):
         'KeyConditionExpression': Key('pk').eq(school_key) & Key('sk').eq(job_id),
         'ScanIndexForward': False,
     }
-    job = table.query(**job_query_params)['Items']
+    job = table.query(**job_query_params)['Items'][0]
 
     # Update string timestamp to datetime.
-    job[0].update(created_at=parse_datetime(job[0]['created_at']))
-    job[0].update(updated_at=parse_datetime(job[0]['updated_at']))
+    job.update(created_at=parse_datetime(job['created_at']))
+    job.update(updated_at=parse_datetime(job['updated_at']))
 
     tasks_query_params = {
         'KeyConditionExpression': Key('pk').eq(job_id),
         'ScanIndexForward': False,
     }
-    tasks = table.query(**tasks_query_params)
-
-    # Add Canvas course URL to tasks with a Canvas course ID and workflow_state != 'fail'.
-    [item.update(canvas_course_url=f"{settings.CANVAS_URL}/courses/{item['canvas_course_id']})")
-     for item in tasks['Items'] if item['canvas_course_id'] and item['workflow_state'] != 'fail']
+    tasks = table.query(**tasks_query_params)['Items']
 
     context = {
-        'job': job[0],
-        'tasks': tasks['Items']
+        'job': job,
+        'tasks': tasks
     }
     return render(request, "bulk_site_creator/job_detail.html", context=context)
 
