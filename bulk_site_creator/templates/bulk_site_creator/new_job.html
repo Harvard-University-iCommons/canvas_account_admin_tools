@@ -240,6 +240,14 @@
                     id: 'data',
                     name: 'data'
                 }).val(JSON.stringify(data)).appendTo("#submitJob");
+
+                // Disable the yes button on modal and display a loading spinner before submitting the form.
+                const modalYesButton = $('#confirmCreateButton');
+                modalYesButton.prop('disabled', true);
+                // Add spinner to button.
+                modalYesButton.html(
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+                );
                 $("#submitJob").submit();
             });
         });
