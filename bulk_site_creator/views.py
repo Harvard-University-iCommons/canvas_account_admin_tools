@@ -85,6 +85,10 @@ def job_detail(request, job_id):
     }
     job = table.query(**job_query_params)['Items'][0]
 
+    # Update string timestamp to datetime.
+    job.update(created_at=parse_datetime(job['created_at']))
+    job.update(updated_at=parse_datetime(job['updated_at']))
+
     tasks_query_params = {
         'KeyConditionExpression': Key('pk').eq(job_id),
         'ScanIndexForward': False,
@@ -165,7 +169,6 @@ def new_job(request):
         'selected_course_group_id': selected_course_group_id,
         'selected_department_id': selected_department_id
     }
-
     return render(request, "bulk_site_creator/new_job.html", context=context)
 
 

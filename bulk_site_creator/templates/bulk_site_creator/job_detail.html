@@ -42,7 +42,8 @@
                 <div id="job-detail-refresh-btn">
                   <a href="{% url 'bulk_site_creator:job_detail' job_id=job.sk %}" class="btn btn-primary float-end mb-2" role="button"
                     aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i></a>
+                    data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
+                  </a>
                 </div>
                 <div class="col-sm-12">
                     <table class="datatable table table-striped table-bordered dataTable no-footer" id="details_table">
@@ -56,7 +57,11 @@
                         <tbody>
                         {% for task in tasks %}
                             <tr>
-                                <td>{% if task.canvas_course_id %}<a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>{% endif %}</td>
+                                <td>
+                                  {% if task.canvas_course_id and task.workflow_state != "fail" %}
+                                    <a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>
+                                  {% endif %}
+                                </td>
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
                                 <td>{{ task.course_title }}</td>
