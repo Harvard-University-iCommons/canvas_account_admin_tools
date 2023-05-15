@@ -148,16 +148,18 @@ def new_job(request: HttpRequest) -> HttpResponse:
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
     
+    logging_dept_cg_text = ' and no selected department or course group'    
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
         selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
         selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
 
-        deptpartment_coursegroup = f'course group ID {selected_course_group_id}' if selected_course_group_id else f'department ID {selected_department_id}'
-        logger.debug(f'Retrieving potential course sites for term ID {selected_term_id} '
-                     f'and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
-                                                               "school_id": school_id,
-                                                               })
+        logging_dept_cg_text = f' and course group ID {selected_course_group_id}' if selected_course_group_id \
+            else f' and department ID {selected_department_id}' if selected_department_id \
+            else ' and no selected department or course group.'
+        logger.debug(f'Retrieving potential course sites for term ID {selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                                                                            "school_id": school_id,
+                                                                                                                            })
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
@@ -181,10 +183,9 @@ def new_job(request: HttpRequest) -> HttpResponse:
         potential_course_sites_query.count() if potential_course_sites_query else 0
     )
 
-    logger.debug(f'Retrieved {potential_course_site_count} potential course sites ',
-                 f'for term {selected_term_id} and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
-                                                                                       "school_id": school_id,
-                                                                                       })
+    logger.debug(f'Retrieved {potential_course_site_count} potential course sites for term {selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                                                                                             "school_id": school_id,
+                                                                                                                                             })
 
     context = {
         "terms": terms,
@@ -270,20 +271,19 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # do not show up in the new job page
             potential_course_sites_query.update(bulk_processing=True)
 
-            logger.debug(f'Creating all bulk job for term ID {term_id} (term name {term_name}) ',
-                         f'and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
-                                                                                      "user_id": user_id,
-                                                                                      "user_full_name": user_full_name,
-                                                                                      "user_email": user_email,
-                                                                                      "school": school_id,
-                                                                                      "term_id": term_id,
-                                                                                      "term_name": term_name,
-                                                                                      "department_id": department_id,
-                                                                                      "department_name": department_name,
-                                                                                      "course_group_id": course_group_id,
-                                                                                      "course_group_name": course_group_name,
-                                                                                      "template_id": template_id
-                                                                                      })
+            logger.debug(f'Creating all bulk job for term ID {term_id} (term name {term_name}) and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
+                                                                                                                                                          "user_id": user_id,
+                                                                                                                                                          "user_full_name": user_full_name,
+                                                                                                                                                          "user_email": user_email,
+                                                                                                                                                          "school": school_id,
+                                                                                                                                                          "term_id": term_id,
+                                                                                                                                                          "term_name": term_name,
+                                                                                                                                                          "department_id": department_id,
+                                                                                                                                                          "department_name": department_name,
+                                                                                                                                                          "course_group_id": course_group_id,
+                                                                                                                                                          "course_group_name": course_group_name,
+                                                                                                                                                          "template_id": template_id
+                                                                                                                                                          })
 
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
@@ -347,20 +347,19 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # do not show up in the new job page
             course_instances.update(bulk_processing=True)
 
-            logger.debug(f'Creating selected bulk job for term ID {term_id} (term name {term_name}) ',
-                         f'and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
-                                                                                      "user_id": user_id,
-                                                                                      "user_full_name": user_full_name,
-                                                                                      "user_email": user_email,
-                                                                                      "school": school_id,
-                                                                                      "term_id": term_id,
-                                                                                      "term_name": term_name,
-                                                                                      "department_id": department_id,
-                                                                                      "department_name": department_name,
-                                                                                      "course_group_id": course_group_id,
-                                                                                      "course_group_name": course_group_name,
-                                                                                      "template_id": template_id
-                                                                                      })
+            logger.debug(f'Creating selected bulk job for term ID {term_id} (term name {term_name}) and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
+                                                                                                                                                               "user_id": user_id,
+                                                                                                                                                               "user_full_name": user_full_name,
+                                                                                                                                                               "user_email": user_email,
+                                                                                                                                                               "school": school_id,
+                                                                                                                                                               "term_id": term_id,
+                                                                                                                                                               "term_name": term_name,
+                                                                                                                                                               "department_id": department_id,
+                                                                                                                                                               "department_name": department_name,
+                                                                                                                                                               "course_group_id": course_group_id,
+                                                                                                                                                               "course_group_name": course_group_name,
+                                                                                                                                                               "template_id": template_id
+                                                                                                                                                               })
             
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
