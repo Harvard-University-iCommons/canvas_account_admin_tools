@@ -3,15 +3,15 @@ import logging
 from datetime import datetime
 
 from canvas_api.helpers import accounts as canvas_api_accounts_helper
-from canvas_account_admin_tools.models import CanvasSchoolTemplate
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import Term
+from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
 
+from canvas_account_admin_tools.models import CanvasSchoolTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,6 @@ def get_term_data(term_id):
         'name': term.display_name,
     }
 
-
 def get_term_data_for_school(school_sis_account_id):
     school_id = school_sis_account_id.split(':')[1]
     year_floor = datetime.now().year - 5  # Limit term query to the past 5 years
@@ -93,56 +92,35 @@ def get_term_data_for_school(school_sis_account_id):
         })
     return terms, current_term_id
 
-def get_department_data_for_school(school_sis_account_id, department_sis_account_id=None):
-    """
-    get sub accounts where sis_account_id starts with dept
-    :param school_sis_account_id:
-    :param department_sis_account_id:
-    :return:
-    """
+def get_department_data_for_school(school_sis_account_id):
+    school_id = school_sis_account_id.split(':')[1]
     departments = []
-    school_sis_account_id = 'sis_account_id:{}'.format(school_sis_account_id)
-    accounts = canvas_api_accounts_helper.get_all_sub_accounts_of_account(
-        school_sis_account_id)
-    for account in accounts:
-        account_id = account['sis_account_id']
-        if account_id and account_id.lower().startswith('dept:'):
-            department = {
-                'id': account_id.lower(),
-                'name': account['name']
-            }
-            if department_sis_account_id and department_sis_account_id == account_id:
-                return department
-            else:
-                departments.append(department)
-    return sorted(departments, key=lambda k: k['name'])
+    query_set = Department.objects.filter(
+        school=school_id
+    ).order_by(
+        'name'
+    )
+    for department in query_set:
+        departments.append({
+            'id': str(department.department_id),
+            'name': department.name
+        })
+    return departments
 
-
-def get_course_group_data_for_school(school_sis_account_id, course_group_sis_account_id=None):
-    """
-    get sub accounts where sis_account_id starts with coursegroup
-    :param school_sis_account_id:
-    :param course_group_sis_account_id:
-    :return:
-    """
+def get_course_group_data_for_school(school_sis_account_id):
+    school_id = school_sis_account_id.split(':')[1]
     course_groups = []
-    school_sis_account_id = 'sis_account_id:{}'.format(school_sis_account_id)
-    accounts = canvas_api_accounts_helper.get_all_sub_accounts_of_account(
-        school_sis_account_id)
-    for account in accounts:
-        account_id = account['sis_account_id']
-        if account_id and account_id.lower().startswith('coursegroup:'):
-            course_group = {
-                'id': account_id.lower(),
-                'name': account['name']
-            }
-            if course_group_sis_account_id and course_group_sis_account_id == account_id:
-                return course_group
-            else:
-                course_groups.append(course_group)
-    # Sort the resulting course group list by its name
-    return sorted(course_groups, key=lambda k: k['name'])
-
+    query_set = CourseGroup.objects.filter(
+        school=school_id
+    ).order_by(
+        'name'
+    )
+    for course_group in query_set:
+        course_groups.append({
+            'id': str(course_group.course_group_id),
+            'name': course_group.name
+        })
+    return course_groups
 
 def get_canvas_site_templates_for_school(school_id):
     """
@@ -179,7 +157,6 @@ def get_canvas_site_templates_for_school(school_id):
         cache.set(cache_key, templates)
 
     return templates
-
 
 def get_canvas_site_template(school_id, template_canvas_course_id):
     """
