@@ -63,6 +63,7 @@ def index(request: HttpRequest) -> HttpResponse:
         'KeyConditionExpression': Key('pk').eq(school_key),
         'ScanIndexForward': False,
     }
+    logger.debug(f'Retrieving jobs for school {school_key}.')
     jobs_for_school = table.query(**query_params)['Items']
 
     # Update string timestamp to datetime.
@@ -72,6 +73,7 @@ def index(request: HttpRequest) -> HttpResponse:
     context = {
         'jobs_for_school': jobs_for_school
     }
+    logger.debug(f'Retrieved jobs for school {school_key}.', extra=context)
     return render(request, "bulk_site_creator/index.html", context=context)
 
 
@@ -92,6 +94,7 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
         'KeyConditionExpression': Key('pk').eq(school_key) & Key('sk').eq(job_id),
         'ScanIndexForward': False,
     }
+    logger.debug(f'Retrieving job details for job {job_id}.')
     job = table.query(**job_query_params)['Items'][0]
 
     # Update string timestamp to datetime.
@@ -108,6 +111,7 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
         'job': job,
         'tasks': tasks
     }
+    logger.debug(f'Retrieved job details for job {job_id}.', extra=context)
     return render(request, "bulk_site_creator/job_detail.html", context=context)
 
 
@@ -149,6 +153,12 @@ def new_job(request: HttpRequest) -> HttpResponse:
         selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
         selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
 
+        deptpartment_coursegroup = f'course group ID {selected_course_group_id}' if selected_course_group_id else f'department ID {selected_department_id}'
+        logger.debug(f'Retrieving potential course sites for term ID {selected_term_id} '
+                     f'and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
+                                                               "school_id": school_id,
+                                                               })
+
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
         potential_course_sites_query = get_course_instance_query_set(
@@ -164,6 +174,11 @@ def new_job(request: HttpRequest) -> HttpResponse:
         # Filter potential_course_sites_query by department.
         elif selected_department_id and selected_department_id != '0':
             potential_course_sites_query = potential_course_sites_query.filter(course__department=selected_department_id)
+
+        logger.debug(f'Retrieved {potential_course_site_count} potential course sites ',
+                     f'for term {selected_term_id} and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
+                                                                                           "school_id": school_id,
+                                                                                           })
 
     # TODO maybe better to use template tag unless used elsewhere?
     # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
@@ -255,6 +270,21 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # do not show up in the new job page
             potential_course_sites_query.update(bulk_processing=True)
 
+            logger.debug(f'Creating all bulk job for term ID {term_id} (term name {term_name}) ',
+                         f'and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
+                                                                                      "user_id": user_id,
+                                                                                      "user_full_name": user_full_name,
+                                                                                      "user_email": user_email,
+                                                                                      "school": school_id,
+                                                                                      "term_id": term_id,
+                                                                                      "term_name": term_name,
+                                                                                      "department_id": department_id,
+                                                                                      "department_name": department_name,
+                                                                                      "course_group_id": course_group_id,
+                                                                                      "course_group_name": course_group_name,
+                                                                                      "template_id": template_id
+                                                                                      })
+
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
             batch_write_item(dynamodb_table, tasks)
@@ -262,8 +292,19 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # Now write the JobRecord to DynamoDB
             response = dynamodb_table.put_item(Item=job.to_dict())
             if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
-                # TODO improve this logging statement
+                logger.error(f"Error adding JobRecord to DynamoDB: {response}", extra={"sis_account_id": sis_account_id,
+                                                                                       "user_id": user_id,
+                                                                                       "user_full_name": user_full_name,
+                                                                                       "user_email": user_email,
+                                                                                       "school": school_id,
+                                                                                       "term_id": term_id,
+                                                                                       "term_name": term_name,
+                                                                                       "department_id": department_id,
+                                                                                       "department_name": department_name,
+                                                                                       "course_group_id": course_group_id,
+                                                                                       "course_group_name": course_group_name,
+                                                                                       "template_id": template_id
+                                                                                       })
 
             messages.add_message(request, messages.SUCCESS, 'Bulk job created')
         else:
@@ -306,6 +347,21 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # do not show up in the new job page
             course_instances.update(bulk_processing=True)
 
+            logger.debug(f'Creating selected bulk job for term ID {term_id} (term name {term_name}) ',
+                         f'and custom Canvas account sis ID {sis_account_id}', extra={"sis_account_id": sis_account_id,
+                                                                                      "user_id": user_id,
+                                                                                      "user_full_name": user_full_name,
+                                                                                      "user_email": user_email,
+                                                                                      "school": school_id,
+                                                                                      "term_id": term_id,
+                                                                                      "term_name": term_name,
+                                                                                      "department_id": department_id,
+                                                                                      "department_name": department_name,
+                                                                                      "course_group_id": course_group_id,
+                                                                                      "course_group_name": course_group_name,
+                                                                                      "template_id": template_id
+                                                                                      })
+            
             # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
             # kicks off the downstream bulk workflow via a DynamoDB stream.
             batch_write_item(dynamodb_table, tasks)
@@ -313,8 +369,19 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             # Now write the JobRecord to DynamoDB
             response = dynamodb_table.put_item(Item=job.to_dict())
             if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
-                # TODO improve this logging statement
+                logger.error(f"Error adding JobRecord to DynamoDB: {response}", extra={"sis_account_id": sis_account_id,
+                                                                                       "user_id": user_id,
+                                                                                       "user_full_name": user_full_name,
+                                                                                       "user_email": user_email,
+                                                                                       "school": school_id,
+                                                                                       "term_id": term_id,
+                                                                                       "term_name": term_name,
+                                                                                       "department_id": department_id,
+                                                                                       "department_name": department_name,
+                                                                                       "course_group_id": course_group_id,
+                                                                                       "course_group_name": course_group_name,
+                                                                                       "template_id": template_id
+                                                                                       })
 
             messages.add_message(request, messages.SUCCESS, 'Bulk job created')
 
