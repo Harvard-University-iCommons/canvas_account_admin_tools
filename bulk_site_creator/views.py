@@ -175,16 +175,16 @@ def new_job(request: HttpRequest) -> HttpResponse:
         elif selected_department_id and selected_department_id != '0':
             potential_course_sites_query = potential_course_sites_query.filter(course__department=selected_department_id)
 
-        logger.debug(f'Retrieved {potential_course_site_count} potential course sites ',
-                     f'for term {selected_term_id} and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
-                                                                                           "school_id": school_id,
-                                                                                           })
-
     # TODO maybe better to use template tag unless used elsewhere?
     # TODO cont. this may be included in a summary generation to be displayed in page (see wireframe and Jira ticket)
     potential_course_site_count = (
         potential_course_sites_query.count() if potential_course_sites_query else 0
     )
+
+    logger.debug(f'Retrieved {potential_course_site_count} potential course sites ',
+                 f'for term {selected_term_id} and {deptpartment_coursegroup}', extra={"sis_account_id": sis_account_id,
+                                                                                       "school_id": school_id,
+                                                                                       })
 
     context = {
         "terms": terms,
