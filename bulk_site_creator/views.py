@@ -5,7 +5,7 @@ from typing import Optional
 import boto3
 from boto3.dynamodb.conditions import Key
 from canvas_sdk import RequestContext
-from coursemanager.models import CourseGroup
+from coursemanager.models import CourseGroup, Term, Department
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -24,8 +24,7 @@ from common.utils import (get_canvas_site_templates_for_school,
 
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
-                    get_course_instance_query_set, get_department_name_by_id,
-                    get_term_name_by_id)
+                    get_course_instance_query_set, get_department_name_by_id)
 
 
 logger = logging.getLogger(__name__)
@@ -202,7 +201,9 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         # Also filter on the 'bulk_processing' flag to avoid multiple job submission conflicts
         potential_course_sites_query = get_course_instance_query_set(
             term_id, sis_account_id
-        ).filter(canvas_course_id__isnull=True, sync_to_canvas=0, bulk_processing=0)
+        ).filter(canvas_course_id__isnull=True,
+                 sync_to_canvas=0,
+                 bulk_processing=0).select_related('course')
 
         # Check if a course group or department filter needs to be applied to queryset
         # The value of 0 is for the default option of no selected Department/Course Group
@@ -212,99 +213,56 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
                 potential_course_sites_query = potential_course_sites_query.filter(course__course_group=course_group_id.split(":")[1])
         else:
             if department_id and department_id != '0':
-                department_name = get_department_name_by_id(department_id)
+                department_name = Department.objects.get(department_id=department_id).name
                 potential_course_sites_query = potential_course_sites_query.filter(course__department=department_id.split(":")[1])
 
-        if potential_course_sites_query.count() > 0:
-            job = JobRecord(
-                sis_account_id=sis_account_id,
-                user_id=user_id,
-                user_full_name=user_full_name,
-                user_email=user_email,
-                school=school_id,
-                term_id=term_id,
-                sis_term_id=sis_term_id,
-                term_name=term_name,
-                department_id=department_id,
-                department_name=department_name,
-                course_group_id=course_group_id,
-                course_group_name=course_group_name,
-                template_id=template_id,
-                workflow_state="pending",
-            )
-
-            # Create TaskRecord objects for each course instance
-            tasks = generate_task_objects(potential_course_sites_query, job)
-
-            # Set the bulk_processing field to true for all course instances being processed by this job so they
-            # do not show up in the new job page
-            potential_course_sites_query.update(bulk_processing=True)
-
-            # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
-            # kicks off the downstream bulk workflow via a DynamoDB stream.
-            batch_write_item(dynamodb_table, tasks)
-
-            # Now write the JobRecord to DynamoDB
-            response = dynamodb_table.put_item(Item=job.to_dict())
-            if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
-                # TODO improve this logging statement
-
-            messages.add_message(request, messages.SUCCESS, 'Bulk job created')
-        else:
-            messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
-
     else:
-        # TODO Abstraction - This block can potentially be pulled outside of the first condition check or separate method
-        # TODO cont. - Think about error handling and reverting that flag on exception
-        # Create tasks for each of the selected course instance IDs
-        if course_instance_ids:
-            job = JobRecord(
-                sis_account_id=sis_account_id,
-                user_id=user_id,
-                user_full_name=user_full_name,
-                user_email=user_email,
-                school=school_id,
-                term_id=term_id,
-                sis_term_id=sis_term_id,
-                term_name=term_name,
-                department_id=department_id,
-                department_name=department_name,
-                course_group_id=course_group_id,
-                course_group_name=course_group_name,
-                template_id=template_id,
-                workflow_state="pending",
-            )
+        # Get all potential course instances for the selected term in the account
+        # Further filter by the selected course instances from the DataTable
+        potential_course_sites_query = get_course_instance_query_set(
+            term_id, sis_account_id
+        ).filter(canvas_course_id__isnull=True,
+                 sync_to_canvas=0,
+                 bulk_processing=0,
+                 course_instance_id__in=course_instance_ids).select_related('course')
 
-            # Get all potential course instances for the selected term in the account
-            # Further filter by the selected course instances from the DataTable
-            course_instances = get_course_instance_query_set(
-                term_id, sis_account_id
-            ).filter(canvas_course_id__isnull=True,
-                     sync_to_canvas=0,
-                     bulk_processing=0,
-                     course_instance_id__in=course_instance_ids).select_related('course')
+    if potential_course_sites_query.count() > 0:
+        job = JobRecord(
+            sis_account_id=sis_account_id,
+            user_id=user_id,
+            user_full_name=user_full_name,
+            user_email=user_email,
+            school=school_id,
+            term_id=term_id,
+            sis_term_id=sis_term_id,
+            term_name=term_name,
+            department_id=department_id,
+            department_name=department_name,
+            course_group_id=course_group_id,
+            course_group_name=course_group_name,
+            template_id=template_id,
+            workflow_state="pending",
+        )
 
-            # Create TaskRecord objects for each course instance
-            tasks = generate_task_objects(course_instances, job)
+        # Create TaskRecord objects for each course instance
+        tasks = generate_task_objects(potential_course_sites_query, job)
 
-            # Set the bulk_processing field to true for all course instances being processed by this job so they
-            # do not show up in the new job page
-            course_instances.update(bulk_processing=True)
+        # Set the bulk_processing field to true for all course instances being processed by this job so they
+        # do not show up in the new job page
+        potential_course_sites_query.update(bulk_processing=True)
 
-            # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
-            # kicks off the downstream bulk workflow via a DynamoDB stream.
-            batch_write_item(dynamodb_table, tasks)
+        # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
+        # kicks off the downstream bulk workflow via a DynamoDB stream.
+        batch_write_item(dynamodb_table, tasks)
 
-            # Now write the JobRecord to DynamoDB
-            response = dynamodb_table.put_item(Item=job.to_dict())
-            if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-                logger.error(f"Error adding JobRecord to DynamoDB: {response}")
-                # TODO improve this logging statement
+        # Now write the JobRecord to DynamoDB
+        response = dynamodb_table.put_item(Item=job.to_dict())
+        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+            logger.error(f"Error adding JobRecord to DynamoDB: {response}")
+            # TODO improve this logging statement
 
-            messages.add_message(request, messages.SUCCESS, 'Bulk job created')
-
-        else:
-            messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
+        messages.add_message(request, messages.SUCCESS, 'Bulk job created')
+    else:
+        messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
 
     return redirect('bulk_site_creator:index')
