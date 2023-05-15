@@ -4,10 +4,8 @@ from typing import Optional
 
 import boto3
 from boto3.dynamodb.conditions import Key
-from botocore.exceptions import ClientError
-from canvas_api.helpers import accounts as canvas_api_accounts
 from canvas_sdk import RequestContext
-from coursemanager.models import CourseGroup, Department, Term
+from coursemanager.models import CourseGroup
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,18 +17,16 @@ from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
 
-from canvas_account_admin_tools.models import CanvasSchoolTemplate
-from common.utils import (get_canvas_site_template,
-                          get_canvas_site_templates_for_school,
+from common.utils import (get_canvas_site_templates_for_school,
                           get_course_group_data_for_school,
                           get_department_data_for_school,
-                          get_school_data_for_sis_account_id,
                           get_term_data_for_school)
 
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
-                    get_course_instance_query_set,
-                    get_department_name_by_id, get_term_name_by_id)
+                    get_course_instance_query_set, get_department_name_by_id,
+                    get_term_name_by_id)
+
 
 logger = logging.getLogger(__name__)
 
@@ -130,11 +126,11 @@ def new_job(request):
             departments = get_department_data_for_school(sis_account_id)
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
-    
+
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
-        selected_course_group_id = request.POST.get("courseCourseGroup").split(":")[1] if request.POST.get("courseCourseGroup", None) else None
-        selected_department_id = request.POST.get("courseDepartment").split(":")[1] if request.POST.get("courseDepartment", None) else None
+        selected_course_group_id = request.POST.get("courseCourseGroup", None)
+        selected_department_id = request.POST.get("courseDepartment", None)
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
