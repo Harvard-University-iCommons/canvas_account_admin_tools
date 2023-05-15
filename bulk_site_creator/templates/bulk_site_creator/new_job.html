@@ -103,8 +103,7 @@
                         {% endfor %}
                     </select>
                     <br>
-                    <button type="button" ng-cloak class="btn btn-primary bsc-create-btn" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
-                    <button type="button" ng-cloak class="btn btn-primary bsc-create-btn" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create Selected</button>
+                    <button type="button" ng-cloak class="btn btn-primary" id="bsc-create-btn" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
                     <br>
                     <br>
                     <p>You may select individual courses from the list below to customize your Canvas course site creation job.</p>
@@ -119,7 +118,7 @@
                             <th>Course Section</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
                         <tr>
                             <td></td>
@@ -157,6 +156,12 @@
                 </div>
               </div>
             </div>
+            <!-- If no potential_course_sites -->
+            {% elif selected_term_id %}
+                <hr>
+                <div class="row">
+                    <h4>No courses ready for Canvas course site creation</h4>
+                </div>
         {% endif %}
     </div>
 </body>
@@ -178,8 +183,20 @@
                 order: [[ 1, 'asc' ]]
             });
 
+            // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
+            $("#course-table-body").on( "click", function() {
+                // Update button after n seconds to get accurate if row selected value 
+                // after DataTable has time to process checkbox click.
+                setTimeout(
+                    function() 
+                    {
+                        const create_btn_text = (table.rows( { selected: true } ).any()) ? "Create Selected" : "Create All";
+                        $("#bsc-create-btn").html(`${create_btn_text}`);
+                    }, 125);  // 1/8 second wait.
+            });
+
             // For updating modal body text.
-            $(".bsc-create-btn").on( "click", function(e) {
+            $("#bsc-create-btn").on( "click", function() {
                 const totalTableRowItems = table.rows().count();
                 const selectedCourseCount = table.rows( { selected: true } ).count();
                 const selectedTemplateText = $.trim($("#templateSelect :selected").text());
@@ -223,6 +240,14 @@
                     id: 'data',
                     name: 'data'
                 }).val(JSON.stringify(data)).appendTo("#submitJob");
+
+                // Disable the yes button on modal and display a loading spinner before submitting the form.
+                const modalYesButton = $('#confirmCreateButton');
+                modalYesButton.prop('disabled', true);
+                // Add spinner to button.
+                modalYesButton.html(
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+                );
                 $("#submitJob").submit();
             });
         });
