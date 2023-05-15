@@ -104,6 +104,7 @@ def job_detail(request, job_id):
 @require_http_methods(["GET", "POST"])
 def new_job(request):
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
+    print(f'SIS Account ID: {sis_account_id}')
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
     school_id = sis_account_id.split(":")[1]
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
@@ -177,12 +178,16 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     user_full_name = request.LTI["lis_person_name_full"]
     user_email = request.LTI["lis_person_contact_email_primary"]
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
+    print(f'SIS Account ID: {sis_account_id}')
     school_id = sis_account_id.split(":")[1]
 
     table_data = json.loads(request.POST['data'])
 
     term_id = request.POST['termID']
-    term_name = get_term_name_by_id(term_id)
+    term = Term.objects.get(term_id=term_id)
+    term_name = term.display_name
+    sis_term_id = term.meta_term_id()
+    print(f'SIS Term ID: {sis_term_id}')
     course_group_id = request.POST['courseGroupID']
     course_group_name = None
     department_id = request.POST['departmentID']
@@ -218,6 +223,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
                 user_email=user_email,
                 school=school_id,
                 term_id=term_id,
+                sis_term_id=sis_term_id,
                 term_name=term_name,
                 department_id=department_id,
                 department_name=department_name,
@@ -260,6 +266,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
                 user_email=user_email,
                 school=school_id,
                 term_id=term_id,
+                sis_term_id=sis_term_id,
                 term_name=term_name,
                 department_id=department_id,
                 department_name=department_name,
