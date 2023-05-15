@@ -11,7 +11,8 @@ from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, JsonResponse
+from django.http import (HttpRequest, HttpResponse, HttpResponseRedirect,
+                         JsonResponse)
 from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
@@ -29,8 +30,8 @@ from common.utils import (get_canvas_site_template,
 
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
-                    get_course_instance_query_set,
-                    get_department_name_by_id, get_term_name_by_id)
+                    get_course_instance_query_set, get_department_name_by_id,
+                    get_term_name_by_id)
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,11 @@ table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
-def index(request):
+def index(request: HttpRequest) -> HttpResponse:
+    """
+    This function renders the Bulk Site Creator index page
+    consisting of bulk creation jobs (if any).
+    """
     table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
@@ -74,7 +79,11 @@ def index(request):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET"])
-def job_detail(request, job_id):
+def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
+    """
+    This function renders the Bulk Site Creator job detail page 
+    with details about a job and the tasks for that job.
+    """
     table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
@@ -106,7 +115,11 @@ def job_detail(request, job_id):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
-def new_job(request):
+def new_job(request: HttpRequest) -> HttpResponse:
+    """
+    This function renders the Bulk Site Creator new job page with
+    potential course sites for Canvas course site creation.
+    """
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
     school_id = sis_account_id.split(":")[1]
@@ -175,7 +188,11 @@ def new_job(request):
 @login_required
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["POST"])
-def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
+def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    This function creates the Bulk Site Creator jobs and 
+    redirects to the index view.
+    """
     dynamodb_table = dynamodb.Table(table_name)
     user_id = request.LTI["lis_person_sourcedid"]
     user_full_name = request.LTI["lis_person_name_full"]
