@@ -15,6 +15,7 @@ class JobRecord:
         school: str,
         sis_account_id: str,
         term_id: str,
+        sis_term_id: str,
         term_name: Optional[str],
         department_id: Optional[str],
         department_name: Optional[str],
@@ -30,6 +31,7 @@ class JobRecord:
         self.sk = f"JOB#{str(ULID())}"
         self.sis_account_id = sis_account_id
         self.term_id = term_id
+        self.sis_term_id = sis_term_id
         self.term_name = term_name
         self.department_id = department_id
         self.department_name = department_name
@@ -56,6 +58,7 @@ class JobRecord:
             "sk": str(self.sk),
             "sis_account_id": str(self.sis_account_id),
             "term_id": str(self.term_id),
+            "sis_term_id": str(self.sis_term_id),
             "term_name": str(self.term_name),
             "department_id": str(self.department_id),
             "department_name": str(self.department_name),
@@ -81,6 +84,7 @@ class TaskRecord:
         canvas_course_id: str,
         course_code: str,
         course_title: str,
+        short_title: str,
         section: str,
         department_id: str,
         course_group_id: str
@@ -91,6 +95,7 @@ class TaskRecord:
         self.canvas_course_id = canvas_course_id
         self.course_code = course_code
         self.course_title = course_title
+        self.short_title = short_title
         self.section = section
         self.department_id = department_id
         self.course_group_id = course_group_id
@@ -112,6 +117,7 @@ class TaskRecord:
             "canvas_course_id": str(self.canvas_course_id),
             "course_code": str(self.course_code),
             "course_title": str(self.course_title),
+            "short_title": str(self.short_title),
             "section": str(self.section),
             "department_id": str(self.department_id),
             "course_group_id": str(self.course_group_id),

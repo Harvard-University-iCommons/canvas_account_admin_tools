@@ -5,7 +5,7 @@
   <h3 class="breadcrumbs">
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
-    Bulk Site Creator
+    Bulk Create Sites
   </h3>
 </nav>
 
@@ -49,7 +49,6 @@
         <table class="datatable table table-striped table-bordered dataTable no-footer">
             <thead>
                 <tr>
-                    <th></th>
                     <th>Date</th>
                     <th>Term</th>
                     <th>Started By</th>
@@ -61,11 +60,10 @@
             {% for bulk_job in jobs_for_school %}
                 <tr>
                     <td>
-                        <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}" 
-                        data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail" 
-                        data-job-id="{{ bulk_job.sk }}"><i class="fa-solid fa-eye"></i></a>
+                        <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail"
+                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at }}</a>
                     </td>
-                    <td>{{ bulk_job.created_at }}</td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.user_full_name }}</td>
                     <td>{{ bulk_job.workflow_state }}</td>
@@ -90,7 +88,7 @@
     <script>
         $(document).ready(function () {
             $('.datatable').DataTable({
-                order: [[1, 'asc']],
+                order: [[1, 'desc']],
                 columnDefs: [
                     { 'orderable': false, 'targets': [0,] }
                 ],
