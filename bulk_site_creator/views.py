@@ -151,9 +151,10 @@ def new_job(request: HttpRequest) -> HttpResponse:
         logging_dept_cg_text = f' and course group ID {selected_course_group_id}' if selected_course_group_id \
             else f' and department ID {selected_department_id}' if selected_department_id \
             else ' and no selected department or course group.'
-        logger.debug(f'Retrieving potential course sites for term ID {selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
-                                                                                                                            "school_id": school_id,
-                                                                                                                            })
+        logger.debug(f'Retrieving potential course sites for term ID '
+                     f'{selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                         "school_id": school_id,
+                                                                         })
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
@@ -177,9 +178,10 @@ def new_job(request: HttpRequest) -> HttpResponse:
         potential_course_sites_query.count() if potential_course_sites_query else 0
     )
 
-    logger.debug(f'Retrieved {potential_course_site_count} potential course sites for term {selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
-                                                                                                                                             "school_id": school_id,
-                                                                                                                                             })
+    logger.debug(f'Retrieved {potential_course_site_count} potential course sites for term '
+                 f'{selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                     "school_id": school_id,
+                                                                     })
 
     context = {
         "terms": terms,
@@ -273,6 +275,23 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             workflow_state="pending",
         )
 
+        log_extra = {
+            "sis_account_id": sis_account_id,
+            "user_id": user_id,
+            "user_full_name": user_full_name,
+            "user_email": user_email,
+            "school": school_id,
+            "term_id": term_id,
+            "term_name": term_name,
+            "department_id": department_id,
+            "department_name": department_name,
+            "course_group_id": course_group_id,
+            "course_group_name": course_group_name,
+            "template_id": template_id
+        }
+        logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra={log_extra})
+        
         # Create TaskRecord objects for each course instance
         tasks = generate_task_objects(potential_course_sites_query, job)
 
@@ -280,6 +299,8 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
         # do not show up in the new job page
         potential_course_sites_query.update(bulk_processing=True)
 
+        logger.debug(f'Creating bulk job for term ID {term_id} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra={log_extra})
         # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
         # kicks off the downstream bulk workflow via a DynamoDB stream.
         batch_write_item(dynamodb_table, tasks)
@@ -294,4 +315,6 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
     else:
         messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
 
+    logger.debug(f'Job creation process complete for term ID {term_id} (term name {term_name}) '
+                 f'and custom Canvas account sis ID {sis_account_id}.', extra={log_extra})
     return redirect('bulk_site_creator:index')
