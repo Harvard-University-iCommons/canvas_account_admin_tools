@@ -274,18 +274,18 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
         )
 
         log_extra = {
-            "sis_account_id": sis_account_id,
-            "user_id": user_id,
-            "user_full_name": user_full_name,
-            "user_email": user_email,
-            "school": school_id,
-            "term_id": term_id,
-            "term_name": term_name,
-            "department_id": department_id,
-            "department_name": department_name,
-            "course_group_id": course_group_id,
-            "course_group_name": course_group_name,
-            "template_id": template_id
+            'sis_account_id': sis_account_id,
+            'user_id': user_id,
+            'user_full_name': user_full_name,
+            'user_email': user_email,
+            'school': school_id,
+            'term_id': term_id,
+            'term_name': term_name,
+            'department_id': department_id,
+            'department_name': department_name,
+            'course_group_id': course_group_id,
+            'course_group_name': course_group_name,
+            'template_id': template_id
         }
         logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
                      f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
