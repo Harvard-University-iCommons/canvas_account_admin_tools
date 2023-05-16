@@ -209,11 +209,11 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         if school_id == 'colgsas':
             if course_group_id and course_group_id != '0':
                 course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
-                potential_course_sites_query = potential_course_sites_query.filter(course__course_group=course_group_id.split(":")[1])
+                potential_course_sites_query = potential_course_sites_query.filter(course__course_group=course_group_id)
         else:
             if department_id and department_id != '0':
                 department_name = Department.objects.get(department_id=department_id).name
-                potential_course_sites_query = potential_course_sites_query.filter(course__department=department_id.split(":")[1])
+                potential_course_sites_query = potential_course_sites_query.filter(course__department=department_id)
 
     else:
         # Get all potential course instances for the selected term in the account
