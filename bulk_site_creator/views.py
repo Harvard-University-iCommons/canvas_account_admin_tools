@@ -1,16 +1,14 @@
 import json
 import logging
-from typing import Optional
 
 import boto3
 from boto3.dynamodb.conditions import Key
 from canvas_sdk import RequestContext
-from coursemanager.models import CourseGroup, Term, Department
+from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import (HttpRequest, HttpResponse, HttpResponseRedirect,
-                         JsonResponse)
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
@@ -24,8 +22,8 @@ from common.utils import (get_canvas_site_templates_for_school,
                           get_term_data_for_school)
 
 from .schema import JobRecord
-from .utils import batch_write_item, generate_task_objects, get_course_instance_query_set
-
+from .utils import (batch_write_item, generate_task_objects,
+                    get_course_instance_query_set)
 
 logger = logging.getLogger(__name__)
 
