@@ -23,8 +23,7 @@ from common.utils import (get_canvas_site_templates_for_school,
                           get_term_data_for_school)
 
 from .schema import JobRecord
-from .utils import (batch_write_item, generate_task_objects,
-                    get_course_instance_query_set, get_department_name_by_id)
+from .utils import batch_write_item, generate_task_objects, get_course_instance_query_set
 
 
 logger = logging.getLogger(__name__)
