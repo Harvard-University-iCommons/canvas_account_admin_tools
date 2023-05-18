@@ -132,15 +132,6 @@ def get_course_group_data_for_school(school_sis_account_id):
 
     return course_groups
 
-def _has_future_end_date_for_course_instance(course_instance: CourseInstance) -> bool:
-    date = course_instance.term.end_date
-    if not date:
-        # if no end_date is set, try using the term's conclude_date
-        date = course_instance.term.conclude_date
-    if date and date > timezone.now():
-        return True
-    return False
-
 def _get_courses_from_department(department: Department) -> QuerySet[Course]:
     return Course.objects.filter(department=department)
 
