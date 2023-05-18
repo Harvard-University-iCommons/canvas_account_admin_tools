@@ -148,15 +148,15 @@ def _get_courses_from_course_group(course_group: CourseGroup) -> QuerySet[Course
     return Course.objects.filter(course_group=course_group)
 
 def _has_active_course_instance(courses: QuerySet[Course]) -> bool:
+    if not courses:
+        return False
     for course in courses:
-        course_instances = CourseInstance.objects.filter(course=course).select_related("term").order_by("-term__end_date")
-        if not course_instances:
+        try:
+            course_instances = CourseInstance.objects.filter(course=course).select_related("term").filter(term__end_date__gt=timezone.now()).order_by("-term__end_date")
+        except CourseInstance.DoesNotExist:
             return False
         most_recent_course_instance = course_instances.first()
-        if most_recent_course_instance and _has_future_end_date_for_course_instance(most_recent_course_instance):
-            return True
-        else:
-            return False
+        return True if most_recent_course_instance and _has_future_end_date_for_course_instance(most_recent_course_instance) else False
 
 def is_active_department(department: Department) -> bool:
     courses = _get_courses_from_department(department)
