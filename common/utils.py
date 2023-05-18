@@ -6,9 +6,11 @@ from canvas_api.helpers import accounts as canvas_api_accounts_helper
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import CourseGroup, Department, Term
+from coursemanager.models import (Course, CourseGroup, CourseInstance,
+                                  Department, Term)
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from canvas_account_admin_tools.models import CanvasSchoolTemplate
@@ -100,11 +102,15 @@ def get_department_data_for_school(school_sis_account_id):
     ).order_by(
         'name'
     )
+
+    # Ensure that only departments with active courses are returned
     for department in query_set:
-        departments.append({
-            'id': str(department.department_id),
-            'name': department.name
-        })
+        if is_active_department(department):
+            departments.append({
+                'id': str(department.department_id),
+                'name': department.name
+            })
+
     return departments
 
 def get_course_group_data_for_school(school_sis_account_id):
@@ -115,12 +121,49 @@ def get_course_group_data_for_school(school_sis_account_id):
     ).order_by(
         'name'
     )
+
+    # Ensure that only course groups with active courses are returned
     for course_group in query_set:
-        course_groups.append({
-            'id': str(course_group.course_group_id),
-            'name': course_group.name
-        })
+        if is_active_course_group(course_group):
+            course_groups.append({
+                'id': str(course_group.course_group_id),
+                'name': course_group.name
+            })
+
     return course_groups
+
+def _has_future_end_date_for_course_instance(course_instance: CourseInstance) -> bool:
+    date = course_instance.term.end_date
+    if not date:
+        # if no end_date is set, try using the term's conclude_date
+        date = course_instance.term.conclude_date
+    if date and date > timezone.now():
+        return True
+    return False
+
+def _get_courses_from_department(department: Department) -> QuerySet[Course]:
+    return Course.objects.filter(department=department)
+
+def _get_courses_from_course_group(course_group: CourseGroup) -> QuerySet[Course]:
+    return Course.objects.filter(course_group=course_group)
+
+def _has_active_course_instance(courses: QuerySet[Course]) -> bool:
+    for course in courses:
+        course_instances = CourseInstance.objects.filter(course=course).select_related("term").order_by("term__end_date")
+        if not course_instances:
+            return False
+        most_recent_course_instance = course_instances.first()
+        if most_recent_course_instance and _has_future_end_date_for_course_instance(most_recent_course_instance):
+            return True
+    return False
+
+def is_active_department(department: Department) -> bool:
+    courses = _get_courses_from_department(department)
+    return True if courses and _has_active_course_instance(courses) else False
+
+def is_active_course_group(course_group: CourseGroup) -> bool:
+    courses = _get_courses_from_course_group(course_group)
+    return True if courses and _has_active_course_instance(courses) else False
 
 def get_canvas_site_templates_for_school(school_id):
     """
