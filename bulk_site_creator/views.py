@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 
 import boto3
 from boto3.dynamodb.conditions import Key
@@ -8,7 +9,7 @@ from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
@@ -42,7 +43,7 @@ table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
-def index(request: HttpRequest) -> HttpResponse:
+def index(request):
     """
     This function renders the Bulk Site Creator index page
     consisting of bulk creation jobs (if any).
@@ -111,7 +112,7 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
-def new_job(request: HttpRequest) -> HttpResponse:
+def new_job(request):
     """
     This function renders the Bulk Site Creator new job page with
     potential course sites for Canvas course site creation.
@@ -198,7 +199,7 @@ def new_job(request: HttpRequest) -> HttpResponse:
 @login_required
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["POST"])
-def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
+def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     """
     This function creates the Bulk Site Creator jobs and 
     redirects to the index view.
@@ -287,8 +288,8 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
             'course_group_name': course_group_name,
             'template_id': template_id
         }
-        logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
-                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
+        logger.debug(f'Generating task objects for term ID {str(term_id)} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {str(sis_account_id)}.', extra=log_extra)
         
         # Create TaskRecord objects for each course instance
         tasks = generate_task_objects(potential_course_sites_query, job)
@@ -297,8 +298,8 @@ def create_bulk_job(request: HttpRequest) -> HttpResponseRedirect:
         # do not show up in the new job page
         potential_course_sites_query.update(bulk_processing=True)
 
-        logger.debug(f'Creating bulk job for term ID {term_id} (term name {term_name}) '
-                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
+        logger.debug(f'Creating bulk job for term ID {str(term_id)} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {str(sis_account_id)}.', extra=log_extra)
         # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
         # kicks off the downstream bulk workflow via a DynamoDB stream.
         batch_write_item(dynamodb_table, tasks)
