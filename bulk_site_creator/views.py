@@ -292,7 +292,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         term_id = str(term_id)
         sis_account_id = str(sis_account_id)
         logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
-                     f'and custom Canvas account sis ID {sis_account_id}.', extra={'log_extra': log_extra})
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
         
         # Create TaskRecord objects for each course instance
         tasks = generate_task_objects(potential_course_sites_query, job)
@@ -302,7 +302,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         potential_course_sites_query.update(bulk_processing=True)
 
         logger.debug(f'Creating bulk job for term ID {term_id} (term name {term_name}) '
-                     f'and custom Canvas account sis ID {sis_account_id}.', extra={'log_extra': log_extra})
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
         # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
         # kicks off the downstream bulk workflow via a DynamoDB stream.
         batch_write_item(dynamodb_table, tasks)
@@ -318,5 +318,5 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
 
     logger.debug(f'Job creation process complete for term ID {term_id} (term name {term_name}) '
-                 f'and custom Canvas account sis ID {sis_account_id}.', extra={'log_extra': log_extra})
+                 f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
     return redirect('bulk_site_creator:index')
