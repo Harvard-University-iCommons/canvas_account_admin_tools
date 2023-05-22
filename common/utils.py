@@ -122,6 +122,24 @@ def get_course_group_data_for_school(school_sis_account_id):
         })
     return course_groups
 
+
+def get_canvas_site_template_name(canvas_course_id):
+    template_name = None
+    school_template = CanvasSchoolTemplate.objects.get(template_id=canvas_course_id)
+    try:
+        course = get_all_list_data(
+            SDK_CONTEXT,
+            canvas_api_courses.get_single_course_courses,
+            canvas_course_id,
+            None
+        )
+        template_name = course['name']
+    except Exception as e:
+        logger.warning('Failed to retrieve Canvas course for template/course ID {}: {}'.format(canvas_course_id, e))
+
+    return template_name
+
+
 def get_canvas_site_templates_for_school(school_id):
     """
     Get the Canvas site templates for the given school. First check the cache, if not found construct
@@ -151,7 +169,7 @@ def get_canvas_site_templates_for_school(school_id):
                     'is_default': t.is_default
                 })
             except Exception as e:
-                logger.warn('Failed to retrieve Canvas course for template/course ID {}: {}'.format(t.template_id, e))
+                logger.warning('Failed to retrieve Canvas course for template/course ID {}: {}'.format(t.template_id, e))
 
         logger.debug("Caching canvas site templates for school_id %s %s", school_id, json.dumps(templates))
         cache.set(cache_key, templates)

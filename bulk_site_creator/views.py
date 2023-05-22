@@ -20,7 +20,8 @@ from lti_school_permissions.decorators import lti_permission_required
 from common.utils import (get_canvas_site_templates_for_school,
                           get_course_group_data_for_school,
                           get_department_data_for_school,
-                          get_term_data_for_school)
+                          get_term_data_for_school,
+                          get_canvas_site_template_name)
 
 from .schema import JobRecord
 from .utils import batch_write_item, generate_task_objects, get_course_instance_query_set
@@ -38,6 +39,7 @@ table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
 
 # TODO improve logging for CRUD actions
 # TODO add documentation to each view
+
 
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
@@ -91,7 +93,8 @@ def job_detail(request, job_id):
 
     context = {
         'job': job,
-        'tasks': tasks
+        'tasks': tasks,
+        'canvas_url': settings.CANVAS_URL,
     }
     return render(request, "bulk_site_creator/job_detail.html", context=context)
 
@@ -178,6 +181,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     school_id = sis_account_id.split(":")[1]
 
     table_data = json.loads(request.POST['data'])
+    print(f'Table Data: {table_data}')
 
     term_id = request.POST['termID']
     term = Term.objects.get(term_id=term_id)
@@ -190,6 +194,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     create_all = table_data['create_all']
     course_instance_ids = table_data['course_instance_ids']
     template_id = table_data['template']
+    template_name = get_canvas_site_template_name(template_id)
 
     if create_all:
         # Get all course instance records that will have Canvas sites created by filtering on the
@@ -237,6 +242,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             course_group_id=course_group_id,
             course_group_name=course_group_name,
             template_id=template_id,
+            template_name=template_name,
             workflow_state="pending",
         )
 

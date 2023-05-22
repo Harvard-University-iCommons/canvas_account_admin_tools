@@ -22,6 +22,7 @@ class JobRecord:
         course_group_id: Optional[str],
         course_group_name: Optional[str],
         template_id: Optional[str],
+        template_name: Optional[str],
         user_id: str,
         user_full_name: str,
         user_email: str,
@@ -38,6 +39,7 @@ class JobRecord:
         self.course_group_id = course_group_id
         self.course_group_name = course_group_name
         self.template_id = template_id
+        self.template_name = template_name
         self.user_id = user_id
         self.user_full_name = user_full_name
         self.user_email = user_email
@@ -66,6 +68,7 @@ class JobRecord:
             "course_group_name": str(self.course_group_name),
             "template_id": str(self.template_id),
             "user_id": str(self.user_id),
+            "template_name": str(self.template_name),
             "user_full_name": str(self.user_full_name),
             "workflow_state": str(self.workflow_state),
             "user_email": str(self.user_email),

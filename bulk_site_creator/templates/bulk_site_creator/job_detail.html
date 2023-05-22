@@ -21,7 +21,14 @@
         <div class="row">
           <div class="col-sm-6">
               <table class="table table-condensed">
-                  <tr><th>Status: </th><td>{{ job.workflow_state }}</td></tr>
+                  <tr><th>Job ID: </th><td>template_name{{ job.sk }}</td></tr>
+                  <tr><th>Status: </th><td>
+                      {% if job.workflow_state == 'in_progress' %}
+                        In Progress
+                      {% else %}
+                        {{ job.workflow_state|capfirst }}
+                      {% endif %}
+                  </td></tr>
                   <tr><th>Started at: </th><td>{{ job.created_at }}</td></tr>
                   <tr><th>Completed at: </th><td>{% if job.workflow_state == 'complete' %}{{ job.updated_at }}{% endif %}</td></tr>
                   <tr><th>Template: </th><td>{{ job.template_name }}</td></tr>
@@ -58,14 +65,20 @@
                         {% for task in tasks %}
                             <tr>
                                 <td>
-                                  {% if task.canvas_course_id and task.workflow_state != "fail" %}
+                                  {% if task.canvas_course_id and task.workflow_state == "complete" %}
                                     <a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>
                                   {% endif %}
                                 </td>
                                 <td>{{ task.course_instance_id }}</td>
                                 <td>{{ task.course_code }}</td>
                                 <td>{{ task.course_title }}</td>
-                                <td>{{ task.workflow_state }}</td>
+                                <td>
+                                    {% if task.workflow_state == 'in_progress' %}
+                                        In Progress
+                                    {% else %}
+                                        {{ task.workflow_state|capfirst }}
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </table>

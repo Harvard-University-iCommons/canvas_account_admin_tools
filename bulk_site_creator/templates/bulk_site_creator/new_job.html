@@ -90,7 +90,7 @@
         {% if potential_course_sites %}
             <hr>
             <div class="row">
-                <h4>{{ potential_site_count }} courses ready for Canvas course site creation</h4>
+                <h4>{{ potential_site_count }} course{{ potential_site_count|pluralize }} ready for Canvas course site creation</h4>
                 <div class="col-sm-6 margin-bottom-md">
                     <select id="templateSelect" class="form-select">
                         <option value="0">
