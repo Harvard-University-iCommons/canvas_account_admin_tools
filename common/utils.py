@@ -10,6 +10,7 @@ from coursemanager.models import (Course, CourseGroup, CourseInstance,
                                   Department, Term)
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Exists, OuterRef
 from django.db.models.query import QuerySet
 from django.utils import timezone
 
@@ -94,7 +95,12 @@ def get_term_data_for_school(school_sis_account_id):
         })
     return terms, current_term_id
 
-def get_department_data_for_school(school_sis_account_id):
+def get_department_data_for_school(school_sis_account_id: str) -> list:
+    """
+    Returns a list of validated departments for a given school.
+    This validation is done to prevent legacy departments from being displayed in the UI.
+    """
+
     school_id = school_sis_account_id.split(':')[1]
     departments = []
     query_set = Department.objects.filter(
@@ -103,9 +109,10 @@ def get_department_data_for_school(school_sis_account_id):
         'name'
     )
 
-    # Ensure that only departments with active courses are returned
-    for department in query_set:
-        if is_active_department(department):
+    validated_departments = _get_departments_with_future_ci_term_end_date(query_set)
+
+    for department in validated_departments:
+        if department.has_future_course_instance:
             departments.append({
                 'id': str(department.department_id),
                 'name': department.name
@@ -113,7 +120,11 @@ def get_department_data_for_school(school_sis_account_id):
 
     return departments
 
-def get_course_group_data_for_school(school_sis_account_id):
+def get_course_group_data_for_school(school_sis_account_id: str) -> list:
+    """
+    Returns a list of validated coursegroups for a given school.
+    This validation is done to prevent legacy course groups from being displayed in the UI.
+    """
     school_id = school_sis_account_id.split(':')[1]
     course_groups = []
     query_set = CourseGroup.objects.filter(
@@ -122,40 +133,55 @@ def get_course_group_data_for_school(school_sis_account_id):
         'name'
     )
 
-    # Ensure that only course groups with active courses are returned
-    for course_group in query_set:
-        if is_active_course_group(course_group):
+    validated_coursegroups = _get_coursegroups_with_ci_future_end_date(query_set)
+
+    for coursegroup in validated_coursegroups:
+        if coursegroup.has_future_course_instance:
             course_groups.append({
-                'id': str(course_group.course_group_id),
-                'name': course_group.name
+                'id': str(coursegroup.course_group_id),
+                'name': coursegroup.name
             })
 
     return course_groups
 
-def _get_courses_from_department(department: Department) -> QuerySet[Course]:
-    return Course.objects.filter(department=department)
 
-def _get_courses_from_course_group(course_group: CourseGroup) -> QuerySet[Course]:
-    return Course.objects.filter(course_group=course_group)
+def _get_departments_with_future_ci_term_end_date(departments: QuerySet[Department]) -> QuerySet[Department]:
+    """
+    Returns a QuerySet of Departments that have at least one Course with a CourseInstance with a Term end_date
+    in the future.
+    """
+    future_course_instance_exists = CourseInstance.objects.filter(
+        course__department=OuterRef("pk"),
+        term__end_date__gt=timezone.now()
+    )
 
-def _has_active_course_instance(courses: QuerySet[Course]) -> bool:
-    if not courses:
-        return False
-    for course in courses:
-        try:
-            course_instances = CourseInstance.objects.filter(course=course).select_related("term").filter(term__end_date__gt=timezone.now())
-        except CourseInstance.DoesNotExist:
-            return False
-        # if the above query returns any results, then the course has an active course instance
-        return True if course_instances else False
+    # Annotate each department with a boolean flag that indicates
+    # if there's at least one course with an associated course instance
+    # with a future term end_date (end_date > now)
+    validated_departments = departments.annotate(
+        has_future_course_instance=Exists(future_course_instance_exists)
+    )
 
-def is_active_department(department: Department) -> bool:
-    courses = _get_courses_from_department(department)
-    return True if courses and _has_active_course_instance(courses) else False
+    return validated_departments
 
-def is_active_course_group(course_group: CourseGroup) -> bool:
-    courses = _get_courses_from_course_group(course_group)
-    return True if courses and _has_active_course_instance(courses) else False
+def _get_coursegroups_with_ci_future_end_date(course_groups: QuerySet[CourseGroup]) -> QuerySet[CourseGroup]:
+    """
+    Returns a QuerySet of CourseGroups that have at least one Course with a CourseInstance with a Term end_date
+    in the future.
+    """
+    future_course_instance_exists = CourseInstance.objects.filter(
+        course__course_group=OuterRef("pk"),
+        term__end_date__gt=timezone.now()
+    )
+
+    # Annotate each department with a boolean flag that indicates
+    # if there's at least one course with an associated course instance
+    # with a future term end_date (end_date > now)
+    validated_coursegroups = course_groups.annotate(
+        has_future_course_instance=Exists(future_course_instance_exists)
+    )
+
+    return validated_coursegroups
 
 def get_canvas_site_templates_for_school(school_id):
     """
