@@ -21,7 +21,7 @@
         <div class="row">
           <div class="col-sm-6">
               <table class="table table-condensed">
-                  <tr><th>Job ID: </th><td>template_name{{ job.sk }}</td></tr>
+                  <tr><th>Job ID: </th><td>{{ job.sk }}</td></tr>
                   <tr><th>Status: </th><td>
                       {% if job.workflow_state == 'in_progress' %}
                         In Progress
