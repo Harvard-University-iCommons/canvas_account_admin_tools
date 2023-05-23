@@ -218,7 +218,7 @@ def icommons_rest_api_proxy(request, path):
     response = proxy_view(request, url, request_args)
     try:
         params = request.GET
-        if request.method in ['PATCH', 'POST']:
+        if request.method in ['PATCH', 'POST'] and bool(request.body):
             try:
                 params = json.loads(request.body)
             except json.decoder.JSONDecodeError:
