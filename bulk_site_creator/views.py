@@ -5,11 +5,11 @@ from typing import Optional
 import boto3
 from boto3.dynamodb.conditions import Key
 from canvas_sdk import RequestContext
-from coursemanager.models import CourseGroup, Term, Department
+from coursemanager.models import CourseGroup, Department, Term
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods
@@ -23,8 +23,8 @@ from common.utils import (get_canvas_site_templates_for_school,
                           get_term_data_for_school)
 
 from .schema import JobRecord
-from .utils import batch_write_item, generate_task_objects, get_course_instance_query_set
-
+from .utils import (batch_write_item, generate_task_objects,
+                    get_course_instance_query_set)
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +44,10 @@ table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
 def index(request):
+    """
+    This function renders the Bulk Site Creator index page
+    consisting of bulk creation jobs (if any).
+    """
     table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
@@ -52,6 +56,7 @@ def index(request):
         'KeyConditionExpression': Key('pk').eq(school_key),
         'ScanIndexForward': False,
     }
+    logger.debug(f'Retrieving jobs for school {school_key}.')
     jobs_for_school = table.query(**query_params)['Items']
 
     # Update string timestamp to datetime.
@@ -61,6 +66,7 @@ def index(request):
     context = {
         'jobs_for_school': jobs_for_school
     }
+    logger.debug(f'Retrieved jobs for school {school_key}.', extra=context)
     return render(request, "bulk_site_creator/index.html", context=context)
 
 
@@ -68,7 +74,11 @@ def index(request):
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET"])
-def job_detail(request, job_id):
+def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
+    """
+    This function renders the Bulk Site Creator job detail page 
+    with details about a job and the tasks for that job.
+    """
     table = dynamodb.Table(table_name)
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     school_id = sis_account_id.split(":")[1]
@@ -77,6 +87,7 @@ def job_detail(request, job_id):
         'KeyConditionExpression': Key('pk').eq(school_key) & Key('sk').eq(job_id),
         'ScanIndexForward': False,
     }
+    logger.debug(f'Retrieving job details for job {job_id}.')
     job = table.query(**job_query_params)['Items'][0]
 
     # Update string timestamp to datetime.
@@ -93,6 +104,7 @@ def job_detail(request, job_id):
         'job': job,
         'tasks': tasks
     }
+    logger.debug(f'Retrieved job details for job {job_id}.', extra=context)
     return render(request, "bulk_site_creator/job_detail.html", context=context)
 
 
@@ -101,6 +113,10 @@ def job_detail(request, job_id):
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["GET", "POST"])
 def new_job(request):
+    """
+    This function renders the Bulk Site Creator new job page with
+    potential course sites for Canvas course site creation.
+    """
     sis_account_id = request.LTI["custom_canvas_account_sis_id"]
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
     school_id = sis_account_id.split(":")[1]
@@ -124,11 +140,20 @@ def new_job(request):
             departments = get_department_data_for_school(sis_account_id)
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
-
+    
+    logging_dept_cg_text = ' and no selected department or course group'
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
         selected_course_group_id = request.POST.get("courseCourseGroup", None)
         selected_department_id = request.POST.get("courseDepartment", None)
+
+        logging_dept_cg_text = f' and course group ID {selected_course_group_id}' if selected_course_group_id \
+            else f' and department ID {selected_department_id}' if selected_department_id \
+            else ' and no selected department or course group.'
+        logger.debug(f'Retrieving potential course sites for term ID '
+                     f'{selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                         "school_id": school_id,
+                                                                         })
 
         # Retrieve all course instances for the given term_id and account that do not have Canvas course sites
         # nor are set to be fed into Canvas via the automated feed
@@ -152,6 +177,11 @@ def new_job(request):
         potential_course_sites_query.count() if potential_course_sites_query else 0
     )
 
+    logger.debug(f'Retrieved {potential_course_site_count} potential course sites for term '
+                 f'{selected_term_id}{logging_dept_cg_text}', extra={"sis_account_id": sis_account_id,
+                                                                     "school_id": school_id,
+                                                                     })
+
     context = {
         "terms": terms,
         "potential_course_sites": potential_course_sites_query,
@@ -170,6 +200,10 @@ def new_job(request):
 @lti_permission_required(settings.PERMISSION_BULK_SITE_CREATOR)
 @require_http_methods(["POST"])
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
+    """
+    This function creates the Bulk Site Creator jobs and 
+    redirects to the index view.
+    """
     dynamodb_table = dynamodb.Table(table_name)
     user_id = request.LTI["lis_person_sourcedid"]
     user_full_name = request.LTI["lis_person_name_full"]
@@ -240,6 +274,26 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
             workflow_state="pending",
         )
 
+        log_extra = {
+            'sis_account_id': sis_account_id,
+            'user_id': user_id,
+            'user_full_name': user_full_name,
+            'user_email': user_email,
+            'school': school_id,
+            'term_id': term_id,
+            'term_name': term_name,
+            'department_id': department_id,
+            'department_name': department_name,
+            'course_group_id': course_group_id,
+            'course_group_name': course_group_name,
+            'template_id': template_id
+        }
+        # Sanitized input for log statements.
+        term_id = str(term_id)
+        sis_account_id = str(sis_account_id)
+        logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
+        
         # Create TaskRecord objects for each course instance
         tasks = generate_task_objects(potential_course_sites_query, job)
 
@@ -247,6 +301,8 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         # do not show up in the new job page
         potential_course_sites_query.update(bulk_processing=True)
 
+        logger.debug(f'Creating bulk job for term ID {term_id} (term name {term_name}) '
+                     f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
         # Write the TaskRecords to DynamoDB. We insert these first since the subsequent JobRecord
         # kicks off the downstream bulk workflow via a DynamoDB stream.
         batch_write_item(dynamodb_table, tasks)
@@ -261,4 +317,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     else:
         messages.add_message(request, messages.WARNING, 'No potential course sites available with provided filters')
 
+    logger.debug(f'Job creation process complete for term ID {term_id} (term name {term_name}) '
+                 f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
     return redirect('bulk_site_creator:index')
