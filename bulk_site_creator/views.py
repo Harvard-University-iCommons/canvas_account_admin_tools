@@ -181,7 +181,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     school_id = sis_account_id.split(":")[1]
 
     table_data = json.loads(request.POST['data'])
-    print(f'Table Data: {table_data}')
 
     term_id = request.POST['termID']
     term = Term.objects.get(term_id=term_id)
