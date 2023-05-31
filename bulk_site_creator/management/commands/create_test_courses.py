@@ -24,15 +24,15 @@ class Command(BaseCommand):
         parser.add_argument('--amount', default=15, type=int, help='Amount of course instance records to create')
 
     def handle(self, *args, **options):
-        if options.get('course-id', None):
+        if options.get('course-id'):
             course = Course.objects.get(course_id=options['course-id'])
         else:
             # String to be used for registrar code and registrar code display
             # Appends a random string so each execution of the command will have a unique course
             registrar_str = f"RegistrarCode-{''.join(random.choices(string.ascii_uppercase + string.digits, k=7))}"
 
-            department_id = options.get('department-id', None)
-            cg_id = options.get('cg-id', None)
+            department_id = options.get('department-id')
+            cg_id = options.get('cg-id')
 
             course = Course.objects.create(
                 school_id=options['school'],
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             )
 
         # If a term ID has been provided, get that Term object, otherwise get the most recent term for the given school
-        if options.get('term-id', None):
+        if options.get('term-id'):
             term = Term.objects.get(term_id=options['term-id'])
         else:
             term = Term.objects.filter(school_id=options['school']).order_by('term_id').first()
