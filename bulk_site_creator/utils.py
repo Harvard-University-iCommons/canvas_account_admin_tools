@@ -37,6 +37,13 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
             else:
                 course_code = ci.course.registrar_code
 
+            if ci.course.course_group:
+                sis_account_id = f"sis_account_id:coursegroup:{ci.course.course_group_id}"
+            elif ci.coursegroup.department:
+                sis_account_id = f"sis_account_id:department:{ci.course.department_id}"
+            else:
+                sis_account_id = f"sis_account_id:school:{ci.course.school_id}"
+
             task = TaskRecord(job_record=job,
                               course_instance_id=ci.course_instance_id,
                               course_code=course_code,
@@ -45,6 +52,7 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
                               canvas_course_id=ci.canvas_course_id,
                               department_id=ci.course.department_id,
                               course_group_id=ci.course.course_group_id,
+                              sis_account_id=sis_account_id,
                               section=ci.section,
                               workflow_state='pending').to_dict()
             tasks.append(task)

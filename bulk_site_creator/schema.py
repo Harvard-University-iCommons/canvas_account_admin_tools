@@ -90,7 +90,8 @@ class TaskRecord:
         short_title: str,
         section: str,
         department_id: str,
-        course_group_id: str
+        course_group_id: str,
+        sis_account_id: str
     ):
         self.pk = job_record.sk
         self.sk = f"TASK#{str(ULID())}"
@@ -102,6 +103,7 @@ class TaskRecord:
         self.section = section
         self.department_id = department_id
         self.course_group_id = course_group_id
+        self.sis_account_id = sis_account_id
         self.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
