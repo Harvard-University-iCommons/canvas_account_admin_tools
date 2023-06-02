@@ -39,7 +39,7 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
 
             if ci.course.course_group:
                 sis_account_id = f"sis_account_id:coursegroup:{ci.course.course_group_id}"
-            elif ci.coursegroup.department:
+            elif ci.course.department:
                 sis_account_id = f"sis_account_id:department:{ci.course.department_id}"
             else:
                 sis_account_id = f"sis_account_id:school:{ci.course.school_id}"
