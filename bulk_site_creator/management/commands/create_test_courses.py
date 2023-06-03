@@ -1,6 +1,7 @@
 import logging
 import random
 import string
+from itertools import islice
 
 from coursemanager.models import Course, CourseInstance, Term
 from django.core.management.base import BaseCommand
@@ -47,15 +48,24 @@ class Command(BaseCommand):
         if options.get('term-id'):
             term = Term.objects.get(term_id=options['term-id'])
         else:
-            term = Term.objects.filter(school_id=options['school']).order_by('term_id').first()
+            term = Term.objects.filter(school_id=options['school']).order_by('-term_id').first()
 
-        for i in range(1, options['amount']+1):
-            CourseInstance.objects.create(
-                course=course,
-                term=term,
-                section='001',
-                title=f'Test title {i}',
-                short_title=f'Short title test {i}',
-                sub_title=f'Sub title test {i}',
-                source='mgmtcmd',
-            )
+        print(f'Term ID:{term.term_id}, {term.display_name}')
+
+        # Use bulk_create to efficiently insert CourseInstance records in batches of 500 up to the amount flag
+        batch_size = 500
+        objs = (CourseInstance(
+            course=course,
+            term=term,
+            section='001',
+            title=f'Test title {i}',
+            short_title=f'Short title test {i}',
+            sub_title=f'Sub title test {i}',
+            source='mgmtcmd'
+        ) for i in range(options['amount']))
+
+        while True:
+            batch = list(islice(objs, batch_size))
+            if not batch:
+                break
+            CourseInstance.objects.bulk_create(batch, batch_size)
