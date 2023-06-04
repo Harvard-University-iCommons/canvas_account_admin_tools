@@ -226,8 +226,8 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     department_name = None
     create_all = table_data['create_all']
     course_instance_ids = table_data['course_instance_ids']
-    template_id = table_data['template']
-    template_name = get_canvas_site_template_name(template_id)
+    template_id = None if table_data['template'] == '0' else table_data['template']
+    template_name = 'No template' if not template_id else get_canvas_site_template_name(template_id)
 
     if create_all:
         # Get all course instance records that will have Canvas sites created by filtering on the
