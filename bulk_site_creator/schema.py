@@ -56,7 +56,6 @@ class JobRecord:
         return {
             "pk": str(self.pk),
             "sk": str(self.sk),
-            "sis_account_id": str(self.sis_account_id),
             "term_id": str(self.term_id),
             "sis_term_id": str(self.sis_term_id),
             "term_name": str(self.term_name),
