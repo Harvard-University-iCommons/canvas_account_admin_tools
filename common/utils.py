@@ -176,6 +176,7 @@ def get_canvas_site_templates_for_school(school_id):
 
     return templates
 
+
 def get_canvas_site_template(school_id, template_canvas_course_id):
     """
     Get the Canvas site template given the school and the Canvas template site canvas course id.
