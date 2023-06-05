@@ -262,7 +262,6 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
 
     if potential_course_sites_query.count() > 0:
         job = JobRecord(
-            sis_account_id=sis_account_id,
             user_id=user_id,
             user_full_name=user_full_name,
             user_email=user_email,

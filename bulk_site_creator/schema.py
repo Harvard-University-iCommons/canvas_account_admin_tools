@@ -13,7 +13,6 @@ class JobRecord:
     def __init__(
         self,
         school: str,
-        sis_account_id: str,
         term_id: str,
         sis_term_id: str,
         term_name: Optional[str],
@@ -30,7 +29,6 @@ class JobRecord:
     ):
         self.pk = f"SCHOOL#{school.upper()}"
         self.sk = f"JOB#{str(ULID())}"
-        self.sis_account_id = sis_account_id
         self.term_id = term_id
         self.sis_term_id = sis_term_id
         self.term_name = term_name
@@ -58,7 +56,6 @@ class JobRecord:
         return {
             "pk": str(self.pk),
             "sk": str(self.sk),
-            "sis_account_id": str(self.sis_account_id),
             "term_id": str(self.term_id),
             "sis_term_id": str(self.sis_term_id),
             "term_name": str(self.term_name),
@@ -90,7 +87,8 @@ class TaskRecord:
         short_title: str,
         section: str,
         department_id: str,
-        course_group_id: str
+        course_group_id: str,
+        sis_account_id: str
     ):
         self.pk = job_record.sk
         self.sk = f"TASK#{str(ULID())}"
@@ -102,6 +100,7 @@ class TaskRecord:
         self.section = section
         self.department_id = department_id
         self.course_group_id = course_group_id
+        self.sis_account_id = sis_account_id
         self.created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.updated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -124,6 +123,7 @@ class TaskRecord:
             "section": str(self.section),
             "department_id": str(self.department_id),
             "course_group_id": str(self.course_group_id),
+            "sis_account_id": str(self.sis_account_id),
         }
 
 
