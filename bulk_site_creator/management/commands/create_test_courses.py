@@ -62,7 +62,7 @@ class Command(BaseCommand):
             short_title=f'Short title test {i}',
             sub_title=f'Sub title test {i}',
             source='mgmtcmd'
-        ) for i in range(options['amount']))
+        ) for i in range(1, options['amount']+1))
 
         while True:
             batch = list(islice(objs, batch_size))
