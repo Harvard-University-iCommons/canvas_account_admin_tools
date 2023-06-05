@@ -124,6 +124,7 @@ class TaskRecord:
             "section": str(self.section),
             "department_id": str(self.department_id),
             "course_group_id": str(self.course_group_id),
+            "sis_account_id": str(self.sis_account_id),
         }
 
 
