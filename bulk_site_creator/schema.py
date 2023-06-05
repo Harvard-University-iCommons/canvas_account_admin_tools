@@ -13,7 +13,6 @@ class JobRecord:
     def __init__(
         self,
         school: str,
-        sis_account_id: str,
         term_id: str,
         sis_term_id: str,
         term_name: Optional[str],
@@ -30,7 +29,6 @@ class JobRecord:
     ):
         self.pk = f"SCHOOL#{school.upper()}"
         self.sk = f"JOB#{str(ULID())}"
-        self.sis_account_id = sis_account_id
         self.term_id = term_id
         self.sis_term_id = sis_term_id
         self.term_name = term_name
