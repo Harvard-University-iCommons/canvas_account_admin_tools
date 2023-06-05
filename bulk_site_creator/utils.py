@@ -38,11 +38,11 @@ def generate_task_objects(course_instances: list[dict], job: JobRecord):
                 course_code = ci.course.registrar_code
 
             if ci.course.course_group:
-                sis_account_id = ci.course.course_group_id
+                sis_account_id = f"coursegroup:{ci.course.course_group_id}"
             elif ci.course.department:
-                sis_account_id = ci.course.department_id
+                sis_account_id = f"dept:{ci.course.department_id}"
             else:
-                sis_account_id = ci.course.school_id
+                sis_account_id = f"school:{ci.course.school_id}"
 
             task = TaskRecord(job_record=job,
                               course_instance_id=ci.course_instance_id,
