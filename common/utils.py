@@ -6,8 +6,14 @@ from canvas_api.helpers import accounts as canvas_api_accounts_helper
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import (Course, CourseGroup, CourseInstance,
-                                  Department, Term)
+from coursemanager.models import (
+    Course,
+    CourseGroup,
+    CourseInstance,
+    Department,
+    MVActiveCourseGroupsDepartments,
+    Term,
+)
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Exists, OuterRef
@@ -120,29 +126,19 @@ def get_department_data_for_school(school_sis_account_id: str) -> list:
 
     return departments
 
+
 def get_course_group_data_for_school(school_sis_account_id: str) -> list:
     """
-    Returns a list of validated coursegroups for a given school.
-    This validation is done to prevent legacy course groups from being displayed in the UI.
+    Returns a list of validated course groups for a given school.
     """
+
     school_id = school_sis_account_id.split(':')[1]
-    course_groups = []
-    query_set = CourseGroup.objects.filter(
-        school=school_id
-    ).order_by(
-        'name'
-    )
+    try:
+        query_set = MVActiveCourseGroupsDepartments.objects.filter(school_id=school_id)
+    except MVActiveCourseGroupsDepartments.DoesNotExist:
+        return []
 
-    validated_coursegroups = _get_coursegroups_with_ci_future_end_date(query_set)
-
-    for coursegroup in validated_coursegroups:
-        if coursegroup.has_future_course_instance:
-            course_groups.append({
-                'id': str(coursegroup.course_group_id),
-                'name': coursegroup.name
-            })
-
-    return course_groups
+    return list(query_set.values('course_or_department_id', 'name'))
 
 
 def _get_departments_with_future_ci_term_end_date(departments: QuerySet[Department]) -> QuerySet[Department]:
