@@ -15,22 +15,22 @@
         {% for message in messages %}
             {% if message.level_tag == "success" %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "error" %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "warning" %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% else %}
                 <div class="alert alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% endif %}
