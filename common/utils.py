@@ -16,8 +16,6 @@ from coursemanager.models import (
 )
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Exists, OuterRef
-from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from canvas_account_admin_tools.models import CanvasSchoolTemplate
@@ -35,20 +33,17 @@ CACHE_KEY_CANVAS_SITE_TEMPLATES_BY_SCHOOL_ID = "canvas-site-templates-by-school-
 def get_school_data_for_user(canvas_user_id, school_sis_account_id=None):
     schools = []
     accounts = canvas_api_accounts_helper.get_school_accounts(
-        canvas_user_id,
-        canvas_api_accounts_helper.ACCOUNT_PERMISSION_MANAGE_COURSES
+        canvas_user_id, canvas_api_accounts_helper.ACCOUNT_PERMISSION_MANAGE_COURSES
     )
     for account in accounts:
         sis_account_id = account['sis_account_id']
-        school = {
-            'id': account['sis_account_id'],
-            'name': account['name']
-        }
+        school = {'id': account['sis_account_id'], 'name': account['name']}
         if school_sis_account_id and school_sis_account_id == sis_account_id:
             return school
         else:
             schools.append(school)
     return schools
+
 
 def get_school_data_for_sis_account_id(school_sis_account_id):
     school = None
@@ -56,16 +51,15 @@ def get_school_data_for_sis_account_id(school_sis_account_id):
         return school
     school_sis_account_id = 'sis_account_id:{}'.format(school_sis_account_id)
     accounts = canvas_api_accounts_helper.get_all_sub_accounts_of_account(
-        school_sis_account_id)
+        school_sis_account_id
+    )
     for account in accounts:
         sis_account_id = account['sis_account_id']
-        school = {
-            'id': account['sis_account_id'],
-            'name': account['name']
-        }
+        school = {'id': account['sis_account_id'], 'name': account['name']}
         if school_sis_account_id == sis_account_id:
             return school
     return school
+
 
 def get_term_data(term_id):
     term = Term.objects.get(term_id=int(term_id))
@@ -74,20 +68,16 @@ def get_term_data(term_id):
         'name': term.display_name,
     }
 
+
 def get_term_data_for_school(school_sis_account_id):
     school_id = school_sis_account_id.split(':')[1]
     year_floor = datetime.now().year - 5  # Limit term query to the past 5 years
     terms = []
-    query_set = Term.objects.filter(
-        school=school_id,
-        active=1,
-        calendar_year__gt=year_floor
-    ).exclude(
-        start_date__isnull=True
-    ).exclude(
-        end_date__isnull=True
-    ).order_by(
-        '-end_date', 'term_code__sort_order'
+    query_set = (
+        Term.objects.filter(school=school_id, active=1, calendar_year__gt=year_floor)
+        .exclude(start_date__isnull=True)
+        .exclude(end_date__isnull=True)
+        .order_by('-end_date', 'term_code__sort_order')
     )
     now = timezone.now()
     current_term_id = None
@@ -95,11 +85,9 @@ def get_term_data_for_school(school_sis_account_id):
         # Picks the currently-active term with the earliest end date as the current term
         if term.start_date <= now < term.end_date:
             current_term_id = term.term_id
-        terms.append({
-            'id': str(term.term_id),
-            'name': term.display_name
-        })
+        terms.append({'id': str(term.term_id), 'name': term.display_name})
     return terms, current_term_id
+
 
 def get_department_data_for_school(school_sis_account_id: str) -> list:
     """
@@ -134,7 +122,6 @@ def get_course_group_data_for_school(school_sis_account_id: str) -> list:
 
     return list(query_set.values('id', 'name')) if query_set else []
 
-    return validated_coursegroups
 
 def get_canvas_site_templates_for_school(school_id):
     """
@@ -156,21 +143,33 @@ def get_canvas_site_templates_for_school(school_id):
                     SDK_CONTEXT,
                     canvas_api_courses.get_single_course_courses,
                     canvas_course_id,
-                    None
+                    None,
                 )
-                templates.append({
-                    'canvas_course_name': course['name'],
-                    'canvas_course_id': canvas_course_id,
-                    'canvas_course_url': "%s/courses/%d" % (settings.CANVAS_URL, canvas_course_id),
-                    'is_default': t.is_default
-                })
+                templates.append(
+                    {
+                        'canvas_course_name': course['name'],
+                        'canvas_course_id': canvas_course_id,
+                        'canvas_course_url': "%s/courses/%d"
+                        % (settings.CANVAS_URL, canvas_course_id),
+                        'is_default': t.is_default,
+                    }
+                )
             except Exception as e:
-                logger.warn('Failed to retrieve Canvas course for template/course ID {}: {}'.format(t.template_id, e))
+                logger.warn(
+                    'Failed to retrieve Canvas course for template/course ID {}: {}'.format(
+                        t.template_id, e
+                    )
+                )
 
-        logger.debug("Caching canvas site templates for school_id %s %s", school_id, json.dumps(templates))
+        logger.debug(
+            "Caching canvas site templates for school_id %s %s",
+            school_id,
+            json.dumps(templates),
+        )
         cache.set(cache_key, templates)
 
     return templates
+
 
 def get_canvas_site_template(school_id, template_canvas_course_id):
     """
