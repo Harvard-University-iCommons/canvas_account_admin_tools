@@ -99,7 +99,7 @@ def get_department_data_for_school(school_sis_account_id: str) -> list:
     try:
         query_set = MVActiveCGDept.objects.filter(
             school_id=school_id, type='department'
-        )
+        ).order_by('name')
     except MVActiveCGDept.DoesNotExist:
         return []
 
@@ -116,7 +116,7 @@ def get_course_group_data_for_school(school_sis_account_id: str) -> list:
     try:
         query_set = MVActiveCGDept.objects.filter(
             school_id=school_id, type='course_group'
-        )
+        ).order_by('name')
     except MVActiveCGDept.DoesNotExist:
         return []
 
