@@ -61,8 +61,10 @@ def index(request):
     logger.debug(f'Retrieving jobs for school {school_key}.')
     jobs_for_school = table.query(**query_params)['Items']
 
-    # Update string timestamp to datetime.
-    [item.update(created_at=parse_datetime(item['created_at']))
+    # Add new key with datetime version of created_at (ISO8601) timestamp.
+    # This is done so we can display a human readable datetime to end user, 
+    # but sort table data using created_at (ISO8601) timestamp which DataTables support.
+    [item.update(created_at_datetime=parse_datetime(item['created_at']))
      for item in jobs_for_school]
 
     context = {

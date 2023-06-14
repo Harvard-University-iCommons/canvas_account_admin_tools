@@ -49,6 +49,7 @@
         <table class="datatable table table-striped">
             <thead>
                 <tr>
+                    <th>Created At ISO8601</th><!-- Hidden Column used for DataTable sorting -->
                     <th>Created At</th>
                     <th>Term</th>
                     <th>Started By</th>
@@ -59,10 +60,11 @@
             <tbody>
             {% for bulk_job in jobs_for_school %}
                 <tr>
+                    <td>{{ bulk_job.created_at }}</td>
                     <td>
                         <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail"
-                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at }}</a>
+                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at_datetime }}</a>
                     </td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.user_full_name }}</td>
@@ -92,7 +94,17 @@
     <script>
         $(document).ready(function () {
             $('.datatable').DataTable({
-                "order": [],
+                "columnDefs": [
+                    {
+                        "orderable": false,
+                        "targets": [0, 1, 2, 3, 4, 5],
+                    },
+                    {
+                        "visible": false, 
+                        "target": 0,
+                    }
+                ],
+                "order": [[0, "desc"]],
             });
 
             // Enable tooltips (Bootstrap 5.2.x).
