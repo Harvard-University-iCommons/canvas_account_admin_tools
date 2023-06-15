@@ -14,7 +14,7 @@
 <body role="application">
     <div class="container-fluid">
         {% if terms %}
-            {% if course_group or department %}
+            {% if course_groups or departments %}
                 <form id="ci-filters" class="form-inline" method="POST" action="{% url 'bulk_site_creator:new_job' %}">{% csrf_token %}
                     <div class="row">
                         <div class="col-sm-6 margin-bottom-md">
