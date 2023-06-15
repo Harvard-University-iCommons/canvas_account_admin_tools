@@ -6,14 +6,7 @@ from canvas_api.helpers import accounts as canvas_api_accounts_helper
 from canvas_sdk import RequestContext
 from canvas_sdk.methods import courses as canvas_api_courses
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import (
-    Course,
-    CourseGroup,
-    CourseInstance,
-    Department,
-    MVActiveCGDept,
-    Term,
-)
+from coursemanager.models import MVActiveCGDept, Term
 from django.conf import settings
 from django.core.cache import cache
 from django.utils import timezone
