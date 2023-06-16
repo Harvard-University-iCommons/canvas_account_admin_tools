@@ -49,7 +49,6 @@
         <table class="datatable table table-striped">
             <thead>
                 <tr>
-                    <th>Created At ISO8601</th><!-- Hidden Column used for DataTable sorting -->
                     <th>Created At</th>
                     <th>Term</th>
                     <th>Started By</th>
@@ -60,11 +59,15 @@
             <tbody>
             {% for bulk_job in jobs_for_school %}
                 <tr>
-                    <td>{{ bulk_job.created_at }}</td>
-                    <td>
+                    <!-- 
+                        `data-order`: DataTables sorting on Unix version of created_at time.
+                        DataTables doc: https://datatables.net/manual/data/orthogonal-data#HTML-5
+                        Django doc: https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#date
+                    -->
+                    <td data-order="{{ bulk_job.created_at | date:'U' }}">
                         <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail"
-                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at_datetime }}</a>
+                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at }}</a>
                     </td>
                     <td>{{ bulk_job.term_name }}</td>
                     <td>{{ bulk_job.user_full_name }}</td>
@@ -97,12 +100,8 @@
                 "columnDefs": [
                     {
                         "orderable": false,
-                        "targets": [0, 1, 2, 3, 4, 5],
+                        "targets": [1, 2, 3, 4],
                     },
-                    {
-                        "visible": false, 
-                        "target": 0,
-                    }
                 ],
                 "order": [[0, "desc"]],
             });
