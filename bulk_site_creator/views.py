@@ -61,7 +61,7 @@ def index(request):
     logger.debug(f'Retrieving jobs for school {school_key}.')
     jobs_for_school = table.query(**query_params)['Items']
 
-    # Update string timestamp to datetime.
+    # Update created_at (ISO8601) string timestamp to datetime.
     [item.update(created_at=parse_datetime(item['created_at']))
      for item in jobs_for_school]
 

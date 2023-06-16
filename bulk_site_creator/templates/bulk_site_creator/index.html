@@ -15,22 +15,22 @@
         {% for message in messages %}
             {% if message.level_tag == "success" %}
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "error" %}
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% elif message.level_tag == "warning" %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% else %}
                 <div class="alert alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     {{ message }}
                 </div>
             {% endif %}
@@ -38,15 +38,15 @@
     </div>
 
     <div class="row container-fluid">
-        <h3>
+        <h4 class="mt-4">
             Bulk Creation Jobs:
             <a href="{% url 'bulk_site_creator:index' %}" class="btn btn-primary float-end ms-2" role="button" 
                 aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" 
                 data-bs-placement="top" data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
             </a>
             <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
-        </h3>
-        <table class="datatable table table-striped table-bordered dataTable no-footer">
+        </h4>
+        <table class="datatable table table-striped">
             <thead>
                 <tr>
                     <th>Created At</th>
@@ -59,7 +59,12 @@
             <tbody>
             {% for bulk_job in jobs_for_school %}
                 <tr>
-                    <td>
+                    <!-- 
+                        `data-order`: DataTables sorting on Unix version of created_at time.
+                        DataTables doc: https://datatables.net/manual/data/orthogonal-data#HTML-5
+                        Django doc: https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#date
+                    -->
+                    <td data-order="{{ bulk_job.created_at | date:'U' }}">
                         <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}"
                         data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail"
                         data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at }}</a>
@@ -92,7 +97,13 @@
     <script>
         $(document).ready(function () {
             $('.datatable').DataTable({
-                order: [[0, 'desc']],
+                "columnDefs": [
+                    {
+                        "orderable": false,
+                        "targets": [1, 2, 3, 4],
+                    },
+                ],
+                "order": [[0, "desc"]],
             });
 
             // Enable tooltips (Bootstrap 5.2.x).
