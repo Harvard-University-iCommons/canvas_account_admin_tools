@@ -5,7 +5,7 @@
   <h3 class="breadcrumbs">
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
-    <a href="{% url 'bulk_site_creator:index' %}">Bulk Site Creator</a>
+    <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
     <small><i class="fa fa-chevron-right"></i></small>
       New Job
   </h3>
@@ -94,7 +94,7 @@
         {% if potential_course_sites %}
             <hr>
             <div class="row">
-                <h4>{{ potential_site_count }} courses ready for Canvas course site creation.</h4>
+                <h4>{{ potential_site_count }} course{{ potential_site_count|pluralize }} ready for Canvas course site creation</h4>
                 <div class="col-sm-6 margin-bottom-md">
                     <select id="templateSelect" class="form-select">
                         <option value="0">
