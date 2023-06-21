@@ -89,12 +89,9 @@ def get_department_data_for_school(school_sis_account_id: str) -> list:
     """
 
     school_id = school_sis_account_id.split(':')[1]
-    try:
-        query_set = MVActiveCGDept.objects.filter(
-            school_id=school_id, type='DEPARTMENT'
-        ).order_by('name')
-    except MVActiveCGDept.DoesNotExist:
-        return []
+    query_set = MVActiveCGDept.objects.filter(
+        school_id=school_id, type='DEPARTMENT'
+    ).order_by('name')
 
     return list(query_set.values('id', 'name')) if query_set else []
 
@@ -106,12 +103,9 @@ def get_course_group_data_for_school(school_sis_account_id: str) -> list:
     """
 
     school_id = school_sis_account_id.split(':')[1]
-    try:
-        query_set = MVActiveCGDept.objects.filter(
-            school_id=school_id, type='COURSE_GROUP'
-        ).order_by('name')
-    except MVActiveCGDept.DoesNotExist:
-        return []
+    query_set = MVActiveCGDept.objects.filter(
+        school_id=school_id, type='COURSE_GROUP'
+    ).order_by('name')
 
     return list(query_set.values('id', 'name')) if query_set else []
 
