@@ -27,7 +27,7 @@ django-canvas-lti-school-permissions @ git+ssh://git@github.com/Harvard-Universi
 
 django-harvardkey-cas @ git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0
 
-django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.4
+django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@patricktonne/add-active-coursegrouops-and-departments-mv
 
 canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4
 
