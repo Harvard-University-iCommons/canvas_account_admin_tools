@@ -4,130 +4,119 @@
 {% load collections %}
 {% load django_helpers %}
 
-
 {% block js %}
-    <script>
-        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
-    </script>
-    {% include 'canvas_site_creator/_selected_filters.html' %}
-    {% include 'canvas_site_creator/_filter_options.html' %}
-    <script src="{% static 'canvas_site_creator/js/models/ErrorModel.js' %}"></script>
-    <script src="{% static 'canvas_site_creator/js/models/CourseInstanceFilterModel.js' %}"></script>
-    <script src="{% static 'canvas_site_creator/js/models/CourseInstanceModel.js' %}"></script>
-    <script src="{% static 'canvas_site_creator/js/controllers/IndexController.js' %}"></script>
-    <script src="{% static 'canvas_site_creator/js/controllers/ErrorController.js' %}"></script>
-    <script src="{% static 'canvas_site_creator/js/controllers/CourseInstanceFilterController.js' %}"></script>
 {% endblock js %}
 
 {% block body %}
-<body role="application" ng-app="app" ng-controller="IndexController">
-    <div class="container">
-    <header>
-        <h3 class="breadcrumbs">
-            <a href="{% url 'dashboard_account' %}">Admin Console</a>
-            <small><i class="fa fa-chevron-right"></i></small>
-            Canvas Site Creator
-        </h3>
-    </header>
+<body class="lti-tool" role="application">
+<header>
+    <h3 class="breadcrumbs">
+        <a href="{% url 'dashboard_account' %}">Admin Console</a>
+        <small><i class="fa fa-chevron-right"></i></small>
+        Create a New ILE/SB Course
+    </h3>
+</header>
 
-    <div class="row">
+<div class="container-fluid">
 
-     <div class="col-sm-6">
-         <div class="panel panel-default">
-             <div class="panel-heading"><h4>Create sites for existing courses</h4></div>
-             <div class="panel-body">
-            {% include 'canvas_site_creator/views/ErrorView.html' %}
-            <main>
-                {% include 'canvas_site_creator/views/CourseInstanceFilterView.html' %}
-                <div ng-cloak ng-show="showSummaryLoading()">
-                    <img src="https://static.tlt.harvard.edu/shared/images/ajax-loader-large.gif"/>
-                </div>
+    <div>
 
-                <div ng-cloak ng-show="showSummary()">
-                    <h3>
-                        <ng-pluralize count="courseInstanceModel.totalCourses"
-                                      when="{'0': 'There are 0 courses in this term:',
-                                             '1': 'There is 1 course in this term:',
-                                             'other': 'There are {} courses in this term:'}">
-                        </ng-pluralize>
-                    </h3>
-                    <ul>
-                        <li>
-                            <ng-pluralize count="courseInstanceModel.totalCoursesWithCanvasSite"
-                                      when="{'0': '0 courses with Canvas sites ',
-                                             '1': '1 course with a Canvas site ',
-                                             'other': '{} courses with Canvas sites '}">
-                            </ng-pluralize>
-                            {% verbatim %}
-                            ({{ courseInstanceModel.totalCoursesWithCanvasSiteWithExternal }} external)
-                            {% endverbatim %}
-                        </li>
-                        <li>
-                            <ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSite"
-                                      when="{'0': '0 courses without Canvas sites ',
-                                             '1': '1 course without a Canvas site ',
-                                             'other': '{} courses without Canvas sites '}">
-                            </ng-pluralize>
-                            {% verbatim %}
-                            ({{ courseInstanceModel.totalCoursesWithoutCanvasSiteWithExternal }} external)
-                            {% endverbatim %}
-                        </li>
-                        <li>
-                            <ng-pluralize count="courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalse"
-                                      when="{'0': '0 courses eligible for site creation via Canvas Site Creator ',
-                                             '1': '1 course eligible for site creation via Canvas Site Creator ',
-                                             'other': '{} courses eligible for site creation via Canvas Site Creator '}">
-                            </ng-pluralize>
-                            {% verbatim %}
-                            ({{ courseInstanceModel.totalCoursesWithoutCanvasSiteAndSyncToCanvasFalseWithExternal }} external)
-                            {% endverbatim %}
-                            <br>
-                            <button type="button" class="btn btn-link pull-right" id="createSitesButton" ng-disabled="createDisabled()" ng-click="handleCreate($event)" data-href="{% url 'canvas_site_creator:course_selection' %}">Continue</button>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-12">
-                    <hr>
-                </div>
-                <div class="col-md-12">
-                    <div class="alert alert-info" role="alert">
-                        <p>Visit the <a id="audit-link" href="{% url 'canvas_site_creator:audit' %}">site creator audit log</a> to view previously created Canvas course sites.</p>
+        <form>
+            <div class="row">
+                <div class="col-sm-6 margin-bottom-md">
+                    <label for="course-term">Term <span class="required-field-marker">*</span></label>
+                    <div>
+                        <select id="course-term" name="course-term" class="form-control">
+                            {% for term in terms %}
+                            {{ term }}
+                                <option value="{{ term.id }}">{{ term.name }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
 
-            </main>
-            </div>
-            </div>
-     </div>
-
-     <div class="col-sm-6">
-          <div class="panel panel-default">
-              <div class="panel-heading"><h4>Create a site for a new course</h4></div>
-              <div class="panel-body">
-                <p>Create a Sandbox or Informal Learning Experience (ILE) site in Canvas. This site will not be attached to a course fed from the Registrar's office.
-                  <a class="hidden" data-toggle="tooltip" data-placement="bottom"
-                     title="Create a Sandbox or Informal Learning Experience (ILE) site in Canvas. These sites are not attached to a course fed from the Registrar's office.">
-                      <i class="fa fa-info-circle"></i></a>
-                </p>
-                {% if in_school_account %}
-                <p>
-                  <a id="createNewCourseButton" class="pull-right" href="{% url 'canvas_site_creator:create_new_course' %}">Continue</a>
-                </p>
-                {% else %}
-                <div class="alert alert-warning" role="alert">
-                  <p>
-                    {# TODO: replace this placeholder text #}
-                    This feature is only available from school-level sub-accounts.
-                    If you have School Liaison or Account Admin access, please
-                    open the Course Site Creator from the account homepage to
-                    use this feature.
-                  </p>
+                <div class="col-sm-6 margin-bottom-md">
+                    <label for="course-code">New Course Code <span class="required-field-marker">*</span></label>
+                    <div class="input-group" id="course-code-input-group">
+                        <div class="col-sm-4 margin-bottom-md">
+                        <select id="course-code-type" name="course-code-type" class="form-control">
+                            <option value="ILE">ILE</option>
+                            <option value="SB">SB</option>
+                            <option value="BLU">BLU</option>
+                        </select>
+                            </div>
+                        <div class="col-sm-8 margin-bottom-md">
+                        <input type="text"
+                               class="form-control pull-right"
+                               id="course-code"
+                               name="course-code">
+                            </div>
+                    </div>
                 </div>
-                {% endif %}
-              </div>
-          </div>
-     </div>
+            </div>
 
+            <div class="row">
+                <div class="col-sm-6 margin-bottom-md">
+                    <label for="course-title">New Course Title <span class="required-field-marker">*</span></label>
+                    <input type="text"
+                           class="form-control"
+                           id="course-title"
+                           name="course-title">
+                </div>
+
+                <div class="col-sm-6 margin-bottom-md">
+                    <label for="course-short-title">New Short Title</label>
+                    <input type="text"
+                           class="form-control"
+                           id="course-short-title"
+                           name="course-short-title">
+                </div>
+                <div class="col-sm-3 margin-bottom-md">
+                    <label for="templateSelect">Template</label>
+                    <div>
+                        <select id="templateSelect" class="form-control">
+                            <option value="No template">No template</option>
+                            {% for template in canvas_site_templates %}
+                                <option value="{{ template.canvas_course_id }}">{{ template.canvas_course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-sm-3 margin-bottom-md">
+                    <label for="templateSelect">Blueprint Course</label>
+                    <div class="checkbox" style="margin-top: 0px">
+                        <label>
+                            <input type="checkbox" id="isBlueprint"> Enable course as a Blueprint Course
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row margin-bottom-md">
+                <div class="col-md-12">
+                    <button id="create-course-instance" type="submit" class="btn btn-primary pull-right">
+                        <span>
+                          Create a New Course
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row margin-bottom-md">
+                <div class="col-md-12">
+                    <span class="required-field-marker">*</span> = Required information
+                    <br>
+                    ILE = Informal Learning Experience
+                    <br>
+                    SB = Sandbox
+                    <br>
+                    BLU = Blueprint
+                </div>
+            </div>
+
+        </form>
     </div>
 
 </div>

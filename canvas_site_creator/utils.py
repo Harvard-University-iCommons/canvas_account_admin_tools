@@ -9,12 +9,11 @@ from canvas_sdk.methods.courses import create_new_course, update_course
 from canvas_sdk.methods.sections import create_course_section
 from coursemanager.models import CourseInstance
 from django.conf import settings
-from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
 COURSE_INSTANCE_DATA_FIELDS = ('course_instance_id', 'course_instance_id',
-                               'course__registrar_code_display','title',
+                               'course__registrar_code_display', 'title',
                                'section')
 BULK_JOB_DATA_FIELDS = ('created_at', 'status')
 COURSE_JOB_DATA_FIELDS = ('created_at', 'workflow_state')
@@ -60,7 +59,6 @@ def create_canvas_course_and_section(request):
         message = ('Failed to extract canvas parameters from posted data; '
                    'request body={}'.format(request.body))
         logger.exception(message)
-        return JsonResponse({'error': message}, status=400)
 
     request_parameters = dict(
         request_ctx=SDK_CONTEXT,
@@ -86,14 +84,12 @@ def create_canvas_course_and_section(request):
                 update_course(**update_parameters).json()
             except:
                 logger.exception("Error creating blueprint course via update with request {}".format(update_parameters))
-                return JsonResponse({}, status=500)
     except Exception as e:
         message = 'Error creating new course via SDK with request={}'.format(
             request_parameters)
         if isinstance(e, CanvasAPIError):
             message += ', SDK error details={}'.format(e)
         logger.exception(message)
-        return JsonResponse({}, status=500)
 
     # create the canvas section
     section_result = {}
@@ -115,9 +111,6 @@ def create_canvas_course_and_section(request):
         if isinstance(e, CanvasAPIError):
             message += ', SDK error details={}'.format(e)
         logger.exception(message)
-        return JsonResponse(section_result, status=500)
-
-    return JsonResponse(course_result, status=200)
 
 
 def copy_from_canvas_template(request):
@@ -129,13 +122,11 @@ def copy_from_canvas_template(request):
         message = ('Failed to extract canvas parameters from posted data; '
                    'request body={}'.format(request.body))
         logger.exception(message)
-        return JsonResponse({'error': message}, status=400)
 
     request_parameters = dict(request_ctx=SDK_CONTEXT,
                               course_id=canvas_course_id,
                               migration_type='course_copy_importer',
-                              settings_source_course_id=template_id,
-    )
+                              settings_source_course_id=template_id)
     try:
         migration_result = create_content_migration_courses(**request_parameters).json()
         logger.debug('content migration API call result: %s' % migration_result)
@@ -146,5 +137,3 @@ def copy_from_canvas_template(request):
         if isinstance(e, CanvasAPIError):
             message += ', SDK error details={}'.format(e)
         logger.exception(message)
-        return JsonResponse({}, status=500)
-    return JsonResponse(migration_result, status=200)

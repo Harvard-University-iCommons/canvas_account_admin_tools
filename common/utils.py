@@ -110,7 +110,6 @@ def get_course_group_data_for_school(school_sis_account_id: str) -> list:
     return list(query_set.values('id', 'name')) if query_set else []
 
 
-
 def get_canvas_site_template_name(canvas_course_id):
     template_name = None
     school_template = CanvasSchoolTemplate.objects.get(template_id=canvas_course_id)

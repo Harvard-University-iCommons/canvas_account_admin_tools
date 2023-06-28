@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 
-from canvas_site_creator import views, api
+from canvas_site_creator import views
 
 
 urlpatterns = [
