@@ -7,7 +7,7 @@ from coursemanager.models import School
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
 
@@ -86,6 +86,8 @@ def create_new_course(request):
                                  messages.ERROR,
                                  'The course could not successfully be created. '
                                  'Please try again or contact support if the issue persists.')
+
+        return redirect('canvas_site_creator:create_new_course')
 
     context = {'school_id': school_id,
                'school_name': school.title_short,

@@ -44,7 +44,7 @@
 <div class="container-fluid">
 
     <div>
-        <form action="{% url 'canvas_site_creator:create_new_course' %}" method="post">{% csrf_token %}
+        <form action="{% url 'canvas_site_creator:create_new_course' %}" method="post" id="ciForm">{% csrf_token %}
 
             <div class="row">
                 <div class="col-sm-6 margin-bottom-md">
@@ -87,7 +87,6 @@
                            id="course-title"
                            name="course-title">
                 </div>
-
                 <div class="col-sm-6 margin-bottom-md">
                     <label for="course-short-title">New Short Title</label>
                     <input type="text"
@@ -120,7 +119,10 @@
 
             <div class="row margin-bottom-md">
                 <div class="col-md-12">
-                    <button id="create-course-instance" type="submit" class="btn btn-primary" style="float: right;">
+                    <button id="create-course-instance"
+                            type="submit"
+                            class="btn btn-primary"
+                            style="float: right;">
                         <span>
                           Create a New Course
                         </span>
@@ -163,10 +165,17 @@
             }
         });
 
+        // Intercept prior to submitting to disable the button and display a loading spinner
         // If this is a blueprint course, remove the disabled property from the select otherwise it does not get posted
         $('form').bind('submit', function () {
             $(this).find(':input').prop('disabled', false);
+            $("#create-course-instance").
+            prop("disabled", true).
+            html(
+            `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+            );
         });
     });
+
 </script>
 {% endblock js %}
