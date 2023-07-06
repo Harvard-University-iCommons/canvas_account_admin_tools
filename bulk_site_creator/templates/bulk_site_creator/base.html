@@ -31,10 +31,6 @@
 
     {% include 'django_auth_lti/resource_link_id.html' %}
 
-    {# fixes safari autocomplete issue #}
-    {# (see https://github.com/angular/angular.js/issues/1460) #}
-    <script src="{% static 'course_info/js/polyfills/autofill-event.js' %}"></script>
-
     <script>
       window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
     </script>

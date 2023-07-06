@@ -1,18 +1,40 @@
-{% load static %}
+{% load collections %}
 {% load django_helpers %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <link rel="stylesheet" type="text/css" href="https://static.tlt.harvard.edu/shared/bootstrap-3.3.6/dist/css/bootstrap.min.css" media="screen"/>
+  <head>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no">
+    <link href="https://static.tlt.harvard.edu/shared/favicon.ico" rel="icon" type="image/x-icon">
+    <link rel="stylesheet" type="text/css"
+          href="https://static.tlt.harvard.edu/shared/fontawesome-6.3.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://static.tlt.harvard.edu/shared/harvard-base/css/base.min.css"
+          media="screen"/>
+
+    <script src="https://static.tlt.harvard.edu/shared/jquery-3.6.3/jquery-3.6.3.min.js"></script>
+    <script src="https://static.tlt.harvard.edu/shared/bootstrap-5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://static.tlt.harvard.edu/shared/DataTables-1.13.2/js/jquery.dataTables.min.js"></script>
+    <script src="https://static.tlt.harvard.edu/shared/Select-1.6.0/js/select.bootstrap5.min.js"></script>
+
     {% include 'django_auth_lti/resource_link_id.html' %}
+
     <script>
-        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
-        window.globals.CANVAS_URL = '{% settings_value "CANVAS_URL" %}';
+      window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+      window.globals.CANVAS_URL = '{% settings_value "CANVAS_URL" %}';
     </script>
-    {% block js %}{% endblock js %}
+
+    {% block js %}
+    {% endblock %}
+
     <title>Create Course Sites</title>
-</head>
-{% block body %}{% endblock body %}
+  </head>
+
+
+  <body class="lti-tool" role="application">
+    {% block body %}
+    {% endblock %}
+  </body>
 </html>

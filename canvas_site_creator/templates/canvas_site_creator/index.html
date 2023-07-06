@@ -4,6 +4,7 @@
 {% load collections %}
 {% load django_helpers %}
 
+
 {% block js %}
 {% endblock js %}
 
@@ -18,10 +19,36 @@
 </header>
 
 <div class="container-fluid">
+    {% for message in messages %}
+        {% if message.level_tag == "success" %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+            </div>
+        {% elif message.level_tag == "error" %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+            </div>
+        {% elif message.level_tag == "warning" %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+            </div>
+        {% else %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="container-fluid">
 
     <div>
+        <form action="{% url 'canvas_site_creator:create_new_course' %}" method="post">{% csrf_token %}
 
-        <form>
             <div class="row">
                 <div class="col-sm-6 margin-bottom-md">
                     <label for="course-term">Term <span class="required-field-marker">*</span></label>
@@ -87,7 +114,7 @@
                     <label for="templateSelect">Blueprint Course</label>
                     <div class="checkbox" style="margin-top: 0px">
                         <label>
-                            <input type="checkbox" id="isBlueprint"> Enable course as a Blueprint Course
+                            <input type="checkbox" id="is_blueprint"> Enable course as a Blueprint Course
                         </label>
                     </div>
                 </div>
@@ -96,7 +123,7 @@
 
             <div class="row margin-bottom-md">
                 <div class="col-md-12">
-                    <button id="create-course-instance" type="submit" class="btn btn-primary pull-right">
+                    <button id="create-course-instance" type="submit" class="btn btn-primary" style="float: right;">
                         <span>
                           Create a New Course
                         </span>

@@ -40,25 +40,22 @@ def get_course_instance_query_set(sis_term_id, sis_account_id):
     return CourseInstance.objects.filter(**filters)
 
 
-def create_canvas_course_and_section(request):
+def create_canvas_course_and_section(data):
+    course_result = None
+    course = data['course']
+    course_instance = data['course_instance']
+    is_blueprint = data['is_blueprint']
 
-    try:
-        data = json.loads(request.body)
-        is_blueprint = data['is_blueprint']
-        # If this is a blueprint course, create course at school level not in the ILE sub account
-        account_id = 'sis_account_id:%s' % (data['school_id'] if is_blueprint else data['dept_id'])
-        # not using .get() default because we want to fall back on course_code
-        # if short_title is an empty string
-        course_code = data.get('short_title', '').strip() or data['course_code']
-        course_instance_id = data['course_instance_id']
-        school = data['school']
-        section_id = data['section_id']
-        term_id = 'sis_term_id:%s' % data['term_id']
-        title = data['title']
-    except Exception:
-        message = ('Failed to extract canvas parameters from posted data; '
-                   'request body={}'.format(request.body))
-        logger.exception(message)
+    # If this is a blueprint course, create course at school level not in the ILE sub account
+    account_id = 'sis_account_id:%s' % (course.school_id if is_blueprint else f'dept:{course.department_id}')
+    # not using .get() default because we want to fall back on course_code
+    # if short_title is an empty string
+    course_code = course_instance.short_title.strip() or course.registrar_code
+    course_instance_id = course_instance.course_instance_id
+    school = course.school_id
+    section_id = course_instance.section
+    term_id = f'sis_term_id:{course_instance.term_id}'
+    title = course.registrar_code_display
 
     request_parameters = dict(
         request_ctx=SDK_CONTEXT,
@@ -70,6 +67,7 @@ def create_canvas_course_and_section(request):
     )
 
     try:
+        logger.info(f'Creating Canvas course with the following parameters {request_parameters}')
         course_result = create_new_course(**request_parameters).json()
 
         # If this course is meant to be a blueprint course,
@@ -82,35 +80,30 @@ def create_canvas_course_and_section(request):
             )
             try:
                 update_course(**update_parameters).json()
-            except:
-                logger.exception("Error creating blueprint course via update with request {}".format(update_parameters))
+            except Exception as e:
+                logger.exception(f"Error creating blueprint course via update with request {update_parameters}")
     except Exception as e:
-        message = 'Error creating new course via SDK with request={}'.format(
-            request_parameters)
-        if isinstance(e, CanvasAPIError):
-            message += ', SDK error details={}'.format(e)
-        logger.exception(message)
+        logger.exception(f'Error creating new course via SDK with request={request_parameters}')
 
-    # create the canvas section
-    section_result = {}
-    request_parameters = {}
-    try:
-        # format section name similar to how it is handled in the bulk feed :
-        #  school + short title/course_code  + section id
+    if course_result:
+        # create the canvas section
+        section_result = {}
+        request_parameters = {}
+        try:
+            # format section name similar to how it is handled in the bulk feed :
+            #  school + short title/course_code  + section id
+            section_name = f'{school.upper()} {course_code} {section_id}'
+            request_parameters = dict(
+                request_ctx=SDK_CONTEXT,
+                course_id=course_result['id'],
+                course_section_name=section_name,
+                course_section_sis_section_id=course_instance_id)
+            logger.info(f'Creating Canvas section the following parameters {request_parameters}')
+            section_result = create_course_section(**request_parameters).json()
+        except Exception as e:
+            logger.exception(f'Error creating section for new course via SDK with request={request_parameters}')
 
-        section_name = '{} {} {}'.format(school.upper(), course_code, section_id)
-        request_parameters = dict(
-            request_ctx=SDK_CONTEXT,
-            course_id=course_result['id'],
-            course_section_name=section_name,
-            course_section_sis_section_id=course_instance_id)
-        section_result = create_course_section(**request_parameters).json()
-    except Exception as e:
-        message = ('Error creating section for new course via SDK with '
-                   'request={}'.format(request_parameters))
-        if isinstance(e, CanvasAPIError):
-            message += ', SDK error details={}'.format(e)
-        logger.exception(message)
+    return course_result
 
 
 def copy_from_canvas_template(request):
@@ -118,10 +111,8 @@ def copy_from_canvas_template(request):
         data = json.loads(request.body)
         canvas_course_id = data['canvas_course_id']
         template_id = data['template_id']
-    except Exception:
-        message = ('Failed to extract canvas parameters from posted data; '
-                   'request body={}'.format(request.body))
-        logger.exception(message)
+    except Exception as e:
+        logger.exception('Failed to extract canvas parameters from posted data; request body={request.body}')
 
     request_parameters = dict(request_ctx=SDK_CONTEXT,
                               course_id=canvas_course_id,
@@ -132,8 +123,4 @@ def copy_from_canvas_template(request):
         logger.debug('content migration API call result: %s' % migration_result)
 
     except Exception as e:
-        message = 'Error creating content migration via SDK with request={}'\
-            .format(request_parameters)
-        if isinstance(e, CanvasAPIError):
-            message += ', SDK error details={}'.format(e)
-        logger.exception(message)
+        logger.exception(f'Error creating content migration via SDK with request={request_parameters}')
