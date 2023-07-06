@@ -54,7 +54,7 @@ def create_canvas_course_and_section(data):
     course_instance_id = course_instance.course_instance_id
     school = course.school_id
     section_id = course_instance.section
-    term_id = f'sis_term_id:{course_instance.term_id}'
+    term_id = f'sis_term_id:{course_instance.term.meta_term_id()}'
     title = course.registrar_code_display
 
     request_parameters = dict(

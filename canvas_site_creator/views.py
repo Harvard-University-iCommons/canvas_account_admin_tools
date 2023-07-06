@@ -4,11 +4,12 @@ from canvas_api.helpers import accounts as canvas_api_accounts
 from common.utils import get_canvas_site_templates_for_school, get_term_data_for_school
 from coursemanager.models import CourseInstance, Course, Department, Term
 from coursemanager.models import School
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
-from django.contrib import messages
 
 from .utils import create_canvas_course_and_section
 
@@ -70,18 +71,24 @@ def create_new_course(request):
         canvas_course = create_canvas_course_and_section(course_data)
 
         if canvas_course:
-            course_instance.update(sync_to_canvas=1,
-                                   canvas_course_id=canvas_course['id'],
-                                   parent_course_instance=None)
+            course_instance.sync_to_canvas = 1
+            course_instance.canvas_course_id = canvas_course['id']
+            course_instance.parent_course_instance = None
+            course_instance.save()
 
-            messages.add_message(request, messages.SUCCESS, 'Course successfully created')
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 course_instance.canvas_course_id)
         else:
-            messages.add_message(request, messages.ERROR, 'The course could not successfully be created. '
-                                                          'Please try again or contact support if the issue persists.')
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'The course could not successfully be created. '
+                                 'Please try again or contact support if the issue persists.')
 
     context = {'school_id': school_id,
                'school_name': school.title_short,
                'canvas_site_templates': canvas_site_templates,
-               'terms': terms}
+               'terms': terms,
+               'canvas_url': settings.CANVAS_URL}
 
     return render(request, 'canvas_site_creator/index.html', context)
