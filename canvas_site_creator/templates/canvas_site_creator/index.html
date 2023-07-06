@@ -5,9 +5,6 @@
 {% load django_helpers %}
 
 
-{% block js %}
-{% endblock js %}
-
 {% block body %}
 <body class="lti-tool" role="application">
 <header>
@@ -23,7 +20,7 @@
         {% if message.level_tag == "success" %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                {{ message }}
+                Course <a href="{{ canvas_url }}/courses/{{ message }}" target="_blank">{{ message }}</a> successfully created.
             </div>
         {% elif message.level_tag == "error" %}
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -69,7 +66,7 @@
                         <select id="course-code-type" name="course-code-type" class="form-control">
                             <option value="ILE">ILE</option>
                             <option value="SB">SB</option>
-                            <option value="BLU">BLU</option>
+                            <option value="BLU" hidden>BLU</option>
                         </select>
                             </div>
                         <div class="col-sm-8 margin-bottom-md">
@@ -150,3 +147,19 @@
 
 </body>
 {% endblock body %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        // Disable the code type select and set the value to BLU when the enable blueprint checkbox is selected
+        // When the checkbox is deselected, remove the disabled attr and set the value to ILE
+        $('#is_blueprint').change(function() {
+            if ($(this).is(':checked')) {
+                $('#course-code-type').attr('disabled', $(this).is(':checked')).val("BLU");
+            } else {
+                $('#course-code-type').removeAttr("disabled").val("ILE");
+            }
+        });
+    });
+</script>
+{% endblock js %}
