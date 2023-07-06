@@ -2,9 +2,7 @@ import json
 import logging
 
 from canvas_sdk import RequestContext
-from canvas_sdk.exceptions import CanvasAPIError
-from canvas_sdk.methods.content_migrations import \
-    create_content_migration_courses
+from canvas_sdk.methods.content_migrations import  create_content_migration_courses
 from canvas_sdk.methods.courses import create_new_course, update_course
 from canvas_sdk.methods.sections import create_course_section
 from coursemanager.models import CourseInstance
@@ -45,6 +43,7 @@ def create_canvas_course_and_section(data):
     course = data['course']
     course_instance = data['course_instance']
     is_blueprint = data['is_blueprint']
+    template_id = data['template_id']
 
     # If this is a blueprint course, create course at school level not in the ILE sub account
     account_id = 'sis_account_id:%s' % (f'school:{course.school_id}' if is_blueprint else f'dept:{course.department_id}')
@@ -103,17 +102,14 @@ def create_canvas_course_and_section(data):
         except Exception as e:
             logger.exception(f'Error creating section for new course via SDK with request={request_parameters}')
 
+        # If a template was selected, create a content migration for the course
+        if template_id:
+            copy_from_canvas_template(course_result['id'], template_id)
+
     return course_result
 
 
-def copy_from_canvas_template(request):
-    try:
-        data = json.loads(request.body)
-        canvas_course_id = data['canvas_course_id']
-        template_id = data['template_id']
-    except Exception as e:
-        logger.exception('Failed to extract canvas parameters from posted data; request body={request.body}')
-
+def copy_from_canvas_template(canvas_course_id, template_id):
     request_parameters = dict(request_ctx=SDK_CONTEXT,
                               course_id=canvas_course_id,
                               migration_type='course_copy_importer',

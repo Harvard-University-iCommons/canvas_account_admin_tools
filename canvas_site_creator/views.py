@@ -35,6 +35,7 @@ def create_new_course(request):
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
 
     if request.method == 'POST':
+        # On POST, create new Course and CourseInstance records and then the course in Canvas
         post_data = request.POST.dict()
 
         is_blueprint = True if post_data.get('is_blueprint') else False
@@ -43,6 +44,7 @@ def create_new_course(request):
         department = Department.objects.get(school=school_id, short_name=department_short_name)
         term = Term.objects.get(term_id=post_data['course-term'])
         course_code_type = post_data["course-code-type"]
+        template_id = post_data['templateSelect'] if post_data['templateSelect'] != 'No template' else None
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info: {post_data}')
 
@@ -67,7 +69,8 @@ def create_new_course(request):
             'sis_account_id': sis_account_id,
             'course': course,
             'course_instance': course_instance,
-            'is_blueprint': is_blueprint
+            'is_blueprint': is_blueprint,
+            'template_id': template_id
         }
 
         canvas_course = create_canvas_course_and_section(course_data)
