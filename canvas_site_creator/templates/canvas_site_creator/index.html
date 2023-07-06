@@ -95,9 +95,9 @@
                            name="course-short-title">
                 </div>
                 <div class="col-sm-3 margin-bottom-md">
-                    <label for="templateSelect">Template</label>
+                    <label for="template-select">Template</label>
                     <div>
-                        <select id="templateSelect" class="form-control">
+                        <select id="template-select" name="template-select" class="form-control">
                             <option value="No template">No template</option>
                             {% for template in canvas_site_templates %}
                                 <option value="{{ template.canvas_course_id }}">{{ template.canvas_course_name }}</option>

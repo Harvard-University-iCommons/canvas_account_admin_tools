@@ -44,7 +44,7 @@ def create_new_course(request):
         department = Department.objects.get(school=school_id, short_name=department_short_name)
         term = Term.objects.get(term_id=post_data['course-term'])
         course_code_type = post_data["course-code-type"]
-        template_id = post_data['templateSelect'] if post_data['templateSelect'] != 'No template' else None
+        template_id = post_data['template-select'] if post_data['template-select'] != 'No template' else None
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info: {post_data}')
 
