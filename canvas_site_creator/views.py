@@ -37,10 +37,12 @@ def create_new_course(request):
     if request.method == 'POST':
         post_data = request.POST.dict()
 
-        is_blueprint = post_data.get('is_blueprint', False)
-        department = Department.objects.get(school=school_id, short_name=post_data["course-code-type"])
+        is_blueprint = True if post_data.get('is_blueprint') else False
+        # Associate blueprint courses with the schools ILE department
+        department_short_name = 'ILE' if post_data["course-code-type"] == 'BLU' else post_data["course-code-type"]
+        department = Department.objects.get(school=school_id, short_name=department_short_name)
         term = Term.objects.get(term_id=post_data['course-term'])
-        course_code_type = 'BLU' if is_blueprint else post_data["course-code-type"]
+        course_code_type = post_data["course-code-type"]
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info: {post_data}')
 

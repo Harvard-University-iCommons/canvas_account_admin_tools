@@ -47,7 +47,7 @@ def create_canvas_course_and_section(data):
     is_blueprint = data['is_blueprint']
 
     # If this is a blueprint course, create course at school level not in the ILE sub account
-    account_id = 'sis_account_id:%s' % (course.school_id if is_blueprint else f'dept:{course.department_id}')
+    account_id = 'sis_account_id:%s' % (f'school:{course.school_id}' if is_blueprint else f'dept:{course.department_id}')
     # not using .get() default because we want to fall back on course_code
     # if short_title is an empty string
     course_code = course_instance.short_title.strip() or course.registrar_code

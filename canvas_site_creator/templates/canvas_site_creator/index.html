@@ -108,10 +108,10 @@
                 </div>
 
                 <div class="col-sm-3 margin-bottom-md">
-                    <label for="templateSelect">Blueprint Course</label>
+                    <label for="is_blueprint">Blueprint Course</label>
                     <div class="checkbox" style="margin-top: 0px">
                         <label>
-                            <input type="checkbox" id="is_blueprint"> Enable course as a Blueprint Course
+                            <input type="checkbox" id="is_blueprint" name="is_blueprint"> Enable course as a Blueprint Course
                         </label>
                     </div>
                 </div>
@@ -152,13 +152,20 @@
 <script>
     $(document).ready(function () {
         // Disable the code type select and set the value to BLU when the enable blueprint checkbox is selected
-        // When the checkbox is deselected, remove the disabled attr and set the value to ILE
+        // When the checkbox is deselected, remove the disabled prop and set the value to ILE
         $('#is_blueprint').change(function() {
             if ($(this).is(':checked')) {
-                $('#course-code-type').attr('disabled', $(this).is(':checked')).val("BLU");
+                $('#course-code-type').prop('disabled', true);
+                $('#course-code-type option[value="BLU"]').prop('selected', true);
             } else {
-                $('#course-code-type').removeAttr("disabled").val("ILE");
+                $('#course-code-type').prop("disabled", false)
+                $('#course-code-type option[value="ILE"]').prop('selected', true);
             }
+        });
+
+        // If this is a blueprint course, remove the disabled property from the select otherwise it does not get posted
+        $('form').bind('submit', function () {
+            $(this).find(':input').prop('disabled', false);
         });
     });
 </script>
