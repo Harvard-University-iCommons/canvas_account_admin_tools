@@ -1,15 +1,18 @@
 import logging
 
 from canvas_api.helpers import accounts as canvas_api_accounts
-from common.utils import get_canvas_site_templates_for_school, get_term_data_for_school
-from coursemanager.models import CourseInstance, Course, Department, Term
-from coursemanager.models import School
+from coursemanager.models import (Course, CourseInstance, Department, School,
+                                  Term)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.db.utils import IntegrityError
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
+
+from common.utils import (get_canvas_site_templates_for_school,
+                          get_term_data_for_school)
 
 from .utils import create_canvas_course_and_section
 
@@ -46,14 +49,24 @@ def create_new_course(request):
         course_code_type = post_data["course-code-type"]
         template_id = post_data['template-select'] if post_data['template-select'] != 'No template' else None
 
-        logger.info(f'Creating Course and CourseInstance records from the posted site creator info: {post_data}')
+        logger.info(f'Creating Course and CourseInstance records from the posted site creator info.', extra=post_data)
 
-        course = Course.objects.create(
-            registrar_code=f'{course_code_type}-{post_data["course-code"]}',
-            registrar_code_display=f'{course_code_type}-{post_data["course-code"]}',
-            school=school,
-            department=department
-        )
+        try:
+            course = Course.objects.create(
+                registrar_code=f'{course_code_type}-{post_data["course-code"]}',
+                registrar_code_display=f'{course_code_type}-{post_data["course-code"]}',
+                school=school,
+                department=department
+            )
+        except IntegrityError:
+            logger.error(f'The course code already exists. '
+                         f'Could not create Course and CourseInstance records '
+                         f'from the posted site creator info.', extra=post_data)
+            messages.add_message(request,
+                                 messages.ERROR,
+                                 'The course could not successfully be created. '
+                                 'The course code already exists.')
+            return redirect('canvas_site_creator:create_new_course')
 
         course_instance = CourseInstance.objects.create(
             course=course,
