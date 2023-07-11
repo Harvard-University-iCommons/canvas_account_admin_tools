@@ -73,7 +73,10 @@
                         <input type="text"
                                class="form-control pull-right"
                                id="course-code"
-                               name="course-code">
+                               name="course-code"
+                               minlength="3" 
+                               maxlength="50"
+                               required>
                             </div>
                     </div>
                 </div>
@@ -85,7 +88,10 @@
                     <input type="text"
                            class="form-control"
                            id="course-title"
-                           name="course-title">
+                           name="course-title"
+                           minlength="3" 
+                           maxlength="50"
+                           required>
                 </div>
                 <div class="col-sm-6 margin-bottom-md">
                     <label for="course-short-title">New Short Title</label>
