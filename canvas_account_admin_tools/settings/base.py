@@ -75,7 +75,6 @@ INSTALLED_APPS = [
     'icommons_common',
     'coursemanager',
     'icommons_ui',
-    'lti_permissions',
     'lti_school_permissions',
     'people_tool',
     'proxy',
