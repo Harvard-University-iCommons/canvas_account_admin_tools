@@ -50,7 +50,7 @@
                 <div class="col-sm-6 margin-bottom-md">
                     <label for="course-term">Term <span class="required-field-marker">*</span></label>
                     <div>
-                        <select id="course-term" name="course-term" class="form-control">
+                        <select id="course-term" name="course-term" class="form-select">
                             {% for term in terms %}
                             {{ term }}
                                 <option value="{{ term.id }}">{{ term.name }}</option>
@@ -63,7 +63,7 @@
                     <label for="course-code">New Course Code <span class="required-field-marker">*</span></label>
                     <div class="input-group" id="course-code-input-group">
                         <div class="col-sm-4 margin-bottom-md">
-                        <select id="course-code-type" name="course-code-type" class="form-control">
+                        <select id="course-code-type" name="course-code-type" class="form-select">
                             <option value="ILE">ILE</option>
                             <option value="SB">SB</option>
                             <option value="BLU" hidden>BLU</option>
@@ -74,7 +74,7 @@
                                class="form-control pull-right"
                                id="course-code"
                                name="course-code"
-                               minlength="3" 
+                               minlength="3"
                                maxlength="50"
                                required>
                             </div>
@@ -89,7 +89,7 @@
                            class="form-control"
                            id="course-title"
                            name="course-title"
-                           minlength="3" 
+                           minlength="3"
                            maxlength="50"
                            required>
                 </div>
@@ -103,7 +103,7 @@
                 <div class="col-sm-3 margin-bottom-md">
                     <label for="template-select">Template</label>
                     <div>
-                        <select id="template-select" name="template-select" class="form-control">
+                        <select id="template-select" name="template-select" class="form-select">
                             <option value="No template">No template</option>
                             {% for template in canvas_site_templates %}
                                 <option value="{{ template.canvas_course_id }}">{{ template.canvas_course_name }}</option>
