@@ -2,7 +2,8 @@ import json
 import logging
 
 from canvas_sdk import RequestContext
-from canvas_sdk.methods.content_migrations import  create_content_migration_courses
+from canvas_sdk.methods.content_migrations import \
+    create_content_migration_courses
 from canvas_sdk.methods.courses import create_new_course, update_course
 from canvas_sdk.methods.sections import create_course_section
 from coursemanager.models import CourseInstance
@@ -45,8 +46,10 @@ def create_canvas_course_and_section(data):
     is_blueprint = data['is_blueprint']
     template_id = data['template_id']
 
+    # The course may be associated with either a department or coursegroup (depending on the school)
+    department_or_course_group_id = course.department_id if course.department_id else course.course_group_id
     # If this is a blueprint course, create course at school level not in the ILE sub account
-    account_id = 'sis_account_id:%s' % (f'school:{course.school_id}' if is_blueprint else f'dept:{course.department_id}')
+    account_id = 'sis_account_id:%s' % (f'school:{course.school_id}' if is_blueprint else f'dept:{department_or_course_group_id}')
     # not using .get() default because we want to fall back on course_code
     # if short_title is an empty string
     course_code = course_instance.short_title.strip() or course.registrar_code
