@@ -104,7 +104,7 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
     tasks = task_query_result['Items']
 
     # If there are additional items to be retrieved for this job, the LastEvaluatedKey will be present
-    # Us this key as the starting point for subsequent queries to build a full list
+    # Use this key as the starting point for subsequent queries to build a full list
     while task_query_result.get('LastEvaluatedKey', False):
         tasks_query_params['ExclusiveStartKey'] = task_query_result.get('LastEvaluatedKey')
         task_query_result = table.query(**tasks_query_params)
