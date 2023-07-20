@@ -61,8 +61,6 @@ def create_new_course(request):
         post_data = request.POST.dict()
 
         is_blueprint = True if post_data.get('is_blueprint') else False
-        # Associate blueprint courses with the schools ILE department
-        short_name = 'ILE' if post_data["course-code-type"] == 'BLU' else post_data["course-code-type"]
         selected_course_group_id = post_data.get("courseCourseGroup", None)
         selected_department_id = post_data.get("courseDepartment", None)
         term = Term.objects.get(term_id=post_data['course-term'])
