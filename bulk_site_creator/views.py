@@ -100,7 +100,15 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
         'KeyConditionExpression': Key('pk').eq(job_id),
         'ScanIndexForward': False,
     }
-    tasks = table.query(**tasks_query_params)['Items']
+    task_query_result = table.query(**tasks_query_params)
+    tasks = task_query_result['Items']
+
+    # If there are additional items to be retrieved for this job, the LastEvaluatedKey will be present
+    # Use this key as the starting point for subsequent queries to build a full list
+    while task_query_result.get('LastEvaluatedKey', False):
+        tasks_query_params['ExclusiveStartKey'] = task_query_result.get('LastEvaluatedKey')
+        task_query_result = table.query(**tasks_query_params)
+        tasks.extend(task_query_result['Items'])
 
     context = {
         'job': job,
