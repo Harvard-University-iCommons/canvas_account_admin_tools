@@ -1,8 +1,8 @@
 import logging
 
 from canvas_api.helpers import accounts as canvas_api_accounts
-from coursemanager.models import (Course, CourseInstance, Department, School,
-                                  Term)
+from coursemanager.models import (Course, CourseGroup, CourseInstance,
+                                  Department, School, Term)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +12,8 @@ from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
 
 from common.utils import (get_canvas_site_templates_for_school,
+                          get_course_group_data_for_school,
+                          get_department_data_for_school,
                           get_term_data_for_school)
 
 from .utils import create_canvas_course_and_section
@@ -23,8 +25,12 @@ logger = logging.getLogger(__name__)
 @lti_permission_required(canvas_api_accounts.ACCOUNT_PERMISSION_MANAGE_COURSES)
 @require_http_methods(['GET', 'POST'])
 def create_new_course(request):
-    sis_account_id = request.LTI['custom_canvas_account_sis_id']
+    # Depending on the type of request (POST vs GET), these values may not be set.
+    # If they are not set, we will use the default values below.
+    selected_course_group_id = None
+    selected_department_id = None
 
+    sis_account_id = request.LTI['custom_canvas_account_sis_id']
     try:
         school_id = sis_account_id.split(':')[1]
         school = School.objects.get(school_id=school_id)
@@ -37,17 +43,36 @@ def create_new_course(request):
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
 
+    course_groups = None
+    departments = None
+    if school_id == 'colgsas':
+        try:
+            course_groups = get_course_group_data_for_school(sis_account_id)
+        except Exception:
+            logger.exception(f"Failed to get course groups with sis_account_id {sis_account_id}")
+    else:
+        try:
+            departments = get_department_data_for_school(sis_account_id)
+        except Exception:
+            logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
+
     if request.method == 'POST':
         # On POST, create new Course and CourseInstance records and then the course in Canvas
         post_data = request.POST.dict()
 
         is_blueprint = True if post_data.get('is_blueprint') else False
-        # Associate blueprint courses with the schools ILE department
-        department_short_name = 'ILE' if post_data["course-code-type"] == 'BLU' else post_data["course-code-type"]
-        department = Department.objects.get(school=school_id, short_name=department_short_name)
+        selected_course_group_id = post_data.get("courseCourseGroup", None)
+        selected_department_id = post_data.get("courseDepartment", None)
         term = Term.objects.get(term_id=post_data['course-term'])
         course_code_type = post_data["course-code-type"]
         template_id = post_data['template-select'] if post_data['template-select'] != 'No template' else None
+
+        department = None
+        course_group = None
+        if selected_department_id:
+            department = Department.objects.get(department_id=selected_department_id)
+        else:
+            course_group = CourseGroup.objects.get(course_group_id=selected_course_group_id)
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info.', extra=post_data)
 
@@ -56,7 +81,8 @@ def create_new_course(request):
                 registrar_code=f'{course_code_type}-{post_data["course-code"]}',
                 registrar_code_display=f'{course_code_type}-{post_data["course-code"]}',
                 school=school,
-                department=department
+                department=department,
+                course_group=course_group,
             )
         except IntegrityError:
             logger.error(f'The course code already exists. '
@@ -105,10 +131,14 @@ def create_new_course(request):
 
         return redirect('canvas_site_creator:create_new_course')
 
-    context = {'school_id': school_id,
-               'school_name': school.title_short,
-               'canvas_site_templates': canvas_site_templates,
-               'terms': terms,
-               'canvas_url': settings.CANVAS_URL}
+    context = {
+        'school_id': school_id,
+        'school_name': school.title_short,
+        'canvas_site_templates': canvas_site_templates,
+        'terms': terms,
+        'canvas_url': settings.CANVAS_URL,
+        'departments': departments,
+        'course_groups': course_groups,
+    }
 
     return render(request, 'canvas_site_creator/index.html', context)
