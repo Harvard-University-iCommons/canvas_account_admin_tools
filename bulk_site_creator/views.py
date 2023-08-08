@@ -17,11 +17,11 @@ from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
 
-from common.utils import (get_canvas_site_templates_for_school,
+from common.utils import (get_canvas_site_template_name,
+                          get_canvas_site_templates_for_school,
                           get_course_group_data_for_school,
                           get_department_data_for_school,
-                          get_term_data_for_school,
-                          get_canvas_site_template_name)
+                          get_term_data_for_school)
 
 from .schema import JobRecord
 from .utils import (batch_write_item, generate_task_objects,
@@ -78,7 +78,7 @@ def index(request):
 @require_http_methods(["GET"])
 def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
     """
-    This function renders the Bulk Site Creator job detail page 
+    This function renders the Bulk Site Creator job detail page
     with details about a job and the tasks for that job.
     """
     table = dynamodb.Table(table_name)
@@ -142,16 +142,16 @@ def new_job(request):
     # Only display the Course Groups dropdown if the tool is launched in the COLGSAS sub-account
     if school_id == 'colgsas':
         try:
-            course_groups = get_course_group_data_for_school(sis_account_id)
+            course_groups = get_course_group_data_for_school(sis_account_id, exclude_ile_sb=True)
         except Exception:
             logger.exception(f"Failed to get course groups with sis_account_id {sis_account_id}")
     # For all other schools, display just the Departments dropdown
     else:
         try:
-            departments = get_department_data_for_school(sis_account_id)
+            departments = get_department_data_for_school(sis_account_id, exclude_ile_sb=True)
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
-    
+
     logging_dept_cg_text = ' and no selected department or course group'
     if request.method == "POST":
         selected_term_id = request.POST.get("courseTerm", None)
@@ -212,7 +212,7 @@ def new_job(request):
 @require_http_methods(["POST"])
 def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
     """
-    This function creates the Bulk Site Creator jobs and 
+    This function creates the Bulk Site Creator jobs and
     redirects to the index view.
     """
     dynamodb_table = dynamodb.Table(table_name)
@@ -305,7 +305,7 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         sis_account_id = str(sis_account_id)
         logger.debug(f'Generating task objects for term ID {term_id} (term name {term_name}) '
                      f'and custom Canvas account sis ID {sis_account_id}.', extra=log_extra)
-        
+
         # Create TaskRecord objects for each course instance
         tasks = generate_task_objects(potential_course_sites_query, job)
 
