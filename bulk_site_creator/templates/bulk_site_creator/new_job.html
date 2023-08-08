@@ -2,7 +2,8 @@
 
 {% block body %}
 <nav>
-  <h3 class="breadcrumbs">
+  <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
+  <h3 class="mt-3 mb-2">
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
     <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
@@ -17,7 +18,7 @@
             {% if course_groups or departments %}
                 <form id="ci-filters" class="form-inline" method="POST" action="{% url 'bulk_site_creator:new_job' %}">{% csrf_token %}
                     <div class="row">
-                        <div class="col-sm-6 margin-bottom-md">
+                        <div class="col-sm-6 margin-bottom-md fw-bold">
                             <label for="courseTerm">Term
                                 <span class="required-field-marker">*</span>
                             </label>
@@ -41,7 +42,7 @@
                                     {% if not selected_department_id or selected_department_id == '0' %}
                                         <option value="0" selected>All Departments</option>
                                     {% else %}
-                                        <option value="0">All Department</option>
+                                        <option value="0">All Departments</option>
                                     {% endif %}
                                     {% for department in departments %}
                                         {% if selected_department_id and selected_department_id == department.id %}
@@ -217,7 +218,7 @@
                         target: "_blank",
                         text: ` ${selectedTemplateText}` + ` (${selectedTemplateVal}).`,
                         title: "template URL",
-                        href: window.location.origin + "/courses/" + `${selectedTemplateVal}`
+                        href: "{{ canvas_url }}" + "/courses/" + `${selectedTemplateVal}`
                     }).appendTo("#modal-body-text");
                 }
             });

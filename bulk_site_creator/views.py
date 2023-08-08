@@ -113,7 +113,7 @@ def job_detail(request: HttpRequest, job_id: str) -> HttpResponse:
     context = {
         'job': job,
         'tasks': tasks,
-        'canvas_url': settings.CANVAS_URL,
+        'canvas_url': settings.CANVAS_URL
     }
     logger.debug(f'Retrieved job details for job {job_id}.', extra=context)
     return render(request, "bulk_site_creator/job_detail.html", context=context)
@@ -202,7 +202,8 @@ def new_job(request):
         "course_groups": course_groups,
         'selected_term_id': selected_term_id,
         'selected_course_group_id': selected_course_group_id,
-        'selected_department_id': selected_department_id
+        'selected_department_id': selected_department_id,
+        'canvas_url': settings.CANVAS_URL,
     }
     return render(request, "bulk_site_creator/new_job.html", context=context)
 
