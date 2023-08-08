@@ -17,9 +17,9 @@ class Command(BaseCommand):
     help = 'Creates course_instance records in the coursemanager DB to be used in bulk site creation testing'
 
     def add_arguments(self, parser):
-        parser.add_argument('--term_id', help='Term to associate new Course Instances to')
-        parser.add_argument('--course_id', help='Existing Course to associate new Course Instances to')
-        parser.add_argument('--department_id', help='Department ID to associate a new Course to')
+        parser.add_argument('--term-id', help='Term to associate new Course Instances to')
+        parser.add_argument('--course-id', help='Existing Course to associate new Course Instances to')
+        parser.add_argument('--department-id', help='Department ID to associate a new Course to')
         parser.add_argument('--cg_id', help='Course Group ID to associate a new Course to')
         parser.add_argument('--school', help='Lowercase abbreviation of school to associate a new Course to')
         parser.add_argument('--amount', default=15, type=int, help='Amount of course instance records to create')
@@ -45,8 +45,8 @@ class Command(BaseCommand):
             )
 
         # If a term ID has been provided, get that Term object, otherwise get the most recent term for the given school
-        if options.get('term-id'):
-            term = Term.objects.get(term_id=options['term-id'])
+        if options.get('term_id'):
+            term = Term.objects.get(term_id=options['term_id'])
         else:
             term = Term.objects.filter(school_id=options['school']).order_by('-term_id').first()
 
