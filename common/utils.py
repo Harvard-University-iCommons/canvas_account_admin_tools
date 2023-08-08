@@ -9,6 +9,7 @@ from canvas_sdk.utils import get_all_list_data
 from coursemanager.models import MVActiveCGDept, Term
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from canvas_account_admin_tools.models import CanvasSchoolTemplate
@@ -82,32 +83,74 @@ def get_term_data_for_school(school_sis_account_id):
     return terms, current_term_id
 
 
-def get_department_data_for_school(school_sis_account_id: str) -> list:
+def _get_department_data_for_school(school_sis_account_id: str) -> QuerySet:
     """
-    Returns a list of validated departments for a given school.
-    This validation is done to prevent legacy departments from being displayed in the UI.
+    Returns all departments for a given school.
     """
-
     school_id = school_sis_account_id.split(':')[1]
-    query_set = MVActiveCGDept.objects.filter(
+    return MVActiveCGDept.objects.filter(
         school_id=school_id, type='DEPARTMENT'
-    ).order_by('name')
-
-    return list(query_set.values('id', 'name')) if query_set else []
+    )
 
 
-def get_course_group_data_for_school(school_sis_account_id: str) -> list:
+def _get_department_data_for_school_excluding_ile_sb(school_sis_account_id: str) -> QuerySet:
     """
-    Returns a list of validated course groups for a given school.
-    This validation is done to prevent legacy course groups from being displayed in the UI.
+    Returns all departments for a given school, excluding ILE and SB.
     """
+    base_query = _get_department_data_for_school(school_sis_account_id)
+    return base_query.exclude(Q(short_name='ILE') | Q(short_name='SB'))
 
+
+def get_department_data_for_school(school_sis_account_id: str, exclude_ile_sb=False) -> list:
+    """
+    Returns all departments for a given school. Either includes or excludes ILE and SB
+    departments, depending on the value of the exclude_ile_sb parameter.
+    """
+    if exclude_ile_sb:
+        query_set = _get_department_data_for_school_excluding_ile_sb(school_sis_account_id)
+    else:
+        query_set = _get_department_data_for_school(school_sis_account_id)
+
+    sorted_query_set = query_set.order_by('name')
+    return list(sorted_query_set.values('id', 'name')) if query_set else []
+
+
+def _get_course_group_data_for_school(school_sis_account_id: str) -> QuerySet:
+    """
+    Returns all course groups for a given school.
+    """
     school_id = school_sis_account_id.split(':')[1]
-    query_set = MVActiveCGDept.objects.filter(
+    return MVActiveCGDept.objects.filter(
         school_id=school_id, type='COURSE_GROUP'
-    ).order_by('name')
+    )
 
-    return list(query_set.values('id', 'name')) if query_set else []
+
+def _get_ile_sb_course_group_data_for_school(school_sis_account_id: str) -> QuerySet:
+    """
+    In the Harvard College/GSAS sub-account, ILE and SB courses are not designated as
+    course groups, but as departments. This function retrieves the Harvard College/GSAS
+    ILE/SB sub-accounts from the MVActiveCGDept materialized view.
+    """
+    school_id = school_sis_account_id.split(':')[1]
+    return MVActiveCGDept.objects.filter(
+        Q(type='DEPARTMENT') & (Q(short_name='ILE') | Q(short_name='SB')),
+        school_id=school_id
+    )
+
+
+def get_course_group_data_for_school(school_sis_account_id: str, exclude_ile_sb=False) -> list:
+    """
+    Returns a list of course groups for a given school. Either includes or excludes
+    ILE and SB course groups, depending on the value of the exclude_ile_sb parameter.
+    """
+    query_set = _get_course_group_data_for_school(school_sis_account_id)
+
+    if not exclude_ile_sb:
+        ile_sb_query = _get_ile_sb_course_group_data_for_school(school_sis_account_id)
+        query_set = query_set | ile_sb_query
+
+    sorted_query_set = query_set.order_by('name')
+    return list(sorted_query_set.values('id', 'name')) if query_set else []
 
 
 def get_canvas_site_template_name(canvas_course_id):
