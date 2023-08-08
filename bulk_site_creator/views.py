@@ -142,13 +142,13 @@ def new_job(request):
     # Only display the Course Groups dropdown if the tool is launched in the COLGSAS sub-account
     if school_id == 'colgsas':
         try:
-            course_groups = get_course_group_data_for_school(sis_account_id, exclude_ile_sb=True)
+            course_groups = get_course_group_data_for_school(sis_account_id, include_ile_sb=False)
         except Exception:
             logger.exception(f"Failed to get course groups with sis_account_id {sis_account_id}")
     # For all other schools, display just the Departments dropdown
     else:
         try:
-            departments = get_department_data_for_school(sis_account_id, exclude_ile_sb=True)
+            departments = get_department_data_for_school(sis_account_id, include_ile_sb=False)
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
 

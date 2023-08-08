@@ -101,12 +101,12 @@ def _get_department_data_for_school_excluding_ile_sb(school_sis_account_id: str)
     return base_query.exclude(Q(short_name='ILE') | Q(short_name='SB'))
 
 
-def get_department_data_for_school(school_sis_account_id: str, exclude_ile_sb=False) -> list:
+def get_department_data_for_school(school_sis_account_id: str, include_ile_sb=True) -> list:
     """
     Returns all departments for a given school. Either includes or excludes ILE and SB
-    departments, depending on the value of the exclude_ile_sb parameter.
+    departments, depending on the value of the include_ile_sb parameter.
     """
-    if exclude_ile_sb:
+    if not include_ile_sb:
         query_set = _get_department_data_for_school_excluding_ile_sb(school_sis_account_id)
     else:
         query_set = _get_department_data_for_school(school_sis_account_id)
@@ -138,14 +138,14 @@ def _get_ile_sb_course_group_data_for_school(school_sis_account_id: str) -> Quer
     )
 
 
-def get_course_group_data_for_school(school_sis_account_id: str, exclude_ile_sb=False) -> list:
+def get_course_group_data_for_school(school_sis_account_id: str, include_ile_sb=True) -> list:
     """
     Returns a list of course groups for a given school. Either includes or excludes
-    ILE and SB course groups, depending on the value of the exclude_ile_sb parameter.
+    ILE and SB course groups, depending on the value of the include_ile_sb parameter.
     """
     query_set = _get_course_group_data_for_school(school_sis_account_id)
 
-    if not exclude_ile_sb:
+    if include_ile_sb:
         ile_sb_query = _get_ile_sb_course_group_data_for_school(school_sis_account_id)
         query_set = query_set | ile_sb_query
 
