@@ -1,0 +1,283 @@
+{% extends 'bulk_site_creator/base.html' %}
+
+{% block body %}
+<nav>
+  <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
+  <h3 class="mt-3 mb-2">
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+      New Job
+  </h3>
+</nav>
+
+<body role="application">
+    <div class="container-fluid">
+        {% if terms %}
+            {% if course_groups or departments %}
+                <form id="ci-filters" class="form-inline" method="POST" action="{% url 'bulk_site_creator:new_job' %}">{% csrf_token %}
+                    <div class="row">
+                        <div class="col-sm-6 margin-bottom-md fw-bold">
+                            <label for="courseTerm">Term
+                                <span class="required-field-marker">*</span>
+                            </label>
+                            <br>
+                            <select id="courseTerm" name="courseTerm" class="form-select">
+                                {% for term in terms %}
+                                    {% if selected_term_id == term.id %}
+                                        <option value="{{ term.id }}" selected>{{ term.name }}</option>
+                                    {% else %}
+                                        <option value="{{ term.id }}">{{ term.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <br>
+                            {% if departments %}
+                                <label for="courseDepartment">Department
+                                    <span class="required-field-marker">*</span>
+                                </label>
+                                <br>
+                                <select id="courseDepartment" name="courseDepartment" class="form-select">
+                                    {% if not selected_department_id or selected_department_id == '0' %}
+                                        <option value="0" selected>All Departments</option>
+                                    {% else %}
+                                        <option value="0">All Departments</option>
+                                    {% endif %}
+                                    {% for department in departments %}
+                                        {% if selected_department_id and selected_department_id == department.id %}
+                                            <option value="{{ department.id }}" selected>{{ department.name }}</option>
+                                        {% else %}
+                                            <option value="{{ department.id }}">{{ department.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <br>
+                            {% elif course_groups %}
+                                <label for="courseCourseGroup">Course Group
+                                    <span class="required-field-marker">*</span>
+                                </label>
+                                <br>
+                                <select id="courseCourseGroup" name="courseCourseGroup" class="form-select">
+                                    {% if not selected_course_group_id or selected_course_group_id == '0' %}
+                                        <option value="0" selected>All Course Groups</option>
+                                    {% else %}
+                                        <option value="0">All Course Groups</option>
+                                    {% endif %}
+                                    {% for course_group in course_groups %}
+                                        {% if selected_course_group_id and selected_course_group_id == course_group.id %}
+                                            <option value="{{ course_group.id }}" selected>{{ course_group.name }}</option>
+                                        {% else %}
+                                            <option value="{{ course_group.id }}">{{ course_group.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-12">
+                            <button id="find-courses-in-term"
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    style="margin-top: 25px; margin-bottom: 25px;"
+                                    onclick="displayLoading()">
+                                Find Courses
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <h3>There are no active departments or course groups in this account.</h3>
+            {% endif %}
+        {% else %}
+                <h3>There are no terms available in this account.</h3>
+        {% endif %}
+
+        {% if potential_course_sites %}
+            <hr>
+            <div class="row">
+                <h4>{{ potential_site_count }} course{{ potential_site_count|pluralize }} ready for Canvas course site creation</h4>
+                <div class="col-sm-6 margin-bottom-md">
+                    <select id="templateSelect" class="form-select">
+                        <option value="0">
+                            No Template
+                        </option>
+                        {% for site_template in canvas_site_templates %}
+                            <option value="{{ site_template.canvas_course_id }}">
+                                {{ site_template.canvas_course_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <button type="button" ng-cloak class="btn btn-primary" id="bsc-create-btn" data-bs-toggle="modal" data-bs-target="#confirmCreate">Create All</button>
+                    <br>
+                    <br>
+                    <p>You may select individual courses from the list below to customize your Canvas course site creation job.</p>
+                </div>
+                <table id="course-table" class="datatable table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>SIS ID</th>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            <th>Course Section</th>
+                        </tr>
+                    </thead>
+                    <tbody id="course-table-body">
+                    {% for potential_course_site in potential_course_sites %}
+                        <tr>
+                            <td></td>
+                            <td>{{ potential_course_site.course_instance_id }}</td>
+                            <td>{{ potential_course_site.short_title }}</td>
+                            <td>{{ potential_course_site.title }}</td>
+                            <td>{{ potential_course_site.section }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <form id="submitJob" method="POST" action="{% url 'bulk_site_creator:create_bulk_job' %}">{% csrf_token %}
+                    <input id="termID" name="termID" type="hidden" value={{ selected_term_id }}>
+                    <input id="courseGroupID" name="courseGroupID" type="hidden" value={{ selected_course_group_id }}>
+                    <input id="departmentID" name="departmentID" type="hidden" value={{ selected_department_id }}>
+                </form>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div class="modal fade" id="confirmCreate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Confirm Canvas Course Site Creation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <span id="modal-body-text"></span>
+                    Are you sure you would like to proceed?
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" >Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmCreateButton">Yes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- If no potential_course_sites -->
+            {% elif selected_term_id %}
+                <hr>
+                <div class="row">
+                    <h4>No courses ready for Canvas course site creation</h4>
+                </div>
+        {% endif %}
+    </div>
+</body>
+{% endblock %}
+
+{% block js %}
+    <script>
+		$(document).ready(function() {
+			 table = $('.datatable').DataTable( {
+                columnDefs: [ {
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets:   0
+                } ],
+                select: {
+                    style: 'multi',
+                    selector: 'td:first-child'
+                },
+                order: [[ 1, 'asc' ]]
+            });
+
+            // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
+            $("#course-table-body").on( "click", function() {
+                // Update button after n seconds to get accurate if row selected value
+                // after DataTable has time to process checkbox click.
+                setTimeout(
+                    function()
+                    {
+                        const create_btn_text = (table.rows( { selected: true } ).any()) ? "Create Selected" : "Create All";
+                        $("#bsc-create-btn").html(`${create_btn_text}`);
+                    }, 125);  // 1/8 second wait.
+            });
+
+            // For updating modal body text.
+            $("#bsc-create-btn").on( "click", function() {
+                const totalTableRowItems = table.rows().count();
+                const selectedCourseCount = table.rows( { selected: true } ).count();
+                const selectedTemplateText = $.trim($("#templateSelect :selected").text());
+                const selectedTemplateVal = $("#templateSelect").val();
+                const modalBodyTextBeginning = (selectedCourseCount == 0) ? `You are about to create ${totalTableRowItems}` : `You have selected ${selectedCourseCount}`;
+
+                if (selectedTemplateText.toLowerCase() == "no template") {
+                    $("#modal-body-text").text(`${modalBodyTextBeginning} courses for Canvas site creation with no template.`);
+                } else {
+                    $("#modal-body-text").text(`${modalBodyTextBeginning} courses for Canvas site creation with template`);
+                    // Template URL
+                    $("<a>", {
+                        class: "template-url",
+                        target: "_blank",
+                        text: ` ${selectedTemplateText}` + ` (${selectedTemplateVal}).`,
+                        title: "template URL",
+                        href: "{{ canvas_url }}" + "/courses/" + `${selectedTemplateVal}`
+                    }).appendTo("#modal-body-text");
+                }
+            });
+
+            $('#confirmCreateButton').on('click', function () {
+                var selectedRows = table.rows( { selected: true } ).data();
+                var courseInstanceIDList = buildCourseInstanceIDList(selectedRows);
+                var selectedCourseCount = selectedRows.count();
+                var selectedTemplate = $("#templateSelect").find(":selected").val();
+                var createAll = false;
+
+                // If no items have been selected, this will be a "Create All" job
+                // Set the createAll flag to true
+                if (selectedCourseCount == 0){
+                    createAll = true;
+                }
+                var data = {
+                    course_instance_ids: courseInstanceIDList,
+                    create_all: createAll,
+                    template: selectedTemplate
+                };
+                $('<input>').attr({
+                    type: 'hidden',
+                    id: 'data',
+                    name: 'data'
+                }).val(JSON.stringify(data)).appendTo("#submitJob");
+
+                // Disable the yes button on modal and display a loading spinner before submitting the form.
+                const modalYesButton = $('#confirmCreateButton');
+                modalYesButton.prop('disabled', true);
+                // Add spinner to button.
+                modalYesButton.html(
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+                );
+                $("#submitJob").submit();
+            });
+        });
+
+        function displayLoading() {
+            // Disable the search for courses button and display a loading spinner before submitting the form
+
+            var button = $("#find-courses-in-term");
+            // disable button
+            button.prop("disabled", true);
+            // add spinner to button
+            button.html(
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`
+            );
+            $("#ci-filters").submit();
+        };
+
+        function buildCourseInstanceIDList(rowList) {
+            // Iterate over the given row list and return a list containing the course instance ids from each row
+            var ciIDList = [];
+
+            for (let i = 0; i < rowList.length; i++) {
+                ciIDList.push(rowList[i][1])
+            }
+            return ciIDList;
+        };
+	</script>
+{% endblock js %}

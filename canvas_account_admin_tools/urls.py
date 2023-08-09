@@ -23,6 +23,7 @@ urlpatterns = [
     path('masquerade_tool/', include(('masquerade_tool.urls', 'masquerade_tool'), namespace='masquerade_tool')),
     path('self_enrollment_tool/', include(('self_enrollment_tool.urls', 'self_enrollment_tool'), namespace='self_enrollment_tool')),
     path('self_unenrollment_tool/', include(('self_unenrollment_tool.urls', 'self_unenrollment_tool'), namespace='self_unenrollment_tool')),
+    path('bulk_site_creator/', include(('bulk_site_creator.urls', 'bulk_site_creator'), namespace='bulk_site_creator')),
     path('tool_config/', views.tool_config, name='tool_config'),
     path('w/', include('watchman.urls')),
     re_path(r'^status/?$', watchman.views.bare_status),

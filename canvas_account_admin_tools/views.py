@@ -123,6 +123,13 @@ def dashboard_account(request):
                                          canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
+    verify that user has permissions to view the canvas site creator tool
+    """
+    bulk_site_creator_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                              settings.PERMISSION_BULK_SITE_CREATOR,
+                                              canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
     verify that user has permissions to view the publish courses tool
     """
     publish_courses_allowed = is_allowed(custom_canvas_membership_roles,
@@ -151,7 +158,7 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-       verify that user has permissions to view the bulk enrollment tool
+    verify that user has permissions to view the bulk enrollment tool
     """
     bulk_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_BULK_ENROLLMENT_TOOL,
@@ -159,8 +166,8 @@ def dashboard_account(request):
         and school_level_sub_account
 
     """
-        verify that user has permissions to view the masquerade tool
-        """
+    verify that user has permissions to view the masquerade tool
+    """
     masquerade_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                             settings.PERMISSION_MASQUERADE_TOOL,
                                             canvas_account_sis_id=custom_canvas_account_sis_id)
@@ -184,6 +191,7 @@ def dashboard_account(request):
         'canvas_site_deletion_is_allowed': canvas_site_deletion_is_allowed,
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
+        'bulk_site_creator_is_allowed': bulk_site_creator_is_allowed,
         'course_info_v2_allowed': course_info_v2_allowed,
         'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
         'build_info': build_info
