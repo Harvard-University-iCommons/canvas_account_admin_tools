@@ -19,7 +19,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
 
-from .utils import (get_canvas_site_templates_for_school,
+from common.utils import (get_canvas_site_templates_for_school,
                     get_course_group_data_for_school,
                     get_department_data_for_school, get_term_data_for_school)
 
