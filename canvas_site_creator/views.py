@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 def create_new_course(request):
     # Depending on the type of request (POST vs GET), these values may not be set.
     # If they are not set, we will use the default values below.
-    selected_course_group_id = None
+    selected_course_group_data = None
     selected_department_id = None
 
     sis_account_id = request.LTI['custom_canvas_account_sis_id']
@@ -66,7 +66,7 @@ def create_new_course(request):
         post_data = request.POST.dict()
 
         is_blueprint = True if post_data.get('is_blueprint') else False
-        selected_course_group_id = post_data.get("courseCourseGroup", None)
+        selected_course_group_data = post_data.get("courseCourseGroup", None)
         selected_department_id = post_data.get("courseDepartment", None)
         term = Term.objects.get(term_id=post_data['course-term'])
         course_code_type = post_data["course-code-type"]
@@ -77,7 +77,14 @@ def create_new_course(request):
         if selected_department_id:
             department = Department.objects.get(department_id=selected_department_id)
         else:
-            course_group = CourseGroup.objects.get(course_group_id=selected_course_group_id)
+            # If the course group is "Informal Learning Experiences" or "Sandbox Courses", we need
+            # to search against the Department schema as ILE/SB sub-accounts are designated
+            # as departments.
+            course_group_id, name = selected_course_group_data.split(' ', 1)
+            if name.lower() == 'informal learning experiences' or name.lower() == 'sandbox courses':
+                department = Department.objects.get(department_id=course_group_id)
+            else:
+                course_group = CourseGroup.objects.get(course_group_id=course_group_id)
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info.', extra=post_data)
 
