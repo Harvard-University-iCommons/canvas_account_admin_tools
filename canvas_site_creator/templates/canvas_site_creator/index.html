@@ -135,11 +135,11 @@
                 <select id="courseCourseGroup" name="courseCourseGroup" class="form-select">
                     {% for course_group in course_groups %}
                         {% if selected_course_group_id and selected_course_group_id == course_group.id %}
-                            <option value="{{ course_group.id }}" selected>{{ course_group.name }}</option>
+                            <option value="{{ course_group.id }} {{ course_group.name }}" selected>{{ course_group.name }}</option>
                         {% elif course_group.name == 'Informal Learning Experiences' %}
-                            <option value="{{ course_group.id }}" selected>{{ course_group.name }}</option>
+                            <option value="{{ course_group.id }} {{ course_group.name }}" selected>{{ course_group.name }}</option>
                         {% else %}
-                            <option value="{{ course_group.id }}">{{ course_group.name }}</option>
+                            <option value="{{ course_group.id }} {{ course_group.name }}">{{ course_group.name }}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
