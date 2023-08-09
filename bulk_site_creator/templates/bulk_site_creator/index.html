@@ -1,0 +1,115 @@
+{% extends 'bulk_site_creator/base.html' %}
+
+{% block body %}
+<nav>
+  <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
+  <h3 class="mt-3 mb-2">
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Bulk Create Sites
+  </h3>
+</nav>
+
+
+<body role="application">
+    <div class="container-fluid">
+        {% for message in messages %}
+            {% if message.level_tag == "success" %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "error" %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {{ message }}
+                </div>
+            {% elif message.level_tag == "warning" %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-dismissible fade show" role="alert">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="row container-fluid">
+        <h4 class="mt-4">
+            Bulk Creation Jobs:
+            <a href="{% url 'bulk_site_creator:index' %}" class="btn btn-primary float-end ms-2" role="button" 
+                aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" 
+                data-bs-placement="top" data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
+            </a>
+            <a href="{% url 'bulk_site_creator:new_job' %}" class="btn btn-primary" style="float: right;">New Job</a>
+        </h4>
+        <table class="datatable table table-striped">
+            <thead>
+                <tr>
+                    <th>Created At</th>
+                    <th>Term</th>
+                    <th>Started By</th>
+                    <th>Status</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for bulk_job in jobs_for_school %}
+                <tr>
+                    <!-- 
+                        `data-order`: DataTables sorting on Unix version of created_at time.
+                        DataTables doc: https://datatables.net/manual/data/orthogonal-data#HTML-5
+                        Django doc: https://docs.djangoproject.com/en/4.2/ref/templates/builtins/#date
+                    -->
+                    <td data-order="{{ bulk_job.created_at | date:'U' }}">
+                        <a href="{% url 'bulk_site_creator:job_detail' job_id=bulk_job.sk %}"
+                        data-bs-toggle="tooltip" data-bs-placement="top" title="View job detail"
+                        data-job-id="{{ bulk_job.sk }}">{{ bulk_job.created_at }}</a>
+                    </td>
+                    <td>{{ bulk_job.term_name }}</td>
+                    <td>{{ bulk_job.user_full_name }}</td>
+                    <td>
+                        {% if bulk_job.workflow_state == 'in_progress' %}
+                            In Progress
+                        {% else %}
+                            {{ bulk_job.workflow_state|capfirst }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if bulk_job.workflow_state == 'complete' %}
+                            Total:&nbsp;{{ bulk_job.task_total }}&nbsp;&nbsp;|&nbsp;&nbsp;
+                            Success:&nbsp;{{ bulk_job.task_succeeded }}&nbsp;&nbsp;|&nbsp;&nbsp;
+                            Fail:&nbsp;{{ bulk_job.task_failed }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('.datatable').DataTable({
+                "columnDefs": [
+                    {
+                        "orderable": false,
+                        "targets": [1, 2, 3, 4],
+                    },
+                ],
+                "order": [[0, "desc"]],
+            });
+
+            // Enable tooltips (Bootstrap 5.2.x).
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
+    </script>
+{% endblock js %}
