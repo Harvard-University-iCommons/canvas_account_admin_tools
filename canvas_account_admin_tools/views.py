@@ -89,6 +89,8 @@ def dashboard_account(request):
     custom_canvas_membership_roles = request.LTI['custom_canvas_membership_roles']
     build_info = settings.BUILD_INFO
 
+    school_level_sub_account: bool = custom_canvas_account_sis_id.startswith('school:')
+
     """
     Verify that the current user has permission to see the Search Courses (aka course_info) tool
     """
@@ -142,25 +144,42 @@ def dashboard_account(request):
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-       verify that user has permissions to view the Canvas Site deletion tool
-       """
+    verify that user has permissions to view the Canvas Site deletion tool
+    """
     canvas_site_deletion_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_CANVAS_SITE_DELETION,
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-       verify that user has permissions to view the Canvas Site deletion tool
+       verify that user has permissions to view the self enrollment tool
     """
     self_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                                  settings.PERMISSION_SELF_ENROLLMENT_TOOL,
                                                  canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-        verify that user has permissions to view the masquerade tool
-        """
+    verify that user has permissions to view the bulk enrollment tool
+    """
+    bulk_enrollment_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
+                                                 settings.PERMISSION_BULK_ENROLLMENT_TOOL,
+                                                 canvas_account_sis_id=custom_canvas_account_sis_id) \
+        and school_level_sub_account
+
+    """
+    verify that user has permissions to view the masquerade tool
+    """
     masquerade_tool_is_allowed = is_allowed(custom_canvas_membership_roles,
                                             settings.PERMISSION_MASQUERADE_TOOL,
                                             canvas_account_sis_id=custom_canvas_account_sis_id)
+
+    """
+    Verify that the current user has permission to see Course Info V2
+    """
+    course_info_v2_allowed = is_allowed(
+        custom_canvas_membership_roles,
+        settings.PERMISSION_COURSE_INFO_V2,
+        canvas_account_sis_id=custom_canvas_account_sis_id
+    )
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'search_courses_allowed': search_courses_allowed,
@@ -173,7 +192,8 @@ def dashboard_account(request):
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
         'bulk_site_creator_is_allowed': bulk_site_creator_is_allowed,
-
+        'course_info_v2_allowed': course_info_v2_allowed,
+        'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
         'build_info': build_info
     })
 
@@ -206,7 +226,7 @@ def icommons_rest_api_proxy(request, path):
     response = proxy_view(request, url, request_args)
     try:
         params = request.GET
-        if request.method in ['PATCH', 'POST']:
+        if request.method in ['PATCH', 'POST'] and bool(request.body):
             try:
                 params = json.loads(request.body)
             except json.decoder.JSONDecodeError:

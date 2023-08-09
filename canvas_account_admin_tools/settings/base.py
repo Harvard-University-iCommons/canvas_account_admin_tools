@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'canvas_account_admin_tools',
     'course_info',
     'coursemanager',
+    'course_info_v2',
     'crispy_forms',
     'cross_list_courses',
     'django_auth_lti',
@@ -79,6 +80,7 @@ INSTALLED_APPS = [
     'canvas_site_deletion',
     'masquerade_tool',
     'self_enrollment_tool',
+    'bulk_enrollment_tool',
     'pylti1p3.contrib.django.lti1p3_tool_config',
     'self_unenrollment_tool',
     'rest_framework',
@@ -368,6 +370,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'bulk_enrollment_tool': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'course_info': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
@@ -431,6 +438,12 @@ CANVAS_SDK_SETTINGS = {
     'base_api_url': CANVAS_URL + '/api',
     'max_retries': 3,
     'per_page': 40,
+    # 'session_inactivity_expiration_time_secs' is an argument that gets passed
+    # to SessionInactivityExpirationRC objects. This project uses the newer
+    # RequestContext (which doesn't accept this argument), but some dependencies
+    # (e.g. certain entries in INSTALLED_APPS) may still use the old object and
+    # access this key. Leaving here until all references to SessionInactivityExpirationRC
+    # have been removed.
     'session_inactivity_expiration_time_secs': 50,
 }
 
@@ -451,13 +464,15 @@ ICOMMONS_REST_API_SKIP_CERT_VERIFICATION = False
 
 PERMISSION_ACCOUNT_ADMIN_TOOLS = 'account_admin_tools'
 PERMISSION_SEARCH_COURSES = 'search_courses'  # aka course_info
+PERMISSION_COURSE_INFO_V2 = 'course_info_v2'
 PERMISSION_PEOPLE_TOOL = 'people_tool'
 PERMISSION_XLIST_TOOL = 'cross_listing'
-PERMISSION_SITE_CREATOR = 'manage_courses'
+PERMISSION_SITE_CREATOR = 'site_creator'
 PERMISSION_PUBLISH_COURSES = 'publish_courses'
 PERMISSION_BULK_COURSE_SETTING = 'bulk_course_settings'
 PERMISSION_CANVAS_SITE_DELETION = 'canvas_site_deletion'
 PERMISSION_SELF_ENROLLMENT_TOOL = 'self_enrollment_tool'
+PERMISSION_BULK_ENROLLMENT_TOOL = 'bulk_enrollment_tool'
 PERMISSION_MASQUERADE_TOOL = 'masquerade_tool'
 PERMISSION_BULK_SITE_CREATOR = 'bulk_site_creator'
 
@@ -475,6 +490,21 @@ LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
     PERMISSION_BULK_SITE_CREATOR
 )
 
+LTI_SCHOOL_PERMISSIONS_TOOL_PERMISSIONS = (
+    PERMISSION_ACCOUNT_ADMIN_TOOLS,
+    PERMISSION_SEARCH_COURSES,
+    PERMISSION_COURSE_INFO_V2,
+    PERMISSION_PEOPLE_TOOL,
+    PERMISSION_XLIST_TOOL,
+    PERMISSION_SITE_CREATOR,
+    PERMISSION_PUBLISH_COURSES,
+    PERMISSION_BULK_COURSE_SETTING,
+    PERMISSION_CANVAS_SITE_DELETION,
+    PERMISSION_SELF_ENROLLMENT_TOOL,
+    PERMISSION_BULK_ENROLLMENT_TOOL,
+    PERMISSION_MASQUERADE_TOOL,
+)
+
 # in search courses, when you add a person to a course. This list
 # controls which roles show up in the drop down. The list contains
 # user role id's from the course manager database
@@ -482,7 +512,8 @@ ADD_PEOPLE_TO_COURSE_ALLOWED_ROLES_LIST = [0, 1, 2, 5, 6, 7, 9, 10, 11, 12, 14, 
                                            20, 22, 23, 24, 25, 26, 27, 28, 400, 401]
 
 # These are the roles available when configuring self-enrollment for a course
-SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles', [0,10,14])
+# String defined in AWS Parameter Store of role IDs
+SELF_ENROLLMENT_TOOL_ROLES_LIST = SECURE_SETTINGS.get('self_enrollment_roles').split(",")
 
 # This is the LTI 1.3 client_id for the self-unenrollment tool; this tool will be installed
 # into the Canvas course site when a course is enabled for self-enrollment.
@@ -543,6 +574,10 @@ MASQUERADE_TOOL_SETTINGS = {
     'masquerade_session_minutes': SECURE_SETTINGS.get('masquerade_session_minutes', 60),
 }
 
+BULK_ENROLLMENT_TOOL_SETTINGS = {
+    'bulk_enrollment_s3_bucket': SECURE_SETTINGS.get('bulk_enrollment_s3_bucket'),
+    'bulk_enrollment_dynamodb_table': SECURE_SETTINGS.get('bulk_enrollment_dynamodb_table'),
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',

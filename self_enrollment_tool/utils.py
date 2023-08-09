@@ -6,7 +6,8 @@ from canvas_sdk.methods.external_tools import (create_external_tool_courses,
                                                list_external_tools_courses)
 from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
-from canvas_api.helpers import roles as canvas_api_helpers_roles
+from canvas_api.helpers import \
+    roles as canvas_api_helpers_roles
 from coursemanager.models import UserRole
 
 logger = logging.getLogger(__name__)

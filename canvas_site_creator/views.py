@@ -1,22 +1,27 @@
 import logging
 
-from canvas_api.helpers import accounts as canvas_api_accounts
-from coursemanager.models import (Course, CourseGroup, CourseInstance,
-                                  Department, School, Term)
+from coursemanager.models import (Course, CourseInstance,
+                                  School)
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.utils import IntegrityError
+
+from common.utils import (get_department_data_for_school,
+                          get_term_data_for_school)
+
+from .utils import create_canvas_course_and_section
+import logging
+
+from canvas_api.helpers import accounts as canvas_api_accounts
+from coursemanager.models import CourseGroup, Department, School, Term
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
 
-from common.utils import (get_canvas_site_templates_for_school,
-                          get_course_group_data_for_school,
-                          get_department_data_for_school,
-                          get_term_data_for_school)
-
-from .utils import create_canvas_course_and_section
+from .utils import (get_canvas_site_templates_for_school,
+                    get_course_group_data_for_school,
+                    get_department_data_for_school, get_term_data_for_school)
 
 logger = logging.getLogger(__name__)
 

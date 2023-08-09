@@ -79,7 +79,7 @@ def create_crosslisting_pair(primary_id, secondary_id, request):
         primary_id = primary_id.strip()
         secondary_id = secondary_id.strip()
         is_valid = validate_inputs(primary_id, secondary_id, request)
-        
+
         if is_valid:
             primary = CourseInstance.objects.get(course_instance_id=primary_id)
             canvas_id = None

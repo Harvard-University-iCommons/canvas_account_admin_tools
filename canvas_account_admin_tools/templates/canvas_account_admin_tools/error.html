@@ -1,0 +1,25 @@
+{% extends 'canvas_account_admin_tools/base.html' %}
+
+{% load static %}
+
+{% block stylesheets %}
+<link href="{% static 'canvas_account_admin_tools/css/dashboard.css' %}" rel="stylesheet" />
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <header>
+      <nav>
+        <h3>
+            <a href="{% url 'dashboard_account' %}">Admin Console</a>
+            <small><i class="fa fa-chevron-right"></i></small>
+            Error
+        </h3>
+    </nav>
+    </header>
+
+
+    <h2>{{ error_title }}</h2>
+    <p class="lead">{{ error_message }}</p>
+
+{% endblock content %}

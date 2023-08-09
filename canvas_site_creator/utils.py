@@ -1,4 +1,3 @@
-import json
 import logging
 
 from canvas_sdk import RequestContext

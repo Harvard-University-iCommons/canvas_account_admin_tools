@@ -5,6 +5,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
+    # Removed dependency on (deleted) migration file 0001_initial.py because that migration
+    # file was used to manipulate school permissions for the tool in older lti permission 
+    # tables in the database. And the 0001_initial.py file also had dependency on older
+    # lti permission library. We now use the django-canvas-lti-school-permissions library
+    # and we have created new permission tables (lti_school_permission) in the database.
+    # Note: The deleted 0001_initial.py file migration record in the database may also be deleted.
+    dependencies = []
+
     operations = [
         migrations.CreateModel(
             name='SelfEnrollmentCourse',

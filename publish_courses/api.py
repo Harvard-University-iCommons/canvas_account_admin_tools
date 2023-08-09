@@ -48,7 +48,7 @@ class CourseDetailList(ListAPIView):
     Return a list of unpublished canvas courses and a summary of that list using the GET parameters given
     :param term_id: The SIS term to count course instances for
     :param account_id: The SIS school ID to count course instances for
-    :return: JSON response containing a list of canvas courses for the given term/account and 
+    :return: JSON response containing a list of canvas courses for the given term/account and
              a summary dictionary containing the counts of each workflow state of the courses.
     """
     permission_classes = (LTIPermission,)
