@@ -22,6 +22,7 @@ SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
 SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
 SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
+
 @login_required
 @lti_role_required(const.ADMINISTRATOR)
 @lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
@@ -45,7 +46,7 @@ def lookup(request):
 
     if course_search_term.isnumeric():
         try:
-            ci = CourseInstance.objects.get(course_instance_id=course_search_term)
+            ci = CourseInstance.active_and_deleted.get(course_instance_id=course_search_term)
             context['course_instance'] = ci
 
             if ci.canvas_course_id:
@@ -87,8 +88,9 @@ def lookup(request):
 @lti_permission_required(settings.PERMISSION_CANVAS_SITE_DELETION)
 @require_http_methods(['GET', 'POST'])
 def delete(request, pk):
+    canvas_course_id = None
     try:
-        ci = CourseInstance.objects.get(course_instance_id=pk)
+        ci = CourseInstance.active_and_deleted.get(course_instance_id=pk)
         canvas_course_id = ci.canvas_course_id
         ts = int(time.time())
 
@@ -149,7 +151,6 @@ def delete(request, pk):
 
         except Exception as e:
             logger.error(f'Error removing associated site_map/course_site from {pk}, error: {e}')
-
 
     except Exception as e:
         logger.exception('Could not cleanup  the course instance for Canvas '
