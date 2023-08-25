@@ -1,18 +1,14 @@
-{% extends 'bulk_site_creator/base.html' %}
+{% extends "bulk_site_creator/base.html" %}
 
-{% block body %}
-<nav>
-  <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
-  <h3 class="mt-3 mb-2">
+{% block breadcrumb %}
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
     <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
     <small><i class="fa fa-chevron-right"></i></small>
       New Job
-  </h3>
-</nav>
+{% endblock breadcrumb %}
 
-<body role="application">
+{% block content %}
     <div class="container-fluid">
         {% if terms %}
             {% if course_groups or departments %}
@@ -169,10 +165,10 @@
                 </div>
         {% endif %}
     </div>
-</body>
-{% endblock %}
+{% endblock content %}
 
-{% block js %}
+{% block javascript %}
+    {{ block.super }}
     <script>
 		$(document).ready(function() {
 			 table = $('.datatable').DataTable( {
@@ -280,4 +276,4 @@
             return ciIDList;
         };
 	</script>
-{% endblock js %}
+{% endblock javascript %}

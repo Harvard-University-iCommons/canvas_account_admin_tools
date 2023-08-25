@@ -1,110 +1,104 @@
-{% extends 'bulk_site_creator/base.html' %}
+{% extends "bulk_site_creator/base.html" %}
 
-{% block body %}
-  <nav>
-    <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
-    <h3 class="mt-3 mb-2">
-      <a href="{% url 'dashboard_account' %}">Admin Console</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      Job Detail
-    </h3>
-  </nav>
+{% block breadcrumbs %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_site_creator:index' %}">Bulk Create Sites</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Job Detail
+{% endblock breadcrumbs %}
 
-  <body role="application">
-      <div class="container-fluid">
+{% block content %}
+    <div class="container-fluid">
         <div class="row">
-          <div class="col-sm-12">
-              <h4 class="mt-4">Courses processed by this job</h4>
-          </div>
+            <div class="col-sm-12">
+                <h4 class="mt-4">Courses processed by this job</h4>
+            </div>
         </div>
         <div class="row">
-          <div class="col-sm-6">
-              <table class="table table-condensed">
-                  <tr><th>Job ID: </th><td>{{ job.sk }}</td></tr>
-                  <tr><th>Status: </th><td>
-                      {% if job.workflow_state == 'in_progress' %}
+            <div class="col-sm-6">
+                <table class="table table-condensed">
+                    <tr><th>Job ID: </th><td>{{ job.sk }}</td></tr>
+                    <tr><th>Status: </th><td>
+                        {% if job.workflow_state == 'in_progress' %}
                         In Progress
-                      {% else %}
+                        {% else %}
                         {{ job.workflow_state|capfirst }}
-                      {% endif %}
-                  </td></tr>
-                  <tr><th>Started at: </th><td>{{ job.created_at }}</td></tr>
-                  <tr><th>Completed at: </th><td>{% if job.workflow_state == 'complete' %}{{ job.updated_at }}{% endif %}</td></tr>
-                  <tr><th>Template: </th><td>{{ job.template_name }}</td></tr>
-                  <tr><th>Term: </th><td>{{ job.term_name }}</td></tr>
-                  <tr><th>Created by: </th><td>{{ job.user_full_name }}</td></tr>
-              </table>
-          </div>
-          <div class="col-sm-6">
-              <table class="table table-condensed">
-                  <tr><th>Total: </th><td>{{ job.task_total }}</td></tr>
-                  <tr><th>Succeeded: </th><td>{{ job.task_succeeded}}</td></tr>
-                  <tr><th>Failed: </th><td>{{ job.task_failed }}</td></tr>
-              </table>
-          </div>
+                        {% endif %}
+                    </td></tr>
+                    <tr><th>Started at: </th><td>{{ job.created_at }}</td></tr>
+                    <tr><th>Completed at: </th><td>{% if job.workflow_state == 'complete' %}{{ job.updated_at }}{% endif %}</td></tr>
+                    <tr><th>Template: </th><td>{{ job.template_name }}</td></tr>
+                    <tr><th>Term: </th><td>{{ job.term_name }}</td></tr>
+                    <tr><th>Created by: </th><td>{{ job.user_full_name }}</td></tr>
+                </table>
+            </div>
+            <div class="col-sm-6">
+                <table class="table table-condensed">
+                    <tr><th>Total: </th><td>{{ job.task_total }}</td></tr>
+                    <tr><th>Succeeded: </th><td>{{ job.task_succeeded}}</td></tr>
+                    <tr><th>Failed: </th><td>{{ job.task_failed }}</td></tr>
+                </table>
+            </div>
         </div>
         <div class="row">
             <div class="row" style="margin-top: 3em;">
                 <div id="job-detail-refresh-btn">
-                  <a href="{% url 'bulk_site_creator:job_detail' job_id=job.sk %}" class="btn btn-primary float-end mb-2" role="button"
-                    aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
-                  </a>
+                    <a href="{% url 'bulk_site_creator:job_detail' job_id=job.sk %}" class="btn btn-primary float-end mb-2" role="button"
+                       aria-pressed="true" aria-label="refresh page" title="Refresh page" data-bs-toggle="tooltip" data-bs-placement="top"
+                       data-bs-title="Refresh page"><i class="fa-solid fa-rotate-right"></i>
+                    </a>
                 </div>
                 <div class="col-sm-12">
                     <table class="datatable table table-striped" id="details_table">
                         <thead>
-                            <th>Canvas Course ID</th>
-                            <th>SIS ID</th>
-                            <th>Course Code</th>
-                            <th>Course Title</th>
-                            <th>Status</th>
+                        <th>Canvas Course ID</th>
+                        <th>SIS ID</th>
+                        <th>Course Code</th>
+                        <th>Course Title</th>
+                        <th>Status</th>
                         </thead>
                         <tbody>
                         {% for task in tasks %}
-                            <tr>
-                                <td>
-                                  {% if task.canvas_course_id and task.workflow_state == "complete" %}
-                                    <a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>
-                                  {% endif %}
-                                </td>
-                                <td>{{ task.course_instance_id }}</td>
-                                <td>{{ task.course_code }}</td>
-                                <td>{{ task.course_title }}</td>
-                                <td>
-                                    {% if task.workflow_state == 'in_progress' %}
-                                        In Progress
-                                    {% else %}
-                                        {{ task.workflow_state|capfirst }}
-                                    {% endif %}
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>
+                                {% if task.canvas_course_id and task.workflow_state == "complete" %}
+                                <a href="{{ canvas_url }}/courses/{{ task.canvas_course_id }}" target="_blank">{{ task.canvas_course_id }}</a>
+                                {% endif %}
+                            </td>
+                            <td>{{ task.course_instance_id }}</td>
+                            <td>{{ task.course_code }}</td>
+                            <td>{{ task.course_title }}</td>
+                            <td>
+                                {% if task.workflow_state == 'in_progress' %}
+                                In Progress
+                                {% else %}
+                                {{ task.workflow_state|capfirst }}
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
                     </table>
                 </div>
             </div>
         </div>
+    </div>
+{% block content %}
 
-        </div>
-      </div>
-  </body>
-{% endblock %}
-
-{% block js %}
+{% block javascript %}
+    {{ block.super }}
     <script>
-      $(document).ready(function () {
-        $('.datatable').DataTable({
-          order: [[1, 'asc']]
-        });
+        $(document).ready(function () {
+            $('.datatable').DataTable({
+                order: [[1, 'asc']]
+            });
 
-        // Enable tooltips (Bootstrap 5.2.x).
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-      });
+            // Enable tooltips (Bootstrap 5.2.x).
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        });
     </script>
-{% endblock js %}
+{% endblock javascript %}
 
 
 
