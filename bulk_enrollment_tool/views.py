@@ -49,7 +49,7 @@ def index(request):
     table = dynamodb.Table(
         settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
     response = table.query(
-        KeyConditionExpression=Key('pk').eq(""),
+        KeyConditionExpression=Key('pk').eq(f'SCHOOL#{tool_launch_school.upper()}'),
         ScanIndexForward=False,  # Records in reverse order (DESC).
         Limit=10,
     )
