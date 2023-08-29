@@ -298,7 +298,7 @@ LOGGING = {
             'index': 'soc-isites',
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'filters': ['context', 'require_debug_true'],
+            'filters': ['context'],
         },
         'gunicorn': {
             'class': 'splunk_handler.SplunkHandler',
