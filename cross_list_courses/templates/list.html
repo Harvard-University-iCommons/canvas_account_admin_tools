@@ -1,33 +1,16 @@
 {% extends "base.html" %}
-{% block body %}
 
-    <nav>
-    <h3>
-        <a href="{% url 'dashboard_account' %}">Admin Console</a>
-        <small><i class="fa fa-chevron-right"></i></small>
-        Cross-Listings
-    </h3>
-    </nav>
+{% block breadcrumb %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Cross-Listings
+{% endblock breadcrumb %}
 
+{% block content %}
     <div class="container-fluid">
-            {% for message in messages %}
-            <div class="row">
-                    {% if message.level_tag == "success" %}
-                    <div class="alert alert-success" role="alert">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {{ message }}
-                    </div>
-                {% elif message.level_tag == "error" %}
-                    <div class="alert alert-danger" role="alert">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {{ message }}
-                    </div>
-                {% endif %}
-            </div>
-        {% endfor %}
-        <div class="row" style="margin-top: 1em;">
-            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary pull-right">Add New Pair</a>
-        </div>
+        <h4 class="mt-4">
+            <a href="{% url 'cross_list_courses:add_new_pair' %}" class="btn btn-primary" style="float: right;">Add New Pair</a>
+        </h4>
         <div class="row" style="margin-top: .25em;">
             <div style="margin-bottom: -20px; padding-top: 50px;">
                 <h4 class="modal-title bottom-spacing">Cross-Listed Courses in Current Terms:</h4>
@@ -112,18 +95,20 @@
             </table>
         </div>
     </div>
+{% endblock content %}
 
-<script>
-    $(document).ready(function() {
-        $('.datatable').dataTable( {
-            paging: false,
-            "bInfo" : false,
-            "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
-            "oLanguage": {
-              "sSearch": "Filter the list below"
-            }
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function() {
+            $('.datatable').dataTable( {
+                paging: false,
+                "bInfo" : false,
+                "aoColumnDefs": [ { "orderable": false, "targets": 3 } ],
+                "oLanguage": {
+                  "sSearch": "Filter the list below"
+                }
+            });
         });
-    });
-</script>
-
-{% endblock %}
+    </script>
+{% endblock javascript %}
