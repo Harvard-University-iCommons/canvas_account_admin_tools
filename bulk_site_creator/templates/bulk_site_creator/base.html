@@ -20,4 +20,9 @@
     <script src="https://static.tlt.harvard.edu/shared/Select-1.6.0/js/select.dataTables.min.js"></script>
     <script src="https://static.tlt.harvard.edu/shared/Select-1.6.0/js/select.jqueryui.min.js"></script>
     <script src="https://static.tlt.harvard.edu/shared/Select-1.6.0/js/dataTables.select.min.js"></script>
+
+    <script>
+        window.globals.STATIC_URL = '{% settings_value "STATIC_URL" %}';
+        window.globals.CANVAS_URL = '{% settings_value "CANVAS_URL" %}';
+    </script>
 {% endblock javascript %}
