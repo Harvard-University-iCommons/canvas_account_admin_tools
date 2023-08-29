@@ -9,7 +9,7 @@ ALLOWED_CIDR_NETS = [SECURE_SETTINGS.get('vpc_cidr_block')]
 SECRET_KEY = SECURE_SETTINGS['django_secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = SECURE_SETTINGS['enable_debug']
+DEBUG = True
 
 # AWS Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
