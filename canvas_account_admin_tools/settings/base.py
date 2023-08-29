@@ -259,7 +259,7 @@ _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
@@ -298,7 +298,7 @@ LOGGING = {
             'index': 'soc-isites',
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
-            'filters': ['context'],
+            'filters': ['context', 'require_debug_true'],
         },
         'gunicorn': {
             'class': 'splunk_handler.SplunkHandler',

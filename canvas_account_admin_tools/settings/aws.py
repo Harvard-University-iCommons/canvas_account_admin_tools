@@ -42,5 +42,8 @@ if CANVAS_EMAIL_NOTIFICATION_TEST_MODE:
     CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
 
 
+# Make sure we send logs to Splunk in production (default handler 
+# is configured for logging to Splunk).
+LOGGING['handlers']['default']['filters'].append('require_debug_false')
 # make sure dictConfig(LOGGING) stays at the bottom of the file
 dictConfig(LOGGING)
