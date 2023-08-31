@@ -1,18 +1,14 @@
 {% extends 'bulk_enrollment_tool/base.html' %}
 
-{% block body %}
+{% block breadcrumb %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Errors
+{% endblock breadcrumb %}
 
-<nav>
-    <h3>
-      <a href="{% url 'dashboard_account' %}">Admin Console</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      Errors
-    </h3>
-</nav>
-
-<div class="body">
+{% block content %}
     <div class="container-fluid">
         <br>
         <div class="col"><strong>File&nbsp;Name:</strong> {{ item.original_filename }}</div>
@@ -27,7 +23,5 @@
                 <li class="list-group-item">{{ error }}</li>
             {% endfor %}
         </ul>
-
     </div> {% comment %} container-fluid {% endcomment %}
-</div> {% comment %} body {% endcomment %}
-{% endblock %}
+{% endblock content %}
