@@ -134,7 +134,7 @@ def create_new_course(request):
 
             messages.add_message(request,
                                  messages.SUCCESS,
-                                 course_instance.canvas_course_id)
+                                 f'Course <a href="{ settings.CANVAS_URL }/courses/{ course_instance.canvas_course_id }" target="_blank">{ course_instance.canvas_course_id }</a> successfully created.')
         else:
             messages.add_message(request,
                                  messages.ERROR,
