@@ -1,7 +1,7 @@
 import logging
 
 from coursemanager.models import (Course, CourseInstance,
-                                  School)
+                                  School, Term)
 from django.conf import settings
 from django.contrib import messages
 from django.db.utils import IntegrityError
@@ -48,16 +48,10 @@ def create_new_course(request):
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
 
-    # Add currently-active (ongoing) term with the earliest end date to beginning of term list.
-    if _current_term_id:
-        for idx, term in enumerate(terms):
-            print(idx, term)
-            if term['id'] == str(_current_term_id):
-                # Add Ongoing to term name.
-                term['name'] = f'Ongoing ({term["name"]})'
-                terms.pop(idx)
-                terms.insert(0, term)
-                break
+    # Add ongoing term to terms (at the beginning of the list)
+    ongoing_term_object = Term.objects.get(school_id=school_id, display_name='Ongoing')
+    ongoing_term = {'id': ongoing_term_object.term_id, 'name': ongoing_term_object.display_name}
+    terms.insert(0, ongoing_term)
 
     course_groups = None
     departments = None
