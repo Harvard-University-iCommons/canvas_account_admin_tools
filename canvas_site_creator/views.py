@@ -1,27 +1,22 @@
 import logging
 
-from coursemanager.models import (Course, CourseInstance,
-                                  School)
+from canvas_api.helpers import accounts as canvas_api_accounts
+from coursemanager.models import (Course, CourseGroup, CourseInstance,
+                                  Department, School, Term)
 from django.conf import settings
 from django.contrib import messages
-from django.db.utils import IntegrityError
-
-from common.utils import (get_department_data_for_school,
-                          get_term_data_for_school)
-
-from .utils import create_canvas_course_and_section
-import logging
-
-from canvas_api.helpers import accounts as canvas_api_accounts
-from coursemanager.models import CourseGroup, Department, School, Term
 from django.contrib.auth.decorators import login_required
+from django.db.utils import IntegrityError
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
 from lti_school_permissions.decorators import lti_permission_required
 
 from common.utils import (get_canvas_site_templates_for_school,
-                    get_course_group_data_for_school,
-                    get_department_data_for_school, get_term_data_for_school)
+                          get_course_group_data_for_school,
+                          get_department_data_for_school,
+                          get_term_data_for_school)
+
+from .utils import create_canvas_course_and_section
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +42,11 @@ def create_new_course(request):
 
     canvas_site_templates = get_canvas_site_templates_for_school(school_id)
     terms, _current_term_id = get_term_data_for_school(sis_account_id)
+
+    # Add ongoing term to terms (at the beginning of the list)
+    ongoing_term_object = Term.objects.get(school_id=school_id, display_name='Ongoing')
+    ongoing_term = {'id': ongoing_term_object.term_id, 'name': ongoing_term_object.display_name}
+    terms.insert(0, ongoing_term)
 
     course_groups = None
     departments = None
