@@ -31,7 +31,7 @@ def index(request):
 
         filename = request.FILES['bulkEnrollmentFile'].name
         messages.success(
-            request, f'File {filename} has been uploaded and is being processed.')
+            request, f'File {filename} has been uploaded and is being processed. It may take up to 5 minutes for changes to be reflected in Canvas.')
 
         return redirect('bulk_enrollment_tool:index')
 
