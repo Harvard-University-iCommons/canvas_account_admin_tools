@@ -21,7 +21,7 @@ django-rq==2.5.1
 
 django-auth-lti @ git+ssh://git@github.com/Harvard-University-iCommons/django-auth-lti.git@v2.1.0
 
-django-icommons-ui @ git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.3
+django-icommons-ui @ git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v2.4
 
 django-canvas-lti-school-permissions @ git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-lti-school-permissions@v3.2
 
