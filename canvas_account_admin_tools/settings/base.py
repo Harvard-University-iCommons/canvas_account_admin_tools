@@ -336,7 +336,7 @@ LOGGING = {
     'loggers': {
         "django": {
             "handlers": ['console', 'default'],
-            "level": logging.WARNING,
+            "level": _DEFAULT_LOG_LEVEL,
             "propagate": False,
         },
         'gunicorn': {
