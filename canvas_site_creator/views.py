@@ -56,12 +56,6 @@ def create_new_course(request):
         except Exception:
             logger.exception(f"Failed to get departments with sis_account_id {sis_account_id}")
 
-    # Append a default option for display in the UI
-    if departments:
-        departments.append({'id': -1, 'name': 'Select a department'})
-    else:
-        course_groups.append({'id': -1, 'name': 'Select a course group'})
-
     if request.method == 'POST':
         # On POST, create new Course and CourseInstance records and then the course in Canvas
         post_data = request.POST.dict()
@@ -76,23 +70,9 @@ def create_new_course(request):
         department = None
         course_group = None
         if selected_department_id:
-            if selected_department_id == '-1':
-                # User did not select a department from the dropdown
-                messages.add_message(request,
-                        messages.ERROR,
-                        'Please select a department from the dropdown.')
-                return redirect('canvas_site_creator:create_new_course')
-
             department = Department.objects.get(department_id=selected_department_id)
-        else:
+        elif selected_course_group_data:
             course_group_id, name = selected_course_group_data.split(' ', 1)
-            if course_group_id == '-1':
-                # User did not select a course group from the dropdown
-                messages.add_message(request,
-                        messages.ERROR,
-                        'Please select a course group from the dropdown.')
-                return redirect('canvas_site_creator:create_new_course')
-
             # If the course group is "Informal Learning Experiences" or "Sandbox Courses", we need
             # to search against the Department schema as ILE/SB sub-accounts are designated
             # as departments.
@@ -100,6 +80,12 @@ def create_new_course(request):
                 department = Department.objects.get(department_id=course_group_id)
             else:
                 course_group = CourseGroup.objects.get(course_group_id=course_group_id)
+        else:
+            logger.warning(f"ILE/SB site creation data missing department/course group ID. POST data={post_data}")
+            messages.add_message(request,
+                    messages.ERROR,
+                    'Unexpected error processing submission. Please try again.')
+            return redirect('canvas_site_creator:create_new_course')
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info.', extra=post_data)
 
