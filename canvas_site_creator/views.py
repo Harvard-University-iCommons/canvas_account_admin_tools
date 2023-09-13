@@ -76,15 +76,21 @@ def create_new_course(request):
         course_group = None
         if selected_department_id:
             department = Department.objects.get(department_id=selected_department_id)
-        else:
+        elif selected_course_group_data:
+            course_group_id, name = selected_course_group_data.split(' ', 1)
             # If the course group is "Informal Learning Experiences" or "Sandbox Courses", we need
             # to search against the Department schema as ILE/SB sub-accounts are designated
             # as departments.
-            course_group_id, name = selected_course_group_data.split(' ', 1)
             if name.lower() == 'informal learning experiences' or name.lower() == 'sandbox courses':
                 department = Department.objects.get(department_id=course_group_id)
             else:
                 course_group = CourseGroup.objects.get(course_group_id=course_group_id)
+        else:
+            logger.warning(f"ILE/SB site creation data missing department/course group ID. POST data={post_data}")
+            messages.add_message(request,
+                    messages.ERROR,
+                    'Unexpected error processing submission. Please try again.')
+            return redirect('canvas_site_creator:create_new_course')
 
         logger.info(f'Creating Course and CourseInstance records from the posted site creator info.', extra=post_data)
 
