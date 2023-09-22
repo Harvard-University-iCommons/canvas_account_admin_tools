@@ -1,36 +1,32 @@
 {% extends 'masquerade_tool/base.html' %}
 
 {% block breadcrumb %}
-  <nav>
-    <h3>
-      <a href="{% url 'dashboard_account' %}">Admin Console</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      Masquerade Tool
-    </h3>
-  </nav>
-{% endblock %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Masquerade Tool
+{% endblock  breadcrumb%}
 
 {% block content %}
-  <div>
-    <br><br>
-    {% if status == 'role_exists' %}
-    <p class="lead"><strong>You already have the Masquerade role.</strong></p>
-    <p class="lead">
-      You can use the
-      "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
-        target="_blank" rel="noreferrer">Act As User</a>" function. The role cannot be granted again until the current session expires.
-    </p>
-    {% else %}
-    <p class="lead"><strong><i class="fa fa-check-circle text-success"></i> You've been granted the Masquerade role.</strong></p>
-    <p class="lead">
-      It will automatically expire in {{ session_mins }} minutes.
-      You can use the "<a
-        href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
-        target="_blank" rel="noreferrer">Act As User</a>" function until {{ expiry_time }}
-    </p>
-    <p class="lead">
-      Please remember that while you're acting as another user, all activity is logged for audit purposes.
-    </p>
-    {% endif %}
-  </div>
-{% endblock %}
+    <div>
+        <br><br>
+        {% if status == 'role_exists' %}
+            <p class="lead"><strong>You already have the Masquerade role.</strong></p>
+            <p class="lead">
+                You can use the
+                "<a href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
+                    target="_blank" rel="noreferrer">Act As User</a>" function. The role cannot be granted again until the current session expires.
+            </p>
+        {% else %}
+            <p class="lead"><strong><i class="fa fa-check-circle text-success"></i> You've been granted the Masquerade role.</strong></p>
+            <p class="lead">
+                It will automatically expire in {{ session_mins }} minutes.
+                You can use the "<a
+                    href="https://community.canvaslms.com/t5/Admin-Guide/How-do-I-act-as-another-user-in-an-account/ta-p/161"
+                    target="_blank" rel="noreferrer">Act As User</a>" function until {{ expiry_time }}
+            </p>
+            <p class="lead">
+                Please remember that while you're acting as another user, all activity is logged for audit purposes.
+            </p>
+        {% endif %}
+    </div>
+{% endblock content%}

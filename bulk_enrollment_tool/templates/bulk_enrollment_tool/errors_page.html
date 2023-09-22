@@ -1,18 +1,14 @@
 {% extends 'bulk_enrollment_tool/base.html' %}
 
-{% block body %}
+{% block breadcrumb %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Errors
+{% endblock breadcrumb %}
 
-<nav>
-    <h3>
-      <a href="{% url 'dashboard_account' %}">Admin Console</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
-      <small><i class="fa fa-chevron-right"></i></small>
-      Errors
-    </h3>
-</nav>
-
-<div class="body">
+{% block content %}
     <div class="container-fluid">
         <br>
         <div class="col"><strong>File&nbsp;Name:</strong> {{ item.original_filename }}</div>
@@ -20,6 +16,7 @@
         <div class="col"><strong>Records&nbsp;Modified:</strong> {{ item.rows_modified }}</div>
         <div class="col"><strong>Uploaded&nbsp;By:</strong> {{ item.uploaded_by }}</div>
         <div class="col"><strong>Date&nbsp;Uploaded:</strong> {% load tz %}{{ item.created_at|localtime|date:'F d, Y, g:i a' }}</div>
+        <div class="col"><strong>Error Count:</strong> {{ item.errors|length }}</div>
         <div class="col"><strong>Errors:</strong></div>
 
         <ul class="list-group">
@@ -27,7 +24,5 @@
                 <li class="list-group-item">{{ error }}</li>
             {% endfor %}
         </ul>
-
     </div> {% comment %} container-fluid {% endcomment %}
-</div> {% comment %} body {% endcomment %}
-{% endblock %}
+{% endblock content %}

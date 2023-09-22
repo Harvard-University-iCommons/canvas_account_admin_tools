@@ -1,74 +1,46 @@
 {% extends 'self_enrollment_tool/base.html' %}
 
-{% block body %}
-
-<nav>
-  <h3>
+{% block breadcrumb %}
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
     Self Enrollment
-  </h3>
-</nav>
+{% endblock breadcrumb %}
 
-<body role="application">
+{% block content %}
     <div class="container-fluid">
-        {% for message in messages %}
-            {% if message.level_tag == "success" %}
-                <div class="alert alert-success" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% elif message.level_tag == "error" %}
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% elif message.level_tag == "warning" %}
-                <div class="alert alert-warning" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% else %}
-                <div class="alert" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    <br><br>
-    <div class="row" style="margin-top: 1em;">
-        <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary pull-right">Add New</a>
-    </div>
+        <h4 class="mt-4">
+            <a href="{% url 'self_enrollment_tool:add_new' %}" class="btn btn-primary" style="float: right;">Add New</a>
+        </h4>
 
-    <!-- Modal Delete Confirmation START -->
-    <div class="modal fade" id="delConfirmModalCenter" tabindex="-1" role="dialog" aria-labelledby="delConfirmModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header text-center">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h3 class="modal-title" id="delConfirmModalLongTitle">Confirm deletion</h3>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this self-enrollment link?</p>
-                </div>
-                <div class="modal-footer">
-                    <a class="btn btn-primary" href="#" id="modalDeleteButton" role="button">Delete</a>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <!-- Modal Delete Confirmation START -->
+        <div class="modal fade" id="delConfirmModalCenter" tabindex="-1" role="dialog" aria-labelledby="delConfirmModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h3 class="modal-title" id="delConfirmModalLongTitle">Confirm deletion</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this self-enrollment link?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-primary" href="#" id="modalDeleteButton" role="button">Delete</a>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Modal Delete Confirmation END -->
+        <!-- Modal Delete Confirmation END -->
 
-    <br>
+        <br>
         {% comment %} Start of Self Enrollment Course List section {% endcomment %}
         <div class="row" style="margin-top: .25em;">
             <div style="margin-bottom: -20px; padding-top: 25px;">
-                <h4 class="modal-title bottom-spacing">Self Enrollment Course List:</h4>
+                <h4 class="mb-4">Self Enrollment Course List:</h4>
             </div>
-            <table class="datatable table display no-footer">
+            <table class="datatable table display no-footer mt-4">
                 <thead>
                     <th>Course</th>
                     <th>Role&nbsp;ID</th>
@@ -144,58 +116,58 @@
                 </tbody>
             </table>
         </div>
-        <script>
-            $(document).ready(function() {
-                $('.datatable').dataTable( {
-                    paging: false,
-                    "info" : false,
-                    "order": [],
-                    "columnDefs": [
-                        { "orderable": false, "targets": [2, 4] }
-                    ],
-                    "language": {
-                      "search": "Filter the list"
-                    }
-                });
-            });
-
-            function delItem(item) {
-                document.getElementById("modalDeleteButton").href=item;
-            };
-
-            const showCopyError = function(el) {
-                el.attr("data-original-title", "Error");
-                el.tooltip("show");
-                el.attr("data-original-title", "Copied!");
-                setTimeout(() => {
-                    el.tooltip("hide");
-                }, 1000);
-            }
-
-            const showCopySuccess = function(el) {
-                el.tooltip("show");
-                setTimeout(() => {
-                    el.tooltip("hide");
-                }, 1000);
-            }
-
-            const copy = async function() {
-                const $this = $(this);
-                const url = $this.parent().siblings('.url')[0].outerText;
-                try {
-                    await navigator.clipboard.writeText(url);
-                } catch (err) {
-                    showCopyError($this);
-                    return
-                }
-                showCopySuccess($this)
-            }
-
-            $('.copy-button').tooltip({trigger: 'manual'});
-            $('.copy-button').on("click", copy);
-        </script>
-        {% comment %} End of Self Enrollment Course List section {% endcomment %}
-        <br>
     </div>
-</body>
-{% endblock %}
+{% endblock content %}
+
+{% block javascript%}
+    <script>
+        $(document).ready(function() {
+            $('.datatable').dataTable( {
+                paging: false,
+                "info" : false,
+                "order": [],
+                "columnDefs": [
+                    { "orderable": false, "targets": [2, 4] }
+                ],
+                "language": {
+                  "search": "Filter the list"
+                }
+            });
+        });
+
+        function delItem(item) {
+            document.getElementById("modalDeleteButton").href=item;
+        };
+
+        const showCopyError = function(el) {
+            el.attr("data-original-title", "Error");
+            el.tooltip("show");
+            el.attr("data-original-title", "Copied!");
+            setTimeout(() => {
+                el.tooltip("hide");
+            }, 1000);
+        }
+
+        const showCopySuccess = function(el) {
+            el.tooltip("show");
+            setTimeout(() => {
+                el.tooltip("hide");
+            }, 1000);
+        }
+
+        const copy = async function() {
+            const $this = $(this);
+            const url = $this.parent().siblings('.url')[0].outerText;
+            try {
+                await navigator.clipboard.writeText(url);
+            } catch (err) {
+                showCopyError($this);
+                return
+            }
+            showCopySuccess($this)
+        }
+
+        $('.copy-button').tooltip({trigger: 'manual'});
+        $('.copy-button').on("click", copy);
+    </script>
+{% endblock javascript%}

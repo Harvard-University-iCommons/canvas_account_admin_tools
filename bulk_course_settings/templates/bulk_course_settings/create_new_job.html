@@ -1,18 +1,13 @@
 {% extends 'bulk_course_settings/base.html' %}
 
-{% block body %}
+{% block breadcrumb %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Bulk Course Settings
+{% endblock breadcrumb %}
 
-<body role="application">
+{% block content %}
     <div class="container-fluid">
-        <div class="row">
-            <header>
-                <h3 class="breadcrumbs">
-                    <a href="{% url 'dashboard_account' %}">Admin Console</a>
-                    <small><i class="fa fa-chevron-right"></i></small>
-                    <a href="{% url 'bulk_course_settings:job_list' %}">Bulk Course Settings</a>
-                </h3>
-            </header>
-        </div>
         <div class="row">
             <h3 style="padding-bottom: 2em">Create a new bulk course settings job</h3>
         </div>
@@ -42,6 +37,4 @@
             </div>
         </form>
     </div>
-</body>
-
-{% endblock body %}
+{% endblock content %}

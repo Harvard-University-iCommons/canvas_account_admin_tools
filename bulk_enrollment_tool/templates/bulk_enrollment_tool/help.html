@@ -1,29 +1,51 @@
 {% extends 'bulk_enrollment_tool/base.html' %}
 
-{% block body %}
+{% block breadcrumb %}
+    <a href="{% url 'dashboard_account' %}">Admin Console</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
+    <small><i class="fa fa-chevron-right"></i></small>
+    Help
+{% endblock breadcrumb %}
 
-<nav>
-    <h3>
-        <a href="{% url 'dashboard_account' %}">Admin Console</a>
-        <small><i class="fa fa-chevron-right"></i></small>
-        <a href="{% url 'bulk_enrollment_tool:index' %}">Bulk Enrollment</a>
-        <small><i class="fa fa-chevron-right"></i></small>
-        Help
-    </h3>
-</nav>
+<style>
+    .pre-custom {
+        display: block;
+        padding: 9.5px;
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.42857143;
+        color: #333;
+        word-break: break-all;
+        word-wrap: break-word;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
 
-<div class="body">
-    <div class="container-fluid">
+{% block content %}
+    <div class="container-fluid mt-4">
         <h3>About the Bulk Enrollment Tool</h3>
         <p>
             This tool can be used by Canvas admins to add multiple enrollees to multiple
             courses at a time. The tool accepts a CSV file upload with the following columns:
         </p>
         <p>
-        <pre>course_sis_id, user_id, role_id, status</pre>
+        <pre style="display: block;
+        padding: 9.5px;
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.42857143;
+        color: #333;
+        word-break: break-all;
+        word-wrap: break-word;
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 4px;">course_sis_id, user_id, role_id, status</pre>
         </p>
         <p>
-            The tool will begin processing the file shortly after it is uploaded. The 10 most recently uploaded
+            The tool will begin processing the file shortly after it is uploaded. It may take up to 5 minutes for changes to be reflected in Canvas. The 10 most recently uploaded
             CSV files are listed along with the processing status, number of records added, and import errors.
             You can refresh the list using the button in the upper right corner of the table.
 
@@ -214,5 +236,4 @@
             </tr>
         </table>
     </div> {% comment %} container-fluid {% endcomment %}
-</div> {% comment %} body {% endcomment %}
-{% endblock %}
+{% endblock content %}

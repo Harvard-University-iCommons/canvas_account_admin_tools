@@ -1,43 +1,14 @@
-{% extends 'bulk_site_creator/base.html' %}
+{% extends "bulk_site_creator/base.html" %}
 
-{% block body %}
-<nav>
-  <!--https://getbootstrap.com/docs/5.3/utilities/spacing/-->
-  <h3 class="mt-3 mb-2">
+{% block page_title %}Bulk Site Creator{% endblock page_title %}
+
+{% block breadcrumb %}
     <a href="{% url 'dashboard_account' %}">Admin Console</a>
     <small><i class="fa fa-chevron-right"></i></small>
     Bulk Create Sites
-  </h3>
-</nav>
+{% endblock breadcrumb %}
 
-
-<body role="application">
-    <div class="container-fluid">
-        {% for message in messages %}
-            {% if message.level_tag == "success" %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    {{ message }}
-                </div>
-            {% elif message.level_tag == "error" %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    {{ message }}
-                </div>
-            {% elif message.level_tag == "warning" %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    {{ message }}
-                </div>
-            {% else %}
-                <div class="alert alert-dismissible fade show" role="alert">
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-
+{% block content %}
     <div class="row container-fluid">
         <h4 class="mt-4">
             Bulk Creation Jobs:
@@ -91,10 +62,10 @@
             </tbody>
         </table>
     </div>
-</body>
-{% endblock %}
+{% endblock content %}
 
-{% block js %}
+{% block javascript %}
+    {{ block.super }}
     <script>
         $(document).ready(function () {
             $('.datatable').DataTable({
@@ -112,4 +83,4 @@
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
         });
     </script>
-{% endblock js %}
+{% endblock javascript %}
