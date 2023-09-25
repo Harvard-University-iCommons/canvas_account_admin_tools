@@ -300,6 +300,7 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'filters': ['context'],
             'flush_interval': 0,
+            'timeout': 5,
         },
         'gunicorn': {
             'class': 'splunk_handler.SplunkHandler',
@@ -313,6 +314,7 @@ LOGGING = {
             'level': _DEFAULT_LOG_LEVEL,
             'filters': ['context'],
             'flush_interval': 0,
+            'timeout': 5,
         },
         'console': {
             'level': _DEFAULT_LOG_LEVEL,
