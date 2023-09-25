@@ -299,6 +299,7 @@ LOGGING = {
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
             'filters': ['context'],
+            'flush_interval': 0,
         },
         'gunicorn': {
             'class': 'splunk_handler.SplunkHandler',
@@ -311,12 +312,13 @@ LOGGING = {
             'token': SECURE_SETTINGS['splunk_token'],
             'level': _DEFAULT_LOG_LEVEL,
             'filters': ['context'],
+            'flush_interval': 0,
         },
         'console': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
-            'filters': ['require_debug_true'],
+            'filters': ['context'],
         }
     },
     # This is the default logger for any apps or libraries that use the logger
