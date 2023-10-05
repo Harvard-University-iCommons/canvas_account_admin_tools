@@ -257,6 +257,10 @@ logging.Formatter.converter = time.gmtime
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', logging.DEBUG)
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
+# Turn off default Django logging
+# https://docs.djangoproject.com/en/4.2/topics/logging/#disabling-logging-configuration
+LOGGING_CONFIG = None
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -334,6 +338,11 @@ LOGGING = {
         'handlers': ['console', 'default'],
     },
     'loggers': {
+        'django': {
+            'handlers': ['console', 'default'],
+            'level': logging.WARNING,
+            'propagate': False,
+        },
         'gunicorn': {
             'handlers': ['gunicorn', 'console'],
             'level': logging.WARNING,
