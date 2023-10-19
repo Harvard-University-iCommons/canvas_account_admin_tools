@@ -14,6 +14,8 @@ from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
 
+from models import Term
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,12 +57,15 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
         """If the form is valid, create the Job and add it to the SQS queue"""
         form.instance.created_by = str(self.request.user)
         response = super(BulkSettingsCreateView, self).form_valid(form)
+        term = Term.objects.get(term_id=form.instance.term_id)
+        meta_term_id = term.meta_term_id()
 
         utils.queue_bulk_settings_job(bulk_settings_id=form.instance.id, school_id=form.instance.school_id,
-                                      term_id=form.instance.term_id,
+                                      meta_term_id=meta_term_id,
                                       setting_to_be_modified=form.instance.setting_to_be_modified,
                                       desired_setting=form.instance.desired_setting)
         form.instance.workflow_status = constants.QUEUED
+        form.instance.meta_term_id = meta_term_id
         form.instance.save()
 
         return response
