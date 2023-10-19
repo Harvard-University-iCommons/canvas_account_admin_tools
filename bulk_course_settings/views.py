@@ -14,7 +14,7 @@ from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job
 
-from models import Term
+from coursemanager.models import Term
 
 logger = logging.getLogger(__name__)
 
