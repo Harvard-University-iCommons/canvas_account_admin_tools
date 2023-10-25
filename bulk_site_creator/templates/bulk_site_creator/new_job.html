@@ -186,7 +186,20 @@
                     style: 'multi',
                     selector: 'td:first-child'
                 },
-                order: [[ 1, 'asc' ]]
+                order: [[ 1, 'asc' ]],
+            });
+
+            // Add a click event handler for the "Select All" button
+            $('#select-all-courses').on('click', function() {
+                if ($(this).hasClass('active')) {
+                    // Deselect all rows
+                    table.rows().deselect();
+                    $(this).removeClass('active');
+                } else {
+                    // Select all rows
+                    table.rows().select();
+                    $(this).addClass('active');
+                }
             });
 
             // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
