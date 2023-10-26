@@ -34,7 +34,7 @@ def create_new_course(request):
     try:
         school_id = sis_account_id.split(':')[1]
         school = School.objects.get(school_id=school_id)
-    except School.objects.DoesNotExist as e:
+    except School.DoesNotExist as e:
         logger.exception(f"School does not exist for given sis_account_id: {sis_account_id}")
         raise Exception
     if not school:
