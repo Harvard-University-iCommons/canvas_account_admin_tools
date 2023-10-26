@@ -45,7 +45,7 @@ def index(request):
         return render(request, 'canvas_account_admin_tools/error.html', context=template_context)
 
     # Read data from DynamoDB table (get n most recent records).
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.Table(
         settings.BULK_ENROLLMENT_TOOL_SETTINGS['bulk_enrollment_dynamodb_table'])
     response = table.query(
