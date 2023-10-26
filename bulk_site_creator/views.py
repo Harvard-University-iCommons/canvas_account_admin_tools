@@ -34,7 +34,7 @@ SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
 SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
 SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
 
-dynamodb = boto3.resource("dynamodb")
+dynamodb = boto3.resource("dynamodb", region_name='us-east-1')
 table_name = settings.BULK_COURSE_CREATION.get("site_creator_dynamo_table_name")
 
 # TODO improve logging for CRUD actions
