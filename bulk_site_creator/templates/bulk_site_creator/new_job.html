@@ -178,22 +178,33 @@
                     targets:   0
                 } ],
                 select: {
-                    style: 'multi',
+                    style: 'multi+shift',
                     selector: 'td:first-child'
                 },
                 order: [[ 1, 'asc' ]],
+                dom: 'Bftrip',
+                buttons: [
+                    'selectAll',
+                    'selectNone'
+                ],
+                language: {
+                    buttons: {
+                        selectAll: "Select all items",
+                        selectNone: "Select none"
+                    }
+                }
             });
 
             // Add a click event handler for the "Select All" button
             $('#select-all-courses').on('click', function() {
-                if ($(this).hasClass('active')) {
+                if ($(this).hasClass('selected')) {
                     // Deselect all rows
                     table.rows().deselect();
-                    $(this).removeClass('active');
+                    $(this).removeClass('selected');
                 } else {
                     // Select all rows
                     table.rows().select();
-                    $(this).addClass('active');
+                    $(this).addClass('selected');
                 }
             });
 
