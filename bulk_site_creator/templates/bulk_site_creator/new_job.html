@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th><input name="selectAll" id="select-all-courses" value="all" type="checkbox" /></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -120,11 +120,6 @@
                         </tr>
                     </thead>
                     <tbody id="course-table-body">
-                        <!-- Select All Checkbox -->
-                        <div class="text-left" style="margin-bottom: 5px;">
-                            <label for="select-all-checkbox">Select All</label>
-                            <input type="checkbox" id="select-all-courses" name="selectAll" value="all">
-                        </div>
                     {% for potential_course_site in potential_course_sites %}
                         <tr>
                             <td></td>
