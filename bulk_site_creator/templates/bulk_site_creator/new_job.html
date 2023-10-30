@@ -122,7 +122,7 @@
                     <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
                         <tr class="selectable-row">
-                            <td><input type="checkbox" class="col-select"/></td>
+                            <td><input type="checkbox" class="col-select" data-id="{{ potential_course_site.course_instance_id }}" /></td>
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
@@ -182,8 +182,47 @@
                     selector: 'td:first-child'
                 },
                 order: [[ 1, 'asc' ]],
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 'tr'
+                    }
+                }
             });
-     
+
+            // For updating Create All/Create Selected button text when row or checkbox is clicked.
+            function updateButtonText() {
+                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
+                $("#bsc-create-btn").html(`${create_btn_text}`);
+            };    
+
+            $("#course-table-body").on( "click", function() {
+                // Update button after n seconds to get accurate if row selected value
+                // after DataTable has time to process checkbox click.
+                setTimeout(updateButtonText, 125);
+            });
+            
+            // Add a click event handler for selecting/deselecting single or multiple rows
+            $("#course-table-body").on("click", ".selectable-row", function() {
+                // Find the checkbox element in this row
+                const checkbox = $(this).find('input[type="checkbox"]');
+                
+                // Toggle the checked state of the checkbox
+                checkbox.prop("checked", !checkbox.prop("checked"));
+                
+                if (checkbox.prop("checked")) {
+                    // If the checkbox is checked, add a 'selected' class to highlight the row
+                    table.row($(this)).select(); 
+                    $(this).addClass('selected');
+                    updateButtonText();
+                } else {
+                    // If the checkbox is unchecked, remove the 'selected' class
+                    table.row($(this)).deselect(); 
+                    $(this).removeClass('selected');
+                    updateButtonText();
+                }
+            });
+
             // Add a click event handler for the "Select All" button
             $('#select-all-courses').on('click', function() {
                 let checkboxes = document.querySelectorAll('#course-table-body input[type="checkbox"]');
@@ -202,18 +241,6 @@
                     $(this).addClass('selected');
                     updateButtonText();
                 }
-            });
-
-            function updateButtonText() {
-                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
-                $("#bsc-create-btn").html(`${create_btn_text}`);
-            }            
-
-            // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
-            $("#course-table-body").on( "click", function() {
-                // Update button after n seconds to get accurate if row selected value
-                // after DataTable has time to process checkbox click.
-                setTimeout(updateButtonText, 125);
             });
 
             // For updating modal body text.
