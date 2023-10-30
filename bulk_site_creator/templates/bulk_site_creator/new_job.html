@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th><input class="col-select" name="selectAll" id="select-all-courses" value="all" type="checkbox" /></th>
+                            <th><input class="col-select" name="selectAll" id="select-all-courses" value="all" type="checkbox" data-id="{{ potential_course_site.course_instance_id }}"/></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -121,8 +121,8 @@
                     </thead>
                     <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
-                        <tr>
-                            <td></td>
+                        <tr class="selectable-row">
+                            <td><input type="checkbox" class="col-select"/></td>
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
@@ -174,29 +174,23 @@
 			 table = $('.datatable').DataTable( {
                 columnDefs: [ {
                     orderable: false,
-                    className: 'select-checkbox',
+                    //className: 'select-checkbox',
                     targets:   0
                 } ],
                 select: {
-                    style: 'multi+shift',
+                    style: 'multi',
                     selector: 'td:first-child'
                 },
                 order: [[ 1, 'asc' ]],
-                dom: 'Bftrip',
-                buttons: [
-                    'selectAll',
-                    'selectNone'
-                ],
-                language: {
-                    buttons: {
-                        selectAll: "Select all items",
-                        selectNone: "Select none"
-                    }
-                }
             });
-
+     
             // Add a click event handler for the "Select All" button
             $('#select-all-courses').on('click', function() {
+                let checkboxes = document.querySelectorAll('#course-table-body input[type="checkbox"]');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = this.checked;
+                }
+
                 if ($(this).hasClass('selected')) {
                     // Deselect all rows
                     table.rows().deselect();
