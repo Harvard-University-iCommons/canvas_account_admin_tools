@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th><input name="selectAll" id="select-all-courses" value="all" type="checkbox" /></th>
+                            <th style="padding-left: 54px;"><input class="col-select" name="selectAll" id="select-all-courses" value="all" type="checkbox" /></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -201,23 +201,25 @@
                     // Deselect all rows
                     table.rows().deselect();
                     $(this).removeClass('selected');
+                    updateButtonText();
                 } else {
                     // Select all rows
                     table.rows().select();
                     $(this).addClass('selected');
+                    updateButtonText();
                 }
             });
+
+            function updateButtonText() {
+                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
+                $("#bsc-create-btn").html(`${create_btn_text}`);
+            }            
 
             // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
             $("#course-table-body").on( "click", function() {
                 // Update button after n seconds to get accurate if row selected value
                 // after DataTable has time to process checkbox click.
-                setTimeout(
-                    function()
-                    {
-                        const create_btn_text = (table.rows( { selected: true } ).any()) ? "Create Selected" : "Create All";
-                        $("#bsc-create-btn").html(`${create_btn_text}`);
-                    }, 125);  // 1/8 second wait.
+                setTimeout(updateButtonText, 125);
             });
 
             // For updating modal body text.
