@@ -2,30 +2,50 @@
 
 import logging
 
+import boto3
+import simplejson as json
+from botocore.exceptions import ClientError
 from django.conf import settings
+from django.http import JsonResponse
+from lti_school_permissions.decorators import lti_permission_required_check
 from rest_framework import status
-from rest_framework.exceptions import (
-    PermissionDenied,
-    ValidationError as DRFValidationError)
-from rest_framework.generics import (
-    ListAPIView,
-    ListCreateAPIView)
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import ValidationError as DRFValidationError
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from rest_framework.serializers import (
-    JSONField,
-    ModelSerializer)
+from rest_framework.serializers import JSONField, ModelSerializer
 
 from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
-from lti_school_permissions.decorators import lti_permission_required_check
 from publish_courses.async_operations import bulk_publish_canvas_sites
-from django.http import JsonResponse
-import simplejson as json
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
+
+# AWS configuration parameters from settings.
+AWS_REGION_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_region_name']
+AWS_ACCESS_KEY_ID = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_access_key_id']
+AWS_SECRET_ACCESS_KEY = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_secret_access_key']
+QUEUE_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['job_queue_name']
+VISIBILITY_TIMEOUT = settings.BULK_PUBLISH_COURSES_SETTINGS['visibility_timeout']
+
+KW = {
+    'region_name':  AWS_REGION_NAME,
+    'aws_access_key_id': AWS_ACCESS_KEY_ID,
+    'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
+}
+
+try:
+    # Initialize SQS resource using the provided AWS configuration.
+    SQS = boto3.resource('sqs', **KW)
+
+except ClientError as e:
+    logger.error('Error configuring sqs client: %s', e, exc_info=True)
+    raise
+except Exception as e:
+    logger.exception('Error configuring sqs')
+    raise
 
 
 class ProcessSerializer(ModelSerializer):
@@ -111,12 +131,92 @@ class CourseDetailList(ListAPIView):
 
 
 class BulkPublishListCreate(ListCreateAPIView):
-    process_name = 'publish_courses.async_operations.bulk_publish_canvas_sites'
-    queryset = Process.objects.filter(name=process_name).order_by('-date_created')
+    # process_name = 'publish_courses.async_operations.bulk_publish_canvas_sites'
+    # queryset = Process.objects.filter(name=process_name).order_by('-date_created')
     serializer_class = ProcessSerializer
-    permission_classes = (LTIPermission,)
+    # permission_classes = (LTIPermission,)
 
     def create(self, request, *args, **kwargs):
+        lti_session = getattr(self.request, 'LTI', {})
+        audit_user_id = lti_session.get('custom_canvas_user_login_id')
+        account_sis_id = lti_session.get('custom_canvas_account_sis_id')
+
+        if not all((audit_user_id, account_sis_id)):
+            raise DRFValidationError(
+                'Invalid LTI session: custom_canvas_user_login_id and '
+                'custom_canvas_account_sis_id required')
+
+        account = self.request.data.get('account')
+        term = self.request.data.get('term')
+        if not all((account, term)):
+            raise DRFValidationError('Both account and term are required')
+
+        # for the moment, only the current school account can be operated on
+        if not account_sis_id[len('school:'):] == account:
+            raise PermissionDenied
+
+        selected_courses = self.request.data.get('course_list')
+
+        # Data for queue.
+        account = 'sis_account_id:school:{}'.format(account),
+        term = 'sis_term_id:{}'.format(term),
+
+        print("==========================================>>>",
+              "\naccount_sis_id: ", account_sis_id,
+              "\naccount: ", account,
+              "\nterm: ", term,
+              "\naudit_user: ", audit_user_id,
+              "\ncourse_list: ", selected_courses, "\n")
+
+        # Define the list of messages to send.
+        messages = []
+
+        # Split the course IDs into batches of 50.
+        course_id_batch_size = 50
+        for i in range(0, len(selected_courses), course_id_batch_size):
+            course_batch = selected_courses[i:i + course_id_batch_size]
+
+            # Create the SQS message for this batch.
+            message_body = '_'.join(['msg_body', str(account)]),
+            message_attributes = {
+                'account': {
+                    'StringValue': str(account),
+                    'DataType': 'String'
+                },
+                'term': {
+                    'StringValue': str(term),
+                    'DataType': 'String'
+                },
+                'audit_user': {
+                    'StringValue': str(audit_user_id),
+                    'DataType': 'String'
+                },
+                'course_list': {
+                    'StringValue': str(selected_courses),
+                    'DataType': 'String'
+                },
+            }
+
+            # Append the message to the list of messages for this batch.
+            messages.append({
+                'MessageBody': message_body,
+                'MessageAttributes': message_attributes
+            })    
+
+        # Send up to 10 messages at a time.
+        sqs_msg_batch_size = 10
+        queue = SQS.get_queue_by_name(QueueName=QUEUE_NAME)
+        for i in range(0, len(messages), sqs_msg_batch_size):
+            batch = messages[i:i + sqs_msg_batch_size]
+            message = queue.send_message_batch(Entries=batch)
+            logger.debug(
+                f"Job for bulk_publish_canvas_sites sent to SQS: MessageId = {message['MessageId']}",
+                extra=json.dumps(message, indent=2))
+        print("==========================================>>>")
+        return Response({'MessageId': message['MessageId']}, status=status.HTTP_201_CREATED)
+    
+
+    def create_old(self, request, *args, **kwargs):
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
         account_sis_id = lti_session.get('custom_canvas_account_sis_id')
