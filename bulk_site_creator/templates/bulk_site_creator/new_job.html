@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th><input class="col-select" name="selectAll" id="select-all-courses" value="all" type="checkbox" data-id="{{ potential_course_site.course_instance_id }}"/></th>
+                            <th><input name="selectAll" id="select-all-courses" value="all" type="checkbox" data-id="{{ potential_course_site.course_instance_id }}"/></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -121,8 +121,8 @@
                     </thead>
                     <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
-                        <tr class="selectable-row">
-                            <td><input type="checkbox" class="col-select" data-id="{{ potential_course_site.course_instance_id }}" /></td>
+                        <tr>
+                            <td class="disable-td-click"><input type="checkbox" class="select-checkbox" data-id="{{ potential_course_site.course_instance_id }}" /></td>
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
@@ -174,7 +174,6 @@
 			 table = $('.datatable').DataTable( {
                 columnDefs: [ {
                     orderable: false,
-                    //className: 'select-checkbox',
                     targets:   0
                 } ],
                 select: {
@@ -190,6 +189,15 @@
                 }
             });
 
+            $(document).ready(function () {
+                $('.disable-td-click').on('click', function (e) {
+                    // Check if the click target is not the checkbox itself
+                    if (!$(e.target).is('input[type="checkbox"]')) {
+                        e.stopPropagation(); // Prevent the click event from bubbling up
+                    }
+                });
+            });
+
             // For updating Create All/Create Selected button text when row or checkbox is clicked.
             function updateButtonText() {
                 const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
@@ -200,27 +208,6 @@
                 // Update button after n seconds to get accurate if row selected value
                 // after DataTable has time to process checkbox click.
                 setTimeout(updateButtonText, 125);
-            });
-            
-            // Add a click event handler for selecting/deselecting single or multiple rows
-            $("#course-table-body").on("click", ".selectable-row", function() {
-                // Find the checkbox element in this row
-                const checkbox = $(this).find('input[type="checkbox"]');
-                
-                // Toggle the checked state of the checkbox
-                checkbox.prop("checked", !checkbox.prop("checked"));
-                
-                if (checkbox.prop("checked")) {
-                    // If the checkbox is checked, add a 'selected' class to highlight the row
-                    table.row($(this)).select(); 
-                    $(this).addClass('selected');
-                    updateButtonText();
-                } else {
-                    // If the checkbox is unchecked, remove the 'selected' class
-                    table.row($(this)).deselect(); 
-                    $(this).removeClass('selected');
-                    updateButtonText();
-                }
             });
 
             // Add a click event handler for the "Select All" button
