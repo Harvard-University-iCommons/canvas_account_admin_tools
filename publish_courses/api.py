@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from typing import Dict, List, Optional
 
 import boto3
 import simplejson as json
@@ -37,8 +38,8 @@ KW = {
 }
 
 try:
-    # Initialize SQS resource using the provided AWS configuration.
-    SQS = boto3.resource('sqs', **KW)
+    # Create SQS client using the provided AWS configuration.
+    SQS = boto3.client('sqs', **KW)
 
 except ClientError as e:
     logger.error('Error configuring sqs client: %s', e, exc_info=True)
@@ -136,7 +137,7 @@ class BulkPublishListCreate(ListCreateAPIView):
     serializer_class = ProcessSerializer
     # permission_classes = (LTIPermission,)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs) -> Response:
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
         account_sis_id = lti_session.get('custom_canvas_account_sis_id')
@@ -151,18 +152,15 @@ class BulkPublishListCreate(ListCreateAPIView):
         if not all((account, term)):
             raise DRFValidationError('Both account and term are required')
 
-        # for the moment, only the current school account can be operated on
+        # For the moment, only the current school account can be operated on.
         if not account_sis_id[len('school:'):] == account:
             raise PermissionDenied
 
         selected_courses = self.request.data.get('course_list')
-
-        # Data for queue.
-        account = 'sis_account_id:school:{}'.format(account),
-        term = 'sis_term_id:{}'.format(term),
+        account = f'sis_account_id:school:{account}'
+        term = f'sis_term_id:{term}'
 
         print("==========================================>>>",
-              "\naccount_sis_id: ", account_sis_id,
               "\naccount: ", account,
               "\nterm: ", term,
               "\naudit_user: ", audit_user_id,
@@ -171,13 +169,18 @@ class BulkPublishListCreate(ListCreateAPIView):
         # Define the list of messages to send.
         messages = []
 
-        # Split the course IDs into batches of 50.
+        # Calculate total batches based on course count and batch size.
         course_id_batch_size = 50
-        for i in range(0, len(selected_courses), course_id_batch_size):
+        total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
+
+        # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
+        for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
             course_batch = selected_courses[i:i + course_id_batch_size]
+            print("==========================================>>>", ','.join(map(str, course_batch)))
 
             # Create the SQS message for this batch.
-            message_body = '_'.join(['msg_body', str(account)]),
+            message_id = '1'
+            message_body = f'Batch {batch_number}/{total_batches}. Job ID {account}'
             message_attributes = {
                 'account': {
                     'StringValue': str(account),
@@ -192,29 +195,45 @@ class BulkPublishListCreate(ListCreateAPIView):
                     'DataType': 'String'
                 },
                 'course_list': {
-                    'StringValue': str(selected_courses),
+                    'StringValue': ','.join(map(str, course_batch)),  # Course IDs as comma separated string.
                     'DataType': 'String'
                 },
             }
 
             # Append the message to the list of messages for this batch.
             messages.append({
+                'Id': message_id,
                 'MessageBody': message_body,
                 'MessageAttributes': message_attributes
             })    
 
-        # Send up to 10 messages at a time.
-        sqs_msg_batch_size = 10
-        queue = SQS.get_queue_by_name(QueueName=QUEUE_NAME)
+        self._send_sqs_message_batch(messages, sqs_msg_batch_size=10)
+        print("==========================================>>>")
+
+        # TODO: Response json data?
+        return Response({}, status=status.HTTP_201_CREATED)
+    
+    def _send_sqs_message_batch(self, messages: List[Dict], sqs_msg_batch_size: int = 10) -> None:
+        """
+        Sends a batch of messages to an Amazon Simple Queue Service (SQS) queue.
+
+        Note: You can use send_message_batch to send up to 10 messages to the specified queue.
+        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
+        """
+        queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
+
         for i in range(0, len(messages), sqs_msg_batch_size):
             batch = messages[i:i + sqs_msg_batch_size]
-            message = queue.send_message_batch(Entries=batch)
-            logger.debug(
-                f"Job for bulk_publish_canvas_sites sent to SQS: MessageId = {message['MessageId']}",
-                extra=json.dumps(message, indent=2))
-        print("==========================================>>>")
-        return Response({'MessageId': message['MessageId']}, status=status.HTTP_201_CREATED)
-    
+            response = SQS.send_message_batch(
+                QueueUrl=queue,
+                Entries=batch
+            )
+
+            context = {
+                'batch': batch,
+                'response': response
+            }
+            logger.debug(f'Job for bulk_publish_canvas_sites sent to SQS', extra=context)
 
     def create_old(self, request, *args, **kwargs):
         lti_session = getattr(self.request, 'LTI', {})
