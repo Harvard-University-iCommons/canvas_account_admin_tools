@@ -9,6 +9,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.http import JsonResponse
 from lti_school_permissions.decorators import lti_permission_required_check
+from publish_courses.models import Job, JobDetails
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
@@ -16,7 +17,9 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.serializers import JSONField, ModelSerializer
+from ulid import ULID
 
+from publish_courses import constants 
 from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from publish_courses.async_operations import bulk_publish_canvas_sites
@@ -136,11 +139,13 @@ class BulkPublishListCreate(ListCreateAPIView):
     # queryset = Process.objects.filter(name=process_name).order_by('-date_created')
     serializer_class = ProcessSerializer
     # permission_classes = (LTIPermission,)
-
+          
     def create(self, request, *args, **kwargs) -> Response:
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
         account_sis_id = lti_session.get('custom_canvas_account_sis_id')
+
+        print("==========================================>>>", self.request.data)
 
         if not all((audit_user_id, account_sis_id)):
             raise DRFValidationError(
@@ -173,15 +178,29 @@ class BulkPublishListCreate(ListCreateAPIView):
         course_id_batch_size = 50
         total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
 
+        job_id = f'JOB-{str(ULID())}'  # Unique lexicographically sortable identifier.
+
+        # Create job record in the database.
+        job = Job.objects.create(job=job_id,
+                                 school_id=account_sis_id[len('school:'):],
+                                 created_by_user_id=audit_user_id,
+                                 user_full_name= lti_session.get('lis_person_name_full'),
+                                 job_details_total_count=len(selected_courses))
+        job.save()
+
         # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
         for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
             course_batch = selected_courses[i:i + course_id_batch_size]
             print("==========================================>>>", ','.join(map(str, course_batch)))
 
             # Create the SQS message for this batch.
-            message_id = '1'
-            message_body = f'Batch {batch_number}/{total_batches}. Job ID {account}'
+            message_id = f'MSG-{str(ULID())}'
+            message_body = f'Course batch {batch_number}/{total_batches}. Job ID {job_id}. Message ID {message_id}.'
             message_attributes = {
+                'job_id': {
+                    'StringValue': str(job_id),
+                    'DataType': 'String'
+                },
                 'account': {
                     'StringValue': str(account),
                     'DataType': 'String'
@@ -207,7 +226,7 @@ class BulkPublishListCreate(ListCreateAPIView):
                 'MessageAttributes': message_attributes
             })    
 
-        self._send_sqs_message_batch(messages, sqs_msg_batch_size=10)
+        # self._send_sqs_message_batch(messages, sqs_msg_batch_size=10)
         print("==========================================>>>")
 
         # TODO: Response json data?
@@ -217,7 +236,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         """
         Sends a batch of messages to an Amazon Simple Queue Service (SQS) queue.
 
-        Note: You can use send_message_batch to send up to 10 messages to the specified queue.
+        Note: As of 2023-11-02 you can use send_message_batch to send up to 10 messages to the specified queue.
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
         """
         queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
@@ -234,6 +253,51 @@ class BulkPublishListCreate(ListCreateAPIView):
                 'response': response
             }
             logger.debug(f'Job for bulk_publish_canvas_sites sent to SQS', extra=context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def create_old(self, request, *args, **kwargs):
         lti_session = getattr(self.request, 'LTI', {})
