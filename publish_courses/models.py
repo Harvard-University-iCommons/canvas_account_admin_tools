@@ -65,7 +65,6 @@ class JobDetails(models.Model):
     parent_job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='job_details')
     canvas_course_id = models.PositiveIntegerField()
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
-    is_modified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     prior_state = models.CharField(max_length=2000, null=True)
@@ -80,7 +79,6 @@ class JobDetails(models.Model):
             "parent_job": self.parent_job,
             "canvas_course_id": self.canvas_course_id,
             "workflow_status": self.workflow_status,
-            "is_modified": self.is_modified,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             "prior_state": self.prior_state,
