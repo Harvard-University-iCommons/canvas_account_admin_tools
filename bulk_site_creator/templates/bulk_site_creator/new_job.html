@@ -192,7 +192,8 @@
             $(document).ready(function () {
                 $('.disable-td-click').on('click', function (e) {
                     // Check if the click target is not the checkbox itself
-                    if (!$(e.target).is('input[type="checkbox"]')) {
+            $('#course-table').on('click', '.disable-td-click', function (e) {
+                if (!$(e.target).is('input[type="checkbox"][name="chkbx"]')) {
                         e.stopPropagation(); // Prevent the click event from bubbling up
                     }
                 });
