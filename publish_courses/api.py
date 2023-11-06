@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import boto3
-import simplejson as json
 from botocore.exceptions import ClientError
 from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods.accounts import list_active_courses_in_account
-from canvas_sdk.methods.courses import (get_single_course_courses,
-                                        list_your_courses)
 from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.http import JsonResponse
@@ -21,13 +18,9 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from rest_framework.serializers import JSONField, ModelSerializer
 from ulid import ULID
 
-from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
-from publish_courses import constants
-from publish_courses.async_operations import bulk_publish_canvas_sites
 from publish_courses.models import Job, JobDetails
 
 logger = logging.getLogger(__name__)
@@ -62,14 +55,6 @@ except ClientError as e:
 except Exception as e:
     logger.exception('Error configuring sqs')
     raise
-
-
-class ProcessSerializer(ModelSerializer):
-    details = JSONField()
-
-    class Meta:
-        model = Process
-        exclude = ('name', 'source')
 
 
 class LTIPermission(BasePermission):
@@ -147,12 +132,10 @@ class CourseDetailList(ListAPIView):
 
 
 class BulkPublishListCreate(ListCreateAPIView):
-    # process_name = 'publish_courses.async_operations.bulk_publish_canvas_sites'
-    # queryset = Process.objects.filter(name=process_name).order_by('-date_created')
-    serializer_class = ProcessSerializer
-    # permission_classes = (LTIPermission,)
 
     def create(self, request, *args, **kwargs) -> Response:
+        logger.info(f'Creating bulk publish courses job.')
+        
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
         audit_user_name = lti_session.get('lis_person_name_full')
@@ -194,6 +177,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         messages = self.create_sqs_messages(job_id, account, term, audit_user_id, selected_courses)
         # self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
 
+        logger.info(f'Bulk publish courses job creation complete.')
         # TODO: Response json data?
         return Response({}, status=status.HTTP_201_CREATED)
 
@@ -202,6 +186,9 @@ class BulkPublishListCreate(ListCreateAPIView):
         """
         Fetches a list of Canvas courses for a specified account and term. 
         """
+        logger.debug(f'Retrieving Canvas courses', extra={
+                     'account': account, 'term': term})
+
         canvas_courses = []
         try:
             canvas_courses = get_all_list_data(
@@ -227,10 +214,6 @@ class BulkPublishListCreate(ListCreateAPIView):
         Retrieves workflow states for selected courses, creates a job record,
         and job details then adds them to the database.
         """
-        # Create dict workflow states for selected courses.
-        workflow_states = {course['id']: course['workflow_state']
-                           for course in canvas_courses if course['id'] in selected_courses}
-
         # Create job record in the database.
         job = Job.objects.create(job=job_id,
                                  school_id=account_sis_id[len('school:'):],
@@ -239,19 +222,27 @@ class BulkPublishListCreate(ListCreateAPIView):
                                  job_details_total_count=len(selected_courses))
         job.save()
 
+        logger.debug(f'Bulk publish courses job saved to database',
+                     extra={'job_id': job_id})
+        
+        # Create dict workflow states for selected courses.
+        workflow_states = {course['id']: course['workflow_state']
+                           for course in canvas_courses if course['id'] in selected_courses}
+
         # Create job details records in the database.
         for course_id in selected_courses:
             # Get course workflow_state.
-            workflow_states = get_all_list_data(SDK_CONTEXT,
-                                                get_single_course_courses,
-                                                id=course_id)['workflow_state']
+            workflow_state = workflow_states[course_id]
 
             job_details = JobDetails.objects.create(
                 parent_job=job,
                 canvas_course_id=course_id,
-                prior_state=workflow_states[course_id]
+                prior_state=workflow_state
             )
             job_details.save()
+
+        logger.debug(f'Details for the bulk publish courses job saved to database',
+                     extra={'job_id': job_id})
 
     def create_sqs_messages(self, job_id: str, account: str, term: str, 
                             audit_user_id: int, selected_courses: List[int]) -> List[Dict]:
@@ -327,82 +318,4 @@ class BulkPublishListCreate(ListCreateAPIView):
                 'response': response
             }
             logger.debug(
-                f'Job for bulk_publish_canvas_sites sent to SQS', extra=context)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def create_old(self, request, *args, **kwargs):
-        lti_session = getattr(self.request, 'LTI', {})
-        audit_user_id = lti_session.get('custom_canvas_user_login_id')
-        account_sis_id = lti_session.get('custom_canvas_account_sis_id')
-        if not all((audit_user_id, account_sis_id)):
-            raise DRFValidationError(
-                'Invalid LTI session: custom_canvas_user_login_id and '
-                'custom_canvas_account_sis_id required')
-
-        account = self.request.data.get('account')
-        term = self.request.data.get('term')
-        if not all((account, term)):
-            raise DRFValidationError('Both account and term are required')
-
-        # for the moment, only the current school account can be operated on
-        if not account_sis_id[len('school:'):] == account:
-            raise PermissionDenied
-
-        selected_courses = self.request.data.get('course_list')
-
-        process = Process.enqueue(
-            bulk_publish_canvas_sites,
-            settings.RQWORKER_QUEUE_NAME,
-            account='sis_account_id:school:{}'.format(account),
-            term='sis_term_id:{}'.format(term),
-            audit_user=audit_user_id,
-            course_list=selected_courses)
-
-        logger.debug('Enqueued Process job for bulk_publish_canvas_sites: '
-                     '{}'.format(process))
-
-        return Response(self.serializer_class(process).data,
-                        status=status.HTTP_201_CREATED)
+                f'Bulk publish courses job sent to SQS', extra=context)
