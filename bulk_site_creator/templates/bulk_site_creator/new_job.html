@@ -189,46 +189,47 @@
                 }
             });
 
-            $(document).ready(function () {
-                $('.disable-td-click').on('click', function (e) {
-                    // Check if the click target is not the checkbox itself
+            // Check if the click target is not the checkbox itself
             $('#course-table').on('click', '.disable-td-click', function (e) {
                 if (!$(e.target).is('input[type="checkbox"][name="chkbx"]')) {
-                        e.stopPropagation(); // Prevent the click event from bubbling up
-                    }
+                    e.stopPropagation(); // Prevent the click event from bubbling up
+                }
+            });
+
+            // Select All functionality
+            let courseTable = $('#course-table').DataTable();
+            let totalRows = table.rows().count();
+            let totalRowsChecked = 0;
+            console.log('Total Rows: ' + totalRows)
+            console.log('Total Rows Checked: ' + totalRowsChecked);
+            
+            $('.selectAll').on('change', function() {
+                let checked = $(this).prop('checked');
+                courseTable.rows().select(checked);
+            
+                // Get the number of selected rows throughout whole table
+                totalRowsChecked = courseTable.rows({ selected: true }).count();
+
+                table.cells(null, 0).every(function(e) {
+                    let cell = this.node();
+                    $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
                 });
+            
+                // Check if totalRowsChecked is less than totalRows and update "selectAll" checkbox accordingly
+                if (totalRowsChecked < totalRows) {
+                    $(this).prop('checked', false);
+                };
+            
+                console.log('Total Rows: ' + totalRows);
+                console.log('Total Rows Checked: ' + totalRowsChecked);
             });
-
-            // For updating Create All/Create Selected button text when row or checkbox is clicked.
-            function updateButtonText() {
-                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
-                $("#bsc-create-btn").html(`${create_btn_text}`);
-            };    
-
-            $("#course-table-body").on( "click", function() {
-                // Update button after n seconds to get accurate if row selected value
-                // after DataTable has time to process checkbox click.
-                setTimeout(updateButtonText, 125);
-            });
-
-            // Add a click event handler for the "Select All" button
-            $('#select-all-courses').on('click', function() {
-                let checkboxes = document.querySelectorAll('#course-table-body input[type="checkbox"]');
-                for (let i = 0; i < checkboxes.length; i++) {
-                    checkboxes[i].checked = this.checked;
-                }
-
-                if ($(this).hasClass('selected')) {
-                    // Deselect all rows
-                    table.rows().deselect();
-                    $(this).removeClass('selected');
-                    updateButtonText();
-                } else {
-                    // Select all rows
-                    table.rows().select();
-                    $(this).addClass('selected');
-                    updateButtonText();
-                }
+            
+            // Handle individual row checkbox changes
+            courseTable.on('select deselect', function(e, dt, type, indexes) {
+                let selectedCount = courseTable.rows({ selected: true }).count();
+                
+                // Update the "selectAll" checkbox based on selectedCount
+                $('.selectAll').prop('checked', selectedCount === totalRows);
             });
 
             // For updating modal body text.
