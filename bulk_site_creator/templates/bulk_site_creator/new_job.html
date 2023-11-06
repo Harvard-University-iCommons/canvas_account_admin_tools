@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th><input name="selectAll" id="select-all-courses" value="all" type="checkbox" data-id="{{ potential_course_site.course_instance_id }}"/></th>
+                            <th><input type="checkbox" name="select_all_top" class="selectAll" /></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -122,7 +122,7 @@
                     <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
                         <tr>
-                            <td class="disable-td-click"><input type="checkbox" class="select-checkbox" data-id="{{ potential_course_site.course_instance_id }}" /></td>
+                            <td class="disable-td-click"><input type="checkbox" name="chkbx" class="col-select" data-id="{{ potential_course_site.course_instance_id }}" /></td>
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
