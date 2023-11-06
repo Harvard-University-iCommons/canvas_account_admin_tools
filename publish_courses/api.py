@@ -6,10 +6,15 @@ from typing import Dict, List, Optional
 import boto3
 import simplejson as json
 from botocore.exceptions import ClientError
+from canvas_sdk import RequestContext
+from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods.accounts import list_active_courses_in_account
+from canvas_sdk.methods.courses import (get_single_course_courses,
+                                        list_your_courses)
+from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.http import JsonResponse
 from lti_school_permissions.decorators import lti_permission_required_check
-from publish_courses.models import Job, JobDetails
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError as DRFValidationError
@@ -19,12 +24,19 @@ from rest_framework.response import Response
 from rest_framework.serializers import JSONField, ModelSerializer
 from ulid import ULID
 
-from publish_courses import constants 
 from async_operations.models import Process
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
+from publish_courses import constants
 from publish_courses.async_operations import bulk_publish_canvas_sites
+from publish_courses.models import Job, JobDetails
 
 logger = logging.getLogger(__name__)
+
+SDK_SETTINGS = settings.CANVAS_SDK_SETTINGS
+# Make sure the session_inactivity_expiration_time_secs key isn't in the settings dict.
+SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
+SDK_CONTEXT = RequestContext(**SDK_SETTINGS)
+
 PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
 
 # AWS configuration parameters from settings.
@@ -139,13 +151,12 @@ class BulkPublishListCreate(ListCreateAPIView):
     # queryset = Process.objects.filter(name=process_name).order_by('-date_created')
     serializer_class = ProcessSerializer
     # permission_classes = (LTIPermission,)
-          
+
     def create(self, request, *args, **kwargs) -> Response:
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
+        audit_user_name = lti_session.get('lis_person_name_full')
         account_sis_id = lti_session.get('custom_canvas_account_sis_id')
-
-        print("==========================================>>>", self.request.data)
 
         if not all((audit_user_id, account_sis_id)):
             raise DRFValidationError(
@@ -170,23 +181,89 @@ class BulkPublishListCreate(ListCreateAPIView):
               "\nterm: ", term,
               "\naudit_user: ", audit_user_id,
               "\ncourse_list: ", selected_courses, "\n")
+        print("==========================================>>>")
 
-        # Define the list of messages to send.
-        messages = []
+        canvas_courses = self.get_canvas_courses(account, term)
+        if not selected_courses:
+            selected_courses = canvas_courses
 
-        # Calculate total batches based on course count and batch size.
-        course_id_batch_size = 50
-        total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
+        # Unique lexicographically sortable identifier.
+        job_id = f'JOB-{str(ULID())}'
 
-        job_id = f'JOB-{str(ULID())}'  # Unique lexicographically sortable identifier.
+        self.create_and_save_jobs(job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
+        messages = self.create_sqs_messages(job_id, account, term, audit_user_id, selected_courses)
+        # self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
+
+        # TODO: Response json data?
+        return Response({}, status=status.HTTP_201_CREATED)
+
+
+    def get_canvas_courses(self, account: str, term: str) -> List[Dict]:
+        """
+        Fetches a list of Canvas courses for a specified account and term. 
+        """
+        canvas_courses = []
+        try:
+            canvas_courses = get_all_list_data(
+                SDK_CONTEXT,
+                list_active_courses_in_account,
+                account_id=account,
+                enrollment_term_id=term,
+                published=False,
+            )
+        except Exception as e:
+            message = f'Error getting courses for account {account}'
+            if isinstance(e, CanvasAPIError):
+                message += ', SDK error details={}'.format(e)
+            logger.exception(message)
+            raise e
+
+        return canvas_courses
+    
+    def create_and_save_jobs(self, job_id: str, account_sis_id: str, audit_user_id: int,
+                             audit_user_name: str, selected_courses: List[int],
+                             canvas_courses: List[Dict]) -> None:
+        """
+        Retrieves workflow states for selected courses, creates a job record,
+        and job details then adds them to the database.
+        """
+        # Create dict workflow states for selected courses.
+        workflow_states = {course['id']: course['workflow_state']
+                           for course in canvas_courses if course['id'] in selected_courses}
 
         # Create job record in the database.
         job = Job.objects.create(job=job_id,
                                  school_id=account_sis_id[len('school:'):],
                                  created_by_user_id=audit_user_id,
-                                 user_full_name= lti_session.get('lis_person_name_full'),
+                                 user_full_name=audit_user_name,
                                  job_details_total_count=len(selected_courses))
         job.save()
+
+        # Create job details records in the database.
+        for course_id in selected_courses:
+            # Get course workflow_state.
+            workflow_states = get_all_list_data(SDK_CONTEXT,
+                                                get_single_course_courses,
+                                                id=course_id)['workflow_state']
+
+            job_details = JobDetails.objects.create(
+                parent_job=job,
+                canvas_course_id=course_id,
+                prior_state=workflow_states[course_id]
+            )
+            job_details.save()
+
+    def create_sqs_messages(self, job_id: str, account: str, term: str, 
+                            audit_user_id: int, selected_courses: List[int]) -> List[Dict]:
+        """
+        Creates SQS messages for a bulk publish courses job, with each message
+        containing 50 course IDs."
+        """
+        messages = []
+
+        # Calculate total course batches based on course count and batch size.
+        course_id_batch_size = 50
+        total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
 
         # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
         for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
@@ -214,7 +291,8 @@ class BulkPublishListCreate(ListCreateAPIView):
                     'DataType': 'String'
                 },
                 'course_list': {
-                    'StringValue': ','.join(map(str, course_batch)),  # Course IDs as comma separated string.
+                    # Course IDs as comma separated string.
+                    'StringValue': ','.join(map(str, course_batch)),
                     'DataType': 'String'
                 },
             }
@@ -224,15 +302,11 @@ class BulkPublishListCreate(ListCreateAPIView):
                 'Id': message_id,
                 'MessageBody': message_body,
                 'MessageAttributes': message_attributes
-            })    
+            })
 
-        # self._send_sqs_message_batch(messages, sqs_msg_batch_size=10)
-        print("==========================================>>>")
+        return messages
 
-        # TODO: Response json data?
-        return Response({}, status=status.HTTP_201_CREATED)
-    
-    def _send_sqs_message_batch(self, messages: List[Dict], sqs_msg_batch_size: int = 10) -> None:
+    def send_sqs_message_batch(self, messages: List[Dict], sqs_msg_batch_size: int = 10) -> None:
         """
         Sends a batch of messages to an Amazon Simple Queue Service (SQS) queue.
 
@@ -252,8 +326,8 @@ class BulkPublishListCreate(ListCreateAPIView):
                 'batch': batch,
                 'response': response
             }
-            logger.debug(f'Job for bulk_publish_canvas_sites sent to SQS', extra=context)
-
+            logger.debug(
+                f'Job for bulk_publish_canvas_sites sent to SQS', extra=context)
 
 
 
