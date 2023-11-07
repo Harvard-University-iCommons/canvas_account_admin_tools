@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 from typing import Dict, List
 
@@ -173,13 +174,15 @@ class BulkPublishListCreate(ListCreateAPIView):
         # Unique lexicographically sortable identifier.
         job_id = f'JOB-{str(ULID())}'
 
-        self.create_and_save_jobs(job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
-        messages = self.create_sqs_messages(job_id, account, term, audit_user_id, selected_courses)
-        # self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
+        # Save job and send to sqs queue.
+        self.create_and_save_job(
+            job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
+        messages = self.create_sqs_messages(
+            job_id, account, term, audit_user_id, selected_courses)
+        self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
 
         logger.info(f'Bulk publish courses job creation complete.')
-        # TODO: Response json data?
-        return Response({}, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
 
     def get_canvas_courses(self, account: str, term: str) -> List[Dict]:
@@ -207,9 +210,9 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         return canvas_courses
     
-    def create_and_save_jobs(self, job_id: str, account_sis_id: str, audit_user_id: int,
-                             audit_user_name: str, selected_courses: List[int],
-                             canvas_courses: List[Dict]) -> None:
+    def create_and_save_job(self, job_id: str, account_sis_id: str, audit_user_id: int,
+                            audit_user_name: str, selected_courses: List[int],
+                            canvas_courses: List[Dict]) -> None:
         """
         Retrieves workflow states for selected courses, creates a job record,
         and job details then adds them to the database.
