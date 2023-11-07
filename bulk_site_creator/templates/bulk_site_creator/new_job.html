@@ -196,12 +196,22 @@
                 }
             });
 
+            // For updating Create All/Create Selected button text when row or checkbox is clicked
+            function updateButtonText() {
+                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
+                $("#bsc-create-btn").html(`${create_btn_text}`);
+            };  
+
+            $("#course-table-body").on( "click", function() {
+                // Update button after n seconds to get accurate if row selected value
+                // after DataTable has time to process checkbox click
+                setTimeout(updateButtonText, 125); // 1/8 second wait
+            });
+
             // Select All functionality
             let courseTable = $('#course-table').DataTable();
             let totalRows = table.rows().count();
             let totalRowsChecked = 0;
-            console.log('Total Rows: ' + totalRows)
-            console.log('Total Rows Checked: ' + totalRowsChecked);
             
             $('.selectAll').on('change', function() {
                 let checked = $(this).prop('checked');
@@ -210,6 +220,7 @@
                 // Get the number of selected rows throughout whole table
                 totalRowsChecked = courseTable.rows({ selected: true }).count();
 
+                // Check off every row found in the table
                 table.cells(null, 0).every(function(e) {
                     let cell = this.node();
                     $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
@@ -219,9 +230,7 @@
                 if (totalRowsChecked < totalRows) {
                     $(this).prop('checked', false);
                 };
-            
-                console.log('Total Rows: ' + totalRows);
-                console.log('Total Rows Checked: ' + totalRowsChecked);
+                updateButtonText()
             });
             
             // Handle individual row checkbox changes
