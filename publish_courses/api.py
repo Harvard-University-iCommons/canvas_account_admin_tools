@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 from typing import Dict, List
 
@@ -160,19 +159,17 @@ class BulkPublishListCreate(ListCreateAPIView):
         account = f'sis_account_id:school:{account}'
         term = f'sis_term_id:{term}'
 
-        print("==========================================>>>",
-              "\naccount: ", account,
-              "\nterm: ", term,
-              "\naudit_user: ", audit_user_id,
-              "\ncourse_list: ", selected_courses, "\n")
-        print("==========================================>>>")
-
         canvas_courses = self.get_canvas_courses(account, term)
         if not selected_courses:
             selected_courses = canvas_courses
 
         # Unique lexicographically sortable identifier.
         job_id = f'JOB-{str(ULID())}'
+
+        logger.debug(f'Bulk publish courses job {job_id}.', extra={'account': account,
+                                                                   'term': term,
+                                                                   'audit_user': audit_user_id,
+                                                                   'course_list': selected_courses})
 
         # Save job and send to sqs queue.
         self.create_and_save_job(
@@ -181,7 +178,8 @@ class BulkPublishListCreate(ListCreateAPIView):
             job_id, account, term, audit_user_id, selected_courses)
         self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
 
-        logger.info(f'Bulk publish courses job creation complete.')
+        logger.info(
+            f'The bulk publish courses job creation is complete and has been sent to the SQS queue.')
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -262,7 +260,6 @@ class BulkPublishListCreate(ListCreateAPIView):
         # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
         for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
             course_batch = selected_courses[i:i + course_id_batch_size]
-            print("==========================================>>>", ','.join(map(str, course_batch)))
 
             # Create the SQS message for this batch.
             message_id = f'MSG-{str(ULID())}'
