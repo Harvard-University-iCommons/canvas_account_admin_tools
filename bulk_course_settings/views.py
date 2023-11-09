@@ -103,12 +103,13 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
             new_bulk_job = Job.objects.create(related_job_id=related_bulk_job.id,
                                               school_id=school_id,
                                               term_id=related_bulk_job.term_id,
+                                              meta_term_id=related_bulk_job.meta_term_id,
                                               setting_to_be_modified=related_bulk_job.setting_to_be_modified,
                                               desired_setting=reverse_desired_setting_mapping[related_bulk_job.desired_setting],
                                               created_by=str(self.request.user))
 
             utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
-                                          term_id=related_bulk_job.term_id,
+                                          meta_term_id=related_bulk_job.meta_term_id,
                                           setting_to_be_modified=related_bulk_job.setting_to_be_modified,
                                           desired_setting='REVERT')
             new_bulk_job.workflow_status = constants.QUEUED
