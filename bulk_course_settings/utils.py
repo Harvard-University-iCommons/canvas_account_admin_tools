@@ -86,16 +86,15 @@ def get_term_data_for_school(school_sis_account_id):
     return terms
 
 
-def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting, queue_name=QUEUE_NAME):
+def queue_bulk_settings_job(bulk_settings_id, school_id, setting_to_be_modified, desired_setting, meta_term_id, queue_name=QUEUE_NAME):
     """Adds a message to the SQS queue using the given parameters """
-    logger.debug("queue_bulk_settings_job:  bulk_settings_id={}, school_id={}, term_id={}, setting_to_be_modified={} , "
+    logger.debug("queue_bulk_settings_job:  bulk_settings_id={}, school_id={}, meta_term_id={}, setting_to_be_modified={} , "
                  "desired_setting={}"
-                 .format(bulk_settings_id, school_id, term_id, setting_to_be_modified, desired_setting))
+                 .format(bulk_settings_id, school_id, meta_term_id, setting_to_be_modified, desired_setting))
     queue = SQS.get_queue_by_name(QueueName=queue_name)
     message = queue.send_message(
         MessageBody='_'.join(['msg_body', str(bulk_settings_id)]),
         MessageAttributes={
-
             'bulk_settings_id': {
                 'StringValue': str(bulk_settings_id),
                 'DataType': 'Number'
@@ -104,8 +103,8 @@ def queue_bulk_settings_job(bulk_settings_id, school_id, term_id, setting_to_be_
                 'StringValue': school_id,
                 'DataType': 'String'
             },
-            'term_id': {
-                'StringValue': str(term_id),
+            'meta_term_id': {
+                'StringValue': str(meta_term_id),
                 'DataType': 'String'
             },
             'setting_to_be_modified': {
