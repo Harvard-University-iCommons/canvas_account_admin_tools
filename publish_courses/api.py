@@ -264,7 +264,7 @@ class BulkPublishListCreate(ListCreateAPIView):
             # Create the SQS message for this batch.
             message_id = f'MSG-{str(ULID())}'
             message_body = f'Course batch {batch_number}/{total_batches}. Job ID {job_id}. \
-                             Message ID {message_id}. Course batch total course ids {len(course_batch)}'
+                             This batch total course ids {len(course_batch)}. Message ID {message_id}.'
             message_attributes = {
                 'job_id': {
                     'StringValue': str(job_id),
