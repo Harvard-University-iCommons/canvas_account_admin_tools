@@ -187,7 +187,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         """
         Fetches a list of Canvas courses for a specified account and term. 
         """
-        logger.debug(f'Retrieving Canvas courses', extra={
+        logger.debug(f'Retrieving Canvas courses.', extra={
                      'account': account, 'term': term})
 
         canvas_courses = []
@@ -305,21 +305,25 @@ class BulkPublishListCreate(ListCreateAPIView):
         Note: As of 2023-11-02 you can use send_message_batch to send up to 10 messages to the specified queue.
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
         """
-        queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
-
         logger.debug(
-            f'Bulk publish courses sending to to SQS queue name: {queue}')
+            f'Bulk publish courses sending to to SQS queue name: {QUEUE_NAME}')
+        
+        try:
+            queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
 
-        for i in range(0, len(messages), sqs_msg_batch_size):
-            batch = messages[i:i + sqs_msg_batch_size]
-            response = SQS.send_message_batch(
-                QueueUrl=queue,
-                Entries=batch
-            )
+            for i in range(0, len(messages), sqs_msg_batch_size):
+                batch = messages[i:i + sqs_msg_batch_size]
+                response = SQS.send_message_batch(
+                    QueueUrl=queue,
+                    Entries=batch
+                )
 
-            context = {
-                'batch': batch,
-                'response': response
-            }
-            logger.debug(
-                f'Bulk publish courses job sent to SQS', extra=context)
+                context = {
+                    'batch': batch,
+                    'response': response
+                }
+                logger.debug(
+                    f'Bulk publish courses job sent to SQS', extra=context)
+        except Exception as e:
+            logger.exception(f"Error sending SQS message batch: {e}")
+            raise
