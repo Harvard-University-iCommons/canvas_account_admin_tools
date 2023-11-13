@@ -306,7 +306,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
         """
         logger.debug(
-            f'Bulk publish courses sending to to SQS queue name: {QUEUE_NAME}')
+            f'Bulk publish courses sending messages to SQS queue name: "{QUEUE_NAME}"')
         
         try:
             queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
