@@ -307,6 +307,9 @@ class BulkPublishListCreate(ListCreateAPIView):
         """
         queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
 
+        logger.debug(
+            f'Bulk publish courses sending to to SQS queue name: {queue}')
+
         for i in range(0, len(messages), sqs_msg_batch_size):
             batch = messages[i:i + sqs_msg_batch_size]
             response = SQS.send_message_batch(
