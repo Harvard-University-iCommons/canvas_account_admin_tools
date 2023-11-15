@@ -112,7 +112,7 @@
                 <table id="course-table" class="datatable table table-striped">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th><input type="checkbox" name="select_all_top" class="selectAll" /></th>
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
@@ -122,7 +122,7 @@
                     <tbody id="course-table-body">
                     {% for potential_course_site in potential_course_sites %}
                         <tr>
-                            <td></td>
+                            <td class="disable-td-click"><input type="checkbox" name="chkbx" class="col-select" data-id="{{ potential_course_site.course_instance_id }}" /></td>
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
@@ -174,26 +174,71 @@
 			 table = $('.datatable').DataTable( {
                 columnDefs: [ {
                     orderable: false,
-                    className: 'select-checkbox',
                     targets:   0
                 } ],
                 select: {
                     style: 'multi',
                     selector: 'td:first-child'
                 },
-                order: [[ 1, 'asc' ]]
+                order: [[ 1, 'asc' ]],
+                responsive: {
+                    details: {
+                        type: 'column',
+                        target: 'tr'
+                    }
+                }
             });
 
-            // For updating Create All/Create Selected button text when table body (or checkbox) is clicked.
+            // Check if the click target is not the checkbox itself
+            $('#course-table').on('click', '.disable-td-click', function (e) {
+                if (!$(e.target).is('input[type="checkbox"][name="chkbx"]')) {
+                    e.stopPropagation(); // Prevent the click event from bubbling up
+                }
+            });
+
+            // For updating Create All/Create Selected button text when row or checkbox is clicked
+            function updateButtonText() {
+                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
+                $("#bsc-create-btn").html(`${create_btn_text}`);
+            };  
+
             $("#course-table-body").on( "click", function() {
                 // Update button after n seconds to get accurate if row selected value
-                // after DataTable has time to process checkbox click.
-                setTimeout(
-                    function()
-                    {
-                        const create_btn_text = (table.rows( { selected: true } ).any()) ? "Create Selected" : "Create All";
-                        $("#bsc-create-btn").html(`${create_btn_text}`);
-                    }, 125);  // 1/8 second wait.
+                // after DataTable has time to process checkbox click
+                setTimeout(updateButtonText, 125); // 1/8 second wait
+            });
+
+            // Select All functionality
+            let courseTable = $('#course-table').DataTable();
+            let totalRows = table.rows().count();
+            let totalRowsChecked = 0;
+            
+            $('.selectAll').on('change', function() {
+                let checked = $(this).prop('checked');
+                courseTable.rows().select(checked);
+            
+                // Get the number of selected rows throughout whole table
+                totalRowsChecked = courseTable.rows({ selected: true }).count();
+
+                // Check off every row found in the table
+                table.cells(null, 0).every(function(e) {
+                    let cell = this.node();
+                    $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
+                });
+            
+                // Check if totalRowsChecked is less than totalRows and update "selectAll" checkbox accordingly
+                if (totalRowsChecked < totalRows) {
+                    $(this).prop('checked', false);
+                };
+                updateButtonText()
+            });
+            
+            // Handle individual row checkbox changes
+            courseTable.on('select deselect', function(e, dt, type, indexes) {
+                let selectedCount = courseTable.rows({ selected: true }).count();
+                
+                // Update the "selectAll" checkbox based on selectedCount
+                $('.selectAll').prop('checked', selectedCount === totalRows);
             });
 
             // For updating modal body text.
