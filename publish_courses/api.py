@@ -134,7 +134,7 @@ class CourseDetailList(ListAPIView):
 class BulkPublishListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs) -> Response:
-        logger.info(f'Creating bulk publish courses job.')
+        logger.info(f'Creating bulk publish courses jobs.')
         
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
