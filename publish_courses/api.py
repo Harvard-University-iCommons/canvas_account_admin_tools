@@ -39,7 +39,7 @@ AWS_SECRET_ACCESS_KEY = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_secret_acces
 QUEUE_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['job_queue_name']
 VISIBILITY_TIMEOUT = settings.BULK_PUBLISH_COURSES_SETTINGS['visibility_timeout']
 
-KW = {
+CREDENTIALS = {
     'region_name':  AWS_REGION_NAME,
     'aws_access_key_id': AWS_ACCESS_KEY_ID,
     'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
@@ -47,7 +47,7 @@ KW = {
 
 try:
     # Create SQS client using the provided AWS configuration.
-    SQS = boto3.client('sqs', **KW)
+    SQS = boto3.client('sqs', **CREDENTIALS)
 
 except ClientError as e:
     logger.error('Error configuring sqs client: %s', e, exc_info=True)
