@@ -557,6 +557,15 @@ BULK_COURSE_SETTINGS = {
 
 }
 
+BULK_PUBLISH_COURSES_SETTINGS = {
+    'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
+    'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
+    'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
+    'job_queue_name': SECURE_SETTINGS.get('bulk_publish_courses_sqs_queue_name'),
+    'visibility_timeout': SECURE_SETTINGS.get('visibility_timeout', 120),
+
+}
+
 CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address': 'icommons-bounces@harvard.edu',
     'support_email_address': 'tlt_support@harvard.edu',
