@@ -222,6 +222,8 @@ def new_job(request):
         'selected_term_id': selected_term_id,
         'selected_course_group_id': selected_course_group_id,
         'selected_department_id': selected_department_id,
+        'selected_department_name': selected_department_name,
+        'selected_course_group_name': selected_course_group_name,
         'canvas_url': settings.CANVAS_URL,
     }
     return render(request, "bulk_site_creator/new_job.html", context=context)
