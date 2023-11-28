@@ -158,6 +158,14 @@ def new_job(request):
         selected_course_group_id = request.POST.get("courseCourseGroup", None)
         selected_department_id = request.POST.get("courseDepartment", None)
 
+        # Retrieve Course Group or Department name 
+        if school_id == 'colgsas':
+            if selected_course_group_id and selected_course_group_id != '0':
+                selected_course_group_name = CourseGroup.objects.get(course_group_id=selected_course_group_id).name
+        else:
+            if selected_department_id and selected_department_id != '0':
+                selected_department_name = Department.objects.get(department_id=selected_department_id).name
+
         logging_dept_cg_text = f' and course group ID {selected_course_group_id}' if selected_course_group_id \
             else f' and department ID {selected_department_id}' if selected_department_id \
             else ' and no selected department or course group.'
