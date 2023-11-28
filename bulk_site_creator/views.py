@@ -137,7 +137,9 @@ def new_job(request):
     course_groups = []
     selected_term_id = None
     selected_course_group_id = None
+    selected_course_group_name = None
     selected_department_id = None
+    selected_department_name = None
 
     # Only display the Course Groups dropdown if the tool is launched in the COLGSAS sub-account
     if school_id == 'colgsas':
