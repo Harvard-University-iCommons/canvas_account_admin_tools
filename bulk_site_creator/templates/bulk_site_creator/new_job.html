@@ -36,7 +36,7 @@
                                 <br>
                                 <select id="courseDepartment" name="courseDepartment" class="form-select">
                                     <!-- Always show the default option first -->
-                                        <option value="0">All Departments</option>
+                                    <option value="0">All Departments</option>
                                     
                                     <!-- Display the selected department if there's one selected -->
                                     {% if selected_department_id and selected_department_id != '0' %}
@@ -57,15 +57,17 @@
                                 </label>
                                 <br>
                                 <select id="courseCourseGroup" name="courseCourseGroup" class="form-select">
-                                    {% if not selected_course_group_id or selected_course_group_id == '0' %}
-                                        <option value="0" selected>All Course Groups</option>
-                                    {% else %}
-                                        <option value="0">All Course Groups</option>
+                                    <!-- Always show the default option first -->
+                                    <option value="0">All Course Groups</option>
+
+                                    <!-- Display the selected course group if there's one selected -->
+                                    {% if selected_course_group_id and selected_course_group_id != '0' %}
+                                        <option value="{{ selected_course_group_id }}" selected>{{ selected_course_group_name }}</option>
                                     {% endif %}
+
                                     {% for course_group in course_groups %}
-                                        {% if selected_course_group_id and selected_course_group_id == course_group.id %}
-                                            <option value="{{ course_group.id }}" selected>{{ course_group.name }}</option>
-                                        {% else %}
+                                        <!-- Skip the option if it's the selected course group -->
+                                        {% if not selected_course_group_id == course_group.id %}
                                             <option value="{{ course_group.id }}">{{ course_group.name }}</option>
                                         {% endif %}
                                     {% endfor %}
