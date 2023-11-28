@@ -35,15 +35,17 @@
                                 </label>
                                 <br>
                                 <select id="courseDepartment" name="courseDepartment" class="form-select">
-                                    {% if not selected_department_id or selected_department_id == '0' %}
-                                        <option value="0" selected>All Departments</option>
-                                    {% else %}
+                                    <!-- Always show the default option first -->
                                         <option value="0">All Departments</option>
+                                    
+                                    <!-- Display the selected department if there's one selected -->
+                                    {% if selected_department_id and selected_department_id != '0' %}
+                                        <option value="{{ selected_department_id }}" selected>{{ selected_department_name }}</option>
                                     {% endif %}
+
                                     {% for department in departments %}
-                                        {% if selected_department_id and selected_department_id == department.id %}
-                                            <option value="{{ department.id }}" selected>{{ department.name }}</option>
-                                        {% else %}
+                                        <!-- Skip the option if it's the selected department -->
+                                        {% if not selected_department_id == department.id %}
                                             <option value="{{ department.id }}">{{ department.name }}</option>
                                         {% endif %}
                                     {% endfor %}
