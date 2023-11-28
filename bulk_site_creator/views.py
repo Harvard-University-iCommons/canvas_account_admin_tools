@@ -168,6 +168,15 @@ def new_job(request):
             if selected_department_id and selected_department_id != '0':
                 selected_department_name = Department.objects.get(department_id=selected_department_id).name
 
+        # Temporarily remove the selected_department_id or selected_course_group_id from the departments or course_groups list if it exists
+        if selected_department_id:
+            selected_department_id = int(selected_department_id)  
+            departments = [dept for dept in departments if dept['id'] != selected_department_id]
+
+        if selected_course_group_id:
+            selected_course_group_id  = int(selected_course_group_id)    
+            course_groups = [course_group for course_group in course_groups if course_group['id'] != selected_course_group_id]
+
         logging_dept_cg_text = f' and course group ID {selected_course_group_id}' if selected_course_group_id \
             else f' and department ID {selected_department_id}' if selected_department_id \
             else ' and no selected department or course group.'
