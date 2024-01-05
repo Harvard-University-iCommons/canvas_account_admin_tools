@@ -37,6 +37,7 @@ AWS_REGION_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_secret_access_key']
 QUEUE_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['job_queue_name']
+QUEUEING_LAMBDA_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['queueing_lambda_name']
 VISIBILITY_TIMEOUT = settings.BULK_PUBLISH_COURSES_SETTINGS['visibility_timeout']
 
 CREDENTIALS = {
@@ -44,17 +45,6 @@ CREDENTIALS = {
     'aws_access_key_id': AWS_ACCESS_KEY_ID,
     'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
 }
-
-try:
-    # Create SQS client using the provided AWS configuration.
-    SQS = boto3.client('sqs', **CREDENTIALS)
-
-except ClientError as e:
-    logger.error('Error configuring sqs client: %s', e, exc_info=True)
-    raise
-except Exception as e:
-    logger.exception('Error configuring sqs')
-    raise
 
 
 class LTIPermission(BasePermission):
@@ -171,12 +161,10 @@ class BulkPublishListCreate(ListCreateAPIView):
                                                                    'audit_user': audit_user_id,
                                                                    'course_list': selected_courses})
 
-        # Save job and send to sqs queue.
+        # Save job and send to queueing lambda.
         self.create_and_save_job(
             job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
-        messages = self.create_sqs_messages(
-            job_id, account, term, audit_user_id, selected_courses)
-        self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
+        self.send_course_list_to_lambda(selected_courses)
 
         logger.info(
             f'The bulk publish courses job creation is complete and has been sent to the SQS queue.')
@@ -244,86 +232,29 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         logger.debug(f'Details for the bulk publish courses job saved to database',
                      extra={'job_id': job_id})
-
-    def create_sqs_messages(self, job_id: str, account: str, term: str, 
-                            audit_user_id: int, selected_courses: List[int]) -> List[Dict]:
-        """
-        Creates SQS messages for a bulk publish courses job, with each message
-        containing 50 course IDs."
-        """
-        messages = []
-
-        # Calculate total course batches based on course count and batch size.
-        course_id_batch_size = 50
-        total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
-
-        # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
-        for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
-            course_batch = selected_courses[i:i + course_id_batch_size]
-
-            # Create the SQS message for this batch.
-            message_id = f'MSG-{str(ULID())}'
-            message_body = (f'Course batch {batch_number}/{total_batches}. Job ID {job_id}.'
-                            f'This batch total course ids {len(course_batch)}. Message ID {message_id}.')
-            message_attributes = {
-                'job_id': {
-                    'StringValue': str(job_id),
-                    'DataType': 'String'
-                },
-                'account': {
-                    'StringValue': str(account),
-                    'DataType': 'String'
-                },
-                'term': {
-                    'StringValue': str(term),
-                    'DataType': 'String'
-                },
-                'audit_user': {
-                    'StringValue': str(audit_user_id),
-                    'DataType': 'String'
-                },
-                'course_list': {
-                    # Course IDs as comma separated string.
-                    'StringValue': ','.join(map(str, course_batch)),
-                    'DataType': 'String'
-                },
-            }
-
-            # Append the message to the list of messages for this batch.
-            messages.append({
-                'Id': message_id,
-                'MessageBody': message_body,
-                'MessageAttributes': message_attributes
-            })
-
-        return messages
-
-    def send_sqs_message_batch(self, messages: List[Dict], sqs_msg_batch_size: int = 10) -> None:
-        """
-        Sends a batch of messages to an Amazon Simple Queue Service (SQS) queue.
-
-        Note: As of 2023-11-02 you can use send_message_batch to send up to 10 messages to the specified queue.
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
-        """
-        logger.debug(
-            f'Bulk publish courses sending messages to SQS queue name: "{QUEUE_NAME}"')
         
+        return None 
+        
+    def send_course_list_to_lambda(job_id: str, selected_courses: List) -> None:
+        """
+        Invokes SQS queueing Lambda with a payload of course ID list.
+        This is a fire and forget method and will not wait for the Lambda to finish.
+        """
         try:
-            queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
-
-            for i in range(0, len(messages), sqs_msg_batch_size):
-                batch = messages[i:i + sqs_msg_batch_size]
-                response = SQS.send_message_batch(
-                    QueueUrl=queue,
-                    Entries=batch
-                )
-
-                context = {
-                    'batch': batch,
-                    'response': response
-                }
-                logger.debug(
-                    f'Bulk publish courses job sent to SQS', extra=context)
-        except Exception as e:
-            logger.exception(f"Error sending SQS message batch: {e}")
+            # Create Lambda client
+            lambda_client = boto3.client('lambda')
+        except ClientError as e:
+            logger.error(f'Error configuring Lambda client: {e}', exc_info=True)
             raise
+        except Exception as e:
+            logger.exception('Error configuring Lambda client')
+            raise
+
+        # Invoke Lambda function.
+        response = lambda_client.invoke(
+            FunctionName='QUEUEING_LAMBDA_NAME',
+            InvocationType='Event',
+            Payload=f'{{"course_id_list": {selected_courses}, "job_id": {job_id}, "queue_name": {QUEUE_NAME}}}'
+        )
+
+        return None 
