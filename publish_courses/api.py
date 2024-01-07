@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 from typing import Dict, List
 
@@ -164,7 +165,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         # Save job and send to queueing lambda.
         self.create_and_save_job(
             job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
-        self.send_course_list_to_lambda(selected_courses)
+        self.send_course_list_to_lambda(job_id, selected_courses)
 
         logger.info(
             f'The bulk publish courses job creation is complete and has been sent to the SQS queue.')
@@ -235,11 +236,13 @@ class BulkPublishListCreate(ListCreateAPIView):
         
         return None 
         
-    def send_course_list_to_lambda(job_id: str, selected_courses: List) -> None:
+    def send_course_list_to_lambda(self, job_id: str, selected_courses: List) -> None:
         """
         Invokes SQS queueing Lambda with a payload of course ID list.
         This is a fire and forget method and will not wait for the Lambda to finish.
         """
+        logger.debug(f'Sending bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}')
+        
         try:
             # Create Lambda client
             lambda_client = boto3.client('lambda')
@@ -250,11 +253,21 @@ class BulkPublishListCreate(ListCreateAPIView):
             logger.exception('Error configuring Lambda client')
             raise
 
+        # Construct the payload.
+        payload = json.dumps({
+            "job_id": job_id,
+            "queue_name": QUEUE_NAME,
+            "course_id_list": selected_courses
+        })
+
         # Invoke Lambda function.
         response = lambda_client.invoke(
-            FunctionName='QUEUEING_LAMBDA_NAME',
+            FunctionName=QUEUEING_LAMBDA_NAME,
             InvocationType='Event',
-            Payload=f'{{"course_id_list": {selected_courses}, "job_id": {job_id}, "queue_name": {QUEUE_NAME}}}'
+            Payload=payload
         )
 
+        logger.debug(f'Sent bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}',
+                     extra={'response': response})
+        
         return None 
