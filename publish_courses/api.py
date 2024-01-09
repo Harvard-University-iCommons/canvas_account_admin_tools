@@ -159,8 +159,8 @@ class BulkPublishListCreate(ListCreateAPIView):
             selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
 
         # Save job and send to queueing lambda.
-        job_dict = self.create_and_save_job(account_sis_id, audit_user_id, 
-                                            audit_user_name, selected_courses)
+        job_dict = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
+                                            audit_user_id, audit_user_name, selected_courses)
         self.send_job_to_lambda(job_dict)
 
         logger.info(f'The bulk publish courses job creation for job ID {job_dict["job_id"]} is complete.')
@@ -183,7 +183,7 @@ class BulkPublishListCreate(ListCreateAPIView):
             f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
         return op.canvas_courses
     
-    def create_and_save_job(self, account_sis_id: str, audit_user_id: int,
+    def create_and_save_job(self, account_sis_id: str, term: str, audit_user_id: int,
                             audit_user_name: str, selected_courses: List[int]) -> Dict:
         """
         Creates a job record, then creates job details then adds them to the database.
@@ -193,12 +193,13 @@ class BulkPublishListCreate(ListCreateAPIView):
         
         # Create job record in the database.
         job = Job.objects.create(school_id=account_sis_id[len('school:'):],
+                                 term_id=term,
                                  created_by_user_id=audit_user_id,
                                  user_full_name=audit_user_name)
         job.save()
         logger.info(f'Bulk publish courses job saved to database. Job ID {job.pk}.')
 
-        logger.info(f'Saving bulk publish courses job details for {job.pk} to database.')
+        logger.info(f'Saving bulk publish courses job details for job ID {job.pk} to database.')
         # Create JobDetails objects to efficiently insert all objects into the database in a single query.
         job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
         just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).

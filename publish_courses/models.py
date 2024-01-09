@@ -16,7 +16,6 @@ class Job(models.Model):
         (constants.FAILED, 'Failed')
     )
 
-    job = models.CharField(max_length=80, unique=True)
     school_id = models.CharField(max_length=10)
     term_id = models.CharField(max_length=10, null=True, blank=True)
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
@@ -29,7 +28,7 @@ class Job(models.Model):
         db_table = "bulk_publish_courses_job"
 
     def __str__(self):
-        return f"{{'job': {self.job}, 'school_id': {self.school_id}, 'workflow_status': {self.workflow_status}}}"
+        return f"{{'id': {self.id}, 'school_id': {self.school_id}, 'workflow_status': {self.workflow_status}}}"
 
 
 class JobDetails(models.Model):
