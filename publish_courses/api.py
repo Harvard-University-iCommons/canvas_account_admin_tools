@@ -2,14 +2,11 @@
 
 import json
 import logging
-from typing import Dict, List
+from typing import List
 
 import boto3
 from botocore.exceptions import ClientError
 from canvas_sdk import RequestContext
-from canvas_sdk.exceptions import CanvasAPIError
-from canvas_sdk.methods.accounts import list_active_courses_in_account
-from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.http import JsonResponse
 from lti_school_permissions.decorators import lti_permission_required_check
@@ -125,7 +122,7 @@ class CourseDetailList(ListAPIView):
 class BulkPublishListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs) -> Response:
-        logger.info(f'Creating bulk publish courses jobs.')
+        logger.info(f'Creating bulk publish courses job.')
         
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
@@ -150,89 +147,74 @@ class BulkPublishListCreate(ListCreateAPIView):
         account = f'sis_account_id:school:{account}'
         term = f'sis_term_id:{term}'
 
-        canvas_courses = self.get_canvas_courses(account, term)
         if not selected_courses:
-            selected_courses = canvas_courses
+            logger.info(f"No courses selected for {account} and term {term}.")
+            courses = self._get_courses(account, term)
+            # Filter unpublished courses.
+            selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
 
         # Unique lexicographically sortable identifier.
         job_id = f'JOB-{str(ULID())}'
 
-        logger.debug(f'Bulk publish courses job {job_id}.', extra={'account': account,
-                                                                   'term': term,
-                                                                   'audit_user': audit_user_id,
-                                                                   'course_list': selected_courses})
+        logger.debug(f'Bulk publish courses job ID {job_id} created.', extra={'account': account,
+                                                                              'term': term,
+                                                                              'audit_user': audit_user_id,
+                                                                              'course_list': selected_courses})
 
         # Save job and send to queueing lambda.
-        self.create_and_save_job(
-            job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
+        self.create_and_save_job(job_id, account_sis_id, audit_user_id,
+                                 audit_user_name, selected_courses)
         self.send_course_list_to_lambda(job_id, selected_courses)
 
-        logger.info(
-            f'The bulk publish courses job creation is complete and has been sent to the SQS queue.')
+        logger.info(f'The bulk publish courses job creation for job {job_id} is complete.')
         return Response(status=status.HTTP_201_CREATED)
-
-
-    def get_canvas_courses(self, account: str, term: str) -> List[Dict]:
+    
+    def _get_courses(self, account: str, term: str) -> List:
         """
-        Fetches a list of Canvas courses for a specified account and term. 
+        Returns a list of canvas courses for the given account and term.
         """
-        logger.debug(f'Retrieving Canvas courses.', extra={
-                     'account': account, 'term': term})
+        logger.info(f"Retrieving all courses for {account} and term {term}.")
 
-        canvas_courses = []
-        try:
-            canvas_courses = get_all_list_data(
-                SDK_CONTEXT,
-                list_active_courses_in_account,
-                account_id=account,
-                enrollment_term_id=term,
-                published=False,
-            )
-        except Exception as e:
-            message = f'Error getting courses for account {account}'
-            if isinstance(e, CanvasAPIError):
-                message += ', SDK error details={}'.format(e)
-            logger.exception(message)
-            raise e
+        op_config = {
+            'account': account,
+            'term': term
+        }
+        op = BulkCourseSettingsOperation(op_config)
+        op.get_canvas_courses()
 
-        return canvas_courses
+        logger.info(
+            f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
+        return op.canvas_courses
     
     def create_and_save_job(self, job_id: str, account_sis_id: str, audit_user_id: int,
-                            audit_user_name: str, selected_courses: List[int],
-                            canvas_courses: List[Dict]) -> None:
+                            audit_user_name: str, selected_courses: List[int]) -> None:
         """
         Retrieves workflow states for selected courses, creates a job record,
         and job details then adds them to the database.
         """
+        logger.info(f'Saving bulk publish courses {job_id} to database')
+        
         # Create job record in the database.
         job = Job.objects.create(job=job_id,
                                  school_id=account_sis_id[len('school:'):],
                                  created_by_user_id=audit_user_id,
-                                 user_full_name=audit_user_name,
-                                 job_details_total_count=len(selected_courses))
+                                 user_full_name=audit_user_name)
         job.save()
 
-        logger.debug(f'Bulk publish courses job saved to database',
+        logger.info(f'Bulk publish courses job saved to database',
                      extra={'job_id': job_id})
-        
-        # Create dict workflow states for selected courses.
-        workflow_states = {course['id']: course['workflow_state']
-                           for course in canvas_courses if course['id'] in selected_courses}
 
+        logger.info(f'Saving bulk publish courses job details for {job_id} to database')
         # Create job details records in the database.
         for course_id in selected_courses:
-            # Get course workflow_state.
-            workflow_state = workflow_states[course_id]
-
             job_details = JobDetails.objects.create(
                 parent_job=job,
-                canvas_course_id=course_id,
-                prior_state=workflow_state
+                canvas_course_id=course_id
             )
             job_details.save()
 
-        logger.debug(f'Details for the bulk publish courses job saved to database',
-                     extra={'job_id': job_id})
+        logger.info(f'Details for the bulk publish courses job saved to database', extra={
+                    'job_id': job_id})
         
         return None 
         
@@ -241,7 +223,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         Invokes SQS queueing Lambda with a payload of course ID list.
         This is a fire and forget method and will not wait for the Lambda to finish.
         """
-        logger.debug(f'Sending bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}')
+        logger.info(f'Sending bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}')
         
         try:
             # Create Lambda client
@@ -267,7 +249,7 @@ class BulkPublishListCreate(ListCreateAPIView):
             Payload=payload
         )
 
-        logger.debug(f'Sent bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}',
+        logger.info(f'Sent bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}',
                      extra={'response': response})
         
         return None 
