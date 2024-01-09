@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import List
+from typing import Dict, List
 
 import boto3
 from botocore.exceptions import ClientError
@@ -147,26 +147,23 @@ class BulkPublishListCreate(ListCreateAPIView):
         account = f'sis_account_id:school:{account}'
         term = f'sis_term_id:{term}'
 
+        logger.info(f"{len(selected_courses)} selected courses for {account} and term {term}.",
+                    extra={'account': account,
+                           'term': term,
+                           'audit_user': audit_user_id,
+                           'course_list': selected_courses})
+
         if not selected_courses:
-            logger.info(f"No courses selected for {account} and term {term}.")
             courses = self._get_courses(account, term)
             # Filter unpublished courses.
             selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
 
-        # Unique lexicographically sortable identifier.
-        job_id = f'JOB-{str(ULID())}'
-
-        logger.debug(f'Bulk publish courses job ID {job_id} created.', extra={'account': account,
-                                                                              'term': term,
-                                                                              'audit_user': audit_user_id,
-                                                                              'course_list': selected_courses})
-
         # Save job and send to queueing lambda.
-        self.create_and_save_job(job_id, account_sis_id, audit_user_id,
-                                 audit_user_name, selected_courses)
-        self.send_course_list_to_lambda(job_id, selected_courses)
+        job_dict = self.create_and_save_job(account_sis_id, audit_user_id, 
+                                            audit_user_name, selected_courses)
+        self.send_job_to_lambda(job_dict)
 
-        logger.info(f'The bulk publish courses job creation for job {job_id} is complete.')
+        logger.info(f'The bulk publish courses job creation for job ID {job_dict["job_id"]} is complete.')
         return Response(status=status.HTTP_201_CREATED)
     
     def _get_courses(self, account: str, term: str) -> List:
@@ -186,70 +183,64 @@ class BulkPublishListCreate(ListCreateAPIView):
             f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
         return op.canvas_courses
     
-    def create_and_save_job(self, job_id: str, account_sis_id: str, audit_user_id: int,
-                            audit_user_name: str, selected_courses: List[int]) -> None:
+    def create_and_save_job(self, account_sis_id: str, audit_user_id: int,
+                            audit_user_name: str, selected_courses: List[int]) -> Dict:
         """
-        Retrieves workflow states for selected courses, creates a job record,
-        and job details then adds them to the database.
+        Creates a job record, then creates job details then adds them to the database.
+        Returns a dictionary containing job and job details (course IDs and PKs).
         """
-        logger.info(f'Saving bulk publish courses {job_id} to database')
+        logger.info(f'Saving bulk publish courses job to database.')
         
         # Create job record in the database.
-        job = Job.objects.create(job=job_id,
-                                 school_id=account_sis_id[len('school:'):],
+        job = Job.objects.create(school_id=account_sis_id[len('school:'):],
                                  created_by_user_id=audit_user_id,
                                  user_full_name=audit_user_name)
         job.save()
+        logger.info(f'Bulk publish courses job saved to database. Job ID {job.pk}.')
 
-        logger.info(f'Bulk publish courses job saved to database',
-                     extra={'job_id': job_id})
+        logger.info(f'Saving bulk publish courses job details for {job.pk} to database.')
+        # Create JobDetails objects to efficiently insert all objects into the database in a single query.
+        job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
+        just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).
 
-        logger.info(f'Saving bulk publish courses job details for {job_id} to database')
-        # Create job details records in the database.
-        for course_id in selected_courses:
-            job_details = JobDetails.objects.create(
-                parent_job=job,
-                canvas_course_id=course_id
-            )
-            job_details.save()
+        # Construct the job dictionary (will be used by `send_job_to_lambda` func as payload).
+        job_dict = {
+            "job_id": job.pk,
+            "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.pk} for jo in just_created_job_objects]
+        }
 
-        logger.info(f'Details for the bulk publish courses job saved to database', extra={
-                    'job_id': job_id})
+        logger.info(f'Details for the bulk publish courses job ID {job.pk} saved to database.')
         
-        return None 
+        return job_dict 
         
-    def send_course_list_to_lambda(self, job_id: str, selected_courses: List) -> None:
+    def send_job_to_lambda(self, job_dict: Dict) -> None:
         """
         Invokes SQS queueing Lambda with a payload of course ID list.
         This is a fire and forget method and will not wait for the Lambda to finish.
         """
-        logger.info(f'Sending bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}')
+        logger.info(f'Sending bulk publish courses job ID {job_dict["job_id"]} to queuing Lambda {QUEUEING_LAMBDA_NAME}.')
         
         try:
             # Create Lambda client
             lambda_client = boto3.client('lambda')
         except ClientError as e:
-            logger.error(f'Error configuring Lambda client: {e}', exc_info=True)
+            logger.error(f'Error configuring Lambda client: {e}.', exc_info=True)
             raise
         except Exception as e:
-            logger.exception('Error configuring Lambda client')
+            logger.exception('Error configuring Lambda client.')
             raise
 
-        # Construct the payload.
-        payload = json.dumps({
-            "job_id": job_id,
-            "queue_name": QUEUE_NAME,
-            "course_id_list": selected_courses
-        })
+        # Add queue name to payload data.
+        job_dict["queue_name"] = QUEUE_NAME
 
         # Invoke Lambda function.
         response = lambda_client.invoke(
             FunctionName=QUEUEING_LAMBDA_NAME,
             InvocationType='Event',
-            Payload=payload
+            Payload=json.dumps(job_dict)
         )
 
-        logger.info(f'Sent bulk publish courses job {job_id} to queuing Lambda {QUEUEING_LAMBDA_NAME}',
-                     extra={'response': response})
+        logger.info(f'Sent bulk publish courses job ID {job_dict["job_id"]} to queuing Lambda {QUEUEING_LAMBDA_NAME}.',
+                    extra={'response': response})
         
         return None 
