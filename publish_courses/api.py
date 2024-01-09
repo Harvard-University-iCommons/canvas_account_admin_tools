@@ -179,8 +179,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         op = BulkCourseSettingsOperation(op_config)
         op.get_canvas_courses()
 
-        logger.info(
-            f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
+        logger.info(f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
         return op.canvas_courses
     
     def create_and_save_job(self, account_sis_id: str, term: str, audit_user_id: int,
