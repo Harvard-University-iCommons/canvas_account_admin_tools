@@ -161,7 +161,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         # Save job and send to queueing lambda.
         job_dict = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
                                             audit_user_id, audit_user_name, selected_courses)
-        self.send_job_to_lambda(job_dict)
+        self.send_job_to_queueing_lambda(job_dict)
 
         logger.info(f'The bulk publish courses job creation for job ID {job_dict["job_id"]} is complete.')
         return Response(status=status.HTTP_201_CREATED)
@@ -203,7 +203,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
         just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).
 
-        # Construct the job dictionary (will be used by `send_job_to_lambda` func as payload).
+        # Construct the job dictionary (will be used by `send_job_to_queueing_lambda` func as payload).
         job_dict = {
             "job_id": job.pk,
             "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.pk} for jo in just_created_job_objects]
@@ -213,7 +213,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         
         return job_dict 
         
-    def send_job_to_lambda(self, job_dict: Dict) -> None:
+    def send_job_to_queueing_lambda(self, job_dict: Dict) -> None:
         """
         Invokes SQS queueing Lambda with a payload of course ID list.
         This is a fire and forget method and will not wait for the Lambda to finish.
