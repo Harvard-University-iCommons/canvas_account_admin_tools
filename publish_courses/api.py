@@ -34,7 +34,6 @@ PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
 AWS_REGION_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_secret_access_key']
-SQS_QUEUE_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['sqs_queue_name']
 QUEUEING_LAMBDA_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['queueing_lambda_name']
 VISIBILITY_TIMEOUT = settings.BULK_PUBLISH_COURSES_SETTINGS['visibility_timeout']
 
@@ -229,9 +228,6 @@ class BulkPublishListCreate(ListCreateAPIView):
         except Exception as e:
             logger.exception('Error configuring Lambda client.')
             raise
-
-        # Add queue name to payload data.
-        job_dict["sqs_queue_name"] = SQS_QUEUE_NAME
 
         # Invoke Lambda function.
         response = lambda_client.invoke(
