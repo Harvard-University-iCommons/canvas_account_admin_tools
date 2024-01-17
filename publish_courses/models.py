@@ -20,7 +20,7 @@ class Job(models.Model):
 
     school_id = models.CharField(max_length=10)
     term_id = models.CharField(max_length=10, null=True, blank=True)
-    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
+    workflow_status = models.CharField(max_length=30, choices=WORKFLOW_STATUS, default=constants.NEW)
     created_by_user_id = models.CharField(max_length=15)
     user_full_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
