@@ -61,7 +61,7 @@ def lookup(request):
 
                 if ci.course_instance_id != int(cc['sis_course_id']):
                     logger.error(f'Course instance ID ({course_search_term}) does not match Canvas course SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
-                    messages.error(request, f'Course instance ID ({course_search_term}) does not match Canvas course SIS ID ({cc["sis_course_id"]}) for Canvas course {ci.canvas_course_id}. Aborting.')
+                    messages.error(request, f'Cannot delete course {course_search_term} as it is secondarily-crosslisted with another course. To proceed, undo the existing crosslisting and retry the deletion.')
                     context['abort'] = True
             else:
                 logger.error(f'Course instance {ci.course_instance_id} does not have a Canvas course ID set.')
