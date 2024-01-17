@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime
+from typing import Dict, List
 
 import boto3
 from botocore.exceptions import ClientError
@@ -133,8 +134,8 @@ def check_and_update_course(course, job):
             prior_state=json.dumps(course),
             post_state='',
             workflow_status=constants.SKIPPED)
-        job.details_total_count += 1
-        job.details_skipped_count += 1
+        # job.details_total_count += 1
+        # job.details_skipped_count += 1
         job.save()
 
 
@@ -169,7 +170,7 @@ def update_course(course, update_args, job):
         prior_state=json.dumps(course),
         post_state=''
     )
-    job.details_total_count += 1
+    # job.details_total_count += 1
     try:
         logger.info('Updating course {} with update args {}'.format(course['id'], update_args))
         update_response = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
@@ -178,7 +179,7 @@ def update_course(course, update_args, job):
         detail.workflow_status = constants.COMPLETED
         detail.post_state = json.dumps(update_response.json())
         detail.save()
-        job.details_success_count += 1
+        # job.details_success_count += 1
     except Exception as e:
         message = 'Error updating course {} via SDK with parameters={}, SDK error details={}'\
             .format(course['id'], update_args, e)
@@ -186,6 +187,40 @@ def update_course(course, update_args, job):
 
         detail.workflow_status = constants.FAILED
         detail.save()
-        job.details_failed_count += 1
-
+        # job.details_failed_count += 1
     job.save()
+
+
+def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict) -> None:
+    """
+    Invokes SQS queueing Lambda with a payload of course ID list.
+    This is a fire and forget method and will not wait for the Lambda to finish
+    """
+    logger.info(f'Sending bulk course settings {job_id} to queueing Lambda {QUEUEING_LAMBDA_NAME}')
+
+    try:
+        # Create Lambda client
+        lambda_client = boto3.client('lambda')
+    except ClientError as e:
+        logger.error(f'Error configuring Lambda client: {e}.', exc_info=True)
+        raise
+    except Exception as e:
+        logger.exception('Error configuring Lambda client.')
+        raise
+
+    payload = {
+        "job_id": job_id,
+        "job_details_list": job_details_list
+    }
+
+    # Invoke Lambda function
+    response = lambda_client.invoke(
+        FunctionName=QUEUEING_LAMBDA_NAME,
+        InvocationType="Event",
+        Payload=json.dumps(payload)
+    )
+
+    logger.info(f"Sent bulk course settings course IDs {job_id} to queueing Lambda {QUEUEING_LAMBDA_NAME}.",
+                extra={"response": response})
+    
+    return None
