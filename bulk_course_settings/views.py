@@ -40,7 +40,6 @@ class BulkSettingsListView(LTIPermissionRequiredMixin, LoginRequiredMixin, ListV
 
 
 class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, SuccessMessageMixin, CreateView):
-
     """Displays the form used to create a Job with the desired setting and value"""
     form_class = CreateBulkSettingsForm
     template_name = 'bulk_course_settings/create_new_job.html'
@@ -57,19 +56,50 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
         return context
 
     def form_valid(self, form):
-        """If the form is valid, create the Job and add it to the SQS queue"""
-        form.instance.created_by = str(self.request.user)
+        """If the form is valid, create the Job and send it to the queueing lambda"""
+        lti_session = getattr(self.request, 'LTI', {})
+        audit_user_id = lti_session.get('custom_canvas_user_login_id')
+        account_sis_id = lti_session.get('custom_canvas_account_sis_id')
         response = super(BulkSettingsCreateView, self).form_valid(form)
         term = Term.objects.get(term_id=form.instance.term_id)
         meta_term_id = term.meta_term_id()
 
-        utils.queue_bulk_settings_job(bulk_settings_id=form.instance.id, school_id=form.instance.school_id,
-                                      meta_term_id=meta_term_id,
-                                      setting_to_be_modified=form.instance.setting_to_be_modified,
-                                      desired_setting=form.instance.desired_setting)
         form.instance.workflow_status = constants.QUEUED
         form.instance.meta_term_id = meta_term_id
-        form.instance.save()
+        form.instance.created_by = audit_user_id
+
+        if not all((audit_user_id, account_sis_id)):
+            raise DRFValidationError(
+                'Invalid LTI session: custom_canvas_user_login_id and '
+                'custom_canvas_account_sis_id required')
+
+        sis_account_id = f'sis_account_id:school:{form.instance.school_id}'
+        meta_term_id = f'sis_term_id:{meta_term_id}'
+
+        if not all((sis_account_id, meta_term_id)):
+            raise DRFValidationError('Both account and term are required')
+        
+        job = form.instance
+        job.save()
+
+        if job.id is not None:
+            job_id = job.id
+        else:
+            job_id = form.instance.id
+
+        logger.info(f' Creating new Bulk course settings job with ID: {job_id}.')
+
+        # Retrieve full list of canvas courses
+        canvas_courses = utils.get_canvas_courses(account_id=sis_account_id, term_id=meta_term_id)
+
+        # Filter unpublished courses
+        unpublished_courses = [cs_dict['id'] for cs_dict in canvas_courses if cs_dict['workflow_state'] == 'unpublished']
+
+        # Create job details from unpublished courses list
+        job_details_list = self.create_job_details(job, unpublished_courses)
+
+        # Send job to queueing lambda
+        utils.send_job_to_queueing_lambda(job_id, job_details_list)
 
         return response
     
