@@ -72,7 +72,26 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
         form.instance.save()
 
         return response
+    
+    def create_job_details(self, job: Job, unpublished_courses: List[int]) -> Dict:
+        job_details_list = []
 
+        # Create Details objects to efficiently insert all objects into the database in a single query.
+        job_details_objects = [Details(parent_job_id=job.id, canvas_course_id=course_id) for course_id in unpublished_courses]
+        just_created_job_objects = Details.objects.bulk_create(job_details_objects)  # Bulk create Details objects (save to database).
+        logger.info(f'Creating job info for job ID {job.id} to database.')
+
+        # Create object that will be sent to queueing lambda
+        for job_detail in just_created_job_objects:
+            job_details_list.append(
+                {
+                    "job_detail_id": job_detail.id,
+                    "canvas_course_id": job_detail.canvas_course_id
+                }
+            )
+
+        return job_details_list
+        
     def get_success_url(self):
         """
         If the submitted form is valid and was saved, build the url that is used in the redirect to the job listing page
