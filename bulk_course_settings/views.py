@@ -1,4 +1,6 @@
 import logging
+from typing import Dict, List
+
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
@@ -9,10 +11,11 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView
 from harvardkey_cas.mixins import LoginRequiredMixin
 from lti_school_permissions.mixins import LTIPermissionRequiredMixin
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
-from bulk_course_settings.models import Job
+from bulk_course_settings.models import Job, Details
 
 from coursemanager.models import Term
 
