@@ -552,7 +552,7 @@ BULK_COURSE_SETTINGS = {
     's3_bucket': SECURE_SETTINGS.get('bulk_course_settings_s3_bucket'),
     'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
     'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
-    'job_queue_name': SECURE_SETTINGS.get('job_queue_name'),
+    'queueing_lambda_name': SECURE_SETTINGS.get('uw_bulk_course_settings_queueing_lambda_name'),
     'visibility_timeout': SECURE_SETTINGS.get('visibility_timeout', 120),
 
 }
