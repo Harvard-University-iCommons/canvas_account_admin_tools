@@ -177,9 +177,11 @@ def new_job(request):
 
         # Filter potential_course_sites_query by course group.
         if selected_course_group_id and selected_course_group_id != '0':
+            selected_course_group_id = int(selected_course_group_id)
             potential_course_sites_query = potential_course_sites_query.filter(course__course_group=selected_course_group_id)
         # Filter potential_course_sites_query by department.
         elif selected_department_id and selected_department_id != '0':
+            selected_department_id = int(selected_department_id)
             potential_course_sites_query = potential_course_sites_query.filter(course__department=selected_department_id)
 
     # TODO maybe better to use template tag unless used elsewhere?
@@ -252,10 +254,12 @@ def create_bulk_job(request: HttpRequest) -> Optional[JsonResponse]:
         # The value of 0 is for the default option of no selected Department/Course Group
         if school_id == 'colgsas':
             if course_group_id and course_group_id != '0':
+                course_group_id = int(course_group_id)
                 course_group_name = CourseGroup.objects.get(course_group_id=course_group_id).name
                 potential_course_sites_query = potential_course_sites_query.filter(course__course_group=course_group_id)
         else:
             if department_id and department_id != '0':
+                department_id = int(department_id)
                 department_name = Department.objects.get(department_id=department_id).name
                 potential_course_sites_query = potential_course_sites_query.filter(course__department=department_id)
 
