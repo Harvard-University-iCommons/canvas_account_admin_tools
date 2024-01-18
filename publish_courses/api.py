@@ -188,27 +188,27 @@ class BulkPublishListCreate(ListCreateAPIView):
         Returns a dictionary containing job and job details (course IDs and PKs).
         """
         logger.info(f'Saving bulk publish courses job to database.')
-        
+
         # Create job record in the database.
         job = Job.objects.create(school_id=account_sis_id[len('school:'):],
                                  term_id=term,
                                  created_by_user_id=audit_user_id,
                                  user_full_name=audit_user_name)
         job.save()
-        logger.info(f'Bulk publish courses job saved to database. Job ID {job.pk}.')
+        logger.info(f'Bulk publish courses job saved to database. Job ID {job.id}.')
 
-        logger.info(f'Saving bulk publish courses job details for job ID {job.pk} to database.')
+        logger.info(f'Saving bulk publish courses job details for job ID {job.id} to database.')
         # Create JobDetails objects to efficiently insert all objects into the database in a single query.
         job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
         just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).
 
         # Construct the job dictionary (will be used by `send_job_to_queueing_lambda` func as payload).
         job_dict = {
-            "job_id": job.pk,
-            "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.pk} for jo in just_created_job_objects]
+            "job_id": job.id,
+            "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.id} for jo in just_created_job_objects]
         }
 
-        logger.info(f'Details for the bulk publish courses job ID {job.pk} saved to database.')
+        logger.info(f'Details for the bulk publish courses job ID {job.id} saved to database.')
         
         return job_dict 
         
