@@ -139,7 +139,7 @@ class BulkPublishListCreate(ListCreateAPIView):
             raise DRFValidationError('Both account and term are required')
 
         # For the moment, only the current school account can be operated on.
-        if not account_sis_id[len('school:'):] == account:
+        if not account_sis_id.removeprefix('school:') == account:
             raise PermissionDenied
 
         selected_courses = self.request.data.get('course_list')
@@ -190,7 +190,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         logger.info(f'Saving bulk publish courses job to database.')
 
         # Create job record in the database.
-        job = Job.objects.create(school_id=account_sis_id[len('school:'):],
+        job = Job.objects.create(school_id=account_sis_id,
                                  term_id=term,
                                  created_by_user_id=audit_user_id,
                                  user_full_name=audit_user_name)
