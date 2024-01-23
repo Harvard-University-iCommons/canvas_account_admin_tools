@@ -12,10 +12,8 @@ class Job(models.Model):
     WORKFLOW_STATUS = (
         (constants.NEW, 'New'),
         (constants.QUEUED, 'Queued'),
-        (constants.IN_PROGRESS, 'In progress'),
         (constants.COMPLETED_SUCCESS, 'Completed successfully'),
-        (constants.COMPLETED_ERRORS, 'Completed with errors'),
-        (constants.FAILED, 'Failed')
+        (constants.COMPLETED_ERRORS, 'Completed with errors')
     )
 
     school_id = models.CharField(max_length=10)
@@ -56,7 +54,6 @@ class JobDetails(models.Model):
     """
     WORKFLOW_STATUS = (
         (constants.NEW, 'New'),
-        (constants.SKIPPED, 'Skipped'),
         (constants.COMPLETED, 'Completed'),
         (constants.FAILED, 'Failed')
     )
