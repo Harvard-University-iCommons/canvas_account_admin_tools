@@ -146,16 +146,16 @@ class BulkPublishListCreate(ListCreateAPIView):
         account = f'sis_account_id:school:{account}'
         term = f'sis_term_id:{term}'
 
+        if not selected_courses:
+            courses = self._get_courses(account, term)
+            # Filter unpublished courses.
+            selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
+
         logger.info(f"{len(selected_courses)} selected courses for {account} and term {term}.",
                     extra={'account': account,
                            'term': term,
                            'audit_user': audit_user_id,
                            'course_list': selected_courses})
-
-        if not selected_courses:
-            courses = self._get_courses(account, term)
-            # Filter unpublished courses.
-            selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
 
         # Save job and send to queueing lambda.
         job_dict = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
