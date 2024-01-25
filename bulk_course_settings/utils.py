@@ -160,38 +160,27 @@ def build_update_arg_for_course(course, job):
 
 def update_course(course, update_args, job):
     """Uses the Canvas SDK to update the given course with the given update values."""
-    setting_args = update_args.copy()
-    setting_to_change, desired_value = setting_args.popitem()
-    detail = Details.objects.create(
-        parent_job=job,
-        canvas_course_id=course['id'],
-        current_setting_value=course[REVERSE_API_MAPPING[setting_to_change]],
-        is_modified=True,
-        prior_state=json.dumps(course),
-        post_state=''
-    )
-    # job.details_total_count += 1
     try:
         logger.info('Updating course {} with update args {}'.format(course['id'], update_args))
         update_response = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
         logger.info('Successfully updated course {}'.format(course['id']))
 
-        detail.workflow_status = constants.COMPLETED
-        detail.post_state = json.dumps(update_response.json())
-        detail.save()
-        # job.details_success_count += 1
+        # update_job_detail_record(job_detail_id, status=constants.COMPLETED, post_state=json.dumps(update_response.json()))
+
     except Exception as e:
         message = 'Error updating course {} via SDK with parameters={}, SDK error details={}'\
             .format(course['id'], update_args, e)
         logger.exception(message)
 
-        detail.workflow_status = constants.FAILED
-        detail.save()
-        # job.details_failed_count += 1
-    job.save()
+    
+    return update_response
 
+        # update_job_detail_record(job_detail_id, status=constants.FAILED, post_state=json.dumps(update_response.json()))
 
-def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict) -> None:
+# bring update_course and build_update_arg_for_course over to SAM app
+
+def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict, 
+                                setting_to_be_modified: str, desired_setting: str) -> None:
     """
     Invokes SQS queueing Lambda with a payload of course ID list.
     This is a fire and forget method and will not wait for the Lambda to finish
@@ -207,10 +196,12 @@ def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict) -> None:
     except Exception as e:
         logger.exception('Error configuring Lambda client.')
         raise
-
+    
     payload = {
         "job_id": job_id,
-        "job_details_list": job_details_list
+        "job_details_list": job_details_list, 
+        "setting_to_be_modified": setting_to_be_modified,
+        "desired_setting": desired_setting
     }
 
     # Invoke Lambda function
