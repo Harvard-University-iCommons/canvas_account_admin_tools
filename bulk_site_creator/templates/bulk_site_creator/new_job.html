@@ -116,6 +116,7 @@
                             <th>SIS ID</th>
                             <th>Course Code</th>
                             <th>Course Title</th>
+                            <th>Course Subtitle</th>
                             <th>Course Section</th>
                         </tr>
                     </thead>
@@ -126,6 +127,7 @@
                             <td>{{ potential_course_site.course_instance_id }}</td>
                             <td>{{ potential_course_site.short_title }}</td>
                             <td>{{ potential_course_site.title }}</td>
+                            <td>{{ potential_course_site.sub_title }}</td>
                             <td>{{ potential_course_site.section }}</td>
                         </tr>
                     {% endfor %}
@@ -200,7 +202,7 @@
             function updateButtonText() {
                 const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
                 $("#bsc-create-btn").html(`${create_btn_text}`);
-            };  
+            };
 
             $("#course-table-body").on( "click", function() {
                 // Update button after n seconds to get accurate if row selected value
@@ -212,11 +214,11 @@
             let courseTable = $('#course-table').DataTable();
             let totalRows = table.rows().count();
             let totalRowsChecked = 0;
-            
+
             $('.selectAll').on('change', function() {
                 let checked = $(this).prop('checked');
                 courseTable.rows().select(checked);
-            
+
                 // Get the number of selected rows throughout whole table
                 totalRowsChecked = courseTable.rows({ selected: true }).count();
 
@@ -225,18 +227,18 @@
                     let cell = this.node();
                     $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
                 });
-            
+
                 // Check if totalRowsChecked is less than totalRows and update "selectAll" checkbox accordingly
                 if (totalRowsChecked < totalRows) {
                     $(this).prop('checked', false);
                 };
                 updateButtonText()
             });
-            
+
             // Handle individual row checkbox changes
             courseTable.on('select deselect', function(e, dt, type, indexes) {
                 let selectedCount = courseTable.rows({ selected: true }).count();
-                
+
                 // Update the "selectAll" checkbox based on selectedCount
                 $('.selectAll').prop('checked', selectedCount === totalRows);
             });
