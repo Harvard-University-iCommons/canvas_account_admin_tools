@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Dict, List
+from typing import List, Tuple
 
 import boto3
 from botocore.exceptions import ClientError
@@ -16,7 +16,6 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from ulid import ULID
 
 from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from publish_courses.models import Job, JobDetails
@@ -158,11 +157,11 @@ class BulkPublishListCreate(ListCreateAPIView):
                            'course_list': selected_courses})
 
         # Save job and send to queueing lambda.
-        job_dict = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
-                                            audit_user_id, audit_user_name, selected_courses)
-        self.send_job_to_queueing_lambda(job_dict)
+        job, job_details_list = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
+                                                         audit_user_id, audit_user_name, selected_courses)
+        self.send_job_to_queueing_lambda(job, job_details_list)
 
-        logger.info(f'The bulk publish courses job creation for job ID {job_dict["job_id"]} is complete.')
+        logger.info(f'The bulk publish courses job creation for job ID {job.id} is complete.')
         return Response(status=status.HTTP_201_CREATED)
     
     def _get_courses(self, account: str, term: str) -> List:
@@ -182,10 +181,10 @@ class BulkPublishListCreate(ListCreateAPIView):
         return op.canvas_courses
     
     def create_and_save_job(self, account_sis_id: str, term: str, audit_user_id: int,
-                            audit_user_name: str, selected_courses: List[int]) -> Dict:
+                            audit_user_name: str, selected_courses: List[int]) -> Tuple['Job', List['JobDetails']]:
         """
-        Creates a job record, then creates job details then adds them to the database.
-        Returns a dictionary containing job and job details (course IDs and PKs).
+        Creates a bulk publish courses job along with job details and saves them to the database.
+        Returns the job object and a list of job details.
         """
         logger.info(f'Saving bulk publish courses job to database.')
 
@@ -202,22 +201,19 @@ class BulkPublishListCreate(ListCreateAPIView):
         job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
         just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).
 
-        # Construct the job dictionary (will be used by `send_job_to_queueing_lambda` func as payload).
-        job_dict = {
-            "job_id": job.id,
-            "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.id} for jo in just_created_job_objects]
-        }
-
         logger.info(f'Details for the bulk publish courses job ID {job.id} saved to database.')
+        return job, just_created_job_objects
         
-        return job_dict 
+    def send_job_to_queueing_lambda(self, job: Job, job_details_list: List) -> None:
+        """
+        Constructs a payload then invokes an SQS queueing Lambda with the payload containing the job id,
+        a list of course IDs and their job detail IDs (or record id from the db).
         
-    def send_job_to_queueing_lambda(self, job_dict: Dict) -> None:
+        Payloads are divided into chunks when to avoid exceeding the payload size limit for Lambda 
+        invocations. Each chunk is sent to the SQS queuing Lambda as an event. This is a fire and 
+        forget method and will not wait for the Lambda to finish.
         """
-        Invokes SQS queueing Lambda with a payload of course ID list.
-        This is a fire and forget method and will not wait for the Lambda to finish.
-        """
-        logger.info(f'Sending bulk publish courses job ID {job_dict["job_id"]} to queuing Lambda {QUEUEING_LAMBDA_NAME}.')
+        logger.info(f'Sending bulk publish courses job ID {job.id} to queuing Lambda {QUEUEING_LAMBDA_NAME}.')
         
         try:
             # Create Lambda client
@@ -229,14 +225,23 @@ class BulkPublishListCreate(ListCreateAPIView):
             logger.exception('Error configuring Lambda client.')
             raise
 
-        # Invoke Lambda function.
-        response = lambda_client.invoke(
-            FunctionName=QUEUEING_LAMBDA_NAME,
-            InvocationType='Event',
-            Payload=json.dumps(job_dict)
-        )
+        max_batch_size = 2500  # To avoid exceeding the payload size limit for Lambda invocations. https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html
+        chunks = [job_details_list[x:x + max_batch_size] for x in range(0, len(job_details_list), max_batch_size)]
+        for chunk in chunks:
+            # Construct the job dictionary (will be used by `send_job_to_queueing_lambda` func as payload).
+            job_dict = {
+                "job_id": job.id,
+                "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.id} for jo in chunk]
+            }
 
-        logger.info(f'Sent bulk publish courses job ID {job_dict["job_id"]} to queuing Lambda {QUEUEING_LAMBDA_NAME}.',
-                    extra={'response': response})
-        
-        return None 
+            # Invoke Lambda function.
+            response = lambda_client.invoke(
+                FunctionName=QUEUEING_LAMBDA_NAME,
+                InvocationType='Event',
+                Payload=json.dumps(job_dict)
+            )
+
+            logger.info(f'Sent bulk publish courses job ID {job.id} to queuing Lambda {QUEUEING_LAMBDA_NAME}.',
+                        extra={'response': response})
+            
+        return None
