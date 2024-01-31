@@ -158,27 +158,6 @@ def build_update_arg_for_course(course, job):
     return update_args
 
 
-def update_course(course, update_args, job):
-    """Uses the Canvas SDK to update the given course with the given update values."""
-    try:
-        logger.info('Updating course {} with update args {}'.format(course['id'], update_args))
-        update_response = sdk_update_course(SDK_CONTEXT, course['id'], **update_args)
-        logger.info('Successfully updated course {}'.format(course['id']))
-
-        # update_job_detail_record(job_detail_id, status=constants.COMPLETED, post_state=json.dumps(update_response.json()))
-
-    except Exception as e:
-        message = 'Error updating course {} via SDK with parameters={}, SDK error details={}'\
-            .format(course['id'], update_args, e)
-        logger.exception(message)
-
-    
-    return update_response
-
-        # update_job_detail_record(job_detail_id, status=constants.FAILED, post_state=json.dumps(update_response.json()))
-
-# bring update_course and build_update_arg_for_course over to SAM app
-
 def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict, 
                                 setting_to_be_modified: str, desired_setting: str) -> None:
     """
