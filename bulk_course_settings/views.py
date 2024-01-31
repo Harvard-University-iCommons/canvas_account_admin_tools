@@ -163,20 +163,30 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
                                               setting_to_be_modified=related_bulk_job.setting_to_be_modified,
                                               desired_setting=reverse_desired_setting_mapping[related_bulk_job.desired_setting],
                                               created_by=str(self.request.user))
-            # get rid of below call
-            utils.queue_bulk_settings_job(bulk_settings_id=new_bulk_job.id, school_id=school_id,
-                                          meta_term_id=related_bulk_job.meta_term_id,
-                                          setting_to_be_modified=related_bulk_job.setting_to_be_modified,
-                                          desired_setting='REVERT')
             
             new_bulk_job.workflow_status = constants.QUEUED
             new_bulk_job.save()
-            # get all the job details that were associated w that job, 
-            # instead of making a call to get_canvas_courses method in the utils class, to mimic the changes
-            # get the original job object and its related job details once u have that flat list of canvas course ids, 
-            # prob a util method, but make a call to each canvas course id, to see the current state of it and see if you need to skip it
-            # the logic of needing to see if it will be skipped is inside the management command
-            # to see if its a skip or needs to be processed 
+
+            related_job_details = Details.objects.\
+                        filter(parent_job=related_bulk_job.id).\
+                        exclude(workflow_status=constants.SKIPPED)
+
+            setting_to_be_modified = related_bulk_job.setting_to_be_modified
+            desired_setting = 'REVERT'
+
+            job_details_list = []
+
+            for job_detail in related_job_details:
+                job_details_list.append(
+                    {
+                        "job_detail_id": job_detail.id,
+                        "course_id": job_detail.canvas_course_id,
+                        "desired_value": job_detail.current_setting_value.lower()
+                    }
+                )
+  
+            utils.send_job_to_queueing_lambda(related_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
+
             logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
 
         url = reverse('bulk_course_settings:job_list')
