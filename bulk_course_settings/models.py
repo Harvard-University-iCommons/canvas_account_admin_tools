@@ -46,10 +46,6 @@ class Job(models.Model):
     created_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    details_total_count = models.IntegerField(null=True)
-    details_success_count = models.IntegerField(null=True)
-    details_failed_count = models.IntegerField(null=True)
-    details_skipped_count = models.IntegerField(null=True)
 
     def get_term_name(self):
         term = Term.objects.get(term_id=int(self.term_id))
