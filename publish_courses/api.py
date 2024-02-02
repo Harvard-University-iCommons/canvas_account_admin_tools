@@ -7,6 +7,9 @@ from typing import List, Tuple
 import boto3
 from botocore.exceptions import ClientError
 from canvas_sdk import RequestContext
+from canvas_sdk.exceptions import CanvasAPIError
+from canvas_sdk.methods.accounts import list_active_courses_in_account
+from canvas_sdk.utils import get_all_list_data
 from django.conf import settings
 from django.http import JsonResponse
 from lti_school_permissions.decorators import lti_permission_required_check
@@ -17,7 +20,6 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
-from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from publish_courses.models import Job, JobDetails
 
 logger = logging.getLogger(__name__)
@@ -75,7 +77,7 @@ class CourseDetailList(ListAPIView):
         # The filtered list of courses that have the state of 'unpublished
         filtered_courses = []
         try:
-            all_courses = self._get_courses()
+            all_courses = _get_courses(self.sis_account_id, self.sis_term_id)
             course_details['course_summary'] = self._get_summary(all_courses)
 
             for course in all_courses:
@@ -90,16 +92,6 @@ class CourseDetailList(ListAPIView):
             raise RuntimeError("There was a problem retrieving courses. ")
 
         return JsonResponse(course_details, safe=False)
-
-    # Returns a list of canvas courses for the given account and term.
-    def _get_courses(self):
-        op_config = {
-            'account': self.sis_account_id,
-            'term': self.sis_term_id,
-        }
-        op = BulkCourseSettingsOperation(op_config)
-        op.get_canvas_courses()
-        return op.canvas_courses
 
     # Returns a dictionary summary of the given course list by their work state status.
     @staticmethod
@@ -146,7 +138,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         term = f'sis_term_id:{term}'
 
         if not selected_courses:
-            courses = self._get_courses(account, term)
+            courses = _get_courses(account, term)
             # Filter unpublished courses.
             selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
 
@@ -163,22 +155,6 @@ class BulkPublishListCreate(ListCreateAPIView):
 
         logger.info(f'The bulk publish courses job creation for job ID {job.id} is complete.')
         return Response(status=status.HTTP_201_CREATED)
-    
-    def _get_courses(self, account: str, term: str) -> List:
-        """
-        Returns a list of canvas courses for the given account and term.
-        """
-        logger.info(f"Retrieving all courses for {account} and term {term}.")
-
-        op_config = {
-            'account': account,
-            'term': term
-        }
-        op = BulkCourseSettingsOperation(op_config)
-        op.get_canvas_courses()
-
-        logger.info(f"Retrieved {len(op.canvas_courses)} courses for {account} and term {term}.")
-        return op.canvas_courses
     
     def create_and_save_job(self, account_sis_id: str, term: str, audit_user_id: int,
                             audit_user_name: str, selected_courses: List[int]) -> Tuple['Job', List['JobDetails']]:
@@ -245,3 +221,28 @@ class BulkPublishListCreate(ListCreateAPIView):
                         extra={'response': response})
             
         return None
+
+
+def _get_courses(account: str, term: str) -> List:
+        """
+        Returns a list of canvas courses for the given account and term.
+        """
+        logger.info(f"Retrieving all courses for {account} and term {term}.")
+
+        try:
+            canvas_courses = get_all_list_data(
+                SDK_CONTEXT,
+                list_active_courses_in_account,
+                account_id=account,
+                enrollment_term_id=term
+            )
+
+        except Exception as e:
+            message = 'Error retrieving courses in account'
+            if isinstance(e, CanvasAPIError):
+                message += ', SDK error details={}'.format(e)
+            logger.exception(message)
+            raise e
+
+        logger.info(f"Retrieved {len(canvas_courses)} courses for {account} and term {term}.")
+        return canvas_courses
