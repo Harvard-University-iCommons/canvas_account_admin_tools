@@ -143,7 +143,6 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 			related_bulk_job = Job.objects.get(id=job_id)
 			setting_to_be_modified = related_bulk_job.setting_to_be_modified
 
-
 			reverse_desired_setting_mapping = {
 				'False': 'True',
 				'True': 'False'
@@ -164,7 +163,7 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 
 			related_job_details_course_id_list = (Details.objects.filter(parent_job=related_bulk_job.id).
 			                                      exclude(workflow_status=constants.SKIPPED).
-			                                      values_list('canvas_course_id'))
+			                                      values_list('canvas_course_id', flat=True))
 
 			job_details_list = _create_job_details(job=new_bulk_job, course_id_list=related_job_details_course_id_list)
 
@@ -213,7 +212,7 @@ def _create_job_details(job: Job, course_id_list: List[int]) -> List[Dict]:
 	job_details_list = []
 
 	# Create Details objects to efficiently insert all objects into the database in a single query.
-	job_details_objects = [Details(parent_job_id=job.id, canvas_course_id=int(course_id)) for course_id in course_id_list]
+	job_details_objects = [Details(parent_job_id=job.id, canvas_course_id=course_id) for course_id in course_id_list]
 	just_created_job_objects = Details.objects.bulk_create(job_details_objects)  # Bulk create Details objects (save to database).
 	logger.info(f'Creating job info for job ID {job.id} to database.')
 
