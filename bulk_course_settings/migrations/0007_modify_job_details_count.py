@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bulk_course_settings', '0005_add_meta_term_id'),
+        ('bulk_course_settings', '0006_alter_job_meta_term_id'),
     ]
 
     operations = [
