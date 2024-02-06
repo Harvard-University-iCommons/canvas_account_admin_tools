@@ -158,7 +158,7 @@ def build_update_arg_for_course(course, job):
     return update_args
 
 
-def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict, 
+def send_job_to_queueing_lambda(job_id: int, job_details_list: List, 
                                 setting_to_be_modified: str, desired_setting: str) -> None:
     """
     Invokes SQS queueing Lambda with a payload of course ID list.
@@ -175,22 +175,26 @@ def send_job_to_queueing_lambda(job_id: int, job_details_list: Dict,
     except Exception as e:
         logger.exception('Error configuring Lambda client.')
         raise
-    
-    payload = {
-        "job_id": job_id,
-        "job_details_list": job_details_list, 
-        "setting_to_be_modified": setting_to_be_modified,
-        "desired_setting": desired_setting
-    }
 
-    # Invoke Lambda function
-    response = lambda_client.invoke(
-        FunctionName=QUEUEING_LAMBDA_NAME,
-        InvocationType="Event",
-        Payload=json.dumps(payload)
-    )
+    max_batch_size = 2500 # To avoid exceeding the payload size limit for Lambda invocations.
+    chunks = [job_details_list[x:x + max_batch_size] for x in range(0, len(job_details_list), max_batch_size)]
+    for chunk in chunks:
+        # Construct the job dict that will be sent to as a payload to queueing lambda.
+        job_dict = {
+            "job_id": job_id,
+            "job_details_list": job_details_list, 
+            "setting_to_be_modified": setting_to_be_modified,
+            "desired_setting": desired_setting
+        }
 
-    logger.info(f"Sent bulk course settings course IDs {job_id} to queueing Lambda {QUEUEING_LAMBDA_NAME}.",
-                extra={"response": response})
+        # Invoke Lambda function
+        response = lambda_client.invoke(
+            FunctionName=QUEUEING_LAMBDA_NAME,
+            InvocationType="Event",
+            Payload=json.dumps(job_dict)
+        )
+
+        logger.info(f"Sent bulk course settings course IDs {job_id} to queueing Lambda {QUEUEING_LAMBDA_NAME}.",
+                    extra={"response": response})
     
     return None
