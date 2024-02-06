@@ -16,10 +16,10 @@ class Job(models.Model):
         (constants.COMPLETED_ERRORS, 'Completed with errors')
     )
 
-    school_id = models.CharField(max_length=10)
-    term_id = models.CharField(max_length=10, null=True, blank=True)
+    school_id = models.CharField(max_length=30)
+    term_id = models.CharField(max_length=30, null=True, blank=True)
     workflow_status = models.CharField(max_length=30, choices=WORKFLOW_STATUS, default=constants.NEW)
-    created_by_user_id = models.CharField(max_length=15)
+    created_by_user_id = models.CharField(max_length=30)
     user_full_name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -60,7 +60,7 @@ class JobDetails(models.Model):
 
     parent_job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='job_details')
     canvas_course_id = models.PositiveIntegerField()
-    workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
+    workflow_status = models.CharField(max_length=30, choices=WORKFLOW_STATUS, default=constants.NEW)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     post_state = models.CharField(max_length=2000, null=True)
