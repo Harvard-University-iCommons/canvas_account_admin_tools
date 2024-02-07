@@ -225,7 +225,7 @@ def _get_courses(account: str, term: str, published: Optional[bool] = None) -> L
         """
         Returns a list of canvas courses for the given account and term.
         """
-        logger.info(f"Retrieving all courses for {account} and term {term}.")
+        logger.info(f"Retrieving courses for {account} and term {term}. Published flag = {published}")
 
         try:
             canvas_courses = get_all_list_data(
