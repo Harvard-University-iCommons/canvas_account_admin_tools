@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import boto3
 from botocore.exceptions import ClientError
@@ -138,9 +138,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         term = f'sis_term_id:{term}'
 
         if not selected_courses:
-            courses = _get_courses(account, term)
-            # Filter unpublished courses.
-            selected_courses = [cs_dict['id'] for cs_dict in courses if cs_dict['workflow_state'] == 'unpublished']
+            selected_courses = _get_courses(account, term, published=False)  # Get all unpublished courses for an account and term.
 
         logger.info(f"{len(selected_courses)} selected courses for {account} and term {term}.",
                     extra={'account': account,
@@ -223,7 +221,7 @@ class BulkPublishListCreate(ListCreateAPIView):
         return None
 
 
-def _get_courses(account: str, term: str) -> List:
+def _get_courses(account: str, term: str, published: Optional[bool] = None) -> List:
         """
         Returns a list of canvas courses for the given account and term.
         """
@@ -234,6 +232,7 @@ def _get_courses(account: str, term: str) -> List:
                 SDK_CONTEXT,
                 list_active_courses_in_account,
                 account_id=account,
+                published=published,
                 enrollment_term_id=term
             )
 
