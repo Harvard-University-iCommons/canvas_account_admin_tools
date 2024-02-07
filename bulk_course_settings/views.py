@@ -111,17 +111,17 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
 			                                                                 term=term,
 			                                                                 course__school=account_sis_id.removeprefix('school:'))
-			                                   .values_list('canvas_course_id', flat=True))
+			                                   .values_list('canvas_course_id', flat=True)).distinct()
 		elif account_sis_id.startswith('dept'):
 			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
 			                                                                 term=term,
 			                                                                 course__department=account_sis_id.removeprefix('dept:'))
-			                                   .values_list('canvas_course_id', flat=True))
+			                                   .values_list('canvas_course_id', flat=True)).distinct()
 		else:
 			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
 			                                                                 term=term,
 			                                                                 course__course_group=account_sis_id.removeprefix('coursegroup:'))
-			                                   .values_list('canvas_course_id', flat=True))
+			                                   .values_list('canvas_course_id', flat=True)).distinct()
 
 		# Create job details from unpublished courses list
 		job_details_list = _create_job_details(job=job, course_id_list=canvas_course_id_list_acct_term)
