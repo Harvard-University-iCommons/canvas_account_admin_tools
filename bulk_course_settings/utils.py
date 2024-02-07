@@ -134,8 +134,6 @@ def check_and_update_course(course, job):
             prior_state=json.dumps(course),
             post_state='',
             workflow_status=constants.SKIPPED)
-        # job.details_total_count += 1
-        # job.details_skipped_count += 1
         job.save()
 
 
@@ -182,7 +180,7 @@ def send_job_to_queueing_lambda(job_id: int, job_details_list: List,
         # Construct the job dict that will be sent to as a payload to queueing lambda.
         job_dict = {
             "job_id": job_id,
-            "job_details_list": job_details_list, 
+            "job_details_list": chunk, 
             "setting_to_be_modified": setting_to_be_modified,
             "desired_setting": desired_setting
         }
