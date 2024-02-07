@@ -18,7 +18,7 @@ from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
 from bulk_course_settings.models import Job, Details
 
-from coursemanager.models import Term
+from coursemanager.models import Term, CourseInstance, Course
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +77,7 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 
 		form.instance.workflow_status = constants.QUEUED
 		form.instance.meta_term_id = meta_term_id
+		form.instance.term_name = term.display_name
 		form.instance.created_by = audit_user_id
 
 		if not all((audit_user_id, account_sis_id)):
@@ -84,7 +85,7 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 				'Invalid LTI session: custom_canvas_user_login_id and '
 				'custom_canvas_account_sis_id required')
 
-		sis_account_id = f'sis_account_id:school:{form.instance.school_id}'
+		sis_account_id = f'sis_account_id:{account_sis_id}'
 		meta_term_id = f'sis_term_id:{meta_term_id}'
 
 		if not all((sis_account_id, meta_term_id)):
@@ -104,14 +105,26 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 		setting_to_be_modified = job.setting_to_be_modified
 		desired_setting = job.desired_setting
 
-		# Retrieve full list of canvas courses
-		canvas_courses = utils.get_canvas_courses(account_id=sis_account_id, term_id=meta_term_id)
-
-		# Filter unpublished courses
-		unpublished_courses = [cs_dict['id'] for cs_dict in canvas_courses if cs_dict['workflow_state'] == 'unpublished']
+		# Get a list of Canvas course ID's for a given term and account
+		# Adding support for this tool to work in sub-sub accounts by checking the account_sis_id for dept or coursegroup
+		if account_sis_id.startswith('school'):
+			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
+			                                                                 term=term,
+			                                                                 course__school=account_sis_id.removeprefix('school:'))
+			                                   .values_list('canvas_course_id', flat=True))
+		elif account_sis_id.startswith('dept'):
+			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
+			                                                                 term=term,
+			                                                                 course__department=account_sis_id.removeprefix('dept:'))
+			                                   .values_list('canvas_course_id', flat=True))
+		else:
+			canvas_course_id_list_acct_term = (CourseInstance.objects.filter(canvas_course_id__isnull=False,
+			                                                                 term=term,
+			                                                                 course__course_group=account_sis_id.removeprefix('coursegroup:'))
+			                                   .values_list('canvas_course_id', flat=True))
 
 		# Create job details from unpublished courses list
-		job_details_list = _create_job_details(job=job, course_id_list=unpublished_courses)
+		job_details_list = _create_job_details(job=job, course_id_list=canvas_course_id_list_acct_term)
 
 		# Send job to queueing lambda
 		utils.send_job_to_queueing_lambda(job_id, job_details_list, setting_to_be_modified, desired_setting)
