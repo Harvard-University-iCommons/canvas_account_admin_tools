@@ -6,15 +6,10 @@ from typing import Dict, List
 import boto3
 from botocore.exceptions import ClientError
 from canvas_sdk import RequestContext
-from canvas_sdk.exceptions import CanvasAPIError
-from canvas_sdk.methods.accounts import list_active_courses_in_account
-from canvas_sdk.methods.courses import update_course as sdk_update_course
-from canvas_sdk.utils import get_all_list_data
+
 from coursemanager.models import Term
 from django.conf import settings
 
-from bulk_course_settings import constants
-from bulk_course_settings.models import Details
 
 logger = logging.getLogger(__name__)
 
@@ -35,21 +30,6 @@ KW = {
     'region_name':  AWS_REGION_NAME
 }
 
-# The Canvas SDK requires a course_ prefix when making requests
-# Use these 2 mappings to translate between the DB values and update arguments
-API_MAPPING = {
-    'is_public': 'course_is_public',
-    'is_public_to_auth_users': 'course_is_public_to_auth_users',
-    'public_syllabus': 'course_public_syllabus',
-    'public_syllabus_to_auth': 'course_public_syllabus_to_auth'
-}
-
-REVERSE_API_MAPPING = {
-    'course_is_public': 'is_public',
-    'course_is_public_to_auth_users': 'is_public_to_auth_users',
-    'course_public_syllabus': 'public_syllabus',
-    'course_public_syllabus_to_auth': 'public_syllabus_to_auth'
-}
 
 try:
     SQS = boto3.resource('sqs', **KW)
@@ -85,75 +65,6 @@ def get_term_data_for_school(school_sis_account_id):
         })
     logger.info('Terms retrieved for account {}: {}'.format(school_sis_account_id, terms))
     return terms
-
-
-def get_canvas_courses(account_id=None, term_id=None, search_term=None, state=None):
-    """Returns a list of active courses for the given account and term"""
-    try:
-        canvas_courses = get_all_list_data(
-            SDK_CONTEXT,
-            list_active_courses_in_account,
-            account_id=account_id,
-            enrollment_term_id=term_id,
-            search_term=search_term,
-            state=state,
-        )
-
-        total_count = len(canvas_courses)
-        logger.info('Found %d courses' % total_count)
-
-    except Exception as e:
-        message = 'Error listing active courses in account'
-        if isinstance(e, CanvasAPIError):
-            message += ', SDK error details={}'.format(e)
-        logger.exception(message)
-        raise e
-
-    return canvas_courses
-
-
-def check_and_update_course(course, job):
-    """
-    Checks if the given course requires an update using the value from the given Job.
-    If it does not, create a skipped Detail entry for the given Job.
-    """
-    update_args = build_update_arg_for_course(course, job)
-    logger.debug('Update args for course {}: {}'.format(course['id'], update_args))
-
-    # Only update the course if the arg dict is not empty
-    if len(update_args):
-        logger.info('Course {} requires an update'.format(course['id']))
-        update_course(course, update_args, job)
-    else:
-        logger.info('Course {} does not require an update, skipping...'.format(course['id']))
-        Details.objects.create(
-            parent_job=job,
-            canvas_course_id=course['id'],
-            current_setting_value=course[job.setting_to_be_modified],
-            is_modified=True,
-            prior_state=json.dumps(course),
-            post_state='',
-            workflow_status=constants.SKIPPED)
-        job.save()
-
-
-def build_update_arg_for_course(course, job):
-    """
-    Check if the given courses setting differs from the desired value of the given Job.
-    If it does, make an entry in the update_args return dict with the API translated setting to be modified as the key
-    and the job's desired value as its value.
-    """
-    update_args = {}
-
-    setting_to_be_modified = job.setting_to_be_modified
-    desired_value = job.desired_setting
-
-    if course[setting_to_be_modified] is not True and desired_value == 'True':
-        update_args[API_MAPPING[setting_to_be_modified]] = 'true'
-    if course[setting_to_be_modified] is True and desired_value == 'False':
-        update_args[API_MAPPING[setting_to_be_modified]] = 'false'
-
-    return update_args
 
 
 def send_job_to_queueing_lambda(job_id: int, job_details_list: List, 
