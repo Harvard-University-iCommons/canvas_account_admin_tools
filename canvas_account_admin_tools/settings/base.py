@@ -561,7 +561,7 @@ BULK_PUBLISH_COURSES_SETTINGS = {
     'aws_region_name':  SECURE_SETTINGS.get('aws_region_name', 'us-east-1'),
     'aws_access_key_id': SECURE_SETTINGS.get('aws_access_key_id'),
     'aws_secret_access_key': SECURE_SETTINGS.get('aws_secret_access_key'),
-    'job_queue_name': SECURE_SETTINGS.get('bulk_publish_courses_sqs_queue_name'),
+    'queueing_lambda_name': SECURE_SETTINGS.get('uw_bulk_publish_courses_queueing_lambda_name'),
     'visibility_timeout': SECURE_SETTINGS.get('visibility_timeout', 120),
 
 }

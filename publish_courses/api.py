@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
-from typing import Dict, List
+from typing import List, Optional, Tuple
 
 import boto3
 from botocore.exceptions import ClientError
@@ -18,9 +19,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.generics import ListAPIView, ListCreateAPIView
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
-from ulid import ULID
 
-from bulk_utilities.bulk_course_settings import BulkCourseSettingsOperation
 from publish_courses.models import Job, JobDetails
 
 logger = logging.getLogger(__name__)
@@ -36,7 +35,7 @@ PC_PERMISSION = settings.PERMISSION_PUBLISH_COURSES
 AWS_REGION_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_region_name']
 AWS_ACCESS_KEY_ID = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_access_key_id']
 AWS_SECRET_ACCESS_KEY = settings.BULK_PUBLISH_COURSES_SETTINGS['aws_secret_access_key']
-QUEUE_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['job_queue_name']
+QUEUEING_LAMBDA_NAME = settings.BULK_PUBLISH_COURSES_SETTINGS['queueing_lambda_name']
 VISIBILITY_TIMEOUT = settings.BULK_PUBLISH_COURSES_SETTINGS['visibility_timeout']
 
 CREDENTIALS = {
@@ -44,17 +43,6 @@ CREDENTIALS = {
     'aws_access_key_id': AWS_ACCESS_KEY_ID,
     'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
 }
-
-try:
-    # Create SQS client using the provided AWS configuration.
-    SQS = boto3.client('sqs', **CREDENTIALS)
-
-except ClientError as e:
-    logger.error('Error configuring sqs client: %s', e, exc_info=True)
-    raise
-except Exception as e:
-    logger.exception('Error configuring sqs')
-    raise
 
 
 class LTIPermission(BasePermission):
@@ -89,7 +77,7 @@ class CourseDetailList(ListAPIView):
         # The filtered list of courses that have the state of 'unpublished
         filtered_courses = []
         try:
-            all_courses = self._get_courses()
+            all_courses = _get_courses(self.sis_account_id, self.sis_term_id)
             course_details['course_summary'] = self._get_summary(all_courses)
 
             for course in all_courses:
@@ -104,16 +92,6 @@ class CourseDetailList(ListAPIView):
             raise RuntimeError("There was a problem retrieving courses. ")
 
         return JsonResponse(course_details, safe=False)
-
-    # Returns a list of canvas courses for the given account and term.
-    def _get_courses(self):
-        op_config = {
-            'account': self.sis_account_id,
-            'term': self.sis_term_id,
-        }
-        op = BulkCourseSettingsOperation(op_config)
-        op.get_canvas_courses()
-        return op.canvas_courses
 
     # Returns a dictionary summary of the given course list by their work state status.
     @staticmethod
@@ -134,7 +112,7 @@ class CourseDetailList(ListAPIView):
 class BulkPublishListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs) -> Response:
-        logger.info(f'Creating bulk publish courses jobs.')
+        logger.info(f'Creating bulk publish courses job.')
         
         lti_session = getattr(self.request, 'LTI', {})
         audit_user_id = lti_session.get('custom_canvas_user_login_id')
@@ -152,178 +130,118 @@ class BulkPublishListCreate(ListCreateAPIView):
             raise DRFValidationError('Both account and term are required')
 
         # For the moment, only the current school account can be operated on.
-        if not account_sis_id[len('school:'):] == account:
+        if not account_sis_id.removeprefix('school:') == account:
             raise PermissionDenied
 
         selected_courses = self.request.data.get('course_list')
         account = f'sis_account_id:school:{account}'
         term = f'sis_term_id:{term}'
 
-        canvas_courses = self.get_canvas_courses(account, term)
         if not selected_courses:
-            selected_courses = canvas_courses
+            selected_courses = _get_courses(account, term, published=False)  # Get all unpublished courses for an account and term.
 
-        # Unique lexicographically sortable identifier.
-        job_id = f'JOB-{str(ULID())}'
+        logger.info(f"{len(selected_courses)} selected courses for {account} and term {term}.",
+                    extra={'account': account,
+                           'term': term,
+                           'audit_user': audit_user_id,
+                           'course_list': selected_courses})
 
-        logger.debug(f'Bulk publish courses job {job_id}.', extra={'account': account,
-                                                                   'term': term,
-                                                                   'audit_user': audit_user_id,
-                                                                   'course_list': selected_courses})
+        # Save job and send to queueing lambda.
+        job, job_details_list = self.create_and_save_job(account_sis_id, self.request.data.get('term'),
+                                                         audit_user_id, audit_user_name, selected_courses)
+        self.send_job_to_queueing_lambda(job, job_details_list)
 
-        # Save job and send to sqs queue.
-        self.create_and_save_job(
-            job_id, account_sis_id, audit_user_id, audit_user_name, selected_courses, canvas_courses)
-        messages = self.create_sqs_messages(
-            job_id, account, term, audit_user_id, selected_courses)
-        self.send_sqs_message_batch(messages, sqs_msg_batch_size=10)
-
-        logger.info(
-            f'The bulk publish courses job creation is complete and has been sent to the SQS queue.')
+        logger.info(f'The bulk publish courses job creation for job ID {job.id} is complete.')
         return Response(status=status.HTTP_201_CREATED)
-
-
-    def get_canvas_courses(self, account: str, term: str) -> List[Dict]:
+    
+    def create_and_save_job(self, account_sis_id: str, term: str, audit_user_id: int,
+                            audit_user_name: str, selected_courses: List[int]) -> Tuple['Job', List['JobDetails']]:
         """
-        Fetches a list of Canvas courses for a specified account and term. 
+        Creates a bulk publish courses job along with job details and saves them to the database.
+        Returns the job object and a list of job details.
         """
-        logger.debug(f'Retrieving Canvas courses.', extra={
-                     'account': account, 'term': term})
+        logger.info(f'Saving bulk publish courses job to database.')
 
-        canvas_courses = []
+        # Create job record in the database.
+        job = Job.objects.create(school_id=account_sis_id,
+                                 term_id=term,
+                                 created_by_user_id=audit_user_id,
+                                 user_full_name=audit_user_name)
+        job.save()
+        logger.info(f'Bulk publish courses job saved to database. Job ID {job.id}.')
+
+        logger.info(f'Saving bulk publish courses job details for job ID {job.id} to database.')
+        # Create JobDetails objects to efficiently insert all objects into the database in a single query.
+        job_details_objects = [JobDetails(parent_job=job, canvas_course_id=course_id) for course_id in selected_courses]
+        just_created_job_objects = JobDetails.objects.bulk_create(job_details_objects)  # Bulk create JobDetails objects (save to database).
+
+        logger.info(f'Details for the bulk publish courses job ID {job.id} saved to database.')
+        return job, just_created_job_objects
+        
+    def send_job_to_queueing_lambda(self, job: Job, job_details_list: List) -> None:
+        """
+        Constructs a payload then invokes an SQS queueing Lambda with the payload containing the job id,
+        a list of course IDs and their job detail IDs (or record id from the db).
+        
+        Payloads are divided into chunks when to avoid exceeding the payload size limit for Lambda 
+        invocations. Each chunk is sent to the SQS queuing Lambda as an event. This is a fire and 
+        forget method and will not wait for the Lambda to finish.
+        """
+        logger.info(f'Sending bulk publish courses job ID {job.id} to queuing Lambda {QUEUEING_LAMBDA_NAME}.')
+        
+        try:
+            # Create Lambda client
+            lambda_client = boto3.client('lambda')
+        except ClientError as e:
+            logger.error(f'Error configuring Lambda client: {e}.', exc_info=True)
+            raise
+        except Exception as e:
+            logger.exception('Error configuring Lambda client.')
+            raise
+
+        max_batch_size = 2500  # To avoid exceeding the payload size limit for Lambda invocations. https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html
+        chunks = [job_details_list[x:x + max_batch_size] for x in range(0, len(job_details_list), max_batch_size)]
+        for chunk in chunks:
+            # Construct the job dictionary (will be used by `send_job_to_queueing_lambda` func as payload).
+            job_dict = {
+                "job_id": job.id,
+                "course_list": [{"course_id": jo.canvas_course_id, "job_detail_id": jo.id} for jo in chunk]
+            }
+
+            # Invoke Lambda function.
+            response = lambda_client.invoke(
+                FunctionName=QUEUEING_LAMBDA_NAME,
+                InvocationType='Event',
+                Payload=json.dumps(job_dict)
+            )
+
+            logger.info(f'Sent bulk publish courses job ID {job.id} to queuing Lambda {QUEUEING_LAMBDA_NAME}.',
+                        extra={'response': response})
+            
+        return None
+
+
+def _get_courses(account: str, term: str, published: Optional[bool] = None) -> List:
+        """
+        Returns a list of canvas courses for the given account and term.
+        """
+        logger.info(f"Retrieving courses for {account} and term {term}. Published flag = {published}.")
+
         try:
             canvas_courses = get_all_list_data(
                 SDK_CONTEXT,
                 list_active_courses_in_account,
                 account_id=account,
-                enrollment_term_id=term,
-                published=False,
+                published=published,
+                enrollment_term_id=term
             )
+
         except Exception as e:
-            message = f'Error getting courses for account {account}'
+            message = 'Error retrieving courses in account'
             if isinstance(e, CanvasAPIError):
                 message += ', SDK error details={}'.format(e)
             logger.exception(message)
             raise e
 
+        logger.info(f"Retrieved {len(canvas_courses)} courses for {account} and term {term}.")
         return canvas_courses
-    
-    def create_and_save_job(self, job_id: str, account_sis_id: str, audit_user_id: int,
-                            audit_user_name: str, selected_courses: List[int],
-                            canvas_courses: List[Dict]) -> None:
-        """
-        Retrieves workflow states for selected courses, creates a job record,
-        and job details then adds them to the database.
-        """
-        # Create job record in the database.
-        job = Job.objects.create(job=job_id,
-                                 school_id=account_sis_id[len('school:'):],
-                                 created_by_user_id=audit_user_id,
-                                 user_full_name=audit_user_name,
-                                 job_details_total_count=len(selected_courses))
-        job.save()
-
-        logger.debug(f'Bulk publish courses job saved to database',
-                     extra={'job_id': job_id})
-        
-        # Create dict workflow states for selected courses.
-        workflow_states = {course['id']: course['workflow_state']
-                           for course in canvas_courses if course['id'] in selected_courses}
-
-        # Create job details records in the database.
-        for course_id in selected_courses:
-            # Get course workflow_state.
-            workflow_state = workflow_states[course_id]
-
-            job_details = JobDetails.objects.create(
-                parent_job=job,
-                canvas_course_id=course_id,
-                prior_state=workflow_state
-            )
-            job_details.save()
-
-        logger.debug(f'Details for the bulk publish courses job saved to database',
-                     extra={'job_id': job_id})
-
-    def create_sqs_messages(self, job_id: str, account: str, term: str, 
-                            audit_user_id: int, selected_courses: List[int]) -> List[Dict]:
-        """
-        Creates SQS messages for a bulk publish courses job, with each message
-        containing 50 course IDs."
-        """
-        messages = []
-
-        # Calculate total course batches based on course count and batch size.
-        course_id_batch_size = 50
-        total_batches = (len(selected_courses) + course_id_batch_size - 1) // course_id_batch_size
-
-        # Split the course IDs into batches of 50 (also enumerate to get batch number for message_body var).
-        for batch_number, i in enumerate(range(0, len(selected_courses), course_id_batch_size), start=1):
-            course_batch = selected_courses[i:i + course_id_batch_size]
-
-            # Create the SQS message for this batch.
-            message_id = f'MSG-{str(ULID())}'
-            message_body = (f'Course batch {batch_number}/{total_batches}. Job ID {job_id}.'
-                            f'This batch total course ids {len(course_batch)}. Message ID {message_id}.')
-            message_attributes = {
-                'job_id': {
-                    'StringValue': str(job_id),
-                    'DataType': 'String'
-                },
-                'account': {
-                    'StringValue': str(account),
-                    'DataType': 'String'
-                },
-                'term': {
-                    'StringValue': str(term),
-                    'DataType': 'String'
-                },
-                'audit_user': {
-                    'StringValue': str(audit_user_id),
-                    'DataType': 'String'
-                },
-                'course_list': {
-                    # Course IDs as comma separated string.
-                    'StringValue': ','.join(map(str, course_batch)),
-                    'DataType': 'String'
-                },
-            }
-
-            # Append the message to the list of messages for this batch.
-            messages.append({
-                'Id': message_id,
-                'MessageBody': message_body,
-                'MessageAttributes': message_attributes
-            })
-
-        return messages
-
-    def send_sqs_message_batch(self, messages: List[Dict], sqs_msg_batch_size: int = 10) -> None:
-        """
-        Sends a batch of messages to an Amazon Simple Queue Service (SQS) queue.
-
-        Note: As of 2023-11-02 you can use send_message_batch to send up to 10 messages to the specified queue.
-        https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message_batch.html
-        """
-        logger.debug(
-            f'Bulk publish courses sending messages to SQS queue name: "{QUEUE_NAME}"')
-        
-        try:
-            queue = SQS.get_queue_url(QueueName=QUEUE_NAME)['QueueUrl']
-
-            for i in range(0, len(messages), sqs_msg_batch_size):
-                batch = messages[i:i + sqs_msg_batch_size]
-                response = SQS.send_message_batch(
-                    QueueUrl=queue,
-                    Entries=batch
-                )
-
-                context = {
-                    'batch': batch,
-                    'response': response
-                }
-                logger.debug(
-                    f'Bulk publish courses job sent to SQS', extra=context)
-        except Exception as e:
-            logger.exception(f"Error sending SQS message batch: {e}")
-            raise
