@@ -143,12 +143,13 @@ def create_new_course(request):
                                  f'Course <a href="{ settings.CANVAS_URL }/courses/{ course_instance.canvas_course_id }" target="_blank">{ course_instance.canvas_course_id }</a> successfully created.')
         else:
             # Roll back the database changes so user can try again later.
-            print(f"c_id =============================================================== {course.course_id}")
             print(f"ci_id=============================================================== {course_instance.course_instance_id}")
-            Course.objects.filter(pk=course.course_id).delete()
+            print(f"c_id =============================================================== {course.course_id}")
             CourseInstance.objects.filter(pk=course_instance.course_instance_id).delete()
-            # course.delete()
+            Course.objects.filter(pk=course.course_id).delete()
             # course_instance.delete()
+            # course.delete()
+            
 
             messages.add_message(request,
                                  messages.ERROR,
