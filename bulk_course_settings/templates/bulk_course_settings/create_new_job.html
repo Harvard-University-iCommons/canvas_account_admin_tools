@@ -31,10 +31,41 @@
             <input type="hidden" name="school_id" value="{{ school_id }}" />
             <div class="row" style="padding-top: 1em">
                 <div class="col-sm-12">
-                    <input type="submit" class="btn btn-primary pull-right" value="Submit" />
+                    <button type="button" ng-cloak class="btn btn-primary" id="bsc-create-btn" data-bs-toggle="modal" data-bs-target="#confirmCreate">Submit</button>
                     <a href="{% url 'bulk_course_settings:job_list' %}" class="btn btn-default">Cancel</a>
                 </div>
             </div>
         </form>
-    </div>
+        
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmCreate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Confirm Bulk Course Settings Job Creation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <span id="modal-body-text"></span>
+                        You are about to create a Bulk Course Settings job. It may take up to a minute to process. <br>
+                        Are you sure you would like to proceed?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmCreateButton">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('confirmCreateButton').addEventListener('click', function () {
+                // Disable the "Yes" button and display loading spinner
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+                
+                // Submit the form
+                document.querySelector('form').submit();
+            });
+        </script>
 {% endblock content %}

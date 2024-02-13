@@ -55,7 +55,7 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 	form_class = CreateBulkSettingsForm
 	template_name = 'bulk_course_settings/create_new_job.html'
 	model = Job
-	success_message = 'Job was created successfully'
+	success_message = 'Job was created successfully.'
 	permission = 'bulk_course_settings'
 
 	def get_context_data(self, **kwargs):
@@ -83,13 +83,13 @@ class BulkSettingsCreateView(LTIPermissionRequiredMixin, LoginRequiredMixin, Suc
 		if not all((audit_user_id, account_sis_id)):
 			raise DRFValidationError(
 				'Invalid LTI session: custom_canvas_user_login_id and '
-				'custom_canvas_account_sis_id required')
+				'custom_canvas_account_sis_id required.')
 
 		sis_account_id = f'sis_account_id:{account_sis_id}'
 		meta_term_id = f'sis_term_id:{meta_term_id}'
 
 		if not all((sis_account_id, meta_term_id)):
-			raise DRFValidationError('Both account and term are required')
+			raise DRFValidationError('Both account and term are required.')
 
 		job = form.instance
 		job.save()
@@ -150,8 +150,8 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 	def get(self, request, school_id, job_id):
 		job_has_already_been_reverted = Job.objects.filter(related_job_id=job_id)
 		if job_has_already_been_reverted:
-			logger.info('Job {} has already been reverted'.format(job_id))
-			messages.error(request, 'Job has already been reverted')
+			logger.info('Job {} has already been reverted.'.format(job_id))
+			messages.error(request, 'Job has already been reverted.')
 		else:
 			related_bulk_job = Job.objects.get(id=job_id)
 			setting_to_be_modified = related_bulk_job.setting_to_be_modified
@@ -183,7 +183,7 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 			utils.send_job_to_queueing_lambda(related_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
 
 			# logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
-			messages.success(request, 'Reversion job was created successfully')
+			messages.success(request, 'Reversion job was created successfully.')
 
 		url = reverse('bulk_course_settings:job_list')
 		if 'resource_link_id' not in url:

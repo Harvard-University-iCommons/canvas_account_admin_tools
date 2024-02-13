@@ -35,9 +35,9 @@
                     <tr>
                         <td><a href="{% url 'bulk_course_settings:job_detail' job_id=job.id %}"> {{ job.id }} </a> </td>
                         <td>{{ job.created_at }}</td>
-                        {% if job.term_name %}}
+                        {% if job.term_name %}
                             <td>{{ job.term_name }}</td>
-                        {% else %}}
+                        {% else %}
                             <td>{{ job.get_term_name }}</td>
                         {% endif %}
                         <td>{{ job.get_setting_to_be_modified_display }}</td>
