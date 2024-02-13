@@ -27,9 +27,7 @@ django-canvas-lti-school-permissions @ git+ssh://git@github.com/Harvard-Universi
 
 django-harvardkey-cas @ git+ssh://git@github.com/Harvard-University-iCommons/django-harvardkey-cas.git@v3.0
 
-# django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.7
-# TODO: Remove line bellow and uncomment line above once django-coursemanager has been merged and tagged with v0.7
-django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@task/haydn9000/tlt-4585/remove-CanvasCourseInstance-and-CoursePerson-models
+django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.7
 
 canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4.3
 
