@@ -21,11 +21,11 @@ SDK_SETTINGS.pop('session_inactivity_expiration_time_secs', None)
 # The name of the course attribute differs from the argument that we need to
 # pass to the update call, so we have this lookup table
 ARG_ATTR_PAIRS = {
-    'course_is_public': 'is_public',
-    'course_is_public_to_auth_users': 'is_public_to_auth_users',
-    'course_public_syllabus': 'public_syllabus',
-    'course_event': 'workflow_state',
-    'course_hide_final_grades': 'hide_final_grades'
+    'is_public': 'is_public',
+    'is_public_to_auth_users': 'is_public_to_auth_users',
+    'public_syllabus': 'public_syllabus',
+    'event': 'workflow_state',
+    'hide_final_grades': 'hide_final_grades'
 }
 
 
@@ -189,11 +189,11 @@ class BulkCourseSettingsOperation(object):
                 course.get('is_public', None),
                 course.get('is_public_to_auth_users', None),
                 course.get('public_syllabus', None),
-                update_args.get('course_is_public', 'n/a'),
-                update_args.get('course_is_public_to_auth_users', 'n/a'),
-                update_args.get('course_public_syllabus', 'n/a'),
-                update_args.get('course_event', 'n/a'),
-                update_args.get('course_hide_final_grades', 'n/a')
+                update_args.get('is_public', 'n/a'),
+                update_args.get('is_public_to_auth_users', 'n/a'),
+                update_args.get('public_syllabus', 'n/a'),
+                update_args.get('event', 'n/a'),
+                update_args.get('hide_final_grades', 'n/a')
             )
         )
 
@@ -215,38 +215,38 @@ class BulkCourseSettingsOperation(object):
 
         if self.options.get('public') == 'true':
             if course['is_public'] is not True:
-                update_args['course_is_public'] = 'true'
+                update_args['is_public'] = 'true'
         elif self.options.get('public') == 'false':
             if course['is_public'] is True:
-                update_args['course_is_public'] = 'false'
+                update_args['is_public'] = 'false'
 
         if self.options.get('auth') == 'true':
             if course['is_public_to_auth_users'] is not True:
-                update_args['course_is_public_to_auth_users'] = 'true'
+                update_args['is_public_to_auth_users'] = 'true'
         elif self.options.get('auth') == 'false':
             if course['is_public_to_auth_users'] is True:
-                update_args['course_is_public_to_auth_users'] = 'false'
+                update_args['is_public_to_auth_users'] = 'false'
 
         if self.options.get('public_syllabus') == 'true':
             if course['public_syllabus'] is not True:
-                update_args['course_public_syllabus'] = 'true'
+                update_args['public_syllabus'] = 'true'
         elif self.options.get('public_syllabus') == 'false':
             if course['public_syllabus'] is True:
-                update_args['course_public_syllabus'] = 'false'
+                update_args['public_syllabus'] = 'false'
 
         if self.options.get('published') == 'true':
             if course['workflow_state'] == 'unpublished':
-                update_args['course_event'] = 'offer'
+                update_args['event'] = 'offer'
         elif self.options.get('published') == 'false':
             if course['workflow_state'] == 'available':
-                update_args['course_event'] = 'claim'
+                update_args['event'] = 'claim'
 
         if self.options.get('hide_final_grades') == 'true':
             if course['hide_final_grades'] is not True:
-                update_args['course_hide_final_grades'] = 'true'
+                update_args['hide_final_grades'] = 'true'
         elif self.options.get('hide_final_grades') == 'false':
             if course['hide_final_grades'] is True:
-                update_args['course_hide_final_grades'] = 'false'
+                update_args['hide_final_grades'] = 'false'
 
         return update_args
 
