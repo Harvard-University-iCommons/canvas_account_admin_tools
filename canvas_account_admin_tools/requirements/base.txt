@@ -29,7 +29,7 @@ django-harvardkey-cas @ git+ssh://git@github.com/Harvard-University-iCommons/dja
 
 django-coursemanager @ git+ssh://git@github.com/Harvard-University-iCommons/django-coursemanager.git@v0.7
 
-canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4.3
+canvas_python_sdk @ git+ssh://git@github.com/Harvard-University-iCommons/canvas_python_sdk.git@v1.4.5
 
 harvard-django-utils @ git+ssh://git@github.com/Harvard-University-iCommons/harvard-django-utils.git@v0.1
 
