@@ -68,7 +68,7 @@ def create_canvas_course_and_section(data):
         account_id=account_id,
         course_code=course_code,
         name=title,
-        sis_id=course_instance_id,
+        sis_course_id=course_instance_id,
         term_id=term_id
     )
 
