@@ -5,7 +5,7 @@ from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import CourseInstance, CourseSite, SiteMap
+from coursemanager.models import CourseInstance, CourseSite, SiteMap, Course
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -94,13 +94,14 @@ def delete(request, pk):
         ci = CourseInstance.active_and_deleted.get(course_instance_id=pk)
 
         canvas_course_id = ci.canvas_course_id
+        canvas_site_school_id = ci.term.school.school_id
+        canvas_course_instance_id = ci.course_instance_id
         ts = int(time.time())
 
         # if school_id of the Canvas course does not match the sub-account id, deletion will not be possible
-        current_sub_account_id = custom_canvas_account_sis_id.split(":")[1]
-        canvas_site_school_id = ci.term.school.school_id
+        tool_launch_school = get_tool_launch_school(custom_canvas_account_sis_id, canvas_course_instance_id)
 
-        if canvas_site_school_id != current_sub_account_id:
+        if canvas_site_school_id != tool_launch_school:
             messages.error(request, f'You must be under the correct sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
             return render(request, 'canvas_site_deletion/index.html')
 
