@@ -89,10 +89,20 @@ def lookup(request):
 @require_http_methods(['GET', 'POST'])
 def delete(request, pk):
     canvas_course_id = None
+    custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
     try:
         ci = CourseInstance.active_and_deleted.get(course_instance_id=pk)
+
         canvas_course_id = ci.canvas_course_id
         ts = int(time.time())
+
+        # if school_id of the Canvas course does not match the sub-account id, deletion will not be possible
+        current_sub_account_id = custom_canvas_account_sis_id.split(":")[1]
+        canvas_site_school_id = ci.term.school.school_id
+
+        if canvas_site_school_id != current_sub_account_id:
+            messages.error(request, f'You must be under the correct sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
+            return render(request, 'canvas_site_deletion/index.html')
 
         if not canvas_course_id:
             # the course_instance specified doesn't appear to have a Canvas course
