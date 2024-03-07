@@ -171,3 +171,25 @@ def delete(request, pk):
     messages.success(request, f"Successfully deleted Canvas course {canvas_course_id} and cleaned up course_instance {pk}")
 
     return render(request, 'canvas_site_deletion/index.html')
+
+
+def get_tool_launch_school(custom_canvas_account_sis_id, ci_course_instance_id) -> str:
+    """
+    Get the school that this tool is being launched in.
+    """
+    try:
+        tool_launch_school = "unknown"  # Initialize tool_launch_school
+        if custom_canvas_account_sis_id.startswith('coursegroup:'):
+            tool_launch_school = "colgsas"
+        elif custom_canvas_account_sis_id.startswith('dept:'):
+            dept_id = custom_canvas_account_sis_id.split(':')[1]
+            ci = CourseInstance.objects.get(course_instance_id=ci_course_instance_id)
+            course_id = ci.course_id
+            course = Course.objects.get(course_id=course_id, department_id=dept_id)
+            tool_launch_school = course.school_id
+        else:
+            tool_launch_school = custom_canvas_account_sis_id.split(':')[1]
+    except Exception:
+        logger.exception('Error getting launch school')
+
+    return tool_launch_school
