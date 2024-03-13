@@ -393,6 +393,11 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'course_info_v2': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'cross_list_courses': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
