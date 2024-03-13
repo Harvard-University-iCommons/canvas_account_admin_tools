@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 
 
 def index(request):
-    return render(request, "course_info_v2/course_search.html", {})
+    return render(request, "course_info_v2/course_search.html", context={})
 
 
 def details(request):
-    return render(request, "course_info_v2/course_details.html", {})
+    return render(request, "course_info_v2/course_details.html", context={})
