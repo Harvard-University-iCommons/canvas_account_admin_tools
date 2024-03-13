@@ -174,23 +174,31 @@ def delete(request, pk):
     return render(request, 'canvas_site_deletion/index.html')
 
 
-def get_tool_launch_school(custom_canvas_account_sis_id, ci_course_instance_id) -> str:
+def get_account_hierarchy(course_id) -> str:
     """
-    Get the school that this tool is being launched in.
+    Get the list of accounts associated with a given course ID
     """
-    try:
-        tool_launch_school = "unknown"  # Initialize tool_launch_school
-        if custom_canvas_account_sis_id.startswith('coursegroup:'):
-            tool_launch_school = "colgsas"
-        elif custom_canvas_account_sis_id.startswith('dept:'):
-            dept_id = custom_canvas_account_sis_id.split(':')[1]
-            ci = CourseInstance.objects.get(course_instance_id=ci_course_instance_id)
-            course_id = ci.course_id
-            course = Course.objects.get(course_id=course_id, department_id=dept_id)
-            tool_launch_school = course.school_id
-        else:
-            tool_launch_school = custom_canvas_account_sis_id.split(':')[1]
-    except Exception:
-        logger.exception('Error getting launch school')
+    account_ids = []
 
-    return tool_launch_school
+    # use course id to get account id
+    canvas_course = canvas_get_course(SDK_CONTEXT, course_id).json()
+    canvas_course_account_id = canvas_course["account_id"] 
+    account_ids.append(canvas_course_account_id)
+
+    # traverse account hierarchy in both directions
+    # first downwards to find sub-accounts
+    sub_accounts = get_sub_accounts_of_account(SDK_CONTEXT, canvas_course_account_id).json()
+    for sub_account in sub_accounts:
+        account_ids.append(sub_account["id"])
+
+    # then upwards to find parent accounts
+    while True: 
+        account_object = get_single_account(SDK_CONTEXT, canvas_course_account_id).json()
+        parent_account_id = account_object.get("parent_account_id")
+
+        if parent_account_id is None:
+            break
+        account_ids.append(parent_account_id)
+        canvas_course_account_id = parent_account_id
+    
+    return account_ids
