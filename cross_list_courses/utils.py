@@ -224,17 +224,17 @@ def _remove_xlist_name_modifier(canvas_course, request):
             _update_canvas_course_name(canvas_course['id'], canvas_course_name, request)
 
 
-def _update_canvas_course_name(course_id, course_name, request):
+def _update_canvas_course_name(id, name, request):
     try:
-        response = canvas_update_course(SDK_CONTEXT, course_id,
-                                        course_name=course_name)
+        response = canvas_update_course(SDK_CONTEXT, id,
+                                        name=name)
 
         logger.info('Updated course name for canvas course {} to be '
-                    '{}'.format(course_id, course_name))
+                    '{}'.format(id, name))
         return response
     except:
         msg = 'Name for Canvas course {} could not be ' \
-              'updated.'.format(course_id)
+              'updated.'.format(id)
         logger.exception('Error during cross-listing: ' + msg)
         messages.error(request, msg)
 

@@ -120,7 +120,7 @@ def delete(request, pk):
                 )
 
             logger.info(f'Step 3/5: changing course {canvas_course_id} SIS ID to {canvas_course["sis_course_id"]}-deleted-{ts} and then deleting the course')
-            courses.update_course(SDK_CONTEXT, id=canvas_course_id, course_sis_course_id=f'{canvas_course["sis_course_id"]}-deleted-{ts}')
+            courses.update_course(SDK_CONTEXT, id=canvas_course_id, sis_course_id=f'{canvas_course["sis_course_id"]}-deleted-{ts}')
             logger.info(f'Step 4/5: deleting Canvas course {canvas_course_id}')
             courses.conclude_course(SDK_CONTEXT, id=canvas_course_id, event='delete')
         except CanvasAPIError as e:
