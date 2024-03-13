@@ -4,6 +4,9 @@ import time
 from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
+from canvas_sdk.methods.courses import \
+    get_single_course_courses as canvas_get_course
+from canvas_sdk.methods.accounts import (get_sub_accounts_of_account,get_single_account)
 from canvas_sdk.utils import get_all_list_data
 from coursemanager.models import CourseInstance, CourseSite, SiteMap, Course
 from django.conf import settings
@@ -89,20 +92,19 @@ def lookup(request):
 @require_http_methods(['GET', 'POST'])
 def delete(request, pk):
     canvas_course_id = None
-    custom_canvas_account_sis_id = request.LTI['custom_canvas_account_sis_id']
     try:
         ci = CourseInstance.active_and_deleted.get(course_instance_id=pk)
 
         canvas_course_id = ci.canvas_course_id
-        canvas_site_school_id = ci.term.school.school_id
-        canvas_course_instance_id = ci.course_instance_id
         ts = int(time.time())
 
-        # if school_id of the Canvas course does not match the sub-account id, deletion will not be possible
-        tool_launch_school = get_tool_launch_school(custom_canvas_account_sis_id, canvas_course_instance_id)
+        current_tool_launch_account_id = int(request.LTI["custom_canvas_account_id"])
 
-        if canvas_site_school_id != tool_launch_school:
-            messages.error(request, f'You must be under the correct sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
+        account_ids = get_account_hierarchy(ci.canvas_course_id)
+
+        if current_tool_launch_account_id not in account_ids:
+            logger.error(f'User {request.user} is trying to delete the Canvas site associated with course_instance {pk} but is not in the correct account or sub-account where they have launched the site deletion tool.')
+            messages.error(request, f'You must be under the correct account or sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
             return render(request, 'canvas_site_deletion/index.html')
 
         if not canvas_course_id:
