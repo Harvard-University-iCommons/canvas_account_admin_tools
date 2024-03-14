@@ -176,7 +176,7 @@ def delete(request, pk):
     return render(request, 'canvas_site_deletion/index.html')
 
 
-def get_account_hierarchy(course_id) -> str:
+def get_account_hierarchy(course_id) -> list:
     """
     Get the list of accounts associated with a given course ID
     """
