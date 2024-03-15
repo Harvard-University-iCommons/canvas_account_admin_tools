@@ -187,13 +187,7 @@ def get_account_hierarchy(course_id) -> list:
     canvas_course_account_id = canvas_course["account_id"] 
     account_ids.append(canvas_course_account_id)
 
-    # traverse account hierarchy in both directions
-    # first downwards to find sub-accounts
-    sub_accounts = get_sub_accounts_of_account(SDK_CONTEXT, canvas_course_account_id).json()
-    for sub_account in sub_accounts:
-        account_ids.append(sub_account["id"])
-
-    # then upwards to find parent accounts
+    # then work up the tree, grabbing account IDs of parent accounts
     while True: 
         account_object = get_single_account(SDK_CONTEXT, canvas_course_account_id).json()
         parent_account_id = account_object.get("parent_account_id")
@@ -201,6 +195,7 @@ def get_account_hierarchy(course_id) -> list:
         if parent_account_id is None:
             break
         account_ids.append(parent_account_id)
+
         canvas_course_account_id = parent_account_id
-    
+
     return account_ids
