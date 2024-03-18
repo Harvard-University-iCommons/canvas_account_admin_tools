@@ -103,7 +103,8 @@ def delete(request, pk):
         account_ids = get_account_hierarchy(ci.canvas_course_id)
 
         if current_tool_launch_account_id not in account_ids:
-            logger.error(f'User {request.user} is trying to delete the Canvas site associated with course_instance {pk} but is not in the correct account or sub-account where they have launched the site deletion tool.')
+            logger.error(f'User {request.user} is trying to delete the Canvas site associated with course_instance {pk} but is not in the correct account or sub-account where they have launched the site deletion tool.', 
+                         extra={"course_instance_id": pk, "account_ids": account_ids, "user_id": request.user})
             messages.error(request, f'You must be under the correct account or sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
             return render(request, 'canvas_site_deletion/index.html')
 
