@@ -193,7 +193,6 @@ def dashboard_account(request):
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
         'bulk_site_creator_is_allowed': bulk_site_creator_is_allowed,
-        'course_info_v2_allowed': course_info_v2_allowed,
         'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
         'build_info': build_info
     })
