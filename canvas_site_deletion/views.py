@@ -4,8 +4,11 @@ import time
 from canvas_sdk import RequestContext
 from canvas_sdk.exceptions import CanvasAPIError
 from canvas_sdk.methods import courses, sections
+from canvas_sdk.methods.courses import \
+    get_single_course_courses as canvas_get_course
+from canvas_sdk.methods.accounts import (get_sub_accounts_of_account,get_single_account)
 from canvas_sdk.utils import get_all_list_data
-from coursemanager.models import CourseInstance, CourseSite, SiteMap
+from coursemanager.models import CourseInstance, CourseSite, SiteMap, Course
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -91,8 +94,19 @@ def delete(request, pk):
     canvas_course_id = None
     try:
         ci = CourseInstance.active_and_deleted.get(course_instance_id=pk)
+
         canvas_course_id = ci.canvas_course_id
         ts = int(time.time())
+
+        current_tool_launch_account_id = int(request.LTI["custom_canvas_account_id"])
+
+        account_ids = get_account_hierarchy(ci.canvas_course_id)
+
+        if current_tool_launch_account_id not in account_ids:
+            logger.error(f'User {request.user} is trying to delete the Canvas site associated with course_instance {pk} but is not in the correct account or sub-account where they have launched the site deletion tool.', 
+                         extra={"course_instance_id": pk, "account_ids": account_ids, "user_id": request.user})
+            messages.error(request, f'You must be under the correct account or sub-account in order to delete Canvas course {canvas_course_id} and course_instance {pk}.')
+            return render(request, 'canvas_site_deletion/index.html')
 
         if not canvas_course_id:
             # the course_instance specified doesn't appear to have a Canvas course
@@ -161,3 +175,28 @@ def delete(request, pk):
     messages.success(request, f"Successfully deleted Canvas course {canvas_course_id} and cleaned up course_instance {pk}")
 
     return render(request, 'canvas_site_deletion/index.html')
+
+
+def get_account_hierarchy(course_id) -> list:
+    """
+    Get the list of accounts associated with a given course ID
+    """
+    account_ids = []
+
+    # use course id to get account id
+    canvas_course = canvas_get_course(SDK_CONTEXT, course_id).json()
+    canvas_course_account_id = canvas_course["account_id"] 
+    account_ids.append(canvas_course_account_id)
+
+    # then work up the tree, grabbing account IDs of parent accounts
+    while True: 
+        account_object = get_single_account(SDK_CONTEXT, canvas_course_account_id).json()
+        parent_account_id = account_object.get("parent_account_id")
+
+        if parent_account_id is None:
+            break
+        account_ids.append(parent_account_id)
+
+        canvas_course_account_id = parent_account_id
+
+    return account_ids
