@@ -7,3 +7,16 @@
     <small><i class="fa fa-chevron-right"></i></small>
     <a href="{% url 'course_info_v2:details' %}">placehoder for course</a>
 {% endblock breadcrumb %}
+
+{% block content %}
+<main>
+    <div class="tabs">
+        <ul>
+          <li><a href="#course-details">Course Details</a></li>
+          <li><a href="#sections">Sections</a></li>
+          <li><a href="#cross-listed">Cross-Listed</a></li>
+        </ul>
+    </div>
+    
+</main>
+{% endblock %}
