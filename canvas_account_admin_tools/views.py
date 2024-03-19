@@ -173,7 +173,7 @@ def dashboard_account(request):
                                             canvas_account_sis_id=custom_canvas_account_sis_id)
 
     """
-    Verify that the current user has permission to see Course Info V2
+    Verify that the current user has permission to see Course Info v2
     """
     course_info_v2_allowed = is_allowed(
         custom_canvas_membership_roles,
@@ -183,6 +183,7 @@ def dashboard_account(request):
 
     return render(request, 'canvas_account_admin_tools/dashboard_account.html', {
         'search_courses_allowed': search_courses_allowed,
+        'course_info_v2_allowed': course_info_v2_allowed,
         'cross_listing_allowed': cross_listing_is_allowed,
         'people_tool_allowed': people_tool_is_allowed,
         'site_creator_is_allowed': site_creator_is_allowed,
@@ -192,7 +193,6 @@ def dashboard_account(request):
         'masquerade_tool_is_allowed': masquerade_tool_is_allowed,
         'self_enrollment_tool_is_allowed': self_enrollment_tool_is_allowed,
         'bulk_site_creator_is_allowed': bulk_site_creator_is_allowed,
-        'course_info_v2_allowed': course_info_v2_allowed,
         'bulk_enrollment_tool_is_allowed': bulk_enrollment_tool_is_allowed,
         'build_info': build_info
     })
