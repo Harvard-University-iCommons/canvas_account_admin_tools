@@ -211,28 +211,13 @@
             });
 
             // Select All functionality
-            let courseTable = $('#course-table').DataTable();
-            let totalRows = table.rows().count();
-            let totalRowsChecked = 0;
-
             $('.selectAll').on('change', function() {
-                let checked = $(this).prop('checked');
-                courseTable.rows().select(checked);
-
-                // Get the number of selected rows throughout whole table
-                totalRowsChecked = courseTable.rows({ selected: true }).count();
-
-                // Check off every row found in the table
-                table.cells(null, 0).every(function(e) {
-                    let cell = this.node();
-                    $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
-                });
-
-                // Check if totalRowsChecked is less than totalRows and update "selectAll" checkbox accordingly
-                if (totalRowsChecked < totalRows) {
-                    $(this).prop('checked', false);
-                };
-                updateButtonText()
+                if(this.checked) {
+                    selectRows(table);
+                } else {
+                    deselectRows(table);
+                }
+                updateButtonText();
             });
 
             // Handle individual row checkbox changes
@@ -322,5 +307,29 @@
             }
             return ciIDList;
         };
+
+        function selectRows(table) {
+            // If no filter, select all rows
+            if(table.search() === '') {
+                table.rows().select();
+                table.rows().nodes().each(function(row) {
+                    $(row).find('input[type="checkbox"]').prop('checked', true);
+                });
+            } else {
+                // Select only the filtered rows
+                table.rows({ search: 'applied' }).select();
+                table.rows({ search: 'applied' }).nodes().each(function(row) {
+                    $(row).find('input[type="checkbox"]').prop('checked', true);
+                });
+            }
+        };
+
+        function deselectRows(table) {
+            table.rows().deselect();
+            table.rows().nodes().each(function(row) {
+                $(row).find('input[type="checkbox"]').prop('checked', false);
+            });
+        };
+
 	</script>
 {% endblock javascript %}
