@@ -220,12 +220,10 @@
                 updateButtonText();
             });
 
-            // Handle individual row checkbox changes
-            courseTable.on('select deselect', function(e, dt, type, indexes) {
-                let selectedCount = courseTable.rows({ selected: true }).count();
-
-                // Update the "selectAll" checkbox based on selectedCount
-                $('.selectAll').prop('checked', selectedCount === totalRows);
+            // Clear any selections if the user changes the filter
+            table.on('search', function() {
+                deselectRows(table);
+                $('.selectAll').prop('checked', false);
             });
 
             // For updating modal body text.
