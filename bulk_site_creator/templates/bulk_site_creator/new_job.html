@@ -226,6 +226,17 @@
                 $('.selectAll').prop('checked', false);
             });
 
+            // Handle Select All checkbox state when individual rows are selected/deselected
+            table.on('select deselect', function () {
+                // Get the number of rows currently displayed (considers any applied filtering)
+                const info = table.page.info();
+                const rowsDisplayed = info.recordsDisplay;
+
+                const allSelected = table.rows({ selected: true }).count() === rowsDisplayed;
+
+                $('.selectAll').prop('checked', allSelected);
+            });
+
             // For updating modal body text.
             $("#bsc-create-btn").on( "click", function() {
                 const totalTableRowItems = table.rows().count();
