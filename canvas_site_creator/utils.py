@@ -64,12 +64,12 @@ def create_canvas_course_and_section(data):
     title = course.registrar_code_display
 
     request_parameters = dict(
-		request_ctx=SDK_CONTEXT,
-		account_id=account_id,
-		course_course_code=course_code,
-		course_name=title,
-		course_sis_course_id=course_instance_id,
-		course_term_id=term_id
+        request_ctx=SDK_CONTEXT,
+        account_id=account_id,
+        course_course_code=course_code,
+        course_name=title,
+        course_sis_course_id=course_instance_id,
+        course_term_id=term_id
     )
 
     try:
