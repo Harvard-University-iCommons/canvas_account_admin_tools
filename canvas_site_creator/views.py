@@ -142,9 +142,14 @@ def create_new_course(request):
                                  messages.SUCCESS,
                                  f'Course <a href="{ settings.CANVAS_URL }/courses/{ course_instance.canvas_course_id }" target="_blank">{ course_instance.canvas_course_id }</a> successfully created.')
         else:
+            # Roll back the database changes so user can try again later.
+            course_instance.delete()
+            course.delete()            
+
             messages.add_message(request,
                                  messages.ERROR,
                                  'The course could not successfully be created. '
+                                 'This could be due to either the term or account missing in Canvas. '
                                  'Please try again or contact support if the issue persists.')
 
         return redirect('canvas_site_creator:create_new_course')

@@ -38,7 +38,8 @@ class Job(models.Model):
 
     school_id = models.CharField(max_length=10)
     term_id = models.IntegerField(null=True, blank=True)
-    meta_term_id = models.CharField(max_length=10, null=True, blank=True)
+    meta_term_id = models.CharField(max_length=50, null=True, blank=True)
+    term_name = models.CharField(max_length=1000, null=True, blank=True)
     setting_to_be_modified = models.CharField(max_length=50, choices=SETTINGS_TO_MODIFY_CHOICES, default='is_public')
     desired_setting = models.CharField(max_length=50, choices=DESIRED_SETTING_CHOICES, default='True')
     workflow_status = models.CharField(max_length=20, choices=WORKFLOW_STATUS, default=constants.NEW)
@@ -46,10 +47,6 @@ class Job(models.Model):
     created_by = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
-    details_total_count = models.IntegerField(default=0)
-    details_success_count = models.IntegerField(default=0)
-    details_failed_count = models.IntegerField(default=0)
-    details_skipped_count = models.IntegerField(default=0)
 
     def get_term_name(self):
         term = Term.objects.get(term_id=int(self.term_id))

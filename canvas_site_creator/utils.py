@@ -82,7 +82,7 @@ def create_canvas_course_and_section(data):
             update_parameters = dict(
                 request_ctx=SDK_CONTEXT,
                 id=course_result['id'],
-                course_blueprint=True
+                blueprint=True
             )
             try:
                 update_course(**update_parameters).json()

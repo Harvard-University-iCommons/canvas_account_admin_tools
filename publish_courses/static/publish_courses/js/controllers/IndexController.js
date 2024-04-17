@@ -141,10 +141,15 @@
 
             // If any courses have been selected, then set the selectedCourses var to the list of selected course id's
             // so that only those courses are published.
-            // If none have been selected, then null will be sent and all unpublished courses in the given
-            // account and term will be published.
+            // If none have been selected, then set the selectedCourses var to a list of all unpublished courses in the 
+            // given account and term so all the unpublished courses will be published.
             if ($scope.getSelectedCourseIdsCount() > 0) {
                 selectedCourses = $scope.getSelectedCourses();
+            } else {
+                // If no courses are selected, then get all course IDs from the table.
+                selectedCourses = $scope.dataTable.rows().data().toArray().map(function(course) {
+                    return course.id;
+                });
             }
 
             pcapi.Jobs.create(accountId, termId, selectedCourses
