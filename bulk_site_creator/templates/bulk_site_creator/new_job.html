@@ -210,32 +210,44 @@
                 setTimeout(updateButtonText, 125); // 1/8 second wait
             });
 
-            // Select All functionality
-            $('.selectAll').on('change', function() {
+            $('.selectAll').on('change', function(event) {
+                element = this;
+            });
+
+            $('.selectAll').on('click', function(event) {
+//                event.preventDefault();
+//                var isIndeterminate = this.checked
                 if(this.checked) {
                     selectRows(table);
+                    updateSelectAllCheckbox(table);
                 } else {
                     deselectRows(table);
+                    $(this).prop('checked', false);
+                    $(this).prop('indeterminate', false);
                 }
                 updateButtonText();
             });
 
-            // Clear any selections if the user changes the filter
-            table.on('search', function() {
-                deselectRows(table);
-                $('.selectAll').prop('checked', false);
+            table.on('select deselect', function (e, dt, type, indexes) {
+                updateSelectAllCheckbox(table);
             });
 
-            // Handle Select All checkbox state when individual rows are selected/deselected
-            table.on('select deselect', function () {
-                // Get the number of rows currently displayed (considers any applied filtering)
-                const info = table.page.info();
-                const rowsDisplayed = info.recordsDisplay;
+            function updateSelectAllCheckbox(table) {
+                var selectedRows = table.rows({ selected: true }).count();
+                var totalRows = table.rows().count();
+                var filteredRows = table.rows({ search: 'applied' }).count();
 
-                const allSelected = table.rows({ selected: true }).count() === rowsDisplayed;
-
-                $('.selectAll').prop('checked', allSelected);
-            });
+                if (selectedRows === totalRows) {
+                    $('.selectAll').prop('indeterminate', false);
+                    $('.selectAll').prop('checked', true);
+                } else if (selectedRows > 0) {
+                    $('.selectAll').prop('indeterminate', true);
+                    $('.selectAll').prop('checked', false);
+                } else {
+                    $('.selectAll').prop('indeterminate', false);
+                    $('.selectAll').prop('checked', false);
+                }
+            }
 
             // For updating modal body text.
             $("#bsc-create-btn").on( "click", function() {
