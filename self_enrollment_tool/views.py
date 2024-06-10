@@ -186,8 +186,32 @@ def enable(request, course_instance_id):
     roles = literal_eval(request.POST.get('roles'))
     role_id = roles.get('roleId', '')
     role_name = roles.get('roleName', '')
-    logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
+    start_date_str = request.POST.get('start_date', None)
+    end_date_str = request.POST.get('end_date', None)
 
+    start_date = parse_date(start_date_str) if start_date_str else None
+    end_date = parse_date(end_date_str) if end_date_str else None
+
+    if start_date:
+        start_date = timezone.make_aware(datetime.datetime.combine(start_date, datetime.time.min))
+    if end_date:
+        end_date = timezone.make_aware(datetime.datetime.combine(end_date, datetime.time.min))
+
+    # Start and end date validation logic
+    today_start = timezone.make_aware(datetime.datetime.combine(timezone.now().date(), datetime.time.min))
+
+    if start_date and start_date < today_start:
+        messages.error(request, "Start date cannot be in the past.")
+        return redirect('self_enrollment_tool:add_new')
+
+    if end_date and end_date < timezone.now():
+        messages.error(request, "End date must be in the future.")
+        return redirect('self_enrollment_tool:add_new')
+
+    if start_date and end_date and end_date < start_date:
+        messages.error(request, "End date cannot be before the start date.")
+        return redirect('self_enrollment_tool:add_new')
+    
     try:
         if str(role_id) and course_instance_id:
             try:
