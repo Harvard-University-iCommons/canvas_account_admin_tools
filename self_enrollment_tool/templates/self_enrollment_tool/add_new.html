@@ -55,6 +55,7 @@
             <div class="row">
             <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:enable' course_instance_id=course_instance.course_instance_id %}">{% csrf_token %}
                 <h4>Please choose the role the enrollees should have in the course:</h4>
+                <p class="helper-text">The start and end dates are optional. You can leave them blank if not needed.</p>
             
                 <div class="form-group col-sm-3">
                     <label for="course_enroll">Role</label>
@@ -64,12 +65,12 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group col-sm-3">
-                    <label for="start_date">Start Date</label>
-                    <input type="date" name="start_date" class="form-control" id="start_date" />
+                <div class="form-group col-sm-3" style="padding-top: 10px;">
+                    <label for="start_date">Start Date (Optional)</label>
+                    <input type="date" name="start_date" class="form-control" id="start_date" placeholder="Optional" />
                 </div>
-                <div class="form-group col-sm-3">
-                    <label for="end_date">End Date</label>
+                <div class="form-group col-sm-3" style="padding-top: 10px;">
+                    <label for="end_date">End Date (Optional)</label>
                     <input type="date" name="end_date" class="form-control" id="end_date" />
                 </div>
                 <div class="col-sm-3" style="padding-top: 15px;">
