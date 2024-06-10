@@ -1,4 +1,5 @@
 import logging
+import datetime
 from ast import literal_eval
 from uuid import uuid4
 
@@ -13,6 +14,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
+from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
@@ -225,7 +228,9 @@ def enable(request, course_instance_id):
                 SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
                                               role_id=role_id,
                                               updated_by=str(request.user),
-                                              uuid=uuid)
+                                              uuid=uuid,
+                                              start_date=start_date,
+                                              end_date=end_date)
                 logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
                 messages.success(request, f"Generated self-registration link. See details below.")
 
