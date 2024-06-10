@@ -45,6 +45,8 @@
                     <th>Course</th>
                     <th>Role&nbsp;ID</th>
                     <th>Self&nbsp;Enroll&nbsp;URL</th>
+                    <th>Start&nbsp;Date</th>
+                    <th>End&nbsp;Date</th>
                     <th>Modified&nbsp;By</th>
                     <th>Delete</th>
                 </thead>
@@ -102,6 +104,10 @@
                                 </div>
                             </div>
                         </td>
+                        {% comment %} Start Date {% endcomment %}
+                        <td>{{ crs.start_date|date:"m-d-Y" }}</td>
+                        {% comment %} End Date {% endcomment %}
+                        <td>{{ crs.end_date|date:"m-d-Y" }}</td>
                         {% comment %} Updated by column {% endcomment %}
                         <td>{{ crs.last_modified_by_full_name }}</td>
                         {% comment %} Delete column {% endcomment %}
@@ -120,6 +126,7 @@
 {% endblock content %}
 
 {% block javascript%}
+    {{ block.super }}
     <script>
         $(document).ready(function() {
             $('.datatable').dataTable( {
