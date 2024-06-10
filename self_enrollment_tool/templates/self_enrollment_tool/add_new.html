@@ -54,7 +54,7 @@
             <br>
             <div class="row">
             <form class="form-inline" method="POST" action="{% url 'self_enrollment_tool:enable' course_instance_id=course_instance.course_instance_id %}">{% csrf_token %}
-                <h4>Please Choose the role the enrollees should have in the  course:</h4>
+                <h4>Please choose the role the enrollees should have in the course:</h4>
 
                 <div class="form-group col-sm-3" >
                     <label for="course_enroll"> Role</label>
