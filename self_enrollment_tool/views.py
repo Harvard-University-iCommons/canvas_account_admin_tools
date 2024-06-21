@@ -1,5 +1,6 @@
 import logging
 import datetime
+import pytz
 from ast import literal_eval
 from uuid import uuid4
 
@@ -195,19 +196,21 @@ def enable(request, course_instance_id):
     start_date = parse_date(start_date_str) if start_date_str else None
     end_date = parse_date(end_date_str) if end_date_str else None
 
+    eastern = pytz.timezone('US/Eastern')
+
     if start_date:
-        start_date = timezone.make_aware(datetime.datetime.combine(start_date, datetime.time.min))
+        start_date = eastern.localize(datetime.datetime.combine(start_date, datetime.time.min))
     if end_date:
-        end_date = timezone.make_aware(datetime.datetime.combine(end_date, datetime.time.min))
+        end_date = eastern.localize(datetime.datetime.combine(end_date, datetime.time.min))
 
-    # Start and end date validation logic
-    today_start = timezone.make_aware(datetime.datetime.combine(timezone.now().date(), datetime.time.min))
+    now_est = timezone.now().astimezone(eastern)
+    today_start_est = eastern.localize(datetime.datetime.combine(now_est.date(), datetime.time.min))
 
-    if start_date and start_date < today_start:
+    if start_date and start_date < today_start_est:
         messages.error(request, "Start date cannot be in the past.")
         return redirect('self_enrollment_tool:add_new')
 
-    if end_date and end_date < timezone.now():
+    if end_date and end_date < now_est:
         messages.error(request, "End date must be in the future.")
         return redirect('self_enrollment_tool:add_new')
 
