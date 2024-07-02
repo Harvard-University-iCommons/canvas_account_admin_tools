@@ -84,9 +84,9 @@ def delete_courses(course_instance_ids):
 						course_site_queryset = CourseSite.objects.filter(course_site_id=site_map.course_site_id)
 						course_site_queryset.delete()
 						logger.info(f'Deleting site map with the following details, site map ID:{site_map.site_map_id}, '
-									'course instance ID:{site_map.course_instance.course_instance_id}, '
-									'course site id:{site_map.course_site.course_site_id}, '
-									'map type: {site_map.map_type}')
+						            f'course instance ID:{site_map.course_instance.course_instance_id}, '
+						            f'course site id:{site_map.course_site.course_site_id}, '
+						            f'map type: {site_map.map_type}')
 						site_map.delete()
 
 			except Exception as e:
