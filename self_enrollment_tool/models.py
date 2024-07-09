@@ -14,5 +14,4 @@ class SelfEnrollmentCourse(models.Model):
     end_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('course_instance_id', 'role_id', 'start_date', 'end_date')
         db_table = 'self_enrollment_course'
