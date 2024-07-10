@@ -220,29 +220,30 @@ def enable(request, course_instance_id):
     
     try:
         if str(role_id) and course_instance_id:
-            try:
-                course_instance = SelfEnrollmentCourse.objects.get(
+            if start_date is None and end_date is None:
+                course_instance = SelfEnrollmentCourse.objects.filter(
                     course_instance_id=course_instance_id, 
                     role_id=role_id, 
                     start_date__isnull=True,
                     end_date__isnull=True
                 )
-                logger.info(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
-                messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
-                              f'See below for the previously-generated link.')
-                path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
-            except SelfEnrollmentCourse.DoesNotExist:
-                uuid = str(uuid4())
-                SelfEnrollmentCourse.objects.create(
-                    course_instance_id=course_instance_id,
-                    role_id=role_id,
-                    updated_by=str(request.user),
-                    uuid=uuid,
-                    start_date=start_date,
-                    end_date=end_date
-                )
-                logger.info(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Generated self-registration link. See details below.")
+                if course_instance.exists():
+                    logger.info(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
+                    messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
+                                f'See below for the previously-generated link.')
+                    return redirect('self_enrollment_tool:index')
+                
+            uuid = str(uuid4())
+            SelfEnrollmentCourse.objects.create(
+                course_instance_id=course_instance_id,
+                role_id=role_id,
+                updated_by=str(request.user),
+                uuid=uuid,
+                start_date=start_date,
+                end_date=end_date
+            )
+            logger.info(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
+            messages.success(request, f"Generated self-registration link. See details below.")
 
             # install the self-unenroll tool
             self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
