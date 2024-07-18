@@ -198,49 +198,39 @@
                 }
             });
 
-            // For updating Create All/Create Selected button text when row or checkbox is clicked
-            function updateButtonText() {
-                const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
-                $("#bsc-create-btn").html(`${create_btn_text}`);
-            };
-
             $("#course-table-body").on( "click", function() {
                 // Update button after n seconds to get accurate if row selected value
                 // after DataTable has time to process checkbox click
                 setTimeout(updateButtonText, 125); // 1/8 second wait
             });
 
-            // Select All functionality
-            let courseTable = $('#course-table').DataTable();
-            let totalRows = table.rows().count();
-            let totalRowsChecked = 0;
-
-            $('.selectAll').on('change', function() {
-                let checked = $(this).prop('checked');
-                courseTable.rows().select(checked);
-
-                // Get the number of selected rows throughout whole table
-                totalRowsChecked = courseTable.rows({ selected: true }).count();
-
-                // Check off every row found in the table
-                table.cells(null, 0).every(function(e) {
-                    let cell = this.node();
-                    $(cell).find('input[type="checkbox"][name="chkbx"]').prop('checked', checked);
-                });
-
-                // Check if totalRowsChecked is less than totalRows and update "selectAll" checkbox accordingly
-                if (totalRowsChecked < totalRows) {
-                    $(this).prop('checked', false);
-                };
-                updateButtonText()
+            $('.selectAll').on('click', function(event) {
+                if(this.checked) {
+                    // Previous checkbox state could either be indeterminate
+                    // or unchecked, so determine previous state via selected
+                    // row count
+                    const selectedRowCount = getSelectedRowCount(table);
+                    if (selectedRowCount > 0) {
+                        // At least one row previously selected, so going from
+                        // indeterminate state to unchecked state
+                        deselectRows(table);
+                        updateSelectAllCheckbox(table)
+                    }
+                    else {
+                        // Zero rows previously selected, so going from unchecked state
+                        // to checked state
+                        selectRows(table);
+                        updateSelectAllCheckbox(table)
+                    }
+                } else {
+                    deselectRows(table);
+                    updateSelectAllCheckbox(table)
+                }
+                updateButtonText();
             });
 
-            // Handle individual row checkbox changes
-            courseTable.on('select deselect', function(e, dt, type, indexes) {
-                let selectedCount = courseTable.rows({ selected: true }).count();
-
-                // Update the "selectAll" checkbox based on selectedCount
-                $('.selectAll').prop('checked', selectedCount === totalRows);
+            table.on('select deselect', function (e, dt, type, indexes) {
+                updateSelectAllCheckbox(table);
             });
 
             // For updating modal body text.
@@ -321,6 +311,67 @@
                 ciIDList.push(rowList[i][1])
             }
             return ciIDList;
+        };
+
+        function selectRows(table) {
+            // If no filter, select all rows
+            if(table.search() === '') {
+                table.rows().select();
+                table.rows().nodes().each(function(row) {
+                    $(row).find('input[type="checkbox"]').prop('checked', true);
+                });
+            } else {
+                // Select only the filtered rows
+                table.rows({ search: 'applied' }).select();
+                table.rows({ search: 'applied' }).nodes().each(function(row) {
+                    $(row).find('input[type="checkbox"]').prop('checked', true);
+                });
+            }
+        };
+
+        function deselectRows(table) {
+            table.rows().deselect();
+            table.rows().nodes().each(function(row) {
+                $(row).find('input[type="checkbox"]').prop('checked', false);
+            });
+        };
+
+        // For updating Create All/Create Selected button text when row or checkbox is clicked
+        function updateButtonText() {
+            const create_btn_text = (table.rows({ selected: true }).any()) ? "Create Selected" : "Create All";
+            $("#bsc-create-btn").html(`${create_btn_text}`);
+        };
+
+        function getSelectedRowCount(table) {
+            return table.rows({ selected: true }).count();
+        };
+
+        function setIndeterminate(table) {
+            $('.selectAll').prop('indeterminate', true);
+            $('.selectAll').prop('checked', false);
+        };
+
+        function setChecked(table) {
+            $('.selectAll').prop('indeterminate', false);
+            $('.selectAll').prop('checked', true);
+        };
+
+        function setUnchecked(table) {
+            $('.selectAll').prop('indeterminate', false);
+            $('.selectAll').prop('checked', false);
+        };
+
+        function updateSelectAllCheckbox(table) {
+            var selectedRows = table.rows({ selected: true }).count();
+            var totalRows = table.rows().count();
+
+            if (selectedRows === totalRows) {
+                setChecked(table);
+            } else if (selectedRows > 0) {
+                setIndeterminate(table);
+            } else {
+                setUnchecked(table);
+            }
         };
 	</script>
 {% endblock javascript %}

@@ -1,4 +1,6 @@
 import logging
+import datetime
+import pytz
 from ast import literal_eval
 from uuid import uuid4
 
@@ -13,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
+from django.utils.dateparse import parse_date
+from django.utils import timezone
 from django_auth_lti import const
 from django_auth_lti.decorators import lti_role_required
 from lti_school_permissions.decorators import lti_permission_required
@@ -186,24 +190,60 @@ def enable(request, course_instance_id):
     roles = literal_eval(request.POST.get('roles'))
     role_id = roles.get('roleId', '')
     role_name = roles.get('roleName', '')
-    logger.debug(f'Selected role_name {role_name} with role_id {role_id} for Self Enrollment in course {course_instance_id}')
+    start_date_str = request.POST.get('start_date', None)
+    end_date_str = request.POST.get('end_date', None)
 
+    start_date = parse_date(start_date_str) if start_date_str else None
+    end_date = parse_date(end_date_str) if end_date_str else None
+
+    eastern = pytz.timezone('US/Eastern')
+
+    if start_date:
+        start_date = eastern.localize(datetime.datetime.combine(start_date, datetime.time.min))
+    if end_date:
+        end_date = eastern.localize(datetime.datetime.combine(end_date, datetime.time.min))
+
+    now_est = timezone.now().astimezone(eastern)
+    today_start_est = eastern.localize(datetime.datetime.combine(now_est.date(), datetime.time.min))
+
+    if start_date and start_date < today_start_est:
+        messages.error(request, "Start date cannot be in the past.")
+        return redirect('self_enrollment_tool:add_new')
+
+    if end_date and end_date < now_est:
+        messages.error(request, "End date must be in the future.")
+        return redirect('self_enrollment_tool:add_new')
+
+    if start_date and end_date and end_date < start_date:
+        messages.error(request, "End date cannot be before the start date.")
+        return redirect('self_enrollment_tool:add_new')
+    
     try:
         if str(role_id) and course_instance_id:
-            try:
-                course_instance = SelfEnrollmentCourse.objects.get(course_instance_id=course_instance_id, role_id=role_id)
-                logger.error(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
-                messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
-                              f'See below for the previously-generated link.')
-                path = reverse('self_enrollment_tool:enroll', args=[course_instance.uuid])
-            except SelfEnrollmentCourse.DoesNotExist:
-                uuid = str(uuid4())
-                SelfEnrollmentCourse.objects.create(course_instance_id=course_instance_id,
-                                              role_id=role_id,
-                                              updated_by=str(request.user),
-                                              uuid=uuid)
-                logger.debug(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
-                messages.success(request, f"Generated self-registration link. See details below.")
+            if start_date is None and end_date is None:
+                course_instance = SelfEnrollmentCourse.objects.filter(
+                    course_instance_id=course_instance_id, 
+                    role_id=role_id, 
+                    start_date__isnull=True,
+                    end_date__isnull=True
+                )
+                if course_instance.exists():
+                    logger.info(f'Self Enrollment is already enabled for this course  {course_instance_id} ')
+                    messages.error(request, f'Self Enrollment is already enabled for this course (SIS ID {course_instance_id}) and role ({role_name}). '
+                                f'See below for the previously-generated link.')
+                    return redirect('self_enrollment_tool:index')
+                
+            uuid = str(uuid4())
+            SelfEnrollmentCourse.objects.create(
+                course_instance_id=course_instance_id,
+                role_id=role_id,
+                updated_by=str(request.user),
+                uuid=uuid,
+                start_date=start_date,
+                end_date=end_date
+            )
+            logger.info(f'Successfully saved Role_id {role_id} for Self Enrollment in course {course_instance_id}. UUID={uuid}')
+            messages.success(request, f"Generated self-registration link. See details below.")
 
             # install the self-unenroll tool
             self_unenroll_client_id = settings.SELF_UNENROLL_CLIENT_ID
@@ -217,12 +257,11 @@ def enable(request, course_instance_id):
                 messages.warning(request, f'There was a problem installing the self-unenrollment tool into the Canvas course: {e}')
 
         else:
-            message = f'one of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
+            message = f'One of role_id or course_instance_id not supplied in self-reg request. ci_id={course_instance_id}, role_id={role_id}'
             logger.exception(message)
             messages.error(request, message=message)
     except Exception as e:
-        message = 'Error creating self enrollment record  for course {} with role {} error details={}' \
-            .format(course_instance_id, role_id, e)
+        message = f'Error creating self enrollment record for course {course_instance_id} with role {role_id}. Error details={e}'
         logger.exception(message)
         messages.error(request, message=message)
 
