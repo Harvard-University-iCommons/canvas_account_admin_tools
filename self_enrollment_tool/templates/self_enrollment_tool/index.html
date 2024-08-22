@@ -132,52 +132,58 @@
     {{ block.super }}
     <script>
         $(document).ready(function() {
-            $('.datatable').dataTable( {
+            $('.datatable').DataTable({
                 paging: false,
-                "info" : false,
+                "info": false,
                 "order": [],
                 "columnDefs": [
                     { "orderable": false, "targets": [2, 6] }
                 ],
                 "language": {
-                  "search": "Filter the list"
+                    "search": "Filter the list"
                 }
             });
-        });
-
-        function delItem(item) {
-            document.getElementById("modalDeleteButton").href=item;
-        };
-
-        const showCopyError = function(el) {
-            el.attr("data-original-title", "Error");
-            el.tooltip("show");
-            el.attr("data-original-title", "Copied!");
-            setTimeout(() => {
-                el.tooltip("hide");
-            }, 1000);
-        }
-
-        const showCopySuccess = function(el) {
-            el.tooltip("show");
-            setTimeout(() => {
-                el.tooltip("hide");
-            }, 1000);
-        }
-
-        const copy = async function() {
-            const $this = $(this);
-            const url = $this.parent().siblings('.url')[0].outerText;
-            try {
-                await navigator.clipboard.writeText(url);
-            } catch (err) {
-                showCopyError($this);
-                return
-            }
-            showCopySuccess($this)
-        }
-
-        $('.copy-button').tooltip({trigger: 'manual'});
-        $('.copy-button').on("click", copy);
+        
+            // initialize Bootstrap tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        
+            // function to handle modal popup
+            window.handleDeleteModal = function(item) {
+                document.getElementById("modalDeleteButton").href = item;
+                var deleteModal = new bootstrap.Modal(document.getElementById('delConfirmModalCenter'));
+                deleteModal.show();
+            };
+        
+            // function to handle copy and tooltip display
+            window.handleCopy = async function(el) {
+                const url = el.closest('td').querySelector('.url').textContent.trim();
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showCopySuccess(el);
+                } catch (err) {
+                    showCopyError(el);
+                }
+            };
+        
+            // function to show copy error
+            const showCopyError = function(el) {
+                el.setAttribute("data-bs-original-title", "Error");
+                bootstrap.Tooltip.getInstance(el).show();
+                el.setAttribute("data-bs-original-title", "Copy URL");
+                setTimeout(() => {
+                    bootstrap.Tooltip.getInstance(el).hide();
+                }, 1000);
+            };
+        
+            // function to show copy success
+            const showCopySuccess = function(el) {
+                el.setAttribute("data-bs-original-title", "Copied!");
+                bootstrap.Tooltip.getInstance(el).show();
+                setTimeout(() => {
+                    bootstrap.Tooltip.getInstance(el).hide();
+                }, 1000);
+            };
+        });        
     </script>
 {% endblock javascript%}
