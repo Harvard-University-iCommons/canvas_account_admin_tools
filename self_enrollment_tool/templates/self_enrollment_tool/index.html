@@ -100,9 +100,14 @@
                                 <span class="url">{{ crs.self_enroll_url }}</span>
                                 <br>
                                 <div class="copy-container">
-                                    <i style="cursor: pointer;" class="copy-button fa fa-clone" 
-                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Copy URL"
-                                    onclick="handleCopy(this)"></i>
+                                    <i class="copy-button fa fa-clone"
+                                        style="cursor: pointer; display: inline-block; padding: 10px;"
+                                        aria-hidden="true"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="bottom" 
+                                        title="Copy URL"
+                                        onclick="handleCopy(this)">
+                                    </i>
                                 </div>
                             </div>
                         </td>
@@ -114,12 +119,17 @@
                         <td>{{ crs.last_modified_by_full_name }}</td>
                         {% comment %} Delete column {% endcomment %}
                         <td>
-                            <a>
-                                <i style="cursor: pointer;" class="fa fa-lg fa-trash" aria-hidden="true" 
-                                data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete this item"
-                                onclick="handleDeleteModal('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')"></i>
-                            </a>
-                        </td>
+                            <div class="delete-container">
+                                <i class="fa fa-lg fa-trash" 
+                                   style="cursor: pointer; display: inline-block; padding: 10px;" 
+                                   aria-hidden="true" 
+                                   data-bs-toggle="tooltip" 
+                                   data-bs-placement="bottom" 
+                                   title="Delete this item" 
+                                   onclick="handleDeleteModal('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')">
+                                </i>
+                            </div>
+                        </td>                        
                     </tr>
                 {% endfor %}
                 </tbody>
