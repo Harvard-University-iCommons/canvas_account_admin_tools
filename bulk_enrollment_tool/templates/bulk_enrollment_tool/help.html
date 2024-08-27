@@ -52,9 +52,13 @@
         </p>
         <p>
             Each CSV file can contain up to 50 unique course_sis_ids. All of the course_sis_ids in the CSV file
-            must be associated with the school in which the tool was launched. If a file contains more than 50
-            unique course_sis_ids, or if any of the course_sis_ids don't match the school, the entire file will be
-            rejected.
+            must be associated with the school in which the tool was launched. Additionally, all of the course_sis_ids
+            must be associated with non SIS-fed courses. The entire file will be rejected if:
+            <ul>
+                <li>the file contains more than 50 unique course_sis_ids</li>
+                <li>any of the course_sis_ids don't match the school</li>
+                <li>any of the course_sis_ids are SIS-fed</li>
+            </ul>
         </p>
         <p>
             Each CSV file can contain up to 1000 enrollment rows. If a file contains more than 1000 rows, the entire
