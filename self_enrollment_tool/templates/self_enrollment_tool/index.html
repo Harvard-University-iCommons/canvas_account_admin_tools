@@ -17,7 +17,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header text-center">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <h3 class="modal-title" id="delConfirmModalLongTitle">Confirm deletion</h3>
@@ -27,7 +27,7 @@
                     </div>
                     <div class="modal-footer">
                         <a class="btn btn-primary" href="#" id="modalDeleteButton" role="button">Delete</a>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,14 @@
                                 <span class="url">{{ crs.self_enroll_url }}</span>
                                 <br>
                                 <div class="copy-container">
-                                    <i style="cursor: pointer;" class="copy-button fa fa-clone" data-toggle="tooltip" data-placement="bottom" data-original-title="Copied!"></i>
+                                    <i class="copy-button fa fa-clone"
+                                        style="cursor: pointer; display: inline-block; padding: 10px;"
+                                        aria-hidden="true"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="bottom" 
+                                        title="Copy URL"
+                                        onclick="handleCopy(this)">
+                                    </i>
                                 </div>
                             </div>
                         </td>
@@ -112,11 +119,17 @@
                         <td>{{ crs.last_modified_by_full_name }}</td>
                         {% comment %} Delete column {% endcomment %}
                         <td>
-                            <a>
-                                <i style="cursor: pointer;" class="fa fa-lg fa-trash" aria-hidden="true" data-toggle="modal" data-target="#delConfirmModalCenter"
-                                onclick="delItem('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')"></i>
-                            </a>
-                        </td>
+                            <div class="delete-container">
+                                <i class="fa fa-lg fa-trash" 
+                                   style="cursor: pointer; display: inline-block; padding: 10px;" 
+                                   aria-hidden="true" 
+                                   data-bs-toggle="tooltip" 
+                                   data-bs-placement="bottom" 
+                                   title="Delete this item" 
+                                   onclick="handleDeleteModal('{% url 'self_enrollment_tool:disable' uuid=crs.uuid %}')">
+                                </i>
+                            </div>
+                        </td>                        
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -129,52 +142,58 @@
     {{ block.super }}
     <script>
         $(document).ready(function() {
-            $('.datatable').dataTable( {
+            $('.datatable').DataTable({
                 paging: false,
-                "info" : false,
+                "info": false,
                 "order": [],
                 "columnDefs": [
                     { "orderable": false, "targets": [2, 6] }
                 ],
                 "language": {
-                  "search": "Filter the list"
+                    "search": "Filter the list"
                 }
             });
-        });
-
-        function delItem(item) {
-            document.getElementById("modalDeleteButton").href=item;
-        };
-
-        const showCopyError = function(el) {
-            el.attr("data-original-title", "Error");
-            el.tooltip("show");
-            el.attr("data-original-title", "Copied!");
-            setTimeout(() => {
-                el.tooltip("hide");
-            }, 1000);
-        }
-
-        const showCopySuccess = function(el) {
-            el.tooltip("show");
-            setTimeout(() => {
-                el.tooltip("hide");
-            }, 1000);
-        }
-
-        const copy = async function() {
-            const $this = $(this);
-            const url = $this.parent().siblings('.url')[0].outerText;
-            try {
-                await navigator.clipboard.writeText(url);
-            } catch (err) {
-                showCopyError($this);
-                return
-            }
-            showCopySuccess($this)
-        }
-
-        $('.copy-button').tooltip({trigger: 'manual'});
-        $('.copy-button').on("click", copy);
+        
+            // initialize Bootstrap tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+        
+            // function to handle modal popup
+            window.handleDeleteModal = function(item) {
+                document.getElementById("modalDeleteButton").href = item;
+                var deleteModal = new bootstrap.Modal(document.getElementById('delConfirmModalCenter'));
+                deleteModal.show();
+            };
+        
+            // function to handle copy and tooltip display
+            window.handleCopy = async function(el) {
+                const url = el.closest('td').querySelector('.url').textContent.trim();
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showCopySuccess(el);
+                } catch (err) {
+                    showCopyError(el);
+                }
+            };
+        
+            // function to show copy error
+            const showCopyError = function(el) {
+                el.setAttribute("data-bs-original-title", "Error");
+                bootstrap.Tooltip.getInstance(el).show();
+                el.setAttribute("data-bs-original-title", "Copy URL");
+                setTimeout(() => {
+                    bootstrap.Tooltip.getInstance(el).hide();
+                }, 1000);
+            };
+        
+            // function to show copy success
+            const showCopySuccess = function(el) {
+                el.setAttribute("data-bs-original-title", "Copied!");
+                bootstrap.Tooltip.getInstance(el).show();
+                setTimeout(() => {
+                    bootstrap.Tooltip.getInstance(el).hide();
+                }, 1000);
+            };
+        });        
     </script>
 {% endblock javascript%}
