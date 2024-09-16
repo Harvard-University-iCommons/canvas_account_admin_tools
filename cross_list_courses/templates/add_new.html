@@ -72,7 +72,11 @@
                                     {% endif %}
                                     </i>
                                 </td>
-                                <td><i class="fa fa-exchange fa-2x btn btn-info" onclick="swapCourses(this);" aria-hidden="true"></i></td>
+                                <td>
+                                    <a href="#" class="btn btn-info" onclick="swapCourses(this);" aria-hidden="true">
+                                        <i class="fa-solid fa-arrow-right-arrow-left fa-2x"></i>
+                                    </a>
+                                </td>
                                 <td>
                                     {{ mapping.secondary_school_id | upper }}
                                     <b>
