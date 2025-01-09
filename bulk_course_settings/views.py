@@ -180,7 +180,7 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 
 			job_details_list = _create_job_details(job=new_bulk_job, course_id_list=related_job_details_course_id_list)
 
-			utils.send_job_to_queueing_lambda(related_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
+			utils.send_job_to_queueing_lambda(new_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
 
 			# logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
 			messages.success(request, 'Reversion job was created successfully.')
