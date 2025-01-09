@@ -1,10 +1,11 @@
 import logging
 from typing import Dict, List
 
-from django.db.models import Count, Q
+from coursemanager.models import CourseInstance, Term
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -16,9 +17,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
-from bulk_course_settings.models import Job, Details
-
-from coursemanager.models import Term, CourseInstance, Course
+from bulk_course_settings.models import Details, Job
 
 logger = logging.getLogger(__name__)
 
