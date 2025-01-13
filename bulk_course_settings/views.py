@@ -1,10 +1,11 @@
 import logging
 from typing import Dict, List
 
-from django.db.models import Count, Q
+from coursemanager.models import CourseInstance, Term
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count, Q
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
@@ -16,9 +17,7 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from bulk_course_settings import constants, utils
 from bulk_course_settings.forms import CreateBulkSettingsForm
-from bulk_course_settings.models import Job, Details
-
-from coursemanager.models import Term, CourseInstance, Course
+from bulk_course_settings.models import Details, Job
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +179,7 @@ class BulkSettingsRevertView(LTIPermissionRequiredMixin, LoginRequiredMixin, Vie
 
 			job_details_list = _create_job_details(job=new_bulk_job, course_id_list=related_job_details_course_id_list)
 
-			utils.send_job_to_queueing_lambda(related_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
+			utils.send_job_to_queueing_lambda(new_bulk_job.id, job_details_list, setting_to_be_modified, desired_setting)
 
 			# logger.info('Queued reversion job {} for related job {}'.format(new_bulk_job.id, related_bulk_job.id))
 			messages.success(request, 'Reversion job was created successfully.')

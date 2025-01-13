@@ -54,7 +54,7 @@
                     {% endif %}
                 </div>
                 <div class="col-sm-2">
-                    {% if job.related_job_id is None and job.workflow_status == 'COMPLETED_SUCCESS' and not reversion_job and job.details_total_count > 0 %}
+                    {% if job.related_job_id is None and job.workflow_status == 'COMPLETED_SUCCESS' and not reversion_job and job.details_total_count > 0 and job.details_total_count != job.details_skipped_count %}
                         <a href="{% url 'bulk_course_settings:revert_setting' job.school_id job.id %}" class="btn btn-primary pull-right">Revert Job</a>
                     {% else %}
                         <a class="btn btn-default disabled pull-right">Revert Job</a>
