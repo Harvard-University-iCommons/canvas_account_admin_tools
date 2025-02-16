@@ -36,7 +36,7 @@ harvard-django-utils @ git+ssh://git@github.com/Harvard-University-iCommons/harv
 hiredis==2.0.0
 kitchen==1.2.6
 psycopg2==2.9.3
-redis==3.5.3
+redis==4.4.4
 urllib3>=1.26
 requests==2.31.0
 simplejson==3.17.6
