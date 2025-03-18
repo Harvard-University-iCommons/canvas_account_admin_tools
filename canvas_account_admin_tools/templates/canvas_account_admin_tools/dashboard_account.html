@@ -14,6 +14,8 @@
       </nav>
     </header>
 
+    {% include "canvas_account_admin_tools/banner.html" %}
+
     {% if search_courses_allowed %}
       <div class="card card_color">
         <a href="{% url 'course_info:index' %}" id="course-info">

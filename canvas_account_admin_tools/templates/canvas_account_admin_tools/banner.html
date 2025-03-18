@@ -1,0 +1,35 @@
+{% comment %} CSS for the deprecation notice banner {% endcomment %}
+<style>
+    .deprecation-notice {
+        background-color: #fff3cd;
+        border-left: 5px solid #ffc107;
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 4px;
+    }
+    .deprecation-notice h4 {
+        color: #856404;
+        margin-top: 0;
+    }
+    .notice-buttons a {
+        margin-right: 10px;
+        display: inline-block;
+    }
+</style>
+
+{% comment %} HTML for the deprecation notice banner {% endcomment %}
+<div class="deprecation-notice">
+    <h4><i class="fa fa-exclamation-triangle"></i> Important: Tool Deprecation Notice</h4>
+    <p>
+        This Admin Console is being deprecated and will be replaced by the new <strong>Canvas Admin Console</strong>.
+        Please review the documentation and provide feedback on the transition.
+    </p>
+    <div class="notice-buttons">
+        <a href="https://harvard.az1.qualtrics.com/jfe/form/SV_egQqQCeikUX85wO" class="btn btn-sm btn-warning" target="_blank">
+            <i class="fa fa-comment"></i> Provide Feedback
+        </a>
+        <a href="https://harvardwiki.atlassian.net/wiki/x/ZgKsD" class="btn btn-sm btn-info" target="_blank">
+            <i class="fa fa-book"></i> View Documentation
+        </a>
+    </div>
+</div>
