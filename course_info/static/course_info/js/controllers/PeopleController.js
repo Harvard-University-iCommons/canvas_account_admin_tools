@@ -20,57 +20,61 @@
         $scope.popOverID = null;
 
         // set up functions we'll be calling later
-        $scope.addNewMember = function(personResult, members) {
+        $scope.addNewMember = function(personResult) {
             /* Make a call to add the person to the course as a new member
-             if person is:
-             - not already in `members`
-             - not found in people lookup
+             if the person is:
+             - successfully returned by a person lookup (lookupPeople)
+             - not already enrolled in the course (unless dual-enrollment is allowed)
              - not represented by more than one profile
              Returns a promise representing the call made to add the new member
-             to the course, or null if the add was not attempted for one of the
-             reasons listed above.
+             to the course, or returns null if one or more of the above criteria fail
              */
-            var personRecords = personResult[0];
+            var memberRecords = personResult[0];
             var searchTerm = personResult[1];
-            var filteredResults = $scope.filterSearchResults(personRecords);
-            if (filteredResults.length == 1) {
-                var memberRecordsInCourse = members[filteredResults[0].univ_id];
-                if (angular.isUndefined(memberRecordsInCourse) || $scope.allowDualEnrollment(memberRecordsInCourse, $scope.selectedRole.roleId)) {
-                    var name = $scope.getProfileFullName(filteredResults[0]);
-                    var postParams = {
-                        user_id: filteredResults[0].univ_id,
-                        role_id: $scope.selectedRole.roleId};
-                    return $scope.addNewMemberToCourse(postParams, name,
-                            searchTerm);
-                } else {
-                    // the user already has an enrollment in the course
-                    $scope.messages.warnings.push({
-                        type: 'alreadyInCourse',
-                        name: $scope.getProfileFullName(
-                            memberRecordsInCourse[0].profile),
-                        memberships: memberRecordsInCourse,
-                        searchTerm: searchTerm
-                    });
-                }
-            } else if (filteredResults.length == 0) {
+            var peopleData = personResult[2];
+            if (peopleData.length === 0) {
                 // didn't find any people for the search term
                 $scope.messages.warnings.push({
                     type: 'notFound',
                     searchTerm: searchTerm
                 });
-            } else {  // if (filteredResults.length > 1)
-                // multiple profiles found for search term, do not add
+                $scope.tracking.failures++;
+                return null
+            }
+
+            if (peopleData.length > 1) {
                 $scope.messages.warnings.push({
                     type: 'multipleProfiles',
                     searchTerm: searchTerm,
                     // just pick the first one to find the name
-                    name: $scope.getProfileFullName(filteredResults[0]),
-                    profiles: filteredResults
+                    name: $scope.getProfileFullName(peopleData[0]),
+                    profiles: peopleData
                 });
+                $scope.tracking.failures++;
+                return null
             }
-            $scope.tracking.failures++;
-            return null;
-        };
+
+            if (memberRecords.length === 0 || $scope.allowDualEnrollment(memberRecords, $scope.selectedRole.roleId)) {
+                var name = $scope.getProfileFullName(peopleData[0]);
+                var postParams = {
+                    user_id: peopleData[0].univ_id,
+                    role_id: $scope.selectedRole.roleId};
+                return $scope.addNewMemberToCourse(postParams, name,
+                        searchTerm)
+
+            } else {
+                // the user already has an enrollment in the course
+                $scope.messages.warnings.push({
+                    type: 'alreadyInCourse',
+                    name: $scope.getProfileFullName(
+                        peopleData[0]),
+                    memberships: memberRecords,
+                    searchTerm: searchTerm
+                });
+                $scope.tracking.failures++;
+                return null
+            }
+        }
 
         $scope.getSchool = function() {
             return $scope.courseInstance.school.toLowerCase();
@@ -149,7 +153,7 @@
 
             return $http.post(url, userPostParams)
                 .then(handlePostSuccess, handlePostError)
-                .finally($scope.updateProgressBar);
+                .finally($scope.updateProgressBar)
         };
 
         $scope.addPeopleToCourse = function(searchTermList) {
@@ -159,41 +163,32 @@
              enrollment.
              */
 
-            var membersByUserId = {};
             $scope.clearMessages();
             $scope.operationInProgress = true;
             $scope.tracking.total = searchTermList.length;
             $scope.updateProgressBar('Looking up ' + $scope.tracking.total
                 + ' people');
-            var memberPromise = $scope.lookupCourseMembers()
-                .then(function updateCourseMembers(members) {
-                    membersByUserId = $scope.getMembersByUserId(members);
-                    return members;
-                }, function courseMemberLookupFailed(memberError) {
-                    $scope.handleAngularDRFError(memberError);
-                    $scope.messages.warnings.push({
-                        type: 'courseMemberLookupFailed'
-                    });
-                    return $q.reject(memberError);
-                });
             var peoplePromises = $scope.lookupPeople(searchTermList);
             var addNewMemberPromises = [];
             peoplePromises.forEach(function setupAddPersonPromiseChain(personPromise) {
                 addNewMemberPromises.push(
-                    $q.all([memberPromise, personPromise])
-                        .then(function addFetchedPerson(results) {
-                            var personResult = results[1];
-                            return $scope.addNewMember(personResult,
-                                                       membersByUserId);
-                        }, function addNewMemberPromiseFailure(error) {
+                    $q.all([personPromise])
+                        .then((results) => {
+                            var courseMemberPromises = results.map(person => $scope.lookupCourseMember(person));
+                            return $q.all(courseMemberPromises);
+                        })
+                        .then((results) => {
+                            var addNewMemberPromises = results.map(member => $scope.addNewMember(member));
+                            return addNewMemberPromises;
+                        }, (error) => {
                             // swallow rejected person lookup to allow others
                             // to proceed
                             return null;
                         }).finally($scope.updateProgressBar)
-                );
+                    );
             });
-            $q.all(addNewMemberPromises.concat(memberPromise))
-                .finally($scope.showAddNewMemberResults);
+            $q.all(addNewMemberPromises)
+            .finally($scope.showAddNewMemberResults);
         };
 
         $scope.clearMessages = function() {
@@ -301,36 +296,6 @@
             return ($scope.operationInProgress || ($scope.searchTerms.length == 0));
         };
 
-        $scope.filterSearchResults = function(searchResults){
-            var filteredResults = Array();
-            var resultsDict = {};
-
-            // short circuit if there's no results, which happens on timeout
-            if (!searchResults) {
-                return resultsDict;
-            }
-
-            // create a dict of the id's as keys and the
-            // role records as values
-            for (i = 0; i < searchResults.length; i++) {
-                var role = searchResults[i];
-                if (resultsDict[role.univ_id] != undefined) {
-                    resultsDict[role.univ_id].push(role);
-                } else {
-                    resultsDict[role.univ_id] = [role];
-                }
-            }
-            // for each id sort the role list
-            // and fetch the top record
-            for (id in resultsDict) {
-                var roleList = resultsDict[id];
-                roleList.sort($scope.compareRoles);
-                filteredResults.push(roleList[0]);
-            }
-            // return the filtered list
-            return filteredResults;
-        };
-
         // todo: move this into a service/app.js?
         $scope.getCourseDescription = function(course) {
             // If a course's title is [NULL], attempt to display the short title.
@@ -385,22 +350,6 @@
             return courseInstance;
         };
 
-        $scope.getMembersByUserId = function(memberList) {
-            /* generates a lookup table/dict/object to find a member's profile
-             by univ_id; used e.g. for checking whether the univ_id found for
-             each person in the search term lookup results is already in the
-             course or not
-             */
-            var membersByUserId = {};
-            memberList.forEach(function(member) {
-                var memberCopy = angular.copy(member);
-
-                membersByUserId[memberCopy.user_id] =
-                    (membersByUserId[memberCopy.user_id] || []).concat(memberCopy);
-            });
-            return membersByUserId;
-        };
-
         $scope.getProfileFullName = function(profile) {
             if (profile) {
                 return profile.name_last + ', ' + profile.name_first;
@@ -445,17 +394,43 @@
             return re.test(searchTerm);
         };
 
-        $scope.lookupCourseMembers = function() {
-            // exclude xreg people
-            var getConfig = {
-                params: {'-source': 'xreg_map'},
-                drf: {'pageSize': 100},
+        $scope.lookupCourseMember = function(person) {
+            /* Given an array containing person data obtained
+            via a people lookup (lookupPeople) and the original
+            searchTerm, returns a promise representing a call
+            to identify the person's enrollment in the course
+            */
+            var personData = person[0];
+            var searchTerm = person[1];
+            if (personData.length === 0) {
+                return [[], searchTerm, personData]
+            }
+            var univId = personData[0].univ_id;
+            var courseMemberUrl = djangoUrl.reverse(
+                                      'icommons_rest_api_proxy',
+                                      ['api/course/v2/course_instances/' +
+                                       $scope.courseInstanceId +
+                                       '/people/' + univId]);
+
+            var promiseConfig = {
+                drf: {pageSize: 100},
             };
-            var memberURL = djangoUrl.reverse('icommons_rest_api_proxy',
-                                              ['api/course/v2/course_instances/'
-                                               + $scope.courseInstanceId
-                                               + '/people/']);
-            return angularDRF.get(memberURL, getConfig);
+
+            var promise = angularDRF.get(courseMemberUrl, promiseConfig).then(
+                    function includeSearchTermWithCourseMemberResult(result) {
+                        return [result, searchTerm, personData];
+                    },
+                    function courseMemberLookupFailure(error) {
+                        $scope.tracking.failures++;
+                        $scope.messages.warnings.push({
+                            type: 'courseMemberLookupFailed',
+                            searchTerm: searchTerm
+                        });
+                        return $q.reject(error);
+                    }
+            );
+
+            return promise
         };
 
         $scope.lookupPeople = function(searchTermList) {
